@@ -29,14 +29,12 @@
 #include "bebauung.hpp"
 #include "grafiken.hpp"
 #include "files.hpp"
-
-
+  
 #define XRASTER 32
 #define YRASTER 16
 #define ELEVATION 20
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   if (argc < 2)
     exit(EXIT_FAILURE);
@@ -48,18 +46,16 @@ int main(int argc, char** argv)
   Block inselhaus = Block(f);
 
   f.close();
-
-  auto files = Files::create_instance(".");
-
-  Bebauung bebauung(files->instance()->get_file("bebauung.txt"));
-  Grafiken stadtfld_grafiken(files->instance()->get_file("grafiken.txt"));
-
+  
+  Bebauung bebauung(files["bebauung_txt"]);
+  Grafiken stadtfld_grafiken(files["grafiken_txt"]);
+  
   Insel insel = Insel(&inselX, &inselhaus, bebauung);
   uint8_t width = insel.breite;
   uint8_t height = insel.hoehe;
-
-  Bsh_leser bsh_leser(files->instance()->get_file("gfx/stadtfld.bsh"));
-
+  
+  Bsh_leser bsh_leser(files["gfx_stadtfld_bsh"]);
+  
   Bildspeicher_pal8 bs((width + height) * XRASTER, (width + height) * YRASTER, 0);
 
   int x, y;

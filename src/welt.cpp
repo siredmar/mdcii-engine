@@ -22,9 +22,8 @@
 
 Welt::Welt(std::istream& f)
 {
-  auto files = Files::instance();
-  bebauung = new Bebauung(files->instance()->get_file("bebauung.txt"));
-
+  bebauung = new Bebauung(files["bebauung_txt"]);
+  
   while (!f.eof())
   {
     bloecke.push_back(new Block(f));

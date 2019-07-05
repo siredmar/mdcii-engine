@@ -81,18 +81,10 @@ int main(int argc, char** argv)
     std::cout << desc << std::endl;
     exit(EXIT_SUCCESS);
   }
-
-  auto files = Files::create_instance(files_path);
-
-  if (files->instance()->check_file(gam_name) == false)
+  
+  if(checkAllFiles(files) == false)
   {
-    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (files->instance()->check_all_files() == false)
-  {
-    exit(EXIT_FAILURE);
+      exit(EXIT_FAILURE);
   }
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)

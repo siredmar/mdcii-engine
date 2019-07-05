@@ -38,8 +38,7 @@
 #define YRASTER 8
 #define ELEVATION 10
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   if (argc < 3)
     exit(EXIT_FAILURE);
@@ -50,10 +49,10 @@ int main(int argc, char** argv)
   Welt welt = Welt(f);
 
   f.close();
-  auto files = Files::create_instance(".");
-  Bsh_leser bsh_leser(files->instance()->get_file("mgfx/stadtfld.bsh"));
-  Grafiken stadtfld_grafiken(files->instance()->get_file("grafiken.txt"));
-
+  
+  Bsh_leser bsh_leser(files["mgfx_stadtfld_bsh"]);
+  Grafiken stadtfld_grafiken(files["grafiken_txt"]);
+  
   Bildspeicher_pal8 bs((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);
 
   for (int y = 0; y < Welt::KARTENHOEHE; y++)
