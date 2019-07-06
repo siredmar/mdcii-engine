@@ -16,7 +16,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#pragma once
+#ifndef FILES_HPP
+#define FILES_HPP
 #include <string>
 #include <map>
 
@@ -27,3 +28,5 @@ bool check_all_files(std::map<std::string, std::string> files);
 std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map);
 std::string string_to_lower_case(const std::string& str);
 std::vector<std::string> get_directory_tree(const std::string& path);
+
+#endif
