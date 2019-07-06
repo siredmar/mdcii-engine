@@ -96,7 +96,6 @@ std::vector<std::string> get_directory_tree(const std::string& path)
   for(auto& p: std::filesystem::recursive_directory_iterator(path, options))
   {
     tree.push_back(p.path());
-    std::cout << p.path() << std::endl;
   }
   return tree;
 }
@@ -116,7 +115,7 @@ std::string string_to_lower_case(const std::string& str)
 std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map)
 {
   auto tree = get_directory_tree(path);
-  std::map<std::string, std::string> modified_map;
+  std::map<std::string, std::string> modified_map = map;
 
   for(auto e: map)
   {
@@ -128,10 +127,6 @@ std::map<std::string, std::string> create_file_map(const std::string& path, std:
         modified_map[e.first] = f;
         break; 
       } 
-      // else
-      // {
-      //   modified_map[e.first] = e.second;
-      // }
     }
   }
   return modified_map;

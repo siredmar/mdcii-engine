@@ -58,8 +58,7 @@ int main(int argc, char** argv)
   int rate;
   std::string gam_name;
   std::string files_path;
-
-  // clang-format off
+  
   po::options_description desc("Zulässige Optionen");
   desc.add_options()
     ("width,W", po::value<int>(&screen_width)->default_value(800), "Bildschirmbreite")
@@ -67,7 +66,7 @@ int main(int argc, char** argv)
     ("fullscreen,F", po::value<bool>(&fullscreen)->default_value(false), "Vollbildmodus (true/false)")
     ("rate,r", po::value<int>(&rate)->default_value(10), "Bildrate")
     ("load,l", po::value<std::string>(&gam_name)->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)")
-    ("path,p", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602-Installation")
+    ("files,f", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602 Installation")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
   // clang-format on
@@ -82,9 +81,15 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
   
-  std::map<std::string, std::string> files2 = create_file_map(".", files);
+  if(check_file(gam_name) == false)
+  {
+    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
-  if(check_all_files(files2) == false)
+  files = create_file_map(files_path, files);
+
+  if(check_all_files(files) == false)
   {
       exit(EXIT_FAILURE);
   }
