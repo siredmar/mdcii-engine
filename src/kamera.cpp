@@ -40,9 +40,9 @@ Kamera::Kamera()
 //   maeher_bsh[1] = new Bsh_leser(files["mgfx_maeher_bsh"]);
 //   maeher_bsh[2] = new Bsh_leser(files["gfx_maeher_bsh"]);
 //   
-//   numbers_bsh[0] = new Bsh_leser(files["sgfx_numbers__bsh"]);
-//   numbers_bsh[1] = new Bsh_leser(files["mgfx_numbers__bsh"]);
-//   numbers_bsh[2] = new Bsh_leser(files["gfx_numbers__bsh"]);
+//   numbers_bsh[0] = new Bsh_leser(files["sgfx_numbers_bsh"]);
+//   numbers_bsh[1] = new Bsh_leser(files["mgfx_numbers_bsh"]);
+//   numbers_bsh[2] = new Bsh_leser(files["gfx_numbers_bsh"]);
   
   ship_bsh[0] = new Bsh_leser(files["sgfx_ship_bsh"]);
   ship_bsh[1] = new Bsh_leser(files["mgfx_ship_bsh"]);

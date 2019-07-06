@@ -1,6 +1,6 @@
 
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2015  Benedikt Freisen
+// Copyright (C) 2019  Armin Schlegel
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,5 +22,5 @@
 
 extern std::map<std::string, std::string> files;
 
-bool checkFile(const std::string &filename);
-bool checkAllFiles(std::map<std::string, std::string> files);
+bool check_file(const std::string &filename);
+bool check_all_files(std::map<std::string, std::string> files);

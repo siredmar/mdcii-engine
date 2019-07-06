@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
   
-  if(checkAllFiles(files) == false)
+  if(check_all_files(files) == false)
   {
       exit(EXIT_FAILURE);
   }
