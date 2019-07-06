@@ -16,9 +16,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "files.hpp"
 #include <fstream>
 #include <iostream>
+#include <vector>
+#include <filesystem>
+#include <algorithm>
+
+#include "files.hpp"
 
 std::map<std::string, std::string> files = {
   {"sgfx_effekte_bsh", "sgfx/effekte.bsh"},
@@ -83,4 +87,52 @@ bool check_all_files(std::map<std::string, std::string> files)
       return false;
   }
   return true;
+}
+
+std::vector<std::string> get_directory_tree(const std::string& path) 
+{
+  std::vector<std::string> tree;
+  std::filesystem::directory_options options = std::filesystem::directory_options::follow_directory_symlink;
+  for(auto& p: std::filesystem::recursive_directory_iterator(path, options))
+  {
+    tree.push_back(p.path());
+    std::cout << p.path() << std::endl;
+  }
+  return tree;
+}
+
+std::string string_to_lower_case(const std::string& str)
+{
+  std::locale loc;
+  std::string modified_str = str;
+
+  for(auto& c : modified_str)
+  {
+    c = std::tolower(c);
+  }
+  return modified_str;
+}
+
+std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map)
+{
+  auto tree = get_directory_tree(path);
+  std::map<std::string, std::string> modified_map;
+
+  for(auto e: map)
+  {
+    // Search for the file as substring in the lowercased directory tree 
+    for(auto f: tree)
+    {
+      std::string file = string_to_lower_case(f);
+      if (file.find(e.second) != std::string::npos) {
+        modified_map[e.first] = f;
+        break; 
+      } 
+      // else
+      // {
+      //   modified_map[e.first] = e.second;
+      // }
+    }
+  }
+  return modified_map;
 }

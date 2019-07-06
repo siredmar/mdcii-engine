@@ -82,7 +82,9 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
   
-  if(check_all_files(files) == false)
+  std::map<std::string, std::string> files2 = create_file_map(".", files);
+
+  if(check_all_files(files2) == false)
   {
       exit(EXIT_FAILURE);
   }

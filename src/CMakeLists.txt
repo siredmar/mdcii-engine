@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 2.6)
 
-add_definitions(-std=c++11)
-find_package(Boost REQUIRED COMPONENTS iostreams program_options filesystem)
+add_definitions(-std=c++17)
+find_package(Boost REQUIRED COMPONENTS iostreams program_options)
 find_package(SDL REQUIRED)
 
 add_compile_options(-mno-ms-bitfields)
 
 add_executable(mdcii-inselbmp inselbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp bebauung.cpp grafiken.cpp files.cpp)
-target_link_libraries(mdcii-inselbmp boost_iostreams)
+target_link_libraries(mdcii-inselbmp boost_iostreams stdc++fs)
 
 add_executable(mdcii-weltbmp weltbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp welt.cpp bebauung.cpp grafiken.cpp files.cpp)
-target_link_libraries(mdcii-weltbmp boost_iostreams)
+target_link_libraries(mdcii-weltbmp boost_iostreams stdc++fs)
 
 add_executable(mdcii-sdltest sdltest.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp welt.cpp kamera.cpp karte.cpp spielbildschirm.cpp bebauung.cpp grafiken.cpp files.cpp)
-target_link_libraries(mdcii-sdltest SDL boost_iostreams boost_program_options)
+target_link_libraries(mdcii-sdltest SDL boost_iostreams boost_program_options stdc++fs)
 if(WIN32)
   target_link_libraries(mdcii-sdltest mingw32 winmm dxguid SDLmain)
 endif(WIN32)
