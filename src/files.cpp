@@ -25,62 +25,89 @@
 
 #include "files.hpp"
 
-std::map<std::string, std::string> files = {
-    {"sgfx_effekte_bsh", "sgfx/effekte.bsh"},
+Files* Files::_instance = 0;
 
-    {"mgfx_effekte_bsh", "mgfx/effekte.bsh"},
+Files* Files::instance()
+{
+  return _instance;
+}
 
-    {"gfx_effekte_bsh", "gfx/effekte.bsh"},
+Files* Files::create_instance(std::string path)
+{
+  static CGuard g; // Speicherbereinigung
+  if (!_instance)
+  {
+    _instance = new Files(path);
+  }
+  return _instance;
+}
 
-    {"sgfx_ship_bsh", "sgfx/ship.bsh"},
+void Files::init()
+{
+  init(".");
+}
 
-    {"mgfx_ship_bsh", "mgfx/ship.bsh"},
+void Files::init(std::string path)
+{
+  files = {
+      {"sgfx_effekte_bsh", "sgfx/effekte.bsh"},
 
-    {"gfx_ship_bsh", "gfx/ship.bsh"},
+      {"mgfx_effekte_bsh", "mgfx/effekte.bsh"},
 
-    {"sgfx_soldat_bsh", "sgfx/soldat.bsh"},
+      {"gfx_effekte_bsh", "gfx/effekte.bsh"},
 
-    {"mgfx_soldat_bsh", "mgfx/soldat.bsh"},
+      {"sgfx_ship_bsh", "sgfx/ship.bsh"},
 
-    {"gfx_soldat_bsh", "gfx/soldat.bsh"},
+      {"mgfx_ship_bsh", "mgfx/ship.bsh"},
 
-    {"sgfx_stadtfld_bsh", "sgfx/stadtfld.bsh"},
+      {"gfx_ship_bsh", "gfx/ship.bsh"},
 
-    {"mgfx_stadtfld_bsh", "mgfx/stadtfld.bsh"},
+      {"sgfx_soldat_bsh", "sgfx/soldat.bsh"},
 
-    {"gfx_stadtfld_bsh", "gfx/stadtfld.bsh"},
+      {"mgfx_soldat_bsh", "mgfx/soldat.bsh"},
 
-    {"toolgfx_zeig16g_zei", "toolgfx/zei16g.zei"},
+      {"gfx_soldat_bsh", "gfx/soldat.bsh"},
 
-    {"grafiken_txt", "grafiken.txt"},
+      {"sgfx_stadtfld_bsh", "sgfx/stadtfld.bsh"},
 
-    {"bebauung_txt", "bebauung.txt"},
+      {"mgfx_stadtfld_bsh", "mgfx/stadtfld.bsh"},
 
-    // those are not used at the moment
-    // {"sgfx_numbers_bsh", "sgfx/numbers.bsh"},
-    // {"mgfx_numbers_bsh", "mgfx/numbers.bsh"},
-    // {"gfx_numbers_bsh", "gfx/numbers.bsh"},
+      {"gfx_stadtfld_bsh", "gfx/stadtfld.bsh"},
 
-    // {"sgfx_tiere_bsh", "sgfx/tiere.bsh"},
-    // {"mgfx_tiere_bsh", "mgfx/tiere.bsh"},
-    // {"gfx_tiere_bsh", "gfx/tiere.bsh"},
+      {"toolgfx_zeig16g_zei", "toolgfx/zei16g.zei"},
 
-    // {"sgfx_traeger_bsh", "sgfx/traeger.bsh"},
-    // {"mgfx_traeger_bsh", "mgfx/traeger.bsh"},
-    // {"gfx_traeger_bsh", "gfx/traeger.bsh"},
+      {"grafiken_txt", "grafiken.txt"},
 
-    // {"sgfx_maeher_bsh", "sgfx/maeher.bsh"},
-    // {"mgfx_maeher_bsh", "mgfx/maeher.bsh"},
-    // {"gfx_maeher_bsh", "gfx/maeher.bsh"},
-};
+      {"bebauung_txt", "bebauung.txt"},
 
-bool check_file(const std::string& filename)
+      // those are not used at the moment
+      // {"sgfx_numbers_bsh", "sgfx/numbers.bsh"},
+      // {"mgfx_numbers_bsh", "mgfx/numbers.bsh"},
+      // {"gfx_numbers_bsh", "gfx/numbers.bsh"},
+
+      // {"sgfx_tiere_bsh", "sgfx/tiere.bsh"},
+      // {"mgfx_tiere_bsh", "mgfx/tiere.bsh"},
+      // {"gfx_tiere_bsh", "gfx/tiere.bsh"},
+
+      // {"sgfx_traeger_bsh", "sgfx/traeger.bsh"},
+      // {"mgfx_traeger_bsh", "mgfx/traeger.bsh"},
+      // {"gfx_traeger_bsh", "gfx/traeger.bsh"},
+
+      // {"sgfx_maeher_bsh", "sgfx/maeher.bsh"},
+      // {"mgfx_maeher_bsh", "mgfx/maeher.bsh"},
+      // {"gfx_maeher_bsh", "gfx/maeher.bsh"},
+  };
+  tree = get_directory_tree(path);
+  files = create_file_map(path, files);
+}
+
+bool Files::check_file(const std::string& filename)
 {
   std::ifstream f(filename.c_str());
   return f.good();
 }
 
-bool check_all_files(std::map<std::string, std::string> files)
+bool Files::check_all_files()
 {
   bool failed = false;
   for (auto const& f : files)
@@ -99,7 +126,7 @@ bool check_all_files(std::map<std::string, std::string> files)
   return true;
 }
 
-std::vector<std::string> get_directory_tree(const std::string& path)
+std::vector<std::string> Files::get_directory_tree(const std::string& path)
 {
   std::vector<std::string> tree;
   boost::filesystem::symlink_option options = boost::filesystem::symlink_option::recurse;
@@ -110,7 +137,7 @@ std::vector<std::string> get_directory_tree(const std::string& path)
   return tree;
 }
 
-std::string string_to_lower_case(const std::string& str)
+std::string Files::string_to_lower_case(const std::string& str)
 {
   std::locale loc;
   std::string modified_str = str;
@@ -122,9 +149,8 @@ std::string string_to_lower_case(const std::string& str)
   return modified_str;
 }
 
-std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map)
+std::map<std::string, std::string> Files::create_file_map(const std::string& path, std::map<std::string, std::string> map)
 {
-  auto tree = get_directory_tree(path);
   std::map<std::string, std::string> modified_map = map;
 
   for (auto e : map)
@@ -141,4 +167,10 @@ std::map<std::string, std::string> create_file_map(const std::string& path, std:
     }
   }
   return modified_map;
+}
+
+std::string Files::get_file(std::string key)
+{
+  std::cout << "Loading: files[" << key << "]: " << files[key] << std::endl;
+  return files[key];
 }

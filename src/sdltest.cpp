@@ -58,18 +58,15 @@ int main(int argc, char** argv)
   int rate;
   std::string gam_name;
   std::string files_path;
-  
+
   po::options_description desc("Zulässige Optionen");
-  desc.add_options()
-    ("width,W", po::value<int>(&screen_width)->default_value(800), "Bildschirmbreite")
-    ("height,H", po::value<int>(&screen_height)->default_value(600), "Bildschirmhöhe")
-    ("fullscreen,F", po::value<bool>(&fullscreen)->default_value(false), "Vollbildmodus (true/false)")
-    ("rate,r", po::value<int>(&rate)->default_value(10), "Bildrate")
-    ("load,l", po::value<std::string>(&gam_name)->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)")
-    ("files,f", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602 Installation")
-    ("help,h", "Gibt diesen Hilfetext aus")
-  ;
-  // clang-format on
+  desc.add_options()("width,W", po::value<int>(&screen_width)->default_value(800), "Bildschirmbreite");
+  desc.add_options()("height,H", po::value<int>(&screen_height)->default_value(600), "Bildschirmhöhe");
+  desc.add_options()("fullscreen,F", po::value<bool>(&fullscreen)->default_value(false), "Vollbildmodus (true/false)");
+  desc.add_options()("rate,r", po::value<int>(&rate)->default_value(10), "Bildrate");
+  desc.add_options()("load,l", po::value<std::string>(&gam_name)->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)");
+  desc.add_options()("path,p", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602 Installation");
+  desc.add_options()("help,h", "Gibt diesen Hilfetext aus");
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -80,18 +77,18 @@ int main(int argc, char** argv)
     std::cout << desc << std::endl;
     exit(EXIT_SUCCESS);
   }
-  
-  if(check_file(gam_name) == false)
+
+  auto files = Files::create_instance(files_path);
+
+  if (files->instance()->check_file(gam_name) == false)
   {
     std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  files = create_file_map(files_path, files);
-
-  if(check_all_files(files) == false)
+  if (files->instance()->check_all_files() == false)
   {
-      exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
   }
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
@@ -113,7 +110,6 @@ int main(int argc, char** argv)
   }
   SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, colors, 0, 256);
 
-
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
 
@@ -127,7 +123,6 @@ int main(int argc, char** argv)
   spielbildschirm.zeichne_bild(welt, 0, 0);
 
   SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
-
 
   if (rate != 0)
   {

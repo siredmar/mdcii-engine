@@ -31,42 +31,42 @@ Kamera::Kamera()
   ypos = Welt::KARTENHOEHE / 2;
   drehung = 0;
   vergroesserung = 1;
-  
-  effekte_bsh[0] = new Bsh_leser(files["sgfx_effekte_bsh"]);
-  effekte_bsh[1] = new Bsh_leser(files["mgfx_effekte_bsh"]);
-  effekte_bsh[2] = new Bsh_leser(files["gfx_effekte_bsh"]);
-  
-//   maeher_bsh[0] = new Bsh_leser(files["sgfx_maeher_bsh"]);
-//   maeher_bsh[1] = new Bsh_leser(files["mgfx_maeher_bsh"]);
-//   maeher_bsh[2] = new Bsh_leser(files["gfx_maeher_bsh"]);
-//   
-//   numbers_bsh[0] = new Bsh_leser(files["sgfx_numbers_bsh"]);
-//   numbers_bsh[1] = new Bsh_leser(files["mgfx_numbers_bsh"]);
-//   numbers_bsh[2] = new Bsh_leser(files["gfx_numbers_bsh"]);
-  
-  ship_bsh[0] = new Bsh_leser(files["sgfx_ship_bsh"]);
-  ship_bsh[1] = new Bsh_leser(files["mgfx_ship_bsh"]);
-  ship_bsh[2] = new Bsh_leser(files["gfx_ship_bsh"]);
-  
-  soldat_bsh[0] = new Bsh_leser(files["sgfx_soldat_bsh"]);
-  soldat_bsh[1] = new Bsh_leser(files["mgfx_soldat_bsh"]);
-  soldat_bsh[2] = new Bsh_leser(files["gfx_soldat_bsh"]);
-  
-  stadtfld_bsh[0] = new Bsh_leser(files["sgfx_stadtfld_bsh"]);
-  stadtfld_bsh[1] = new Bsh_leser(files["mgfx_stadtfld_bsh"]);
-  stadtfld_bsh[2] = new Bsh_leser(files["gfx_stadtfld_bsh"]);
-  
-//   tiere_bsh[0] = new Bsh_leser(files["sgfx_tiere_bsh"]);
-//   tiere_bsh[1] = new Bsh_leser(files["mgfx_tiere_bsh"]);
-//   tiere_bsh[2] = new Bsh_leser(files["gfx_tiere_bsh"]);
-//   
-//   traeger_bsh[0] = new Bsh_leser(files["sgfx_traeger_bsh"]);
-//   traeger_bsh[1] = new Bsh_leser(files["mgfx_traeger_bsh"]);
-//   traeger_bsh[2] = new Bsh_leser(files["gfx_traeger_bsh"]);
-  
-  zei = new Zei_leser(files["toolgfx_zeig16g_zei"]);
-  
-  stadtfld_grafiken = new Grafiken(files["grafiken_txt"]);
+  auto files = Files::instance();
+  effekte_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_effekte_bsh"));
+  effekte_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_effekte_bsh"));
+  effekte_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_effekte_bsh"));
+
+  //   maeher_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_maeher_bsh"));
+  //   maeher_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_maeher_bsh"));
+  //   maeher_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_maeher_bsh"));
+  //
+  //   numbers_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_numbers_bsh"));
+  //   numbers_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_numbers_bsh"));
+  //   numbers_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_numbers_bsh"));
+
+  ship_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_ship_bsh"));
+  ship_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_ship_bsh"));
+  ship_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_ship_bsh"));
+
+  soldat_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_soldat_bsh"));
+  soldat_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_soldat_bsh"));
+  soldat_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_soldat_bsh"));
+
+  stadtfld_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_stadtfld_bsh"));
+  stadtfld_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_stadtfld_bsh"));
+  stadtfld_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_stadtfld_bsh"));
+
+  //   tiere_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_tiere_bsh"));
+  //   tiere_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_tiere_bsh"));
+  //   tiere_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_tiere_bsh"));
+  //
+  //   traeger_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx_traeger_bsh"));
+  //   traeger_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx_traeger_bsh"));
+  //   traeger_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx_traeger_bsh"));
+
+  zei = new Zei_leser(files->instance()->get_file("toolgfx_zeig16g_zei"));
+
+  stadtfld_grafiken = new Grafiken(files->instance()->get_file("grafiken_txt"));
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
@@ -323,7 +323,6 @@ void Kamera::auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int
   }
 }
 
-
 struct bild_mit_pos_t
 {
   Bsh_bild* bild;
@@ -334,7 +333,6 @@ struct bild_mit_pos_t
   int y;
   bool sp;
 };
-
 
 void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
 {
@@ -369,7 +367,6 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     }
   }
 
-
   for (auto& map_elem : welt.animationen)
   {
     Animation& animation = map_elem.second;
@@ -385,13 +382,26 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int index;
     switch (schiff.typ)
     {
-      case 0x15: index = 0; break;  // kleines Handelsschiff
-      case 0x17: index = 32; break; // großes Handelsschiff
-      case 0x1b: index = 48; break; // großes Kriegsschiff
-      case 0x1d: index = 16; break; // fliegender Händler
-      case 0x19: index = 64; break; // kleines Kriegsschiff
-      case 0x1f: index = 80; break; // Piratenschiff     TODO: fahrender Händler (0x25)
-      default: index = 0;
+      case 0x15:
+	index = 0;
+	break; // kleines Handelsschiff
+      case 0x17:
+	index = 32;
+	break; // großes Handelsschiff
+      case 0x1b:
+	index = 48;
+	break; // großes Kriegsschiff
+      case 0x1d:
+	index = 16;
+	break; // fliegender Händler
+      case 0x19:
+	index = 64;
+	break; // kleines Kriegsschiff
+      case 0x1f:
+	index = 80;
+	break; // Piratenschiff     TODO: fahrender Händler (0x25)
+      default:
+	index = 0;
     }
     int bs_x, bs_y, bs_z;
     auf_bildschirm(bs, schiff.x_pos, schiff.y_pos, 0, bs_x, bs_y, bs_z);
@@ -418,24 +428,59 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int index;
     switch (soldat.typ)
     {
-      case 1: index = 0; break;     // Infanterist, rot
-      case 2: index = 280; break;   // Infanterist, blau
-      case 3: index = 560; break;   // Infanterist, gelb
-      case 4: index = 840; break;   // Infanterist, grau
-      case 5: index = 1120; break;  // Kavallerist, rot
-      case 6: index = 1424; break;  // Kavallerist, blau
-      case 7: index = 1728; break;  // Kavallerist, gelb
-      case 8: index = 2032; break;  // Kavallerist, grau
-      case 9: index = 3200; break;  // Musketier, rot
-      case 10: index = 3336; break; // Musketier, blau
-      case 11: index = 3472; break; // Musketier, gelb
-      case 12: index = 3608; break; // Musketier, grau
-      case 13: index = 2336; break; // Kanonier, rot
-      case 14: index = 2552; break; // Kanonier, blau
-      case 15: index = 2768; break; // Kanonier, gelb
-      case 16: index = 2984; break; // Kanonier, grau
-      case 33: index = 3744; break; // Eingeborener
-      default: index = 0;
+      case 1:
+	index = 0;
+	break; // Infanterist, rot
+      case 2:
+	index = 280;
+	break; // Infanterist, blau
+      case 3:
+	index = 560;
+	break; // Infanterist, gelb
+      case 4:
+	index = 840;
+	break; // Infanterist, grau
+      case 5:
+	index = 1120;
+	break; // Kavallerist, rot
+      case 6:
+	index = 1424;
+	break; // Kavallerist, blau
+      case 7:
+	index = 1728;
+	break; // Kavallerist, gelb
+      case 8:
+	index = 2032;
+	break; // Kavallerist, grau
+      case 9:
+	index = 3200;
+	break; // Musketier, rot
+      case 10:
+	index = 3336;
+	break; // Musketier, blau
+      case 11:
+	index = 3472;
+	break; // Musketier, gelb
+      case 12:
+	index = 3608;
+	break; // Musketier, grau
+      case 13:
+	index = 2336;
+	break; // Kanonier, rot
+      case 14:
+	index = 2552;
+	break; // Kanonier, blau
+      case 15:
+	index = 2768;
+	break; // Kanonier, gelb
+      case 16:
+	index = 2984;
+	break; // Kanonier, grau
+      case 33:
+	index = 3744;
+	break; // Eingeborener
+      default:
+	index = 0;
     }
     Bsh_bild& bsh = soldat_bsh[vergroesserung]->gib_bsh_bild(index + soldat.richtung * 8); // FIXME
     int bs_x, bs_y, bs_z;
@@ -456,7 +501,6 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       feld_unter_maus = true;
     }
   }
-
 
   bs.setze_schriftfarbe(245, 0);
   bs.zeichne_string(*zei, "aktuelle Position:", 10, 10);

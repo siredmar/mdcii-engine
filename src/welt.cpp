@@ -22,8 +22,9 @@
 
 Welt::Welt(std::istream& f)
 {
-  bebauung = new Bebauung(files["bebauung_txt"]);
-  
+  auto files = Files::instance();
+  bebauung = new Bebauung(files->instance()->get_file("bebauung_txt"));
+
   while (!f.eof())
   {
     bloecke.push_back(new Block(f));
@@ -63,7 +64,6 @@ Welt::Welt(std::istream& f)
     }
     i++;
   }
-
 
   // Initialisiere Animationen über Gebäuden
 
@@ -110,7 +110,7 @@ Welt::Welt(std::istream& f)
       {
 	int max_x = (((inselfeld.rot & 1) == 0) ? info->breite : info->hoehe) - 1;
 	int max_y = (((inselfeld.rot & 1) == 0) ? info->hoehe : info->breite) - 1;
-	// if (info->kategorie == 4)
+	// 	if (info->kategorie == 4)
 	{
 	  int versatz = (info->breite + info->hoehe) / 2;
 	  versatz += (versatz & 1) * 2 + 3;
