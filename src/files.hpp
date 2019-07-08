@@ -35,6 +35,7 @@ public:
   bool check_file(const std::string& filename);
   bool check_all_files();
   std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map);
+  std::string find_path_for_file(std::string file);
 
 private:
   static Files* _instance;

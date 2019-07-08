@@ -19,7 +19,6 @@
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -34,7 +33,7 @@ Files* Files::instance()
 
 Files* Files::create_instance(std::string path)
 {
-  static CGuard g; // Speicherbereinigung
+  static CGuard g;
   if (!_instance)
   {
     _instance = new Files(path);
@@ -44,58 +43,59 @@ Files* Files::create_instance(std::string path)
 
 void Files::init()
 {
+  // Defaults to current location
   init(".");
 }
 
 void Files::init(std::string path)
 {
   files = {
-      {"sgfx_effekte_bsh", "sgfx/effekte.bsh"},
+      {"sgfx/effekte.bsh", "sgfx/effekte.bsh"},
 
-      {"mgfx_effekte_bsh", "mgfx/effekte.bsh"},
+      {"mgfx/effekte.bsh", "mgfx/effekte.bsh"},
 
-      {"gfx_effekte_bsh", "gfx/effekte.bsh"},
+      {"gfx/effekte.bsh", "gfx/effekte.bsh"},
 
-      {"sgfx_ship_bsh", "sgfx/ship.bsh"},
+      {"sgfx/ship.bsh", "sgfx/ship.bsh"},
 
-      {"mgfx_ship_bsh", "mgfx/ship.bsh"},
+      {"mgfx/ship.bsh", "mgfx/ship.bsh"},
 
-      {"gfx_ship_bsh", "gfx/ship.bsh"},
+      {"gfx/ship.bsh", "gfx/ship.bsh"},
 
-      {"sgfx_soldat_bsh", "sgfx/soldat.bsh"},
+      {"sgfx/soldat.bsh", "sgfx/soldat.bsh"},
 
-      {"mgfx_soldat_bsh", "mgfx/soldat.bsh"},
+      {"mgfx/soldat.bsh", "mgfx/soldat.bsh"},
 
-      {"gfx_soldat_bsh", "gfx/soldat.bsh"},
+      {"gfx/soldat.bsh", "gfx/soldat.bsh"},
 
-      {"sgfx_stadtfld_bsh", "sgfx/stadtfld.bsh"},
+      {"sgfx/stadtfld.bsh", "sgfx/stadtfld.bsh"},
 
-      {"mgfx_stadtfld_bsh", "mgfx/stadtfld.bsh"},
+      {"mgfx/stadtfld.bsh", "mgfx/stadtfld.bsh"},
 
-      {"gfx_stadtfld_bsh", "gfx/stadtfld.bsh"},
+      {"gfx/stadtfld.bsh", "gfx/stadtfld.bsh"},
 
-      {"toolgfx_zeig16g_zei", "toolgfx/zei16g.zei"},
+      {"toolgfx/zeig16g_zei", "toolgfx/zei16g.zei"},
 
-      {"grafiken_txt", "grafiken.txt"},
+      {"grafiken.txt", "grafiken.txt"},
 
-      {"bebauung_txt", "bebauung.txt"},
+      {"bebauung.txt", "bebauung.txt"},
 
       // those are not used at the moment
-      // {"sgfx_numbers_bsh", "sgfx/numbers.bsh"},
-      // {"mgfx_numbers_bsh", "mgfx/numbers.bsh"},
-      // {"gfx_numbers_bsh", "gfx/numbers.bsh"},
+      // {"sgfx/numbers.bsh", "sgfx/numbers.bsh"},
+      // {"mgfx/numbers.bsh", "mgfx/numbers.bsh"},
+      // {"gfx/numbers.bsh", "gfx/numbers.bsh"},
 
-      // {"sgfx_tiere_bsh", "sgfx/tiere.bsh"},
-      // {"mgfx_tiere_bsh", "mgfx/tiere.bsh"},
-      // {"gfx_tiere_bsh", "gfx/tiere.bsh"},
+      // {"sgfx/tiere.bsh", "sgfx/tiere.bsh"},
+      // {"mgfx/tiere.bsh", "mgfx/tiere.bsh"},
+      // {"gfx/tiere.bsh", "gfx/tiere.bsh"},
 
-      // {"sgfx_traeger_bsh", "sgfx/traeger.bsh"},
-      // {"mgfx_traeger_bsh", "mgfx/traeger.bsh"},
-      // {"gfx_traeger_bsh", "gfx/traeger.bsh"},
+      // {"sgfx/traeger.bsh", "sgfx/traeger.bsh"},
+      // {"mgfx/traeger.bsh", "mgfx/traeger.bsh"},
+      // {"gfx/traeger.bsh", "gfx/traeger.bsh"},
 
-      // {"sgfx_maeher_bsh", "sgfx/maeher.bsh"},
-      // {"mgfx_maeher_bsh", "mgfx/maeher.bsh"},
-      // {"gfx_maeher_bsh", "gfx/maeher.bsh"},
+      // {"sgfx/maeher.bsh", "sgfx/maeher.bsh"},
+      // {"mgfx/maeher.bsh", "mgfx/maeher.bsh"},
+      // {"gfx/maeher.bsh", "gfx/maeher.bsh"},
   };
   tree = get_directory_tree(path);
   files = create_file_map(path, files);
@@ -126,15 +126,37 @@ bool Files::check_all_files()
   return true;
 }
 
-std::vector<std::string> Files::get_directory_tree(const std::string& path)
+std::string Files::find_path_for_file(std::string file)
 {
-  std::vector<std::string> tree;
-  boost::filesystem::symlink_option options = boost::filesystem::symlink_option::recurse;
-  for (auto& p : boost::filesystem::recursive_directory_iterator(path, options))
+  // Search for the file as substring in the lowercased directory tree
+  std::cout << "[INFO] Searching path for file: " << file << std::endl;
+  for (auto t : tree)
   {
-    tree.push_back(p.path().string());
+    std::string tree_file = string_to_lower_case(t);
+    if (tree_file.find(file) != std::string::npos)
+    {
+      std::cout << "[INFO] Path found [" << file << "]: " << t << std::endl;
+      return t;
+    }
   }
-  return tree;
+  return file;
+}
+
+std::map<std::string, std::string> Files::create_file_map(const std::string& path, std::map<std::string, std::string> map)
+{
+  std::map<std::string, std::string> modified_map = map;
+
+  for (auto e : map)
+  {
+    modified_map[e.first] = find_path_for_file(e.second);
+  }
+  return modified_map;
+}
+
+std::string Files::get_file(std::string key)
+{
+  std::cout << "Loading: files[" << key << "]: " << files[key] << std::endl;
+  return files[key];
 }
 
 std::string Files::string_to_lower_case(const std::string& str)
@@ -149,28 +171,13 @@ std::string Files::string_to_lower_case(const std::string& str)
   return modified_str;
 }
 
-std::map<std::string, std::string> Files::create_file_map(const std::string& path, std::map<std::string, std::string> map)
+std::vector<std::string> Files::get_directory_tree(const std::string& path)
 {
-  std::map<std::string, std::string> modified_map = map;
-
-  for (auto e : map)
+  std::vector<std::string> tree;
+  boost::filesystem::symlink_option options = boost::filesystem::symlink_option::recurse;
+  for (auto& p : boost::filesystem::recursive_directory_iterator(path, options))
   {
-    // Search for the file as substring in the lowercased directory tree
-    for (auto f : tree)
-    {
-      std::string file = string_to_lower_case(f);
-      if (file.find(e.second) != std::string::npos)
-      {
-	modified_map[e.first] = f;
-	break;
-      }
-    }
+    tree.push_back(p.path().string());
   }
-  return modified_map;
-}
-
-std::string Files::get_file(std::string key)
-{
-  std::cout << "Loading: files[" << key << "]: " << files[key] << std::endl;
-  return files[key];
+  return tree;
 }

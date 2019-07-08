@@ -120,8 +120,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, Bebauung& bebauung)
     {
       std::ifstream f;
       auto files = Files::instance();
-      auto karte = this->basisname(this->breite, ((Insel5*)inselX->daten)->basis, ((Insel5*)inselX->daten)->sued).c_str();
-
+      std::string karte = this->basisname(this->breite, ((Insel5*)inselX->daten)->basis, ((Insel5*)inselX->daten)->sued).c_str();
+      karte = files->instance()->find_path_for_file(karte);
       if (files->instance()->check_file(karte) == false)
       {
 	std::cout << "[ERR] Island not found: " << karte << std::endl;

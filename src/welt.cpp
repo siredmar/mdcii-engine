@@ -23,7 +23,7 @@
 Welt::Welt(std::istream& f)
 {
   auto files = Files::instance();
-  bebauung = new Bebauung(files->instance()->get_file("bebauung_txt"));
+  bebauung = new Bebauung(files->instance()->get_file("bebauung.txt"));
 
   while (!f.eof())
   {
