@@ -30,6 +30,7 @@
 #include "welt.hpp"
 #include "grafiken.hpp"
 #include "files.hpp"
+#include "version.hpp"
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -40,18 +41,18 @@
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
+  if (argc < 4)
     exit(EXIT_FAILURE);
 
   std::ifstream f;
   f.open(argv[1], std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f);
+  Welt welt = Welt(f, static_cast<Anno_version>(strtol(argv[3], NULL, 10)));
 
   f.close();
   auto files = Files::create_instance(".");
   Bsh_leser bsh_leser(files->instance()->get_file("mgfx/stadtfld.bsh"));
-  Grafiken stadtfld_grafiken(files->instance()->get_file("grafiken.txt"));
+  Grafiken stadtfld_grafiken(Anno_version::VANILLA);
 
   Bildspeicher_pal8 bs((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);
 

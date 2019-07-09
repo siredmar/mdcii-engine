@@ -23,6 +23,7 @@
 #include "bsh_leser.hpp"
 #include "bildspeicher.hpp"
 #include "welt.hpp"
+#include "version.hpp"
 
 class Grafiken;
 
@@ -50,7 +51,7 @@ class Kamera
   Grafiken* stadtfld_grafiken;
 
 public:
-  Kamera();
+  Kamera(Anno_version version);
   void gehe_zu(uint16_t x, uint16_t y);
   void nach_rechts();
   void nach_links();

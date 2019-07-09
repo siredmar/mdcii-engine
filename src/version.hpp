@@ -1,6 +1,5 @@
-
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2015  Benedikt Freisen
+// Copyright (C) 2019  Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,28 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+// USA.
 
-#ifndef SPIELBILDSCHIRM_HPP
-#define SPIELBILDSCHIRM_HPP
+#ifndef VERSION_HPP
+#define VERSION_HPP
 
-#include "bildspeicher.hpp"
-#include "kamera.hpp"
-#include "karte.hpp"
-#include "welt.hpp"
-#include "version.hpp"
-
-class Spielbildschirm
+enum class Anno_version
 {
-  Bildspeicher& bs;
-  Karte karte;
-
-public:
-  Kamera* kamera; // vorübergehend public
-
-  Spielbildschirm(Bildspeicher& bs, Anno_version version);
-
-  void zeichne_bild(Welt& welt, int maus_x, int maus_y);
+  VANILLA = 0,
+  NINA = 1,
 };
 
 #endif

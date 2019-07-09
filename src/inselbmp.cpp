@@ -29,6 +29,7 @@
 #include "bebauung.hpp"
 #include "grafiken.hpp"
 #include "files.hpp"
+#include "version.hpp"
 
 #define XRASTER 32
 #define YRASTER 16
@@ -36,7 +37,7 @@
 
 int main(int argc, char** argv)
 {
-  if (argc < 2)
+  if (argc < 3)
     exit(EXIT_FAILURE);
 
   std::ifstream f;
@@ -49,8 +50,8 @@ int main(int argc, char** argv)
 
   auto files = Files::create_instance(".");
 
-  Bebauung bebauung(files->instance()->get_file("bebauung.txt"));
-  Grafiken stadtfld_grafiken(files->instance()->get_file("grafiken.txt"));
+  Bebauung bebauung(Anno_version::VANILLA);
+  Grafiken stadtfld_grafiken(static_cast<Anno_version>(strtol(argv[3], NULL, 10)));
 
   Insel insel = Insel(&inselX, &inselhaus, bebauung);
   uint8_t width = insel.breite;

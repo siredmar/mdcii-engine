@@ -18,16 +18,16 @@
 
 #include "spielbildschirm.hpp"
 
-Spielbildschirm::Spielbildschirm(Bildspeicher& bs)
+Spielbildschirm::Spielbildschirm(Bildspeicher& bs, Anno_version version)
   : bs(bs)
   , karte(bs.breite - 182, 0, 182, 156)
 {
-  // leer
+  kamera = new Kamera(version);
 }
 
 void Spielbildschirm::zeichne_bild(Welt& welt, int maus_x, int maus_y)
 {
-  kamera.zeichne_bild(bs, welt, maus_x, maus_y);
+  kamera->zeichne_bild(bs, welt, maus_x, maus_y);
   karte.zeichne_bild(bs, welt);
-  karte.zeichne_kameraposition(bs, kamera);
+  karte.zeichne_kameraposition(bs, *kamera);
 }

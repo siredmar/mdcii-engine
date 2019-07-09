@@ -14,29 +14,36 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+// USA.
 
-#include <fstream>
-#include <sstream>
+#include <vector>
+#include <iostream>
 
 #include "bebauung.hpp"
+#include "bebauung_vanilla.hpp"
 
-Bebauung::Bebauung(std::string dateiname)
+Bebauung::Bebauung(Anno_version version)
 {
-  std::ifstream datei(dateiname.c_str());
-  std::string zeile;
-  while (datei.good())
+  std::vector<Bebauungsinfo_mit_index>* bebauungsinfo_mit_index;
+
+  switch (version)
   {
-    std::getline(datei, zeile);
-    if (!zeile.empty() && zeile[0] != ';')
-    {
-      std::stringstream ss(zeile, std::ios_base::in);
-      uint16_t bebauung, breite, hoehe, richtungen, ani_schritte, grundhoehe, bauhoehe, lagerstaende, kategorie;
-      ss >> bebauung >> breite >> hoehe >> richtungen >> ani_schritte >> grundhoehe >> bauhoehe >> lagerstaende >> kategorie;
-      if (datei.good())
-	index[bebauung] = {(uint8_t)breite, (uint8_t)hoehe, (uint8_t)richtungen, (uint8_t)ani_schritte, (uint8_t)grundhoehe, (uint8_t)bauhoehe,
-	    (uint8_t)lagerstaende, (uint8_t)kategorie};
-    }
+    // TODO: Bebauungen fuer verschiedene Versionen definieren und hier benutzen
+    case Anno_version::NINA:
+      std::cout << "[INFO] Benutze Bebauung fuer Version NINA" << std::endl;
+      bebauungsinfo_mit_index = &bebauung_vanilla;
+      break;
+    case Anno_version::VANILLA:
+    default:
+      std::cout << "[INFO] Benutze Bebauung fuer Version VANILLA" << std::endl;
+      bebauungsinfo_mit_index = &bebauung_vanilla;
+      break;
+  }
+
+  for (auto e : *bebauungsinfo_mit_index)
+  {
+    index[e.index] = e.bebauung;
   }
 }
 
@@ -44,7 +51,11 @@ Bebauungsinfo* Bebauung::info_zu(uint16_t i)
 {
   auto info = index.find(i);
   if (info != index.end())
+  {
     return &info->second;
+  }
   else
+  {
     return nullptr;
+  }
 }

@@ -14,13 +14,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+// USA.
 
 #ifndef BEBAUUNG_HPP
 #define BEBAUUNG_HPP
 
-#include <string>
 #include <map>
+#include <string>
+
+#include "version.hpp"
 
 struct Bebauungsinfo
 {
@@ -34,13 +37,21 @@ struct Bebauungsinfo
   uint8_t kategorie;
 };
 
+struct Bebauungsinfo_mit_index
+{
+  uint16_t index;
+  Bebauungsinfo bebauung;
+};
+
 class Bebauung
 {
-  std::map<uint16_t, Bebauungsinfo> index;
-
 public:
-  Bebauung(std::string dateiname);
+  Bebauung(Anno_version version);
   Bebauungsinfo* info_zu(uint16_t i);
+  std::map<uint16_t, Bebauungsinfo> init(Anno_version version);
+
+private:
+  std::map<uint16_t, Bebauungsinfo> index;
 };
 
 #endif

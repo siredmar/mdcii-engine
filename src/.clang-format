@@ -3,8 +3,8 @@ BasedOnStyle: WebKit
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: 'false'
 AllowShortBlocksOnASingleLine: 'false'
-AllowShortCaseLabelsOnASingleLine: 'true'
-AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 BreakBeforeBraces: Allman
@@ -20,11 +20,9 @@ Standard: Auto
 TabWidth: '8'
 UseTab: ForContinuationAndIndentation
 SortIncludes: 'false'
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: 'true'
 AccessModifierOffset: '-2'
 AlignTrailingComments: 'true'
 Cpp11BracedListStyle: 'true'
-MaxEmptyLinesToKeep: '2'
-SpaceAfterTemplateKeyword: 'false'
-
 ...
+

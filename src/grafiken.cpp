@@ -16,27 +16,33 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <fstream>
-#include <sstream>
-
+#include <iostream>
 #include "grafiken.hpp"
+#include "grafiken_nina.hpp"
+#include "grafiken_vanilla.hpp"
+#include "version.hpp"
 
-Grafiken::Grafiken(std::string dateiname)
+Grafiken::Grafiken(Anno_version version)
 {
-  std::ifstream datei(dateiname.c_str());
-  std::string zeile;
-  while (datei.good())
+
+  std::vector<Grafikinfo_mit_index>* grafikinfo_mit_index;
+
+  switch (version)
   {
-    std::getline(datei, zeile);
-    if (!zeile.empty() && zeile[0] != ';')
-    {
-      std::stringstream ss(zeile, std::ios_base::in);
-      uint16_t bebauung;
-      uint32_t grafikindex;
-      ss >> bebauung >> grafikindex;
-      if (datei.good())
-	index[bebauung] = grafikindex;
-    }
+    case Anno_version::NINA:
+      std::cout << "[INFO] Benutze Grafiken fuer Version NINA" << std::endl;
+      grafikinfo_mit_index = &grafiken_nina;
+      break;
+    case Anno_version::VANILLA:
+    default:
+      std::cout << "[INFO] Benutze Grafiken fuer Version VANILLA" << std::endl;
+      grafikinfo_mit_index = &grafiken_vanilla;
+      break;
+  }
+
+  for (auto e : *grafikinfo_mit_index)
+  {
+    index[e.bebauung] = e.grafikindex;
   }
 }
 

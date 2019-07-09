@@ -28,6 +28,7 @@
 #include "bildspeicher_pal8.hpp"
 #include "spielbildschirm.hpp"
 #include "files.hpp"
+#include "version.hpp"
 
 namespace po = boost::program_options;
 
@@ -58,6 +59,8 @@ int main(int argc, char** argv)
   int rate;
   std::string gam_name;
   std::string files_path;
+  int version_arg;
+  Anno_version version;
 
   po::options_description desc("Zulässige Optionen");
   desc.add_options()("width,W", po::value<int>(&screen_width)->default_value(800), "Bildschirmbreite");
@@ -66,6 +69,7 @@ int main(int argc, char** argv)
   desc.add_options()("rate,r", po::value<int>(&rate)->default_value(10), "Bildrate");
   desc.add_options()("load,l", po::value<std::string>(&gam_name)->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)");
   desc.add_options()("path,p", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602 Installation");
+  desc.add_options()("version,v", po::value<int>(&version_arg)->default_value((int)Anno_version::VANILLA), "Spielversion (0: vanilla, 1: nina)");
   desc.add_options()("help,h", "Gibt diesen Hilfetext aus");
 
   po::variables_map vm;
@@ -78,6 +82,7 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
+  version = static_cast<Anno_version>(version_arg);
   auto files = Files::create_instance(files_path);
 
   if (files->instance()->check_file(gam_name) == false)
@@ -113,13 +118,13 @@ int main(int argc, char** argv)
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f);
+  Welt welt = Welt(f, version);
 
   f.close();
 
   Bildspeicher_pal8 bs(screen_width, screen_height, 0, (uint8_t*)screen->pixels, screen->pitch);
 
-  Spielbildschirm spielbildschirm(bs);
+  Spielbildschirm spielbildschirm(bs, version);
   spielbildschirm.zeichne_bild(welt, 0, 0);
 
   SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
@@ -143,19 +148,19 @@ int main(int argc, char** argv)
 
 	if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
 	{
-	  spielbildschirm.kamera.nach_links();
+	  spielbildschirm.kamera->nach_links();
 	}
 	if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
 	{
-	  spielbildschirm.kamera.nach_rechts();
+	  spielbildschirm.kamera->nach_rechts();
 	}
 	if (keystate[SDLK_UP] || (fullscreen && y == 0))
 	{
-	  spielbildschirm.kamera.nach_oben();
+	  spielbildschirm.kamera->nach_oben();
 	}
 	if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
 	{
-	  spielbildschirm.kamera.nach_unten();
+	  spielbildschirm.kamera->nach_unten();
 	}
 
 	welt.simulationsschritt();
@@ -165,23 +170,23 @@ int main(int argc, char** argv)
       case SDL_KEYDOWN:
 	if (e.key.keysym.sym == SDLK_F2)
 	{
-	  spielbildschirm.kamera.setze_vergroesserung(0);
+	  spielbildschirm.kamera->setze_vergroesserung(0);
 	}
 	if (e.key.keysym.sym == SDLK_F3)
 	{
-	  spielbildschirm.kamera.setze_vergroesserung(1);
+	  spielbildschirm.kamera->setze_vergroesserung(1);
 	}
 	if (e.key.keysym.sym == SDLK_F4)
 	{
-	  spielbildschirm.kamera.setze_vergroesserung(2);
+	  spielbildschirm.kamera->setze_vergroesserung(2);
 	}
 	if (e.key.keysym.sym == SDLK_x)
 	{
-	  spielbildschirm.kamera.rechts_drehen();
+	  spielbildschirm.kamera->rechts_drehen();
 	}
 	if (e.key.keysym.sym == SDLK_y)
 	{
-	  spielbildschirm.kamera.links_drehen();
+	  spielbildschirm.kamera->links_drehen();
 	}
 	if (e.key.keysym.sym == SDLK_ESCAPE)
 	{

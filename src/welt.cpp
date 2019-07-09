@@ -20,10 +20,10 @@
 #include "welt.hpp"
 #include "files.hpp"
 
-Welt::Welt(std::istream& f)
+Welt::Welt(std::istream& f, Anno_version version)
 {
   auto files = Files::instance();
-  bebauung = new Bebauung(files->instance()->get_file("bebauung.txt"));
+  bebauung = new Bebauung(version);
 
   while (!f.eof())
   {

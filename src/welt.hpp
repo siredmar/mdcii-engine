@@ -28,6 +28,7 @@
 #include "strukturen.hpp"
 #include "bebauung.hpp"
 #include "animation.hpp"
+#include "version.hpp"
 
 class Welt
 {
@@ -55,7 +56,7 @@ public:
   std::vector<Soldat> soldaten;
   std::vector<Prodlist> prodlist;
   std::vector<Player> spieler;
-  Welt(std::istream& f);
+  Welt(std::istream&, Anno_version version);
   void simulationsschritt();
   void feld_an_pos(inselfeld_t& feld, int x, int y);
   Prodlist* prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y);

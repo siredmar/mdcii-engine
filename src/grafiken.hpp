@@ -21,14 +21,22 @@
 
 #include <string>
 #include <map>
+#include "version.hpp"
+
+struct Grafikinfo_mit_index
+{
+  uint16_t bebauung;
+  uint32_t grafikindex;
+};
 
 class Grafiken
 {
-  std::map<uint16_t, int> index;
-
 public:
-  Grafiken(std::string dateiname);
+  Grafiken(Anno_version version);
   int grafik_zu(uint16_t i);
+
+private:
+  std::map<uint16_t, int> index;
 };
 
 #endif

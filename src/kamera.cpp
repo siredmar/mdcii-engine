@@ -20,12 +20,13 @@
 #include "kamera.hpp"
 #include "grafiken.hpp"
 #include "files.hpp"
+#include "version.hpp"
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
 const int Kamera::grundhoehe[3] = {5, 10, 20};
 
-Kamera::Kamera()
+Kamera::Kamera(Anno_version version)
 {
   xpos = Welt::KARTENBREITE / 2;
   ypos = Welt::KARTENHOEHE / 2;
@@ -66,7 +67,7 @@ Kamera::Kamera()
 
   zei = new Zei_leser(files->instance()->get_file("toolgfx/zeig16g_zei"));
 
-  stadtfld_grafiken = new Grafiken(files->instance()->get_file("grafiken.txt"));
+  stadtfld_grafiken = new Grafiken(version);
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
