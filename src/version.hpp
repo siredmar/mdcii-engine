@@ -25,4 +25,9 @@ enum class Anno_version
   NINA = 1,
 };
 
+class Version
+{
+public:
+  static Anno_version Detect_game_version();
+};
 #endif

@@ -37,7 +37,7 @@
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
+  if (argc < 2)
     exit(EXIT_FAILURE);
 
   std::ifstream f;
@@ -50,8 +50,9 @@ int main(int argc, char** argv)
 
   auto files = Files::create_instance(".");
 
-  Bebauung bebauung(Anno_version::VANILLA);
-  Grafiken stadtfld_grafiken(static_cast<Anno_version>(strtol(argv[3], NULL, 10)));
+  Anno_version version = Version::Detect_game_version();
+  Bebauung bebauung(version);
+  Grafiken stadtfld_grafiken(version);
 
   Insel insel = Insel(&inselX, &inselhaus, bebauung);
   uint8_t width = insel.breite;

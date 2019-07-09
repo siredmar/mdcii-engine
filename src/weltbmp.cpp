@@ -41,13 +41,14 @@
 
 int main(int argc, char** argv)
 {
-  if (argc < 4)
+  if (argc < 3)
     exit(EXIT_FAILURE);
 
   std::ifstream f;
   f.open(argv[1], std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f, static_cast<Anno_version>(strtol(argv[3], NULL, 10)));
+  Anno_version version = Version::Detect_game_version();
+  Welt welt = Welt(f, version);
 
   f.close();
   auto files = Files::create_instance(".");

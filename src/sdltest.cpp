@@ -59,7 +59,6 @@ int main(int argc, char** argv)
   int rate;
   std::string gam_name;
   std::string files_path;
-  int version_arg;
   Anno_version version;
 
   po::options_description desc("Zulässige Optionen");
@@ -69,7 +68,6 @@ int main(int argc, char** argv)
   desc.add_options()("rate,r", po::value<int>(&rate)->default_value(10), "Bildrate");
   desc.add_options()("load,l", po::value<std::string>(&gam_name)->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)");
   desc.add_options()("path,p", po::value<std::string>(&files_path)->default_value("."), "Pfad zur ANNO1602 Installation");
-  desc.add_options()("version,v", po::value<int>(&version_arg)->default_value((int)Anno_version::VANILLA), "Spielversion (0: vanilla, 1: nina)");
   desc.add_options()("help,h", "Gibt diesen Hilfetext aus");
 
   po::variables_map vm;
@@ -82,8 +80,9 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
-  version = static_cast<Anno_version>(version_arg);
   auto files = Files::create_instance(files_path);
+
+  version = Version::Detect_game_version();
 
   if (files->instance()->check_file(gam_name) == false)
   {
