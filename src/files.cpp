@@ -31,12 +31,12 @@ Files* Files::instance()
   return _instance;
 }
 
-Files* Files::create_instance(std::string path)
+Files* Files::create_instance(std::string path, bool check_files)
 {
   static CGuard g;
   if (!_instance)
   {
-    _instance = new Files(path);
+    _instance = new Files(path, check_files);
   }
   return _instance;
 }
@@ -44,10 +44,10 @@ Files* Files::create_instance(std::string path)
 void Files::init()
 {
   // Defaults to current location
-  init(".");
+  init(".", false);
 }
 
-void Files::init(std::string path)
+void Files::init(std::string path, bool check_files)
 {
   files = {
       {"sgfx/effekte.bsh", "sgfx/effekte.bsh"},
@@ -98,9 +98,11 @@ void Files::init(std::string path)
       // {"gfx/maeher.bsh", "gfx/maeher.bsh"},
   };
   tree = get_directory_tree(path);
-  files = create_file_map(path, files);
+  if (check_files == true)
+  {
+    files = create_file_map(path, files);
+  }
 }
-
 bool Files::check_file(const std::string& filename)
 {
   std::ifstream f(filename.c_str());

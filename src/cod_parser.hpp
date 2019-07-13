@@ -14,8 +14,6 @@
 
 #include "external/nlohmann/json.hpp"
 
-#include "files.hpp"
-
 class Cod_Parser
 {
 public:
@@ -238,12 +236,6 @@ private:
 
   bool decode()
   {
-    auto files = Files::instance();
-    if (files->instance()->check_file(path) == false)
-    {
-      std::cout << "[ERR] could not open cod file: " << path << std::endl;
-      return false;
-    }
     std::ifstream input(path, std::ios::binary);
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
 

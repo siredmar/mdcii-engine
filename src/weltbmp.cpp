@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   Welt welt = Welt(f, version);
 
   f.close();
-  auto files = Files::create_instance(".");
+  auto files = Files::create_instance(".", true);
   Bsh_leser bsh_leser(files->instance()->get_file("mgfx/stadtfld.bsh"));
   Grafiken stadtfld_grafiken(Anno_version::VANILLA);
 
@@ -64,24 +64,24 @@ int main(int argc, char** argv)
       Insel* insel = welt.insel_an_pos(x, y);
       feld_t feld;
       if (insel != NULL)
-	insel->grafik_bebauung(feld, x - insel->xpos, y - insel->ypos, 0, stadtfld_grafiken);
+        insel->grafik_bebauung(feld, x - insel->xpos, y - insel->ypos, 0, stadtfld_grafiken);
       else
       {
-	feld.index = stadtfld_grafiken.grafik_zu(1201) + (y + x * 3) % 12;
-	feld.grundhoehe = 0;
+        feld.index = stadtfld_grafiken.grafik_zu(1201) + (y + x * 3) % 12;
+        feld.grundhoehe = 0;
       }
       /*feld_t feld2;
       insel->grafik_boden(&feld2, x, y, 0);*/
       if (feld.index != -1)
       {
-	Bsh_bild& bsh = bsh_leser.gib_bsh_bild(feld.index);
-	uint16_t x_auf_karte = x /*- insel->breite / 2*/;
-	uint16_t y_auf_karte = y /*- insel->hoehe / 2*/;
-	bs.zeichne_bsh_bild_oz(
-	    bsh, (x_auf_karte - y_auf_karte + Welt::KARTENHOEHE) * XRASTER, (x_auf_karte + y_auf_karte) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
+        Bsh_bild& bsh = bsh_leser.gib_bsh_bild(feld.index);
+        uint16_t x_auf_karte = x /*- insel->breite / 2*/;
+        uint16_t y_auf_karte = y /*- insel->hoehe / 2*/;
+        bs.zeichne_bsh_bild_oz(
+            bsh, (x_auf_karte - y_auf_karte + Welt::KARTENHOEHE) * XRASTER, (x_auf_karte + y_auf_karte) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
       }
       /*else
-	std::cout << insel->schicht2[y * insel->breite + x].bebauung << " ";*/
+        std::cout << insel->schicht2[y * insel->breite + x].bebauung << " ";*/
     }
   }
 

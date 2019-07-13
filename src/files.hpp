@@ -26,10 +26,10 @@
 class Files
 {
 public:
-  static Files* create_instance(std::string path);
+  static Files* create_instance(std::string path, bool check_files);
   static Files* instance();
   void init();
-  void init(std::string path);
+  void init(std::string path, bool check_files);
 
   std::string get_file(std::string key);
   bool check_file(const std::string& filename);
@@ -42,9 +42,9 @@ private:
   ~Files()
   {
   }
-  Files(std::string path)
+  Files(std::string path, bool check_files)
   {
-    init(path);
+    init(path, check_files);
   }
 
   Files(const Files&);
@@ -62,8 +62,8 @@ private:
     {
       if (NULL != Files::_instance)
       {
-	delete Files::_instance;
-	Files::_instance = NULL;
+        delete Files::_instance;
+        Files::_instance = NULL;
       }
     }
   };
