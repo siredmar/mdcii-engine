@@ -13,7 +13,7 @@ add_executable(mdcii-weltbmp weltbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp 
 target_link_libraries(mdcii-weltbmp boost_system boost_iostreams boost_filesystem)
 
 add_executable(mdcii-sdltest sdltest.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp welt.cpp kamera.cpp karte.cpp spielbildschirm.cpp bebauung.cpp grafiken.cpp files.cpp version.cpp)
-target_link_libraries(mdcii-sdltest SDL boost_system boost_iostreams boost_program_options boost_filesystem)
+target_link_libraries(mdcii-sdltest SDL boost_system boost_iostreams boost_program_options boost_filesystem boost_regex)
 if(WIN32)
   target_link_libraries(mdcii-sdltest mingw32 winmm dxguid SDLmain)
 endif(WIN32)

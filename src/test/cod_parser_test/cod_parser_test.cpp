@@ -24,8 +24,8 @@ int main(int argc, char** argv)
     std::cout << desc << std::endl;
     exit(EXIT_SUCCESS);
   }
-  auto files = Files::create_instance(".", false);
-  if (files->instance()->check_file(cod_path) == true)
+  // auto files = Files::create_instance(".", false);
+  // if (files->instance()->check_file(cod_path) == true)
   {
     Cod_Parser cod(cod_path);
   }

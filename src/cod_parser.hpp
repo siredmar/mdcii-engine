@@ -6,13 +6,15 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <regex>
 #include <cstring>
 
-#include "boost/algorithm/string.hpp"
+#include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/variant.hpp>
 
 #include "external/nlohmann/json.hpp"
+
+using nlohmann::json;
 
 class Cod_Parser
 {
@@ -25,42 +27,40 @@ public:
   }
 
 private:
-  typedef boost::variant<int, float, std::string> variant_type;
-
-  enum class Cod_value_type
+  std::vector<std::string> regex_match(std::string regex, std::string str)
   {
-    Integer = 0,
-    Float,
-    String
-  };
-
-  std::vector<std::string> regex_test(std::string regex, std::string str)
-  {
-    std::string s;
     std::vector<std::string> ret;
-    const std::regex r(regex);
-    std::smatch sm;
-    try
+    boost::regex expr{regex};
+    boost::smatch what;
+    if (boost::regex_match(str, what, expr))
     {
-      if (std::regex_search(str, sm, r))
+      for (int i = 0; i < what.size(); i++)
       {
-        for (int i = 1; i < sm.size(); i++)
-        {
-          ret.push_back(sm[i]);
-        }
+        ret.push_back(what[i]);
       }
     }
-    catch (std::regex_error& e)
+    return ret;
+  }
+
+  std::vector<std::string> regex_search(std::string regex, std::string str)
+  {
+    std::vector<std::string> ret;
+    boost::regex expr{regex};
+    boost::smatch what;
+    if (boost::regex_search(str, what, expr))
     {
-      std::cout << e.what() << std::endl; // Syntax error in the regular expression
+      for (int i = 0; i < what.size(); i++)
+      {
+        ret.push_back(what[i]);
+      }
     }
     return ret;
   }
 
   bool convert_to_json()
   {
-    std::map<std::string, variant_type> gfx_map;
-    std::map<std::string, variant_type> variables;
+    json variables;
+    json gfx_map;
 
     for (auto& line : cod_txt)
     {
@@ -77,12 +77,12 @@ private:
       }
 
       // constant assignment
-      std::vector<std::string> result = regex_test("(@?)(\\w+)\\s*=\\s*((?:\\d+|\\+|\\w+)+)", line);
+      std::vector<std::string> result = regex_search("(@?)(\\w+)\\s*=\\s*((?:\\d+|\\+|\\w+)+)", line);
       if (result.size() > 0)
       {
-        bool is_math = is_substring(result[2], "+");
-        std::string constant = result[1];
-        std::string value = result[2];
+        bool is_math = is_substring(result[3], "+");
+        std::string constant = result[2];
+        std::string value = result[3];
         if (begins_with(constant, "GFX"))
         {
           if (value == "0")
@@ -92,7 +92,7 @@ private:
           else if (begins_with(value, "GFX"))
           {
             std::string current_gfx = split_by_delimiter(value, "+")[0];
-            if (gfx_map.count(current_gfx) > 0)
+            if (is_in_json(gfx_map, current_gfx) == true)
             {
               gfx_map[constant] = gfx_map[current_gfx];
             }
@@ -101,106 +101,168 @@ private:
         variables[constant] = get_value(constant, value, is_math, variables);
       }
     }
-    for (auto e : variables)
-    {
-      std::cout << e.first << ": " << e.second << std::endl;
-    }
+    std::cout << variables.dump(2) << std::endl;
+    std::cout << gfx_map.dump(2) << std::endl;
   }
 
-  variant_type get_value(const std::string& key, const std::string& value, bool is_math, std::map<std::string, variant_type> variables)
+  json get_value(const std::string& key, const std::string& value, bool is_math, json variables)
   {
-    Cod_value_type value_type = get_cod_value_type(value);
+    if (is_substring(value, ","))
+    {
+      std::cout << key << std::endl;
+    }
     if (is_math == true)
     {
       // Searching for some characters followed by a + or - sign and some digits. Example: VALUE+20
-      std::vector<std::string> result = regex_test("(\\w+)(\\+|-)(\\d+)", value);
+      std::vector<std::string> result = regex_search("(\\w+)(\\+|-)(\\d+)", value);
       if (result.size() > 0)
       {
-        variant_type old_val;
-        if (variables.count(result[0]) > 0)
+        json old_val;
+        if (is_in_json(variables, result[1]) == true)
         {
-          old_val = variables[result[0]];
+          old_val = variables[result[1]];
         }
         else
         {
           old_val = 0;
         }
-        // if (value_type == Cod_value_type::String)
-        // {
-        //   if (boost::get<std::string>(old_val) == "RUINE_KONTOR_1")
-        //   {
-        //     // TODO
-        //     old_val = "424242";
-        //   }
-        // }
-        if (result[1] == "+")
+
+        if (old_val.type() == json::value_t::string)
         {
-          if (get_cod_value_type(old_val) == Cod_value_type::Integer)
-            return boost::get<int>(old_val) + std::stoi(result[2]);
-          else if (get_cod_value_type(old_val) == Cod_value_type::Float)
-            return boost::get<float>(old_val) + std::stof(result[2]);
-          else
-            return std::stoi(boost::get<std::string>(old_val)) + std::stoi(result[2]);
+          if (old_val == "RUINE_KONTOR_1")
+          {
+            // TODO
+            old_val = 424242;
+          }
         }
-        if (result[1] == "-")
+        if (result[2] == "+")
         {
-          if (get_cod_value_type(old_val) == Cod_value_type::Integer)
-            return boost::get<int>(old_val) - std::stoi(result[2]);
-          else if (get_cod_value_type(old_val) == Cod_value_type::Float)
-            return boost::get<float>(old_val) - std::stof(result[2]);
+          if (old_val.type() == json::value_t::number_integer)
+          {
+            json ret;
+            int o = old_val;
+            ret = o + std::stoi(result[3]);
+            return ret;
+          }
+          else if (old_val.type() == json::value_t::number_float)
+          {
+            json ret;
+            int o = old_val;
+            ret = o + std::stof(result[3]);
+            return ret;
+          }
           else
-            return std::stoi(boost::get<std::string>(old_val)) - std::stoi(result[2]);
+          {
+            json ret;
+            std::string o = old_val;
+            ret = std::stoi(old_val.get<std::string>()) + std::stoi(result[3]);
+            return ret;
+          }
+        }
+        if (result[2] == "-")
+        {
+          if (old_val.type() == json::value_t::number_integer)
+          {
+            json ret;
+            int o = old_val;
+            ret[key] = o - std::stoi(result[3]);
+            return ret;
+          }
+          else if (old_val.type() == json::value_t::number_float)
+          {
+            json ret;
+            int o = old_val;
+            ret[key] = o - std::stof(result[3]);
+            return ret;
+          }
+          {
+            json ret;
+            std::string o = old_val;
+            ret = std::stoi(old_val.get<std::string>()) - std::stoi(result[3]);
+            return ret;
+          }
         }
       }
     }
 
     {
-      // Check if value contains any other characters besides 0-9, + and - -> it is a pure string
-      std::vector<std::string> result = regex_test("([^0-9+-]*)", value);
+      // Check if value has no preceding characters, a possible + or - sign
+      // and one ore more digits -> its an int
+      std::vector<std::string> result = regex_match("^\\w*[\\-+]?\\d+", value);
       if (result.size() > 0)
       {
-        // TODO : When is value not in variables
-        if (variables.count(result[0]) > 0)
-        {
-          return variables[result[0]];
-        }
-        else
-        {
-          return value;
-        }
-      }
-    }
-
-    {
-      // Check if value has no preceding characters, a possible + or - sign and one ore more digits -> its an int
-      std::vector<std::string> result = regex_test("[^\\w+][\\-+]?(\\d+)", value);
-      if (result.size() > 0)
-      {
-        return std::stoi(result[0]);
+        json ret = std::stoi(value);
+        return ret;
       }
     }
 
     {
       // Check if value has no preceding characters, a possible + or - sign and one ore more digits
       // followed by a dot and another one or more digits -> its a float
-      std::vector<std::string> result = regex_test("[\\-+]?(\\d+)\\.(\\d+)", value);
+      std::vector<std::string> result = regex_match("^\\w+[\\-+]?\\d+\\.\\d+", value);
       if (result.size() > 0)
       {
-        return std::stof(result[0]);
+        json ret = std::stof(value);
+        return ret;
       }
     }
 
+    {
+      // Check if value contains any other characters besides 0-9, + and -
+      // -> it is a pure string
+      std::vector<std::string> result = regex_match("([A-Za-z0-9_]+)", value);
+      if (result.size() > 0)
+      {
+        // TODO : When is value not in variables
+        if (variables.count(result[1]) > 0)
+        {
+          json ret;
+          ret = variables[result[1]];
+          return ret;
+        }
+        else
+        {
+          json ret;
+          ret = value;
+          return ret;
+        }
+      }
+    }
+
+    {
+      if (is_substring(value, ","))
+      {
+        std::vector<std::string> values = split_by_delimiter(value, ",");
+        json jvalues;
+        for (int i = 0; i < values.size(); i++)
+        {
+          jvalues[i] = get_value(key, values[i], false, variables);
+        }
+
+        if (key == "Size")
+        {
+          json ret;
+          ret["x"] = jvalues[0];
+          ret["y"] = jvalues[1];
+          return ret;
+        }
+        else if (key == "Ware")
+        {
+          json ret;
+          ret = jvalues[1];
+          return ret;
+        }
+        json ret;
+        ret = jvalues;
+        return ret;
+      }
+    }
     return 0;
   }
 
-  Cod_value_type get_cod_value_type(variant_type value)
+  bool is_in_json(const json& j, const std::string& key)
   {
-    if (std::string(value.type().name()) == "i")
-      return Cod_value_type::Integer;
-    else if (std::string(value.type().name()) == "f")
-      return Cod_value_type::Float;
-    else
-      return Cod_value_type::String;
+    return j.find(key) != j.end();
   }
 
   bool is_substring(std::string str, std::string substr)
