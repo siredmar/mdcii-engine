@@ -12,9 +12,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/variant.hpp>
 
-#include "external/nlohmann/json.hpp"
-
-using nlohmann::json;
+#include "proto/cod.pb.h"
 
 class Cod_Parser
 {
@@ -59,8 +57,9 @@ private:
 
   bool convert_to_json()
   {
-    json variables;
-    json gfx_map;
+    cod_pb::Variables variables;
+    cod_pb::Map gfx_map;
+    cod_pb::Objects objects;
 
     for (auto& line : cod_txt)
     {
@@ -76,109 +75,142 @@ private:
         continue;
       }
 
-      // constant assignment
-      std::vector<std::string> result = regex_search("(@?)(\\w+)\\s*=\\s*((?:\\d+|\\+|\\w+)+)", line);
-      if (result.size() > 0)
       {
-        bool is_math = is_substring(result[3], "+");
-        std::string constant = result[2];
-        std::string value = result[3];
-        if (begins_with(constant, "GFX"))
+        // constant assignment
+        std::vector<std::string> result = regex_search("(@?)(\\w+)\\s*=\\s*((?:\\d+|\\+|\\w+)+)", line);
+        if (result.size() > 0)
         {
-          if (value == "0")
+          bool is_math = is_substring(result[3], "+");
+          std::string constant = result[2];
+          std::string value = result[3];
+          // if (begins_with(constant, "GFX"))
+          // {
+          //   if (value == "0")
+          //   {
+          //     gfx_map[constant] = value;
+          //   }
+          //   else if (begins_with(value, "GFX"))
+          //   {
+          //     std::string current_gfx = split_by_delimiter(value, "+")[0];
+          //     if (is_in_json(gfx_map, current_gfx) == true)
+          //     {
+          //       gfx_map[constant] = gfx_map[current_gfx];
+          //     }
+          //   }
+          // }add_variableadd_variabadd_variable
+          int i = exists(variables, constant);
+          cod_pb::Variable* variable;
+          if (i != -1)
           {
-            gfx_map[constant] = value;
+            auto var = variables.mutable_variable(i);
+            *var = get_value(constant, value, is_math, variables);
           }
-          else if (begins_with(value, "GFX"))
+          else
           {
-            std::string current_gfx = split_by_delimiter(value, "+")[0];
-            if (is_in_json(gfx_map, current_gfx) == true)
-            {
-              gfx_map[constant] = gfx_map[current_gfx];
-            }
+            auto variable = variables.add_variable();
+            *variable = get_value(constant, value, is_math, variables);
           }
         }
-        variables[constant] = get_value(constant, value, is_math, variables);
       }
+      // {
+      //   // Objfill
+      //   std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
+      //   if (result.size() > 0)
+      //   {
+      //     std::string fill = result[1];
+      //     if (begins_with(fill, "0,MAX"))
+      //     {
+      //       assert(template_ == json::value_t::null);
+      //       template_ = objects[current_object]["items"][current_item];
+      //     }
+      //     else
+      //     {
+      //       // assert(objects[current_object]["items"][current_item].size() == 1);
+      //       // assert(is_in_json(objects[current_object]["items"][current_item], "nested_objects"));
+      //       // assert(objects[current_object]["items"][current_item]["nested_objects"].size() == 0);
+      //       std::string base_item_num = get_value("", fill, false, variables).get<std::string>();
+      //       json base_item = objects[current_object]["items"][base_item_num];
+      //       objects[current_object]["items"][current_item] = base_item;
+      //       if (last_gfx_name != "")
+      //       {
+      //         objects[current_object]["items"][current_item]["GfxCategory"] = last_gfx_name;
+      //       }
+      //       continue;
+      //     }
+      //   }
+      // }
     }
-    std::cout << variables.dump(2) << std::endl;
-    std::cout << gfx_map.dump(2) << std::endl;
+    std::cout << variables.DebugString() << std::endl;
+    // for (int i = 0; i < variables.variable_size(); i++)
+    // {
+    //   std::cout << variables.variable(i).name() << ", " << variables.variable(i).val
+    // }
   }
 
-  json get_value(const std::string& key, const std::string& value, bool is_math, json variables)
+  cod_pb::Variable get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables)
   {
-    if (is_substring(value, ","))
-    {
-      std::cout << key << std::endl;
-    }
+    cod_pb::Variable ret;
+    ret.set_name(key);
     if (is_math == true)
     {
       // Searching for some characters followed by a + or - sign and some digits. Example: VALUE+20
       std::vector<std::string> result = regex_search("(\\w+)(\\+|-)(\\d+)", value);
       if (result.size() > 0)
       {
-        json old_val;
-        if (is_in_json(variables, result[1]) == true)
+        cod_pb::Variable old_val;
+        int i = exists(variables, result[1]);
+        if (i != -1)
         {
-          old_val = variables[result[1]];
+          old_val = variables.variable(i); // get_value(variables, result[1]);
         }
         else
         {
-          old_val = 0;
+          old_val.set_value_int(0);
         }
 
-        if (old_val.type() == json::value_t::string)
+        if (old_val.Value_case() == cod_pb::Variable::ValueCase::kValueString)
         {
-          if (old_val == "RUINE_KONTOR_1")
+          if (old_val.value_string() == "RUINE_KONTOR_1")
           {
             // TODO
-            old_val = 424242;
+            old_val.set_value_int(424242);
           }
         }
         if (result[2] == "+")
         {
-          if (old_val.type() == json::value_t::number_integer)
+          if (old_val.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
           {
-            json ret;
-            int o = old_val;
-            ret = o + std::stoi(result[3]);
+            ret.set_value_int(old_val.value_int() + std::stoi(result[3]));
             return ret;
           }
-          else if (old_val.type() == json::value_t::number_float)
+          else if (old_val.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
           {
-            json ret;
-            int o = old_val;
-            ret = o + std::stof(result[3]);
+            ret.set_value_int(old_val.value_float() + std::stof(result[3]));
             return ret;
           }
           else
           {
-            json ret;
-            std::string o = old_val;
-            ret = std::stoi(old_val.get<std::string>()) + std::stoi(result[3]);
+            std::string o = old_val.value_string();
+            ret.set_value_int(std::stoi(o) + std::stoi(result[3]));
             return ret;
           }
         }
+
         if (result[2] == "-")
         {
-          if (old_val.type() == json::value_t::number_integer)
+          if (old_val.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
           {
-            json ret;
-            int o = old_val;
-            ret[key] = o - std::stoi(result[3]);
+            ret.set_value_int(old_val.value_int() - std::stoi(result[3]));
             return ret;
           }
-          else if (old_val.type() == json::value_t::number_float)
+          else if (old_val.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
           {
-            json ret;
-            int o = old_val;
-            ret[key] = o - std::stof(result[3]);
+            ret.set_value_int(old_val.value_float() - std::stof(result[3]));
             return ret;
           }
+          else
           {
-            json ret;
-            std::string o = old_val;
-            ret = std::stoi(old_val.get<std::string>()) - std::stoi(result[3]);
+            ret.set_value_int(std::stoi(old_val.value_string()) - std::stoi(result[3]));
             return ret;
           }
         }
@@ -191,7 +223,7 @@ private:
       std::vector<std::string> result = regex_match("^\\w*[\\-+]?\\d+", value);
       if (result.size() > 0)
       {
-        json ret = std::stoi(value);
+        ret.set_value_int(std::stoi(value));
         return ret;
       }
     }
@@ -202,7 +234,7 @@ private:
       std::vector<std::string> result = regex_match("^\\w+[\\-+]?\\d+\\.\\d+", value);
       if (result.size() > 0)
       {
-        json ret = std::stof(value);
+        ret.set_value_int(std::stof(value));
         return ret;
       }
     }
@@ -214,55 +246,76 @@ private:
       if (result.size() > 0)
       {
         // TODO : When is value not in variables
-        if (variables.count(result[1]) > 0)
+        if (exists(variables, key) == true)
         {
-          json ret;
-          ret = variables[result[1]];
+          auto v = get_value(variables, result[1]);
+          ret = v;
+          ret.set_name(key);
           return ret;
         }
         else
         {
-          json ret;
-          ret = value;
+          ret.set_value_string(value);
           return ret;
         }
       }
     }
 
-    {
-      if (is_substring(value, ","))
-      {
-        std::vector<std::string> values = split_by_delimiter(value, ",");
-        json jvalues;
-        for (int i = 0; i < values.size(); i++)
-        {
-          jvalues[i] = get_value(key, values[i], false, variables);
-        }
+    // {
+    //   if (is_substring(value, ","))
+    //   {
+    //     std::vector<std::string> values = split_by_delimiter(value, ",");
+    //     json jvalues;
+    //     for (int i = 0; i < values.size(); i++)
+    //     {
+    //       jvalues[i] = get_value(key, values[i], false, variables);
+    //     }
 
-        if (key == "Size")
-        {
-          json ret;
-          ret["x"] = jvalues[0];
-          ret["y"] = jvalues[1];
-          return ret;
-        }
-        else if (key == "Ware")
-        {
-          json ret;
-          ret = jvalues[1];
-          return ret;
-        }
-        json ret;
-        ret = jvalues;
-        return ret;
-      }
-    }
-    return 0;
+    //     if (key == "Size")
+    //     {
+    //       json ret;
+    //       ret["x"] = jvalues[0];
+    //       ret["y"] = jvalues[1];
+    //       return ret;
+    //     }
+    //     else if (key == "Ware")
+    //     {
+    //       json ret;
+    //       ret = jvalues[1];
+    //       return ret;
+    //     }
+    //     json ret;
+    //     ret = jvalues;
+    //     return ret;
+    //   }
+    // }
+    ret.set_value_int(0);
+    return ret;
   }
 
-  bool is_in_json(const json& j, const std::string& key)
+  int exists(const cod_pb::Variables& v, const std::string& key)
   {
-    return j.find(key) != j.end();
+    for (int i = 0; i < v.variable_size(); i++)
+    {
+      if (v.variable(i).name() == key)
+      {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  cod_pb::Variable get_value(const cod_pb::Variables& v, const std::string& key)
+  {
+    for (int i = 0; i < v.variable_size(); i++)
+    {
+      if (v.variable(i).name() == key)
+      {
+        return v.variable(i);
+      }
+    }
+    cod_pb::Variable ret;
+    return ret;
   }
 
   bool is_substring(std::string str, std::string substr)

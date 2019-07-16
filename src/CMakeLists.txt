@@ -4,6 +4,10 @@ add_definitions(-std=c++11)
 find_package(Boost REQUIRED COMPONENTS iostreams program_options filesystem)
 find_package(SDL REQUIRED)
 
+ADD_SUBDIRECTORY(proto)
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
 add_compile_options(-mno-ms-bitfields)
 
 add_executable(mdcii-inselbmp inselbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp bebauung.cpp grafiken.cpp files.cpp version.cpp)
@@ -13,7 +17,7 @@ add_executable(mdcii-weltbmp weltbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp 
 target_link_libraries(mdcii-weltbmp boost_system boost_iostreams boost_filesystem)
 
 add_executable(mdcii-sdltest sdltest.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp welt.cpp kamera.cpp karte.cpp spielbildschirm.cpp bebauung.cpp grafiken.cpp files.cpp version.cpp)
-target_link_libraries(mdcii-sdltest SDL boost_system boost_iostreams boost_program_options boost_filesystem boost_regex)
+target_link_libraries(mdcii-sdltest SDL boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
 if(WIN32)
   target_link_libraries(mdcii-sdltest mingw32 winmm dxguid SDLmain)
 endif(WIN32)
@@ -31,3 +35,6 @@ target_link_libraries(mdcii-zeitext boost_iostreams boost_program_options)
 
 add_executable(mdcii-codcat codcat.cpp)
 target_link_libraries(mdcii-codcat boost_iostreams)
+
+add_executable(cod_parser_test test/cod_parser_test/cod_parser_test.cpp files.cpp proto/cod.pb.cc)
+target_link_libraries(cod_parser_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
