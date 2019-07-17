@@ -7,9 +7,11 @@
 #include <sstream>
 #include <iostream>
 #include <cstring>
+#include <stack>
 
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/variant.hpp>
 
 #include "proto/cod.pb.h"
@@ -20,11 +22,69 @@ public:
   Cod_Parser(std::string cod_file_path)
     : path(cod_file_path)
   {
+    // current_object = Create_object();
+    // current_object->set_name("object1");
+
+    // current_object = Create_object(object_stack.top());
+    // current_object->set_name("nested1");
+
+    // while (!object_stack.empty())
+    //   object_stack.pop();
+    // current_object = Create_object();
+    // current_object->set_name("object2");
+
+    // current_object = Create_object(object_stack.top());
+    // current_object->set_name("nested2");
+    // std::cout << objects.DebugString() << std::endl;
     decode();
     convert_to_json();
   }
 
 private:
+  cod_pb::Objects objects;
+  cod_pb::Object* current_object;
+  struct ObjectType
+  {
+    cod_pb::Object* object;
+    bool number_object = {false};
+  };
+  std::stack<ObjectType> object_stack;
+
+  bool Top_is_number_object()
+  {
+    if (!object_stack.empty())
+    {
+      return object_stack.top().number_object;
+    }
+    return false;
+  }
+
+  cod_pb::Object* Create_object(bool number_object)
+  {
+    cod_pb::Object* ret;
+    if (object_stack.empty())
+    {
+      ret = objects.add_object();
+    }
+    else
+    {
+      ret = object_stack.top().object->add_objects();
+    }
+    ObjectType obj;
+    obj.object = ret;
+    obj.number_object = number_object;
+    object_stack.push(obj);
+    return ret;
+  }
+
+  bool Object_finished()
+  {
+    if (object_stack.size() > 0)
+    {
+      object_stack.pop();
+    }
+  }
+
   std::vector<std::string> regex_match(std::string regex, std::string str)
   {
     std::vector<std::string> ret;
@@ -58,18 +118,13 @@ private:
   bool convert_to_json()
   {
     cod_pb::Variables variables;
+    cod_pb::Variables object_variables;
     cod_pb::Map gfx_map;
-    cod_pb::Objects objects;
 
     for (auto& line : cod_txt)
     {
       line = trim_comment_from_line(line);
-      if (line.size() == 0)
-      {
-        continue;
-      }
-
-      if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:") || std::all_of(line.begin(), line.end(), isspace))
+      if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:")) // || std::all_of(line.begin(), line.end(), isspace))
       {
         // TODO : skipped for now
         continue;
@@ -110,41 +165,105 @@ private:
             auto variable = variables.add_variable();
             *variable = get_value(constant, value, is_math, variables);
           }
+          continue;
         }
       }
-      // {
-      //   // Objfill
-      //   std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
-      //   if (result.size() > 0)
-      //   {
-      //     std::string fill = result[1];
-      //     if (begins_with(fill, "0,MAX"))
-      //     {
-      //       assert(template_ == json::value_t::null);
-      //       template_ = objects[current_object]["items"][current_item];
-      //     }
-      //     else
-      //     {
-      //       // assert(objects[current_object]["items"][current_item].size() == 1);
-      //       // assert(is_in_json(objects[current_object]["items"][current_item], "nested_objects"));
-      //       // assert(objects[current_object]["items"][current_item]["nested_objects"].size() == 0);
-      //       std::string base_item_num = get_value("", fill, false, variables).get<std::string>();
-      //       json base_item = objects[current_object]["items"][base_item_num];
-      //       objects[current_object]["items"][current_item] = base_item;
-      //       if (last_gfx_name != "")
-      //       {
-      //         objects[current_object]["items"][current_item]["GfxCategory"] = last_gfx_name;
-      //       }
-      //       continue;
-      //     }
-      //   }
-      // }
+      {
+        if (is_substring(line, ",") == true)
+        {
+          std::vector<std::string> result = regex_search("(\\b(?!Objekt|ObjFill\\b)\\w+)\\s*:\\s*(.+)", line);
+          if (result.size() > 0)
+          {
+            std::vector<std::string> values = split_by_delimiter(result[2], ",");
+            for (auto& v : values)
+            {
+              v = trim_spaces_leading_trailing(v);
+            }
+            auto var = current_object->mutable_variables()->add_variable();
+            var->set_name(result[1]);
+            auto arr = var->mutable_value_array();
+            for (auto v : values)
+            {
+              arr->add_value()->set_value_string(v);
+            }
+          }
+          continue;
+        }
+      }
+      {
+        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*([+|-]?)(\\d+)", line);
+        if (result.size() > 0)
+        {
+          auto var = current_object->mutable_variables()->add_variable();
+          var->set_name(result[1]);
+          var->set_value_int(std::stoi(result[3]));
+          continue;
+        }
+      }
+      {
+        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
+        if (result.size() > 0)
+        {
+          auto var = current_object->mutable_variables()->add_variable();
+          var->set_name(result[1]);
+          var->set_value_string(result[2]);
+          continue;
+        }
+      }
+      {
+        std::vector<std::string> result = regex_search("Objekt:\\s*([\\w,]+)", line);
+        if (result.size() > 0)
+        {
+          if (result[1] == "BAUINFRA")
+          {
+            std::cout << "a" << std::endl;
+          }
+          current_object = Create_object(false);
+          current_object->set_name(result[1]);
+          continue;
+        }
+      }
+      {
+        // TODO: do the calculation for name
+        std::vector<std::string> result = regex_search("Nummer:\\s*([+|-]?\\d+)", line);
+        if (result.size() > 0)
+        {
+          current_object = Create_object(true);
+          current_object->set_name(result[1]);
+          continue;
+        }
+      }
+      {
+        // TODO: get the constants value
+        std::vector<std::string> result = regex_search("Nummer:\\s*(\\w+)", line);
+        if (result.size() > 0)
+        {
+          current_object = Create_object(true);
+          current_object->set_name(result[1]);
+          continue;
+        }
+      }
+      {
+        if (is_empty(line))
+        {
+          if (Top_is_number_object() == true)
+          {
+            Object_finished();
+          }
+          continue;
+        }
+      }
+      {
+        std::vector<std::string> result = regex_search("\\s*EndObj", line);
+        if (result.size() > 0)
+        {
+          Object_finished();
+          continue;
+        }
+      }
     }
-    std::cout << variables.DebugString() << std::endl;
-    // for (int i = 0; i < variables.variable_size(); i++)
-    // {
-    //   std::cout << variables.variable(i).name() << ", " << variables.variable(i).val
-    // }
+    // std::cout << variables.DebugString() << std::endl;
+    std::cout << objects.DebugString() << std::endl;
   }
 
   cod_pb::Variable get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables)
@@ -316,6 +435,22 @@ private:
     }
     cod_pb::Variable ret;
     return ret;
+  }
+
+  std::string trim_spaces_leading_trailing(const std::string& s)
+  {
+    std::string input = s;
+    boost::algorithm::trim(input);
+    return input;
+  }
+
+  bool is_empty(const std::string& str)
+  {
+    if (str.size() == 0 || std::all_of(str.begin(), str.end(), isspace))
+    {
+      return true;
+    }
+    return false;
   }
 
   bool is_substring(std::string str, std::string substr)

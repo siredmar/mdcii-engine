@@ -2,12 +2,25 @@ syntax = "proto3";
 
 package cod_pb;
 
+message Value {
+    oneof Value {
+        int32 value_int = 1;
+        float value_float = 2;
+        string value_string = 3;    
+    }
+}
+
+message ArrayValue {
+    repeated Value value = 1;
+}
+
 message Variable {
     string name = 1;
     oneof Value {
         int32 value_int = 2;
         float value_float = 3;
-        string value_string = 4;    
+        string value_string = 4;   
+        ArrayValue value_array = 5;
     }
 }
 
@@ -18,11 +31,7 @@ message Variables {
 message Object {
     string name = 1;
     Variables variables = 2;
-    NestedObjects nested_objects = 3;
-}
-
-message NestedObjects {
-    repeated Object nested_object = 1;
+    repeated Object objects = 3;
 }
 
 message Objects {
