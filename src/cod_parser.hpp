@@ -120,6 +120,8 @@ private:
     cod_pb::Variables object_variables;
     cod_pb::Map gfx_map;
 
+    std::map<std::string, int> variable_numbers;
+
     for (auto& line : cod_txt)
     {
       line = trim_comment_from_line(line);
@@ -211,6 +213,34 @@ private:
         }
       }
       {
+        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)\\s*([+|-])\\s*(\\d+)", line);
+        if (result.size() > 0)
+        {
+          int current_value = exists(variables, result[2]);
+          if (current_value != -1)
+          {
+            if (result[3] == "+")
+            {
+              current_value += std::stoi(result[4]);
+            }
+            else if (result[3] == "-")
+            {
+              current_value -= std::stoi(result[4]);
+            }
+          }
+          else
+          {
+            current_value = 0;
+          }
+          variable_numbers[result[1]] = current_value;
+
+          auto var = current_object->mutable_variables()->add_variable();
+          var->set_name(result[1]);
+          var->set_value_int(current_value);
+          continue;
+        }
+      }
+      {
         std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
         if (result.size() > 0)
         {
@@ -231,11 +261,27 @@ private:
       }
       {
         // TODO: do the calculation for name
-        std::vector<std::string> result = regex_search("Nummer:\\s*([+|-]?\\d+)", line);
+        std::vector<std::string> result = regex_search("(Nummer):\\s*([+|-]?)(\\d+)", line);
         if (result.size() > 0)
         {
+          int current_number = variable_numbers[result[1]];
+          if (result[2] == "+")
+          {
+            current_number += std::stoi(result[3]);
+          }
+          else if (result[2] == "-")
+          {
+            current_number -= std::stoi(result[3]);
+          }
+          else
+          {
+            current_number = std::stoi(result[3]);
+          }
+
+          variable_numbers[result[1]] = current_number;
+
           current_object = Create_object(true);
-          current_object->set_name(result[1]);
+          current_object->set_name(std::to_string(current_number));
           continue;
         }
       }
@@ -386,34 +432,6 @@ private:
       }
     }
 
-    // {
-    //   if (is_substring(value, ","))
-    //   {
-    //     std::vector<std::string> values = split_by_delimiter(value, ",");
-    //     json jvalues;
-    //     for (int i = 0; i < values.size(); i++)
-    //     {
-    //       jvalues[i] = get_value(key, values[i], false, variables);
-    //     }
-
-    //     if (key == "Size")
-    //     {
-    //       json ret;
-    //       ret["x"] = jvalues[0];
-    //       ret["y"] = jvalues[1];
-    //       return ret;
-    //     }
-    //     else if (key == "Ware")
-    //     {
-    //       json ret;
-    //       ret = jvalues[1];
-    //       return ret;
-    //     }
-    //     json ret;
-    //     ret = jvalues;
-    //     return ret;
-    //   }
-    // }
     ret.set_value_int(0);
     return ret;
   }
@@ -525,6 +543,7 @@ private:
 
   Cod_value_type check_type(const std::string& s)
   {
+    // TODO: replace with boost::regex to get rid of std::regex
     if (std::regex_match(s, std::regex("[-|+]?[0-9]+")))
     {
       return Cod_value_type::INT;
