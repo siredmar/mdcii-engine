@@ -30,6 +30,7 @@ public:
   }
 
 private:
+  cod_pb::Variables variables;
   cod_pb::Objects objects;
   cod_pb::Object* current_object;
   struct ObjectType
@@ -116,8 +117,6 @@ private:
 
   bool convert_to_json()
   {
-    cod_pb::Variables variables;
-    cod_pb::Variables object_variables;
     cod_pb::Map gfx_map;
 
     std::map<std::string, int> variable_numbers;
@@ -125,6 +124,12 @@ private:
     for (auto& line : cod_txt)
     {
       line = trim_comment_from_line(line);
+
+      if (is_substring(line, "INFRA_GALGEN"))
+      {
+        std::cout << std::endl;
+      }
+
       if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:")) // || std::all_of(line.begin(), line.end(), isspace))
       {
         // TODO : skipped for now
@@ -154,7 +159,7 @@ private:
           //     }
           //   }
           // }add_variableadd_variabadd_variable
-          int i = exists(variables, constant);
+          int i = exists(constant);
           cod_pb::Variable* variable;
           if (i != -1)
           {
@@ -203,20 +208,43 @@ private:
         }
       }
       {
-        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*([+|-]?)(\\d+)", line);
+        // example: '@Gfx:       -36'
+        std::vector<std::string> result = regex_search("((@)(\\b(?!Nummer\\b)\\w+))\\s*:\\s*([+|-]?)(\\d+)", line);
         if (result.size() > 0)
         {
+
+          int current_value = variable_numbers[result[3]];
+          if (result[4] == "+")
+          {
+            current_value += std::stoi(result[5]);
+          }
+          else if (result[4] == "-")
+          {
+            current_value -= std::stoi(result[5]);
+          }
+          else
+          {
+            current_value = std::stoi(result[5]);
+          }
+
+          variable_numbers[result[3]] = current_value;
+
           auto var = current_object->mutable_variables()->add_variable();
-          var->set_name(result[1]);
-          var->set_value_int(std::stoi(result[3]));
+          var->set_name(result[3]);
+          var->set_value_int(current_value);
           continue;
         }
       }
       {
-        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)\\s*([+|-])\\s*(\\d+)", line);
+        // example: 'Gfx:        GFXBODEN+80'
+        std::vector<std::string> result = regex_search("(\\b(?!Nummer\\b)\\w+)\\s*:\\s*(\\w+)\\s*([+|-])\\s*(\\d+)", line);
         if (result.size() > 0)
         {
-          int current_value = exists(variables, result[2]);
+          int current_value = -1;
+          if (exists(result[2]))
+          {
+            current_value = get_value(result[2]).value_int();
+          }
           if (current_value != -1)
           {
             if (result[3] == "+")
@@ -241,12 +269,29 @@ private:
         }
       }
       {
+        // example: 'Rotate: 1' or  'Gfx:        GFXGALGEN'
         std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
         if (result.size() > 0)
         {
+
           auto var = current_object->mutable_variables()->add_variable();
           var->set_name(result[1]);
-          var->set_value_string(result[2]);
+          if (check_type(result[2]) == Cod_value_type::INT)
+          {
+            var->set_value_int(std::stoi(result[2]));
+          }
+          else
+          {
+            if (exists(result[2]) != -1)
+            {
+              auto v = get_value(result[2]);
+              var->set_value_int(v.value_int());
+            }
+            else
+            {
+              var->set_value_string(result[2]);
+            }
+          }
           continue;
         }
       }
@@ -314,8 +359,8 @@ private:
         }
       }
     }
-    // std::cout << variables.DebugString() << std::endl;
     std::cout << objects.DebugString() << std::endl;
+    std::cout << variables.DebugString() << std::endl;
   }
 
   cod_pb::Variable get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables)
@@ -329,10 +374,10 @@ private:
       if (result.size() > 0)
       {
         cod_pb::Variable old_val;
-        int i = exists(variables, result[1]);
+        int i = exists(result[1]);
         if (i != -1)
         {
-          old_val = variables.variable(i); // get_value(variables, result[1]);
+          old_val = variables.variable(i); // get_value(result[1]);
         }
         else
         {
@@ -417,9 +462,9 @@ private:
       if (result.size() > 0)
       {
         // TODO : When is value not in variables
-        if (exists(variables, key) == true)
+        if (exists(key) == true)
         {
-          auto v = get_value(variables, result[1]);
+          auto v = get_value(result[1]);
           ret = v;
           ret.set_name(key);
           return ret;
@@ -436,11 +481,11 @@ private:
     return ret;
   }
 
-  int exists(const cod_pb::Variables& v, const std::string& key)
+  int exists(const std::string& key)
   {
-    for (int i = 0; i < v.variable_size(); i++)
+    for (int i = 0; i < variables.variable_size(); i++)
     {
-      if (v.variable(i).name() == key)
+      if (variables.variable(i).name() == key)
       {
         return i;
       }
@@ -448,13 +493,13 @@ private:
     return -1;
   }
 
-  cod_pb::Variable get_value(const cod_pb::Variables& v, const std::string& key)
+  cod_pb::Variable get_value(const std::string& key)
   {
-    for (int i = 0; i < v.variable_size(); i++)
+    for (int i = 0; i < variables.variable_size(); i++)
     {
-      if (v.variable(i).name() == key)
+      if (variables.variable(i).name() == key)
       {
-        return v.variable(i);
+        return variables.variable(i);
       }
     }
     cod_pb::Variable ret;

@@ -1,19 +1,17 @@
 ;
 ; Diese Datei enthält Metadaten zur Bebauung eines Inselfeldes.
 ; Die Informationen müssen zum verwendeten Grafikarchiv passen.
-;
-;          _________ ID
-;         / ________ Breite (d.h. Breite des Gebäudes)
-;        / / _______ Höhe (d.h. Länge des Gebäudes)
-;       / / / ______ Richtungen (1 oder 4)
-;      / / / / _____ Animationsschritte
-;     / / / / / ____ Grundhöhe (0 oder 1)
-;    / / / / / / ___ Bauhöhe (0 oder 1)
-;   / / / / / / / __ Anzahl optisch unterscheidbarer Lagerstände
-;  / / / / / / / / _ Kategorie (0=keine, 1=Land, 2=Feld, 3=Haus, 4=Betrieb)
-; / / / / / / / / /
-;
-
+; 
+;           _________ ID
+;          / ________ Breite (d.h. Breite des Gebäudes)
+;         / / _______ Höhe (d.h. Länge des Gebäudes)
+;        / / / ______ Richtungen (1 oder 4)
+;       / / / / _____ Animationsschritte
+;      / / / / / ____ Grundhöhe (0 oder 1)
+;     / / / / / / ___ Bauhöhe (0 oder 1)
+;    / / / / / / / __ Anzahl optisch unterscheidbarer Lagerstände
+;   / / / / / / / / _ Kategorie (0=keine, 1=Land, 2=Feld, 3=Haus, 4=Betrieb)
+;  / / / / / / / / /
 101 1 1 4 1 1 0 1 1 gras0_gruen
 102 1 1 4 1 1 0 1 1 gras1_gruen
 103 1 1 4 1 1 0 1 1 gras2_gruen
