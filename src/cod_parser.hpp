@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include <stack>
+#include <regex>
 
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -23,20 +24,6 @@ public:
   Cod_Parser(std::string cod_file_path)
     : path(cod_file_path)
   {
-    // current_object = Create_object();
-    // current_object->set_name("object1");
-
-    // current_object = Create_object(object_stack.top());
-    // current_object->set_name("nested1");
-
-    // while (!object_stack.empty())
-    //   object_stack.pop();
-    // current_object = Create_object();
-    // current_object->set_name("object2");
-
-    // current_object = Create_object(object_stack.top());
-    // current_object->set_name("nested2");
-    // std::cout << objects.DebugString() << std::endl;
     decode();
     convert_to_json();
     // json();
@@ -196,7 +183,18 @@ private:
             auto arr = var->mutable_value_array();
             for (auto v : values)
             {
-              arr->add_value()->set_value_string(v);
+              if (check_type(v) == Cod_value_type::INT)
+              {
+                arr->add_value()->set_value_int(std::stoi(v));
+              }
+              else if (check_type(v) == Cod_value_type::FLOAT)
+              {
+                arr->add_value()->set_value_float(std::stof(v));
+              }
+              else
+              {
+                arr->add_value()->set_value_string(v);
+              }
             }
           }
           continue;
@@ -226,10 +224,6 @@ private:
         std::vector<std::string> result = regex_search("Objekt:\\s*([\\w,]+)", line);
         if (result.size() > 0)
         {
-          if (result[1] == "BAUINFRA")
-          {
-            std::cout << "a" << std::endl;
-          }
           current_object = Create_object(false);
           current_object->set_name(result[1]);
           continue;
@@ -520,6 +514,29 @@ private:
       }
     }
     return true;
+  }
+
+  enum class Cod_value_type
+  {
+    INT = 0,
+    FLOAT,
+    STRING
+  };
+
+  Cod_value_type check_type(const std::string& s)
+  {
+    if (std::regex_match(s, std::regex("[-|+]?[0-9]+")))
+    {
+      return Cod_value_type::INT;
+    }
+    else if (std::regex_match(s, std::regex("[-|+]?[0-9]+.[0-9]+")))
+    {
+      return Cod_value_type::FLOAT;
+    }
+    else
+    {
+      return Cod_value_type::STRING;
+    }
   }
 
   std::string path;
