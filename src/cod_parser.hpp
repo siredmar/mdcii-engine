@@ -14,6 +14,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/variant.hpp>
 
+#include <google/protobuf/util/json_util.h>
 #include "proto/cod.pb.h"
 
 class Cod_Parser
@@ -38,6 +39,7 @@ public:
     // std::cout << objects.DebugString() << std::endl;
     decode();
     convert_to_json();
+    // json();
   }
 
 private:
@@ -49,6 +51,16 @@ private:
     bool number_object = {false};
   };
   std::stack<ObjectType> object_stack;
+
+  bool json()
+  {
+    std::string json_string;
+    google::protobuf::util::JsonPrintOptions options;
+    options.add_whitespace = true;
+    options.always_print_primitive_fields = true;
+    MessageToJsonString(objects, &json_string, options);
+    std::cout << json_string << std::endl;
+  }
 
   bool Top_is_number_object()
   {
