@@ -125,7 +125,7 @@ private:
     {
       line = trim_comment_from_line(line);
 
-      if (is_substring(line, "INFRA_GALGEN"))
+      if (is_substring(line, "HAUSWACHS = Nummer"))
       {
         std::cout << std::endl;
       }
@@ -142,34 +142,43 @@ private:
         if (result.size() > 0)
         {
           bool is_math = is_substring(result[3], "+");
-          std::string constant = result[2];
+          std::string key = result[2];
           std::string value = result[3];
-          // if (begins_with(constant, "GFX"))
-          // {
-          //   if (value == "0")
-          //   {
-          //     gfx_map[constant] = value;
-          //   }
-          //   else if (begins_with(value, "GFX"))
-          //   {
-          //     std::string current_gfx = split_by_delimiter(value, "+")[0];
-          //     if (is_in_json(gfx_map, current_gfx) == true)
-          //     {
-          //       gfx_map[constant] = gfx_map[current_gfx];
-          //     }
-          //   }
-          // }add_variableadd_variabadd_variable
-          int i = exists(constant);
-          cod_pb::Variable* variable;
-          if (i != -1)
+          // example: 'HAUSWACHS = Nummer'
+          if (value == "Nummer")
           {
-            auto var = variables.mutable_variable(i);
-            *var = get_value(constant, value, is_math, variables);
+            if (variable_numbers.count(value))
+            {
+              int number = variable_numbers[value];
+              int i = exists(key);
+              cod_pb::Variable* variable;
+              if (i != -1)
+              {
+                variable = variables.mutable_variable(i);
+              }
+              else
+              {
+                variable = variables.add_variable();
+              }
+              variable->set_name(key);
+              variable->set_value_string(std::to_string(number));
+            }
           }
           else
+          // example: 'IDHANDW =   20501'
           {
-            auto variable = variables.add_variable();
-            *variable = get_value(constant, value, is_math, variables);
+            int i = exists(key);
+            cod_pb::Variable* variable;
+            if (i != -1)
+            {
+              auto var = variables.mutable_variable(i);
+              *var = get_value(key, value, is_math, variables);
+            }
+            else
+            {
+              auto variable = variables.add_variable();
+              *variable = get_value(key, value, is_math, variables);
+            }
           }
           continue;
         }
@@ -358,6 +367,15 @@ private:
           continue;
         }
       }
+      // {
+      //   std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
+      //   if (result.size() > 0)
+      //   {
+      //     current_object = Create_object(false);
+      //     current_object->set_name(result[1]);
+      //     continue;
+      //   }
+      // }
     }
     std::cout << objects.DebugString() << std::endl;
     std::cout << variables.DebugString() << std::endl;
