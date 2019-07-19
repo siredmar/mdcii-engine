@@ -125,7 +125,7 @@ private:
     {
       line = trim_comment_from_line(line);
 
-      if (is_substring(line, "HAUSWACHS = Nummer"))
+      if (is_substring(line, "Kosten:"))
       {
         std::cout << std::endl;
       }
@@ -209,7 +209,28 @@ private:
               }
               else
               {
-                arr->add_value()->set_value_string(v);
+                if (exists(v) != -1)
+                {
+                  int i = exists(v);
+                  cod_pb::Variable* variable;
+                  auto var = get_value(v);
+                  if (var.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
+                  {
+                    arr->add_value()->set_value_int(var.value_int());
+                  }
+                  else if (var.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
+                  {
+                    arr->add_value()->set_value_float(var.value_float());
+                  }
+                  else
+                  {
+                    arr->add_value()->set_value_string(var.value_string());
+                  }
+                }
+                else
+                {
+                  arr->add_value()->set_value_string(v);
+                }
               }
             }
           }
