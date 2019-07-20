@@ -32,6 +32,7 @@ public:
 private:
   cod_pb::Variables variables;
   cod_pb::Objects objects;
+  std::map<std::string, cod_pb::Object*> object_map;
   cod_pb::Object* current_object;
   struct ObjectType
   {
@@ -125,7 +126,7 @@ private:
     {
       line = trim_comment_from_line(line);
 
-      if (is_substring(line, "Kosten:"))
+      if (is_substring(line, "ObjFill:    HAUSWACHS"))
       {
         std::cout << std::endl;
       }
@@ -300,7 +301,7 @@ private:
       }
       {
         // example: 'Rotate: 1' or  'Gfx:        GFXGALGEN'
-        std::vector<std::string> result = regex_search("(\\b(?!Objekt|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
+        std::vector<std::string> result = regex_search("(\\b(?!Objekt|ObjFill|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
         if (result.size() > 0)
         {
 
@@ -331,6 +332,7 @@ private:
         {
           current_object = Create_object(false);
           current_object->set_name(result[1]);
+          object_map[result[1]] = current_object;
           continue;
         }
       }
@@ -357,6 +359,7 @@ private:
 
           current_object = Create_object(true);
           current_object->set_name(std::to_string(current_number));
+          object_map[std::to_string(current_number)] = current_object;
           continue;
         }
       }
@@ -367,6 +370,7 @@ private:
         {
           current_object = Create_object(true);
           current_object->set_name(result[1]);
+          object_map[result[1]] = current_object;
           continue;
         }
       }
@@ -388,18 +392,39 @@ private:
           continue;
         }
       }
-      // {
-      //   std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
-      //   if (result.size() > 0)
-      //   {
-      //     current_object = Create_object(false);
-      //     current_object->set_name(result[1]);
-      //     continue;
-      //   }
-      // }
+      {
+        std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
+        if (result.size() > 0)
+        {
+          cod_pb::Object obj;
+          auto real_name = get_value(result[1]);
+          if (get_object(real_name.value_string(), obj) == true)
+          {
+            if (obj.has_variables())
+            {
+              for (int i = 0; i < obj.variables().variable_size(); i++)
+              {
+                auto variable = current_object->mutable_variables()->add_variable();
+                *variable = obj.variables().variable(i);
+              }
+            }
+          }
+          continue;
+        }
+      }
     }
     std::cout << objects.DebugString() << std::endl;
     std::cout << variables.DebugString() << std::endl;
+  }
+
+  bool get_object(const std::string& name, cod_pb::Object& ret)
+  {
+    if (object_map.count(name))
+    {
+      ret = *object_map[name];
+      return true;
+    }
+    return false;
   }
 
   cod_pb::Variable get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables)
