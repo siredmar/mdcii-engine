@@ -38,6 +38,7 @@ private:
   {
     cod_pb::Object* object;
     bool number_object = {false};
+    int spaces = -1;
   };
   std::stack<ObjectType> object_stack;
 
@@ -60,7 +61,7 @@ private:
     return false;
   }
 
-  cod_pb::Object* Create_object(bool number_object)
+  cod_pb::Object* Create_object(bool number_object, int spaces)
   {
     cod_pb::Object* ret;
     if (object_stack.empty())
@@ -74,6 +75,7 @@ private:
     ObjectType obj;
     obj.object = ret;
     obj.number_object = number_object;
+    obj.spaces = spaces;
     object_stack.push(obj);
     return ret;
   }
@@ -122,19 +124,18 @@ private:
 
     std::map<std::string, int> variable_numbers;
 
-    for (auto& line : cod_txt)
+    int spaces = -1;
+
+    for (int line_index = 0; line_index < cod_txt.size() - 1; line_index++)
     {
-
-      if (is_substring(line, " ObjFill:    HAUSWACHS"))
+      if (is_substring(cod_txt[line_index], "Stirbtime:	2.5"))
       {
-        std::cout << line << std::endl;
-      }
-      if (is_substring(line, "eereszeichen Mittel-Dunke"))
-      {
-        std::cout << line << std::endl;
+        std::cout << cod_txt[line_index] << std::endl;
       }
 
-      line = trim_comment_from_line(line);
+      std::string line = cod_txt[line_index];
+      std::string next_line = cod_txt[line_index + 1];
+      spaces = count_front_spaces(line);
 
       if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:")) // || std::all_of(line.begin(), line.end(), isspace))
       {
@@ -343,7 +344,7 @@ private:
         std::vector<std::string> result = regex_search("Objekt:\\s*([\\w,]+)", line);
         if (result.size() > 0)
         {
-          current_object = Create_object(false);
+          current_object = Create_object(false, spaces);
           current_object->set_name(result[1]);
           object_map[result[1]] = current_object;
           continue;
@@ -353,34 +354,17 @@ private:
         std::vector<std::string> result = regex_search("(Nummer):\\s*([+|-]?)(\\d+)", line);
         if (result.size() > 0)
         {
-          int current_number = variable_numbers[result[1]];
-          current_number = calculate_operation(current_number, result[2], result[3]);
-          variable_numbers[result[1]] = current_number;
-
-          current_object = Create_object(true);
-          current_object->set_name(std::to_string(current_number));
-          object_map[std::to_string(current_number)] = current_object;
-          continue;
-        }
-      }
-      {
-        // TODO: get the constants value
-        std::vector<std::string> result = regex_search("Nummer:\\s*(\\w+)", line);
-        if (result.size() > 0)
-        {
-          current_object = Create_object(true);
-          current_object->set_name(result[1]);
-          object_map[result[1]] = current_object;
-          continue;
-        }
-      }
-      {
-        if (is_empty(line))
-        {
           if (Top_is_number_object() == true)
           {
             Object_finished();
           }
+
+          int current_number = variable_numbers[result[1]];
+          current_number = calculate_operation(current_number, result[2], result[3]);
+          variable_numbers[result[1]] = current_number;
+          current_object = Create_object(true, spaces);
+          current_object->set_name(std::to_string(current_number));
+          object_map[std::to_string(current_number)] = current_object;
           continue;
         }
       }
@@ -388,10 +372,35 @@ private:
         std::vector<std::string> result = regex_search("\\s*EndObj", line);
         if (result.size() > 0)
         {
+          if (object_stack.top().spaces > spaces)
+          {
+            // finish previous number object
+            Object_finished();
+          }
+          // std::vector<std::string> result_next = regex_search("Nummer:", next_line);
+          // if (result_next.size() > 0)
+          // {
+          //   if (Top_is_number_object() == true)
+          //   {
+          //     Object_finished();
+          //   }
+          // }
           Object_finished();
           continue;
         }
       }
+
+      // {
+      //   std::vector<std::string> result = regex_search("Nummer\\s*:", next_line);
+      //   if (result.size() > 0)
+      //   {
+      //     if (Top_is_number_object() == true)
+      //     {
+      //       Object_finished();
+      //     }
+      //     continue;
+      //   }
+      // }
       {
         std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
         if (result.size() > 0)
@@ -416,9 +425,23 @@ private:
                 *object = obj.objects(i);
               }
             }
-            // TODO: copy objects
           }
           continue;
+        }
+        {
+          // TODO: get the constants value
+          std::vector<std::string> result = regex_search("Nummer:\\s*(\\w+)", line);
+          if (result.size() > 0)
+          {
+            if (Top_is_number_object() == true)
+            {
+              Object_finished();
+            }
+            current_object = Create_object(true, spaces);
+            current_object->set_name(result[1]);
+            object_map[result[1]] = current_object;
+            continue;
+          }
         }
       }
     }
@@ -586,6 +609,36 @@ private:
     return ret;
   }
 
+  std::string tabs_to_spaces(const std::string& str)
+  {
+    std::string newtext = "  ";
+    boost::regex re("\t");
+
+    std::string result = boost::regex_replace(str, re, newtext);
+    return result;
+  }
+
+  int count_front_spaces(const std::string& str)
+  {
+    int number_of_spaces = 0;
+    std::vector<std::string> result = regex_search("(\\s*)(\\w+)", str);
+    if (result.size() > 0)
+    {
+      for (auto& iter : result[1])
+      {
+        if (iter == ' ')
+        {
+          number_of_spaces++;
+        }
+        if (iter != ' ')
+        {
+          break;
+        }
+      }
+    }
+    return number_of_spaces;
+  }
+
   int exists(const std::string& key)
   {
     for (int i = 0; i < variables.variable_size(); i++)
@@ -676,7 +729,11 @@ private:
       }
       else
       {
-        cod_txt.push_back(line);
+        line = trim_comment_from_line(tabs_to_spaces((line)));
+        if (is_empty(line) == false)
+        {
+          cod_txt.push_back(line);
+        }
         line = "";
         i++; // hop over '\n'
       }
