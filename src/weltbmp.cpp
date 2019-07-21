@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
   f.close();
   auto files = Files::create_instance(".", true);
-  Bsh_leser bsh_leser(files->instance()->get_file("mgfx/stadtfld.bsh"));
+  Bsh_leser bsh_leser(files->instance()->find_path_for_file("mgfx/stadtfld.bsh"));
   Grafiken stadtfld_grafiken(Anno_version::VANILLA);
 
   Bildspeicher_pal8 bs((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);

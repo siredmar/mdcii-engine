@@ -6,7 +6,7 @@
 Anno_version Version::Detect_game_version()
 {
   auto files = Files::instance();
-  Bsh_leser bsh(files->instance()->get_file("sgfx/stadtfld.bsh"));
+  Bsh_leser bsh(files->instance()->find_path_for_file("sgfx/stadtfld.bsh"));
   if (bsh.anzahl() == 5748)
   {
     std::cout << "[INFO] Vanilla Anno 1602 Installation erkannt" << std::endl;

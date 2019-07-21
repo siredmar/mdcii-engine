@@ -26,15 +26,13 @@
 class Files
 {
 public:
-  static Files* create_instance(std::string path, bool check_files);
+  static Files* create_instance(std::string path);
   static Files* instance();
   void init();
-  void init(std::string path, bool check_files);
+  void init(std::string path);
 
-  std::string get_file(std::string key);
   bool check_file(const std::string& filename);
-  bool check_all_files();
-  std::map<std::string, std::string> create_file_map(const std::string& path, std::map<std::string, std::string> map);
+  bool check_all_files(std::vector<std::string>* files);
   std::string find_path_for_file(std::string file);
 
 private:
@@ -42,9 +40,9 @@ private:
   ~Files()
   {
   }
-  Files(std::string path, bool check_files)
+  Files(std::string path)
   {
-    init(path, check_files);
+    init(path);
   }
 
   Files(const Files&);
@@ -52,7 +50,6 @@ private:
   std::vector<std::string> get_directory_tree(const std::string& path);
   std::string string_to_lower_case(const std::string& str);
 
-  std::map<std::string, std::string> files;
   std::vector<std::string> tree;
 
   class CGuard

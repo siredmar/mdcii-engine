@@ -137,7 +137,7 @@ private:
       std::string next_line = cod_txt[line_index + 1];
       spaces = count_front_spaces(line);
 
-      if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:")) // || std::all_of(line.begin(), line.end(), isspace))
+      if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:"))
       {
         // TODO : skipped for now
         continue;
@@ -377,30 +377,11 @@ private:
             // finish previous number object
             Object_finished();
           }
-          // std::vector<std::string> result_next = regex_search("Nummer:", next_line);
-          // if (result_next.size() > 0)
-          // {
-          //   if (Top_is_number_object() == true)
-          //   {
-          //     Object_finished();
-          //   }
-          // }
           Object_finished();
           continue;
         }
       }
 
-      // {
-      //   std::vector<std::string> result = regex_search("Nummer\\s*:", next_line);
-      //   if (result.size() > 0)
-      //   {
-      //     if (Top_is_number_object() == true)
-      //     {
-      //       Object_finished();
-      //     }
-      //     continue;
-      //   }
-      // }
       {
         std::vector<std::string> result = regex_search("ObjFill:\\s*([\\w,]+)", line);
         if (result.size() > 0)

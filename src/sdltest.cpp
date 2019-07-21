@@ -28,6 +28,7 @@
 #include "bildspeicher_pal8.hpp"
 #include "spielbildschirm.hpp"
 #include "files.hpp"
+#include "files_to_check.hpp"
 #include "version.hpp"
 #include "cod_parser.hpp"
 
@@ -81,19 +82,20 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
-  auto files = Files::create_instance(files_path, true);
+  auto files = Files::create_instance(files_path);
+
   Cod_Parser cod_parser(files->instance()->find_path_for_file("haeuser.cod"));
-  return 1;
+
   version = Version::Detect_game_version();
+  if (files->instance()->check_all_files(&files_to_check) == false)
+  {
+    std::cout << "[ERR] File check failed. Exiting." << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   if (files->instance()->check_file(gam_name) == false)
   {
     std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (files->instance()->check_all_files() == false)
-  {
     exit(EXIT_FAILURE);
   }
 
