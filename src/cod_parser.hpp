@@ -124,12 +124,17 @@ private:
 
     for (auto& line : cod_txt)
     {
-      line = trim_comment_from_line(line);
 
-      if (is_substring(line, "ObjFill:    HAUSWACHS"))
+      if (is_substring(line, " ObjFill:    HAUSWACHS"))
       {
-        std::cout << std::endl;
+        std::cout << line << std::endl;
       }
+      if (is_substring(line, "eereszeichen Mittel-Dunke"))
+      {
+        std::cout << line << std::endl;
+      }
+
+      line = trim_comment_from_line(line);
 
       if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:")) // || std::all_of(line.begin(), line.end(), isspace))
       {
@@ -243,26 +248,22 @@ private:
         std::vector<std::string> result = regex_search("((@)(\\b(?!Nummer\\b)\\w+))\\s*:\\s*([+|-]?)(\\d+)", line);
         if (result.size() > 0)
         {
+          int index = exists_in_current_object(result[3]);
 
-          int current_value = variable_numbers[result[3]];
-          if (result[4] == "+")
+          int current_value = 0;
+          if (index != -1)
           {
-            current_value += std::stoi(result[5]);
-          }
-          else if (result[4] == "-")
-          {
-            current_value -= std::stoi(result[5]);
+            current_value = calculate_operation(current_object->variables().variable(index).value_int(), result[4], result[5]);
+            current_object->mutable_variables()->mutable_variable(index)->set_value_int(current_value);
           }
           else
           {
-            current_value = std::stoi(result[5]);
+            current_value = calculate_operation(variable_numbers[result[3]], result[4], result[5]);
+            auto var = current_object->mutable_variables()->add_variable();
+            var->set_name(result[3]);
+            var->set_value_int(current_value);
           }
-
           variable_numbers[result[3]] = current_value;
-
-          auto var = current_object->mutable_variables()->add_variable();
-          var->set_name(result[3]);
-          var->set_value_int(current_value);
           continue;
         }
       }
@@ -271,6 +272,8 @@ private:
         std::vector<std::string> result = regex_search("(\\b(?!Nummer\\b)\\w+)\\s*:\\s*(\\w+)\\s*([+|-])\\s*(\\d+)", line);
         if (result.size() > 0)
         {
+          int index = exists_in_current_object(result[1]);
+
           int current_value = -1;
           if (exists(result[2]))
           {
@@ -278,14 +281,7 @@ private:
           }
           if (current_value != -1)
           {
-            if (result[3] == "+")
-            {
-              current_value += std::stoi(result[4]);
-            }
-            else if (result[3] == "-")
-            {
-              current_value -= std::stoi(result[4]);
-            }
+            current_value = calculate_operation(current_value, result[3], result[4]);
           }
           else
           {
@@ -293,9 +289,16 @@ private:
           }
           variable_numbers[result[1]] = current_value;
 
-          auto var = current_object->mutable_variables()->add_variable();
-          var->set_name(result[1]);
-          var->set_value_int(current_value);
+          if (index != -1)
+          {
+            current_object->mutable_variables()->mutable_variable(index)->set_value_int(current_value);
+          }
+          else
+          {
+            auto var = current_object->mutable_variables()->add_variable();
+            var->set_name(result[1]);
+            var->set_value_int(current_value);
+          }
           continue;
         }
       }
@@ -304,9 +307,19 @@ private:
         std::vector<std::string> result = regex_search("(\\b(?!Objekt|ObjFill|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
         if (result.size() > 0)
         {
+          int index = exists_in_current_object(result[1]);
 
-          auto var = current_object->mutable_variables()->add_variable();
-          var->set_name(result[1]);
+          cod_pb::Variable* var;
+          if (index != -1)
+          {
+            var = current_object->mutable_variables()->mutable_variable(index);
+          }
+          else
+          {
+            var = current_object->mutable_variables()->add_variable();
+            var->set_name(result[1]);
+          }
+
           if (check_type(result[2]) == Cod_value_type::INT)
           {
             var->set_value_int(std::stoi(result[2]));
@@ -337,24 +350,11 @@ private:
         }
       }
       {
-        // TODO: do the calculation for name
         std::vector<std::string> result = regex_search("(Nummer):\\s*([+|-]?)(\\d+)", line);
         if (result.size() > 0)
         {
           int current_number = variable_numbers[result[1]];
-          if (result[2] == "+")
-          {
-            current_number += std::stoi(result[3]);
-          }
-          else if (result[2] == "-")
-          {
-            current_number -= std::stoi(result[3]);
-          }
-          else
-          {
-            current_number = std::stoi(result[3]);
-          }
-
+          current_number = calculate_operation(current_number, result[2], result[3]);
           variable_numbers[result[1]] = current_number;
 
           current_object = Create_object(true);
@@ -408,6 +408,15 @@ private:
                 *variable = obj.variables().variable(i);
               }
             }
+            if (obj.objects_size() > 0)
+            {
+              for (int i = 0; i < obj.objects_size(); i++)
+              {
+                auto object = current_object->add_objects();
+                *object = obj.objects(i);
+              }
+            }
+            // TODO: copy objects
           }
           continue;
         }
@@ -415,6 +424,38 @@ private:
     }
     std::cout << objects.DebugString() << std::endl;
     std::cout << variables.DebugString() << std::endl;
+  }
+
+  int exists_in_current_object(const std::string& variable_name)
+  {
+    int index = -1;
+    // Check if variable already exists in current_object (e.g. copied from ObjFill)
+    for (index = 0; index < current_object->variables().variable_size(); index++)
+    {
+      if (current_object->variables().variable(index).name() == variable_name)
+      {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  int calculate_operation(int old_value, const std::string& operation, const std::string& op)
+  {
+    int current_value = old_value;
+    if (operation == "+")
+    {
+      current_value += std::stoi(op);
+    }
+    else if (operation == "-")
+    {
+      current_value -= std::stoi(op);
+    }
+    else
+    {
+      current_value = std::stoi(op);
+    }
+    return current_value;
   }
 
   bool get_object(const std::string& name, cod_pb::Object& ret)
