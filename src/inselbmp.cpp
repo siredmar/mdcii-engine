@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 
   f.close();
 
-  auto files = Files::create_instance(".", true);
+  auto files = Files::create_instance(".");
 
   Anno_version version = Version::Detect_game_version();
   Bebauung bebauung(version);

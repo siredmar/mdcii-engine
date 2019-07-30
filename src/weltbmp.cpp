@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   Welt welt = Welt(f, version);
 
   f.close();
-  auto files = Files::create_instance(".", true);
+  auto files = Files::create_instance(".");
   Bsh_leser bsh_leser(files->instance()->find_path_for_file("mgfx/stadtfld.bsh"));
   Grafiken stadtfld_grafiken(Anno_version::VANILLA);
 
