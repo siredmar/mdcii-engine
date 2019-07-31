@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 
 #include "../../cod_parser.hpp"
+#include "../../haeuser.hpp"
 #include "../../files.hpp"
 
 namespace po = boost::program_options;
@@ -28,5 +29,11 @@ int main(int argc, char** argv)
   // if (files->instance()->check_file(cod_path) == true)
   {
     Cod_Parser cod(cod_path, true);
+    Haeuser haeuser(&cod);
+    auto h = haeuser.get_haus(1254);
+    if(h)
+    {
+      std::cout << h.value().Gfx << std::endl;
+    }
   }
 }

@@ -37,13 +37,3 @@ message Object {
 message Objects {
     repeated Object object = 1;
 }
-
-message Map {
-    repeated Variable variables = 1;
-}
-
-message Cod {
-    Variables constants = 1;
-    Objects objects = 2;
-    Map gfx_map = 3;
-}

@@ -43,7 +43,7 @@ class Cod_Parser
 public:
   Cod_Parser(const std::string& cod_file_path, bool decode);
 
-
+  cod_pb::Objects objects;
 private:
   // Input/Output related functions
   bool read_file(bool decode);
@@ -120,11 +120,11 @@ private:
   std::vector<std::string> cod_txt;
 
   cod_pb::Variables constants;
-  cod_pb::Objects objects;
 
   std::map<std::string, cod_pb::Object*> object_map;
   std::map<std::string, int> variable_map;
   std::map<int, cod_pb::Object*> object_id_map;
   cod_pb::Object* current_object = nullptr;
+
 };
 #endif

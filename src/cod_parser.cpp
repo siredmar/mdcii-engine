@@ -61,8 +61,6 @@ bool Cod_Parser::read_file(bool decode)
 
 bool Cod_Parser::parse_file()
 {
-  cod_pb::Map gfx_map;
-
   std::map<std::string, int> variable_numbers;
 
   int spaces = -1;
@@ -446,7 +444,7 @@ bool Cod_Parser::parse_file()
       }
     }
   }
-  std::cout << objects.DebugString() << std::endl;
+  // std::cout << objects.DebugString() << std::endl;
   // std::cout << variables.DebugString() << std::endl;
 }
 
