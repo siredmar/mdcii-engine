@@ -77,7 +77,7 @@ std::string Files::find_path_for_file(std::string file)
   for (auto t : tree)
   {
     std::string tree_file = string_to_lower_case(t);
-    if (tree_file.find(file) != std::string::npos)
+    if (tree_file.find(boost::filesystem::path::preferred_separator + file) != std::string::npos)
     {
       std::cout << "[INFO] Path found [" << file << "]: " << t << std::endl;
       return t;
