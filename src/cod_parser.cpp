@@ -1,3 +1,22 @@
+
+// This file is part of the MDCII Game Engine.
+// Copyright (C) 2019  Armin Schlegel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+// USA.
+
 #include "cod_parser.hpp"
 
 Cod_Parser::Cod_Parser(std::string cod_file_path)
@@ -47,21 +66,6 @@ bool Cod_Parser::convert()
   int spaces = -1;
   for (int line_index = 0; line_index < cod_txt.size() - 1; line_index++)
   {
-    // if (is_substring(cod_txt[line_index], "HAUS"))
-    // {
-    //   std::cout << cod_txt[line_index] << std::endl;
-    // }
-
-    // if (is_substring(cod_txt[line_index], "Objekt"))
-    // {
-    //   std::cout << cod_txt[line_index] << std::endl;
-    // }
-
-    // if (is_substring(cod_txt[line_index], "EndObj"))
-    // {
-    //   std::cout << cod_txt[line_index] << std::endl;
-    // }
-
     std::string line = cod_txt[line_index];
     std::string next_line = cod_txt[line_index + 1];
     spaces = count_front_spaces(line);
@@ -80,6 +84,7 @@ bool Cod_Parser::convert()
         bool is_math = is_substring(result[3], "+");
         std::string key = result[2];
         std::string value = result[3];
+        
         // example: 'HAUSWACHS = Nummer'
         if (value == "Nummer")
         {
@@ -691,7 +696,6 @@ std::experimental::optional<cod_pb::Variable*> Cod_Parser::get_variable(cod_pb::
   }
   return {};
 }
-
 
 int Cod_Parser::calculate_operation(int old_value, const std::string& operation, const std::string& op)
 {

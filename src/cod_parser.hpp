@@ -1,3 +1,22 @@
+
+// This file is part of the MDCII Game Engine.
+// Copyright (C) 2019  Armin Schlegel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+// USA.
+
 #ifndef COD_PARSER_HPP
 #define COD_PARSER_HPP
 
@@ -48,7 +67,6 @@ private:
   int exists_in_current_object(const std::string& variable_name);
   cod_pb::Variable* create_or_reuse_variable(const std::string& name);
   cod_pb::Variable get_variable(const std::string& key);
-  // cod_pb::Variable get_variable(int index);
   std::experimental::optional<cod_pb::Variable*> get_variable(cod_pb::Object* obj, const std::string& name);
   int calculate_operation(int old_value, const std::string& operation, const std::string& op);
 
@@ -101,7 +119,6 @@ private:
   std::string path;
   std::vector<std::string> cod_txt;
 
-  // cod_pb::Variables variables;
   cod_pb::Variables constants;
   cod_pb::Objects objects;
 
