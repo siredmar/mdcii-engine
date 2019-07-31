@@ -28,9 +28,20 @@ VARIABLEA = 5000
   Objekt: A
 
     Nummer: 0
+    OBJ = Nummer
     a: 1
     b: 2
     Objekt: ASDF
         c: 3, 4
     EndObj;
+
+    @Nummer: +1
+    ObjFill: OBJ
+    @a: +1
+    @b: +1
+
+    @Nummer: +1
+    a: 1
+    b: 0
+
   EndObj;
