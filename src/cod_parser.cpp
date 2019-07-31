@@ -8,144 +8,34 @@ Cod_Parser::Cod_Parser(std::string cod_file_path)
   // json();
 }
 
-std::experimental::optional<cod_pb::Variable*> Cod_Parser::get_variable(cod_pb::Object* obj, const std::string& name)
+bool Cod_Parser::decode()
 {
-  for (int i = 0; i < obj->variables().variable_size(); i++)
+  std::ifstream input(path, std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
+
+  for (auto& c : buffer)
   {
-    if (obj->variables().variable(i).name() == name)
+    c = 256 - c;
+  }
+  std::string line;
+  for (int i = 0; i < buffer.size() - 1; i++)
+  {
+    if (buffer[i + 1] != '\n' && buffer[i] != '\r')
     {
-      return obj->mutable_variables()->mutable_variable(i);
+      line.append(1, buffer[i]);
+    }
+    else
+    {
+      line = trim_comment_from_line(tabs_to_spaces((line)));
+      if (is_empty(line) == false)
+      {
+        cod_txt.push_back(line);
+      }
+      line = "";
+      i++; // hop over '\n'
     }
   }
-  return {};
-}
-
-std::experimental::optional<cod_pb::Object*> Cod_Parser::get_sub_object(cod_pb::Object* obj, const std::string& name)
-{
-  for (int i = 0; i < obj->objects_size(); i++)
-  {
-    if (obj->objects(i).name() == name)
-    {
-      return obj->mutable_objects(i);
-    }
-  }
-  return {};
-}
-
-std::experimental::optional<cod_pb::Object*> Cod_Parser::get_object(const std::string& name)
-{
-  if (object_map.count(name))
-  {
-    return object_map[name];
-  }
-  return {};
-}
-
-std::experimental::optional<cod_pb::Object*> Cod_Parser::get_object(int id)
-{
-  if (object_id_map.count(id))
-  {
-    return object_id_map[id];
-  }
-  return {};
-}
-bool Cod_Parser::json()
-{
-  std::string json_string;
-  google::protobuf::util::JsonPrintOptions options;
-  options.add_whitespace = true;
-  options.always_print_primitive_fields = true;
-  MessageToJsonString(objects, &json_string, options);
-  std::cout << json_string << std::endl;
-}
-
-bool Cod_Parser::top_is_number_object()
-{
-  if (!object_stack.empty())
-  {
-    return object_stack.top().number_object;
-  }
-  return false;
-}
-
-cod_pb::Object* Cod_Parser::objfill_prefill(cod_pb::Object* obj)
-{
-  std::string name = obj->name();
-  *obj = ObjFill_range.object;
-  obj->set_name(name);
-  return obj;
-}
-
-void Cod_Parser::reset_objfill_prefill()
-{
-  ObjFill_range.start = "";
-  ObjFill_range.stop = "";
-  ObjFill_range.filling = false;
-  ObjFill_range.stacksize = 0;
-}
-
-cod_pb::Object* Cod_Parser::create_object(bool number_object, int spaces, bool add_to_stack)
-{
-  cod_pb::Object* ret;
-  if (object_stack.empty())
-  {
-    ret = objects.add_object();
-  }
-  else
-  {
-    ret = object_stack.top().object->add_objects();
-  }
-  ObjectType obj;
-  obj.object = ret;
-  obj.number_object = number_object;
-  obj.spaces = spaces;
-  if (add_to_stack == true)
-  {
-    object_stack.push(obj);
-  }
-  if (ObjFill_range.filling == true && number_object == true)
-  {
-    ret = objfill_prefill(obj.object);
-  }
-  return ret;
-}
-
-bool Cod_Parser::object_finished()
-{
-  if (object_stack.size() > 0)
-  {
-    object_stack.pop();
-  }
-}
-
-std::vector<std::string> Cod_Parser::regex_match(std::string regex, std::string str)
-{
-  std::vector<std::string> ret;
-  boost::regex expr{regex};
-  boost::smatch what;
-  if (boost::regex_match(str, what, expr))
-  {
-    for (int i = 0; i < what.size(); i++)
-    {
-      ret.push_back(what[i]);
-    }
-  }
-  return ret;
-}
-
-std::vector<std::string> Cod_Parser::regex_search(std::string regex, std::string str)
-{
-  std::vector<std::string> ret;
-  boost::regex expr{regex};
-  boost::smatch what;
-  if (boost::regex_search(str, what, expr))
-  {
-    for (int i = 0; i < what.size(); i++)
-    {
-      ret.push_back(what[i]);
-    }
-  }
-  return ret;
+  return true;
 }
 
 bool Cod_Parser::convert()
@@ -515,17 +405,40 @@ bool Cod_Parser::convert()
   // std::cout << variables.DebugString() << std::endl;
 }
 
-cod_pb::Variable* Cod_Parser::create_or_reuse_variable(const std::string& name)
+bool Cod_Parser::json()
 {
-  if (current_object)
+  std::string json_string;
+  google::protobuf::util::JsonPrintOptions options;
+  options.add_whitespace = true;
+  options.always_print_primitive_fields = true;
+  MessageToJsonString(objects, &json_string, options);
+  std::cout << json_string << std::endl;
+}
+
+cod_pb::Object* Cod_Parser::create_object(bool number_object, int spaces, bool add_to_stack)
+{
+  cod_pb::Object* ret;
+  if (object_stack.empty())
   {
-    auto optional_var = get_variable(current_object, name);
-    if (optional_var)
-    {
-      return optional_var.value();
-    }
+    ret = objects.add_object();
   }
-  return current_object->mutable_variables()->add_variable();
+  else
+  {
+    ret = object_stack.top().object->add_objects();
+  }
+  ObjectType obj;
+  obj.object = ret;
+  obj.number_object = number_object;
+  obj.spaces = spaces;
+  if (add_to_stack == true)
+  {
+    object_stack.push(obj);
+  }
+  if (ObjFill_range.filling == true && number_object == true)
+  {
+    ret = objfill_prefill(obj.object);
+  }
+  return ret;
 }
 
 cod_pb::Object* Cod_Parser::create_or_reuse_object(const std::string& name, bool number_object, int spaces, bool add_to_stack)
@@ -546,48 +459,62 @@ cod_pb::Object* Cod_Parser::create_or_reuse_object(const std::string& name, bool
   return create_object(number_object, spaces, add_to_stack);
 }
 
-void Cod_Parser::add_object_to_stack(cod_pb::Object* o, bool number_object, int spaces)
+std::experimental::optional<cod_pb::Object*> Cod_Parser::get_object(const std::string& name)
 {
-  ObjectType obj;
-  obj.object = o;
-  obj.number_object = number_object;
-  obj.spaces = spaces;
-  object_stack.push(obj);
+  if (object_map.count(name))
+  {
+    return object_map[name];
+  }
+  return {};
 }
 
-int Cod_Parser::exists_in_current_object(const std::string& variable_name)
+std::experimental::optional<cod_pb::Object*> Cod_Parser::get_object(int id)
 {
-  int index = -1;
-  if (current_object)
+  if (object_id_map.count(id))
   {
-    // Check if variable already exists in current_object (e.g. copied from ObjFill)
-    for (index = 0; index < current_object->variables().variable_size(); index++)
+    return object_id_map[id];
+  }
+  return {};
+}
+
+std::experimental::optional<cod_pb::Object*> Cod_Parser::get_sub_object(cod_pb::Object* obj, const std::string& name)
+{
+  for (int i = 0; i < obj->objects_size(); i++)
+  {
+    if (obj->objects(i).name() == name)
     {
-      if (current_object->variables().variable(index).name() == variable_name)
-      {
-        return index;
-      }
+      return obj->mutable_objects(i);
+    }
+  }
+  return {};
+}
+
+cod_pb::Object* Cod_Parser::objfill_prefill(cod_pb::Object* obj)
+{
+  std::string name = obj->name();
+  *obj = ObjFill_range.object;
+  obj->set_name(name);
+  return obj;
+}
+
+void Cod_Parser::reset_objfill_prefill()
+{
+  ObjFill_range.start = "";
+  ObjFill_range.stop = "";
+  ObjFill_range.filling = false;
+  ObjFill_range.stacksize = 0;
+}
+
+int Cod_Parser::constant_exists(const std::string& key)
+{
+  for (int i = 0; i < constants.variable_size(); i++)
+  {
+    if (constants.variable(i).name() == key)
+    {
+      return i;
     }
   }
   return -1;
-}
-
-int Cod_Parser::calculate_operation(int old_value, const std::string& operation, const std::string& op)
-{
-  int current_value = old_value;
-  if (operation == "+")
-  {
-    current_value += std::stoi(op);
-  }
-  else if (operation == "-")
-  {
-    current_value -= std::stoi(op);
-  }
-  else
-  {
-    current_value = std::stoi(op);
-  }
-  return current_value;
 }
 
 cod_pb::Variable Cod_Parser::get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables)
@@ -709,6 +636,140 @@ cod_pb::Variable Cod_Parser::get_value(const std::string& key, const std::string
   return ret;
 }
 
+// Variables related functions
+int Cod_Parser::exists_in_current_object(const std::string& variable_name)
+{
+  int index = -1;
+  if (current_object)
+  {
+    // Check if variable already exists in current_object (e.g. copied from ObjFill)
+    for (index = 0; index < current_object->variables().variable_size(); index++)
+    {
+      if (current_object->variables().variable(index).name() == variable_name)
+      {
+        return index;
+      }
+    }
+  }
+  return -1;
+}
+
+cod_pb::Variable* Cod_Parser::create_or_reuse_variable(const std::string& name)
+{
+  if (current_object)
+  {
+    auto optional_var = get_variable(current_object, name);
+    if (optional_var)
+    {
+      return optional_var.value();
+    }
+  }
+  return current_object->mutable_variables()->add_variable();
+}
+
+cod_pb::Variable Cod_Parser::get_variable(const std::string& key)
+{
+  for (int i = 0; i < constants.variable_size(); i++)
+  {
+    if (constants.variable(i).name() == key)
+    {
+      return constants.variable(i);
+    }
+  }
+  cod_pb::Variable ret;
+  return ret;
+}
+
+std::experimental::optional<cod_pb::Variable*> Cod_Parser::get_variable(cod_pb::Object* obj, const std::string& name)
+{
+  for (int i = 0; i < obj->variables().variable_size(); i++)
+  {
+    if (obj->variables().variable(i).name() == name)
+    {
+      return obj->mutable_variables()->mutable_variable(i);
+    }
+  }
+  return {};
+}
+
+
+int Cod_Parser::calculate_operation(int old_value, const std::string& operation, const std::string& op)
+{
+  int current_value = old_value;
+  if (operation == "+")
+  {
+    current_value += std::stoi(op);
+  }
+  else if (operation == "-")
+  {
+    current_value -= std::stoi(op);
+  }
+  else
+  {
+    current_value = std::stoi(op);
+  }
+  return current_value;
+}
+
+// Object stack related functions
+bool Cod_Parser::top_is_number_object()
+{
+  if (!object_stack.empty())
+  {
+    return object_stack.top().number_object;
+  }
+  return false;
+}
+
+void Cod_Parser::add_object_to_stack(cod_pb::Object* o, bool number_object, int spaces)
+{
+  ObjectType obj;
+  obj.object = o;
+  obj.number_object = number_object;
+  obj.spaces = spaces;
+  object_stack.push(obj);
+}
+
+bool Cod_Parser::object_finished()
+{
+  if (object_stack.size() > 0)
+  {
+    object_stack.pop();
+  }
+}
+
+// String handling functions
+std::vector<std::string> Cod_Parser::regex_match(std::string regex, std::string str)
+{
+  std::vector<std::string> ret;
+  boost::regex expr{regex};
+  boost::smatch what;
+  if (boost::regex_match(str, what, expr))
+  {
+    for (int i = 0; i < what.size(); i++)
+    {
+      ret.push_back(what[i]);
+    }
+  }
+  return ret;
+}
+
+std::vector<std::string> Cod_Parser::regex_search(std::string regex, std::string str)
+{
+  std::vector<std::string> ret;
+  boost::regex expr{regex};
+  boost::smatch what;
+  if (boost::regex_search(str, what, expr))
+  {
+    for (int i = 0; i < what.size(); i++)
+    {
+      ret.push_back(what[i]);
+    }
+  }
+  return ret;
+}
+
+
 std::string Cod_Parser::tabs_to_spaces(const std::string& str)
 {
   std::string newtext = "  ";
@@ -737,31 +798,6 @@ int Cod_Parser::count_front_spaces(const std::string& str)
     }
   }
   return number_of_spaces;
-}
-
-int Cod_Parser::constant_exists(const std::string& key)
-{
-  for (int i = 0; i < constants.variable_size(); i++)
-  {
-    if (constants.variable(i).name() == key)
-    {
-      return i;
-    }
-  }
-  return -1;
-}
-
-cod_pb::Variable Cod_Parser::get_variable(const std::string& key)
-{
-  for (int i = 0; i < constants.variable_size(); i++)
-  {
-    if (constants.variable(i).name() == key)
-    {
-      return constants.variable(i);
-    }
-  }
-  cod_pb::Variable ret;
-  return ret;
 }
 
 std::string Cod_Parser::trim_spaces_leading_trailing(const std::string& s)
@@ -809,36 +845,6 @@ bool Cod_Parser::begins_with(std::string str, std::string begin)
     return true;
   }
   return false;
-}
-
-bool Cod_Parser::decode()
-{
-  std::ifstream input(path, std::ios::binary);
-  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
-
-  for (auto& c : buffer)
-  {
-    c = 256 - c;
-  }
-  std::string line;
-  for (int i = 0; i < buffer.size() - 1; i++)
-  {
-    if (buffer[i + 1] != '\n' && buffer[i] != '\r')
-    {
-      line.append(1, buffer[i]);
-    }
-    else
-    {
-      line = trim_comment_from_line(tabs_to_spaces((line)));
-      if (is_empty(line) == false)
-      {
-        cod_txt.push_back(line);
-      }
-      line = "";
-      i++; // hop over '\n'
-    }
-  }
-  return true;
 }
 
 Cod_Parser::Cod_value_type Cod_Parser::check_type(const std::string& s)

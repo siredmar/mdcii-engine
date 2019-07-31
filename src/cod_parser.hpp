@@ -24,9 +24,6 @@ class Cod_Parser
 public:
   Cod_Parser(std::string cod_file_path);
 
-  std::experimental::optional<cod_pb::Object*> get_object(const std::string& name);
-  std::experimental::optional<cod_pb::Object*> get_object(int id);
-  std::experimental::optional<cod_pb::Variable*> get_variable(cod_pb::Object* obj, const std::string& name);
 
 private:
   // Input/Output related functions
@@ -37,6 +34,8 @@ private:
   // Object related functions
   cod_pb::Object* create_object(bool number_object, int spaces, bool add_to_stack);
   cod_pb::Object* create_or_reuse_object(const std::string& name, bool number_object, int spaces, bool add_to_stack);
+  std::experimental::optional<cod_pb::Object*> get_object(const std::string& name);
+  std::experimental::optional<cod_pb::Object*> get_object(int id);
   std::experimental::optional<cod_pb::Object*> get_sub_object(cod_pb::Object* obj, const std::string& name);
   cod_pb::Object* objfill_prefill(cod_pb::Object* obj);
   void reset_objfill_prefill();
@@ -49,7 +48,8 @@ private:
   int exists_in_current_object(const std::string& variable_name);
   cod_pb::Variable* create_or_reuse_variable(const std::string& name);
   cod_pb::Variable get_variable(const std::string& key);
-  cod_pb::Variable get_variable(int index);
+  // cod_pb::Variable get_variable(int index);
+  std::experimental::optional<cod_pb::Variable*> get_variable(cod_pb::Object* obj, const std::string& name);
   int calculate_operation(int old_value, const std::string& operation, const std::string& op);
 
   // Object stack related functions
