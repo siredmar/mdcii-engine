@@ -18,11 +18,12 @@
 
 #include "spielbildschirm.hpp"
 
-Spielbildschirm::Spielbildschirm(Bildspeicher& bs, Anno_version version)
+Spielbildschirm::Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser)
   : bs(bs)
   , karte(bs.breite - 182, 0, 182, 156)
+  , haeuser(haeuser)
 {
-  kamera = new Kamera(version);
+  kamera = new Kamera(haeuser);
 }
 
 void Spielbildschirm::zeichne_bild(Welt& welt, int maus_x, int maus_y)

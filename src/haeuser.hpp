@@ -30,64 +30,64 @@ struct Haus
   int Id = -1;
   int Gfx = -1;
   int Blocknr = -1;
-  std::string Kind = "";
   int Posoffs = -1;
-  std::vector<int> Wegspeed = {};
   int Highflg = -1;
   int Einhoffs = -1;
-  std::string Bausample = "";
-  std::string Ruinenr = "";
   int Maxenergy = -1;
   int Maxbrand = -1;
-  std::vector<int> Size = {};
   int Rotate = -1;
   int RandAnz = -1;
   int AnimTime = -1;
   int AnimFrame = -1;
   int AnimAdd = -1;
   int Baugfx = -1;
-  int PlaceFlg = -1;
   int AnimAnz = -1;
   int KreuzBase = -1;
+  int Randwachs = -1;
+  int RandAdd = -1;
+  int Strandoff = -1;
+  int PlaceFlg = -1;
   int NoShotFlg = -1;
   int Strandflg = -1;
   int Ausbauflg = -1;
   int Tuerflg = -1;
-  int Randwachs = -1;
-  int RandAdd = -1;
-  int Strandoff = -1;
   int Destroyflg = -1;
+  std::string Kind = "";
+  std::string Bausample = "";
+  std::string Ruinenr = "";
+  std::vector<int> Wegspeed = {};
+  std::vector<int> Size = {};
   struct 
   {
     int BGruppe = -1;
-    std::string Workstoff = "";
-    int LagAniFlg = -1;
-    int NoMoreWork = -1;
-    int Workmenge = -1;
-    int Doerrflg = -1;
     int Anicontflg = -1;
-    std::string Erzbergnr = "";
     int MakLagFlg = -1;
     int Nativflg = -1;
+    int LagAniFlg = -1;
+    int Doerrflg = -1;
+    int NoMoreWork = -1;
+    int Workmenge = -1;
     int NoLagVoll = -1;
-    std::vector<int> Kosten = {};
-    std::string Kind = "";
-    std::string Ware = "";
     int Radius = -1;
-    std::string Rohstoff= "";
     int Rohmenge = -1;
     int Prodmenge = -1;
     int Randwachs = -1;
     int Maxlager = -1;
-    std::string MAXPRODCNT = "";
     int Maxnorohst = -1;
-    std::string Bauinfra = "";
     int Arbeiter = -1;
-    std::string Figurnr= "";
     int Figuranz = -1;
     int Interval = -1;
+    std::string Workstoff = "";
+    std::string Erzbergnr = "";
+    std::string Kind = "";
+    std::string Ware = "";
+    std::string Rohstoff= "";
+    std::string MAXPRODCNT = "";
+    std::string Bauinfra = "";
+    std::string Figurnr= "";
     std::string Rauchfignr = "";
     std::vector<int> Maxware= {};
+    std::vector<int> Kosten = {};
   } HAUS_PRODTYP;
   struct
   {
@@ -102,13 +102,13 @@ struct Haus
 class Haeuser 
 {
   public:
-  Haeuser(Cod_Parser* cod)
+  Haeuser(std::shared_ptr<Cod_Parser> cod)
   : cod(cod)
   {   
     generate_haeuser();
   }
 
-  std::experimental::optional<Haus> get_haus(int id)
+  std::experimental::optional<Haus*> get_haus(int id)
   {
     if (haeuser.find(id) == haeuser.end())
     {
@@ -116,7 +116,7 @@ class Haeuser
     } 
     else 
     {
-      return haeuser[id];
+      return &haeuser[id];
     }
   }
 
@@ -448,7 +448,7 @@ class Haeuser
 
   const int id_offset = 20000;
   std::map<int, Haus> haeuser;
-  Cod_Parser* cod;
+  std::shared_ptr<Cod_Parser> cod;
 };
 
 #endif

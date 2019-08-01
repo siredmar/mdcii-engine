@@ -21,6 +21,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <fstream>
 #include <inttypes.h>
 #include "insel.hpp"
@@ -28,12 +29,10 @@
 #include "strukturen.hpp"
 #include "bebauung.hpp"
 #include "animation.hpp"
-#include "version.hpp"
+#include "haeuser.hpp"
 
 class Welt
 {
-  int ani;
-
 public:
   enum
   {
@@ -56,12 +55,16 @@ public:
   std::vector<Soldat> soldaten;
   std::vector<Prodlist> prodlist;
   std::vector<Player> spieler;
-  Welt(std::istream&, Anno_version version);
+  Welt(std::istream&, std::shared_ptr<Haeuser> haeuser);
   void simulationsschritt();
   void feld_an_pos(inselfeld_t& feld, int x, int y);
   Prodlist* prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y);
   Ship* schiff_an_pos(uint16_t x, uint16_t y);
   uint8_t spielerfarbe(uint8_t spieler);
+
+private:
+  int ani;
+  std::shared_ptr<Haeuser> haeuser;
 };
 
 #endif

@@ -20,10 +20,10 @@
 #include "welt.hpp"
 #include "files.hpp"
 
-Welt::Welt(std::istream& f, Anno_version version)
+Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
+: haeuser(haeuser)
 {
   auto files = Files::instance();
-  bebauung = new Bebauung(version);
 
   while (!f.eof())
   {
@@ -34,33 +34,33 @@ Welt::Welt(std::istream& f, Anno_version version)
   {
     if (strcmp((*i)->kennung, Insel5::kennung) == 0)
     {
-      inseln.push_back(new Insel(*i, *(i + 1), *bebauung));
+      inseln.push_back(new Insel(*i, *(i + 1), haeuser));
       i++;
     }
     else if (strcmp((*i)->kennung, Kontor::kennung) == 0)
     {
       for (int j = 0; j < (*i)->laenge / sizeof(Kontor); j++)
-	kontore.push_back((Kontor&)(*i)->daten[j * sizeof(Kontor)]);
+	      kontore.push_back((Kontor&)(*i)->daten[j * sizeof(Kontor)]);
     }
     else if (strcmp((*i)->kennung, Ship::kennung) == 0)
     {
       for (int j = 0; j < (*i)->laenge / sizeof(Ship); j++)
-	schiffe.push_back((Ship&)(*i)->daten[j * sizeof(Ship)]);
+	      schiffe.push_back((Ship&)(*i)->daten[j * sizeof(Ship)]);
     }
     else if (strcmp((*i)->kennung, Soldat::kennung) == 0)
     {
       for (int j = 0; j < (*i)->laenge / sizeof(Soldat); j++)
-	soldaten.push_back((Soldat&)(*i)->daten[j * sizeof(Soldat)]);
+      	soldaten.push_back((Soldat&)(*i)->daten[j * sizeof(Soldat)]);
     }
     else if (strcmp((*i)->kennung, Prodlist::kennung) == 0)
     {
       for (int j = 0; j < (*i)->laenge / sizeof(Prodlist); j++)
-	prodlist.push_back((Prodlist&)(*i)->daten[j * sizeof(Prodlist)]);
+	      prodlist.push_back((Prodlist&)(*i)->daten[j * sizeof(Prodlist)]);
     }
     else if (strcmp((*i)->kennung, Player::kennung) == 0)
     {
       for (int j = 0; j < (*i)->laenge / sizeof(Player); j++)
-	spieler.push_back((Player&)(*i)->daten[j * sizeof(Player)]);
+	      spieler.push_back((Player&)(*i)->daten[j * sizeof(Player)]);
     }
     i++;
   }
@@ -73,23 +73,23 @@ Welt::Welt(std::istream& f, Anno_version version)
     int y = prod.y_pos + inseln[prod.inselnummer]->ypos;
     inselfeld_t inselfeld;
     feld_an_pos(inselfeld, x, y);
-    Bebauungsinfo* info = bebauung->info_zu(inselfeld.bebauung);
-    if (info != nullptr)
+    auto info = haeuser->get_haus(inselfeld.bebauung);
+    if (info)
     {
-      int max_x = (((inselfeld.rot & 1) == 0) ? info->breite : info->hoehe) - 1;
-      int max_y = (((inselfeld.rot & 1) == 0) ? info->hoehe : info->breite) - 1;
-      if (info->kategorie == 4)
+      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
+      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+      if (info.value()->HAUS_PRODTYP.Kind == "HANDWERK")
       {
-	int versatz = (info->breite + info->hoehe) / 2;
-	versatz += (versatz & 1) * 2;
-	if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
-	{
-	  animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 350, 32, (max_x + max_y) * 128, true};
-	}
-	if ((prod.ani & 0x0f) == 0x0f) // Betrieb hat Rohstoffmangel
-	{
-	  animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 382, 32, (max_x + max_y) * 128, true};
-	}
+        int versatz = (info.value()->Size[0] + info.value()->Size[1]) / 2;
+        versatz += (versatz & 1) * 2;
+        if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
+        {
+          animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 350, 32, (max_x + max_y) * 128, true};
+        }
+        if ((prod.ani & 0x0f) == 0x0f) // Betrieb hat Rohstoffmangel
+        {
+          animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 382, 32, (max_x + max_y) * 128, true};
+        }
       }
     }
   }
@@ -105,26 +105,26 @@ Welt::Welt(std::istream& f, Anno_version version)
       int y = erz.y_pos + insel->ypos;
       inselfeld_t inselfeld;
       feld_an_pos(inselfeld, x, y);
-      Bebauungsinfo* info = bebauung->info_zu(inselfeld.bebauung);
-      if (info != nullptr)
+      auto info = haeuser->get_haus(inselfeld.bebauung);
+      if (info)
       {
-	int max_x = (((inselfeld.rot & 1) == 0) ? info->breite : info->hoehe) - 1;
-	int max_y = (((inselfeld.rot & 1) == 0) ? info->hoehe : info->breite) - 1;
-	// 	if (info->kategorie == 4)
-	{
-	  int versatz = (info->breite + info->hoehe) / 2;
-	  versatz += (versatz & 1) * 2 + 3;
-	  if (erz.typ == 2) // Eisen
-	  {
-	    animationen[std::pair<int, int>(x, y)]
-		= {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 556, 32, (max_x + max_y) * 128, true};
-	  }
-	  if (erz.typ == 3) // Gold
-	  {
-	    animationen[std::pair<int, int>(x, y)]
-		= {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 588, 32, (max_x + max_y) * 128, true};
-	  }
-	}
+        int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
+        int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+        // 	if (info->kategorie == 4)
+        {
+          int versatz = (info.value()->Size[1] + info.value()->Size[0]) / 2;
+          versatz += (versatz & 1) * 2 + 3;
+          if (erz.typ == 2) // Eisen
+          {
+            animationen[std::pair<int, int>(x, y)]
+          = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 556, 32, (max_x + max_y) * 128, true};
+          }
+          if (erz.typ == 3) // Gold
+          {
+            animationen[std::pair<int, int>(x, y)]
+          = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 588, 32, (max_x + max_y) * 128, true};
+          }
+        }
       }
     }
   }

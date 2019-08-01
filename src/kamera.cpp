@@ -20,13 +20,14 @@
 #include "kamera.hpp"
 #include "grafiken.hpp"
 #include "files.hpp"
-#include "version.hpp"
+#include "haeuser.hpp"
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
 const int Kamera::grundhoehe[3] = {5, 10, 20};
 
-Kamera::Kamera(Anno_version version)
+Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
+ : haeuser(haeuser)
 {
   xpos = Welt::KARTENBREITE / 2;
   ypos = Welt::KARTENHOEHE / 2;
@@ -66,8 +67,6 @@ Kamera::Kamera(Anno_version version)
   //   traeger_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/traeger.bsh"));
 
   zei = new Zei_leser(files->instance()->find_path_for_file("toolgfx/zei16g.zei"));
-
-  stadtfld_grafiken = new Grafiken(version);
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
@@ -357,13 +356,13 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       inselfeld_t inselfeld;
       welt.feld_an_pos(inselfeld, x, y);
       feld_t feld;
-      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, *welt.bebauung, *stadtfld_grafiken);
+      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, haeuser);
       if (feld.index != -1)
       {
-	int bs_x, bs_y, bs_z;
-	auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
-	bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
-	felder.push_back(bild_mit_pos);
+        int bs_x, bs_y, bs_z;
+        auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
+        bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
+	      felder.push_back(bild_mit_pos);
       }
     }
   }

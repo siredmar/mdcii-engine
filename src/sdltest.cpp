@@ -121,13 +121,15 @@ int main(int argc, char** argv)
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f, version);
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"));
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  Welt welt = Welt(f, haeuser);
 
   f.close();
 
   Bildspeicher_pal8 bs(screen_width, screen_height, 0, (uint8_t*)screen->pixels, screen->pitch);
 
-  Spielbildschirm spielbildschirm(bs, version);
+  Spielbildschirm spielbildschirm(bs, haeuser);
   spielbildschirm.zeichne_bild(welt, 0, 0);
 
   SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);

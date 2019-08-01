@@ -29,11 +29,12 @@ class Spielbildschirm
 {
   Bildspeicher& bs;
   Karte karte;
+  std::shared_ptr<Haeuser> haeuser;
 
 public:
   Kamera* kamera; // vorübergehend public
 
-  Spielbildschirm(Bildspeicher& bs, Anno_version version);
+  Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser);
 
   void zeichne_bild(Welt& welt, int maus_x, int maus_y);
 };
