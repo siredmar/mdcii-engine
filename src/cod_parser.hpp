@@ -41,13 +41,13 @@
 class Cod_Parser
 {
 public:
-  Cod_Parser(std::string cod_file_path);
+  Cod_Parser(const std::string& cod_file_path, bool decode);
 
 
 private:
   // Input/Output related functions
-  bool decode();
-  bool convert();
+  bool read_file(bool decode);
+  bool parse_file();
   bool json();
 
   // Object related functions
@@ -73,19 +73,19 @@ private:
   // Object stack related functions
   bool top_is_number_object();
   void add_object_to_stack(cod_pb::Object* o, bool number_object, int spaces);
-  bool object_finished();
+  void object_finished();
 
   // String handling functions
-  std::vector<std::string> regex_match(std::string regex, std::string str);
-  std::vector<std::string> regex_search(std::string regex, std::string str);
+  std::vector<std::string> regex_match(const std::string& regex, const std::string& str);
+  std::vector<std::string> regex_search(const std::string& regex, const std::string& str);
   std::string tabs_to_spaces(const std::string& str);
   int count_front_spaces(const std::string& str);
   std::string trim_spaces_leading_trailing(const std::string& s);
   bool is_empty(const std::string& str);
-  bool is_substring(std::string str, std::string substr);
-  std::vector<std::string> split_by_delimiter(std::string str, std::string delim);
-  std::string trim_comment_from_line(std::string str);
-  bool begins_with(std::string str, std::string begin);
+  bool is_substring(const std::string& str, const std::string& substr);
+  std::vector<std::string> split_by_delimiter(const std::string& str, const std::string& delim);
+  std::string trim_comment_from_line(const std::string& str);
+  bool begins_with(const std::string& str, const std::string& begin);
 
   struct ObjectType
   {

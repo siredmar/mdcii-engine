@@ -27,6 +27,6 @@ int main(int argc, char** argv)
   // auto files = Files::create_instance(".", false);
   // if (files->instance()->check_file(cod_path) == true)
   {
-    Cod_Parser cod(cod_path);
+    Cod_Parser cod(cod_path, true);
   }
 }

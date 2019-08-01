@@ -18,7 +18,6 @@ NamespaceIndentation: None
 SpaceInEmptyParentheses: 'false'
 Standard: Auto
 TabWidth: '8'
-UseTab: ForContinuationAndIndentation
 SortIncludes: 'false'
 AlwaysBreakTemplateDeclarations: 'true'
 AccessModifierOffset: '-2'

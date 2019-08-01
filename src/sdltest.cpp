@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 
   auto files = Files::create_instance(files_path);
 
-  Cod_Parser cod_parser(files->instance()->find_path_for_file("haeuser.cod"));
+  Cod_Parser cod_parser(files->instance()->find_path_for_file("haeuser.cod"), true);
 
   version = Version::Detect_game_version();
   if (files->instance()->check_all_files(&files_to_check) == false)
@@ -144,60 +144,58 @@ int main(int argc, char** argv)
     SDL_WaitEvent(&e);
     switch (e.type)
     {
-      case SDL_QUIT:
-        exit(EXIT_SUCCESS);
-        break;
+      case SDL_QUIT: exit(EXIT_SUCCESS); break;
       case SDL_USEREVENT:
-        int x, y;
-        SDL_GetMouseState(&x, &y);
+	int x, y;
+	SDL_GetMouseState(&x, &y);
 
-        if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
-        {
-          spielbildschirm.kamera->nach_links();
-        }
-        if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
-        {
-          spielbildschirm.kamera->nach_rechts();
-        }
-        if (keystate[SDLK_UP] || (fullscreen && y == 0))
-        {
-          spielbildschirm.kamera->nach_oben();
-        }
-        if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
-        {
-          spielbildschirm.kamera->nach_unten();
-        }
+	if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
+	{
+	  spielbildschirm.kamera->nach_links();
+	}
+	if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
+	{
+	  spielbildschirm.kamera->nach_rechts();
+	}
+	if (keystate[SDLK_UP] || (fullscreen && y == 0))
+	{
+	  spielbildschirm.kamera->nach_oben();
+	}
+	if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
+	{
+	  spielbildschirm.kamera->nach_unten();
+	}
 
-        welt.simulationsschritt();
-        spielbildschirm.zeichne_bild(welt, x, y);
-        SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
-        break;
+	welt.simulationsschritt();
+	spielbildschirm.zeichne_bild(welt, x, y);
+	SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
+	break;
       case SDL_KEYDOWN:
-        if (e.key.keysym.sym == SDLK_F2)
-        {
-          spielbildschirm.kamera->setze_vergroesserung(0);
-        }
-        if (e.key.keysym.sym == SDLK_F3)
-        {
-          spielbildschirm.kamera->setze_vergroesserung(1);
-        }
-        if (e.key.keysym.sym == SDLK_F4)
-        {
-          spielbildschirm.kamera->setze_vergroesserung(2);
-        }
-        if (e.key.keysym.sym == SDLK_x)
-        {
-          spielbildschirm.kamera->rechts_drehen();
-        }
-        if (e.key.keysym.sym == SDLK_y)
-        {
-          spielbildschirm.kamera->links_drehen();
-        }
-        if (e.key.keysym.sym == SDLK_ESCAPE)
-        {
-          exit(EXIT_SUCCESS);
-        }
-        break;
+	if (e.key.keysym.sym == SDLK_F2)
+	{
+	  spielbildschirm.kamera->setze_vergroesserung(0);
+	}
+	if (e.key.keysym.sym == SDLK_F3)
+	{
+	  spielbildschirm.kamera->setze_vergroesserung(1);
+	}
+	if (e.key.keysym.sym == SDLK_F4)
+	{
+	  spielbildschirm.kamera->setze_vergroesserung(2);
+	}
+	if (e.key.keysym.sym == SDLK_x)
+	{
+	  spielbildschirm.kamera->rechts_drehen();
+	}
+	if (e.key.keysym.sym == SDLK_y)
+	{
+	  spielbildschirm.kamera->links_drehen();
+	}
+	if (e.key.keysym.sym == SDLK_ESCAPE)
+	{
+	  exit(EXIT_SUCCESS);
+	}
+	break;
     }
   }
 }

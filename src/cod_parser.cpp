@@ -19,22 +19,24 @@
 
 #include "cod_parser.hpp"
 
-Cod_Parser::Cod_Parser(std::string cod_file_path)
+Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode)
   : path(cod_file_path)
 {
-  decode();
-  convert();
-  // json();
+  read_file(decode);
+  parse_file();
 }
 
-bool Cod_Parser::decode()
+bool Cod_Parser::read_file(bool decode)
 {
   std::ifstream input(path, std::ios::binary);
   std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
 
-  for (auto& c : buffer)
+  if (decode == true)
   {
-    c = 256 - c;
+    for (auto& c : buffer)
+    {
+      c = -c;
+    }
   }
   std::string line;
   for (int i = 0; i < buffer.size() - 1; i++)
@@ -57,7 +59,7 @@ bool Cod_Parser::decode()
   return true;
 }
 
-bool Cod_Parser::convert()
+bool Cod_Parser::parse_file()
 {
   cod_pb::Map gfx_map;
 
@@ -125,24 +127,24 @@ bool Cod_Parser::convert()
     {
       if (is_substring(line, ",") == true && is_substring(line, "ObjFill") == false)
       {
-        // example: 
+        // example:
         // Arr: 5, 6
         // Var: 10-Arr[0], 20+Arr[1]
-        if(is_substring(line, "["))
+        if (is_substring(line, "["))
         {
           std::vector<std::string> result = regex_search("(\\w+)\\s*:\\s*(.+)", line);
           if (result.size() > 0)
           {
             std::string name = result[1];
             auto var = create_or_reuse_variable(name);
-            if(exists_in_current_object(name) == true)
+            if (exists_in_current_object(name) == true)
             {
               var->mutable_value_array()->Clear();
             }
             var->set_name(name);
             std::string values = result[2];
             std::vector<std::string> split_values = split_by_delimiter(values, ",");
-            for(auto v: split_values)
+            for (auto v : split_values)
             {
               std::vector<std::string> tokens = regex_search("((\\d+)([+|-])(\\w+)\\[(\\d+)\\])", v);
               if (tokens.size() > 0)
@@ -773,7 +775,7 @@ void Cod_Parser::add_object_to_stack(cod_pb::Object* o, bool number_object, int 
   object_stack.push(obj);
 }
 
-bool Cod_Parser::object_finished()
+void Cod_Parser::object_finished()
 {
   if (object_stack.size() > 0)
   {
@@ -782,7 +784,7 @@ bool Cod_Parser::object_finished()
 }
 
 // String handling functions
-std::vector<std::string> Cod_Parser::regex_match(std::string regex, std::string str)
+std::vector<std::string> Cod_Parser::regex_match(const std::string& regex, const std::string& str)
 {
   std::vector<std::string> ret;
   boost::regex expr{regex};
@@ -797,7 +799,7 @@ std::vector<std::string> Cod_Parser::regex_match(std::string regex, std::string 
   return ret;
 }
 
-std::vector<std::string> Cod_Parser::regex_search(std::string regex, std::string str)
+std::vector<std::string> Cod_Parser::regex_search(const std::string& regex, const std::string& str)
 {
   std::vector<std::string> ret;
   boost::regex expr{regex};
@@ -859,7 +861,7 @@ bool Cod_Parser::is_empty(const std::string& str)
   return false;
 }
 
-bool Cod_Parser::is_substring(std::string str, std::string substr)
+bool Cod_Parser::is_substring(const std::string& str, const std::string& substr)
 {
   std::size_t found = str.find(substr);
   if (found != std::string::npos)
@@ -869,19 +871,19 @@ bool Cod_Parser::is_substring(std::string str, std::string substr)
   return false;
 }
 
-std::vector<std::string> Cod_Parser::split_by_delimiter(std::string str, std::string delim)
+std::vector<std::string> Cod_Parser::split_by_delimiter(const std::string& str, const std::string& delim)
 {
   std::vector<std::string> tokens;
   boost::split(tokens, str, boost::is_any_of(delim));
   return tokens;
 }
 
-std::string Cod_Parser::trim_comment_from_line(std::string str)
+std::string Cod_Parser::trim_comment_from_line(const std::string& str)
 {
   return split_by_delimiter(str, ";")[0];
 }
 
-bool Cod_Parser::begins_with(std::string str, std::string begin)
+bool Cod_Parser::begins_with(const std::string& str, const std::string& begin)
 {
   if (str.rfind(begin, 0) == 0)
   {
