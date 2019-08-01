@@ -68,7 +68,7 @@ private:
   cod_pb::Variable* create_or_reuse_variable(const std::string& name);
   cod_pb::Variable get_variable(const std::string& key);
   std::experimental::optional<cod_pb::Variable*> get_variable(cod_pb::Object* obj, const std::string& name);
-  int calculate_operation(int old_value, const std::string& operation, const std::string& op);
+  int calculate_operation(int old_value, const std::string& operation, int op);
 
   // Object stack related functions
   bool top_is_number_object();

@@ -1,0 +1,7 @@
+  Objekt: ARRAY_TEST
+
+    Nummer: 0
+    Pos:        20, 42                ; Property array
+    Posoffs:    30-Pos[0], 200-Pos[1] ; 30 - 20, 200 - 42 -> 10, 158
+
+  EndObj;
