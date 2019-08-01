@@ -1,0 +1,7 @@
+  Objekt: A
+
+    Nummer: 0
+    a: 1
+    b: 2
+
+  EndObj;

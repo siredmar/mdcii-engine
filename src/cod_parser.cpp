@@ -64,10 +64,9 @@ bool Cod_Parser::convert()
   std::map<std::string, int> variable_numbers;
 
   int spaces = -1;
-  for (int line_index = 0; line_index < cod_txt.size() - 1; line_index++)
+  for (int line_index = 0; line_index < cod_txt.size(); line_index++)
   {
     std::string line = cod_txt[line_index];
-    std::string next_line = cod_txt[line_index + 1];
     spaces = count_front_spaces(line);
 
     if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:"))
