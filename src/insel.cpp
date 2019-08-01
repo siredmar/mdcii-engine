@@ -225,9 +225,7 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
   }
   int grafik = info.value()->Gfx;
   int16_t index = grafik;
-  std::cout << "a" << std::endl;
   index += info.value()->Size[0] * info.value()->Size[1] * ((r + feld.rot) % (info.value()->Rotate+1));
-  std::cout << "b" << std::endl;
   switch (feld.rot)
   {
     case 0: index += feld.y_pos * info.value()->Size[1] + feld.x_pos; break;
@@ -235,7 +233,8 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
     case 2: index += (info.value()->Size[0] - feld.y_pos - 1) * info.value()->Size[1] + (info.value()->Size[1] - feld.x_pos - 1); break;
     case 3: index += feld.x_pos * info.value()->Size[1] + (info.value()->Size[1] - feld.y_pos - 1); break;
   }
-  index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % (info.value()->AnimAnz+1));
+  int anim = info.value()->AnimAnz == -1 ? 1 : info.value()->AnimAnz+1;
+  index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % anim);
   ziel.index = index;
   ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
 }

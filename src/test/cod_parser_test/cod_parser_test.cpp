@@ -28,12 +28,15 @@ int main(int argc, char** argv)
   // auto files = Files::create_instance(".", false);
   // if (files->instance()->check_file(cod_path) == true)
   {
-    Cod_Parser cod(cod_path, true);
-    Haeuser haeuser(&cod);
-    auto h = haeuser.get_haus(1254);
-    if(h)
+    std::shared_ptr<Cod_Parser> cod = std::make_shared<Cod_Parser>(cod_path, true);
+    Haeuser haeuser(cod);
+    for(int i = 0; i < 2500; i++)
     {
-      std::cout << h.value().Gfx << std::endl;
+      auto h = haeuser.get_haus(i);
+      if(h)
+      {
+        std::cout << h.value()->Id-20000 << "," << h.value()->Gfx << std::endl;
+      }
     }
   }
 }

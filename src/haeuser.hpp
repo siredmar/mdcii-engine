@@ -132,7 +132,6 @@ class Haeuser
         for(int i = 0; i < obj.objects_size(); i++)
         {
           auto haus = generate_haus(&obj.objects(i));
-
           if(haus.Id == 0)
           {
             haus.Id = id_offset;

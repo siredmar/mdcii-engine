@@ -84,8 +84,6 @@ int main(int argc, char** argv)
 
   auto files = Files::create_instance(files_path);
 
-  Cod_Parser cod_parser(files->instance()->find_path_for_file("haeuser.cod"), true);
-
   version = Version::Detect_game_version();
   if (files->instance()->check_all_files(&files_to_check) == false)
   {
