@@ -226,7 +226,7 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
   int grafik = info.value()->Gfx;
   int16_t index = grafik;
   std::cout << "a" << std::endl;
-  index += info.value()->Size[0] * info.value()->Size[1] * ((r + feld.rot) % info.value()->Rotate);
+  index += info.value()->Size[0] * info.value()->Size[1] * ((r + feld.rot) % (info.value()->Rotate+1));
   std::cout << "b" << std::endl;
   switch (feld.rot)
   {
@@ -235,7 +235,7 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
     case 2: index += (info.value()->Size[0] - feld.y_pos - 1) * info.value()->Size[1] + (info.value()->Size[1] - feld.x_pos - 1); break;
     case 3: index += feld.x_pos * info.value()->Size[1] + (info.value()->Size[1] - feld.y_pos - 1); break;
   }
-  index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % info.value()->AnimAnz);
+  index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % (info.value()->AnimAnz+1));
   ziel.index = index;
   ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
 }
@@ -260,7 +260,7 @@ void Insel::bewege_wasser() // FIXME
         auto info = haeuser->get_haus(feld.bebauung);
 	      if (info)
         {
-	        feld.ani = (feld.ani + 1) % info.value()->AnimAnz;
+	        feld.ani = (feld.ani + 1) % (info.value()->AnimAnz+1);
         }
       }
     }
@@ -272,5 +272,5 @@ void Insel::animiere_gebaeude(uint8_t x, uint8_t y)
   inselfeld_t& feld = schicht2[y * breite + x];
   Haus* info = haeuser->get_haus(feld.bebauung).value();
   if (info != nullptr)
-    feld.ani = (feld.ani + 1) % info->AnimAnz;
+    feld.ani = (feld.ani + 1) % (info->AnimAnz+1);
 }
