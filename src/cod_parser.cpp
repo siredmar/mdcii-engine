@@ -413,10 +413,6 @@ bool Cod_Parser::convert()
               {
                 auto variable = create_or_reuse_variable(obj.value()->variables().variable(i).name());
                 *variable = obj.value()->variables().variable(i);
-                if (variable->Value_case() == cod_pb::Variable::ValueCase::kValueInt)
-                {
-                  variable_numbers[obj.value()->variables().variable(i).name()] = obj.value()->variables().variable(i).value_int();
-                }
               }
             }
             if (obj.value()->objects_size() > 0)
