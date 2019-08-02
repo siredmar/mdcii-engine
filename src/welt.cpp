@@ -95,7 +95,6 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
   }
 
   // Initialisiere Animationen über Bergen
-
   for (Insel*& insel : inseln)
   {
     for (int i = 0; i < reinterpret_cast<Insel5*>(insel->inselX->daten)->erzvorkommen; i++)
@@ -110,7 +109,7 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
       {
         int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
         int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
-        // 	if (info->kategorie == 4)
+        if (info.value()->Kind == ObjectKindType::FELS)
         {
           int versatz = (info.value()->Size[1] + info.value()->Size[0]) / 2;
           versatz += (versatz & 1) * 2 + 3;
