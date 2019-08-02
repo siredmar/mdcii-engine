@@ -119,7 +119,7 @@ int main(int argc, char** argv)
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
 
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"));
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   Welt welt = Welt(f, haeuser);
 
