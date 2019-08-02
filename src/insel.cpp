@@ -51,13 +51,13 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
       int x, y, u, v;
       if (feld.rot % 2 == 0)
       {
-	      u = info.value()->Size[1];
-	      v = info.value()->Size[0];
+	      u = info.value()->Size[0];
+	      v = info.value()->Size[1];
       }
       else
       {
-        u = info.value()->Size[0];
-	      v = info.value()->Size[1];
+        u = info.value()->Size[1];
+	      v = info.value()->Size[0];
       }
 
       for (int y = 0; y < v && feld.y_pos + y < hoehe; y++)
@@ -228,10 +228,10 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
   index += info.value()->Size[0] * info.value()->Size[1] * ((r + feld.rot) % (info.value()->Rotate+1));
   switch (feld.rot)
   {
-    case 0: index += feld.y_pos * info.value()->Size[1] + feld.x_pos; break;
-    case 1: index += (info.value()->Size[0] - feld.x_pos - 1) * info.value()->Size[1] + feld.y_pos; break;
-    case 2: index += (info.value()->Size[0] - feld.y_pos - 1) * info.value()->Size[1] + (info.value()->Size[1] - feld.x_pos - 1); break;
-    case 3: index += feld.x_pos * info.value()->Size[1] + (info.value()->Size[1] - feld.y_pos - 1); break;
+    case 0: index += feld.y_pos * info.value()->Size[0] + feld.x_pos; break;
+    case 1: index += (info.value()->Size[1] - feld.x_pos - 1) * info.value()->Size[0] + feld.y_pos; break;
+    case 2: index += (info.value()->Size[1] - feld.y_pos - 1) * info.value()->Size[0] + (info.value()->Size[0] - feld.x_pos - 1); break;
+    case 3: index += feld.x_pos * info.value()->Size[0] + (info.value()->Size[0] - feld.y_pos - 1); break;
   }
   int anim = info.value()->AnimAnz == -1 ? 1 : info.value()->AnimAnz+1;
   index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % anim);

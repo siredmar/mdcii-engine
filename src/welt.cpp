@@ -76,8 +76,8 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     auto info = haeuser->get_haus(inselfeld.bebauung);
     if (info)
     {
-      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
-      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
       if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
       {
         int versatz = (info.value()->Size[0] + info.value()->Size[1]) / 2;
@@ -108,8 +108,8 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
       auto info = haeuser->get_haus(inselfeld.bebauung);
       if (info)
       {
-        int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
-        int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+        int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
+        int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
         // 	if (info->kategorie == 4)
         {
           int versatz = (info.value()->Size[1] + info.value()->Size[0]) / 2;
