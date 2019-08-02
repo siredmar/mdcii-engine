@@ -78,7 +78,7 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     {
       int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
       int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
-      if (info.value()->HAUS_PRODTYP.Kind == "HANDWERK")
+      if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
       {
         int versatz = (info.value()->Size[0] + info.value()->Size[1]) / 2;
         versatz += (versatz & 1) * 2;
