@@ -326,16 +326,17 @@ struct Haus
   int Einhoffs = -1;
   int Maxenergy = -1;
   int Maxbrand = -1;
-  int Rotate = -1;
-  int RandAnz = -1;
-  int AnimTime = -1;
-  int AnimFrame = -1;
-  int AnimAdd = -1;
+
+  int Rotate = 0;
+  int AnimTime = 0;
+  int AnimAnz = 0;
+  int AnimAdd = 0;
+
   int Baugfx = -1;
-  int AnimAnz = -1;
   int KreuzBase = -1;
   int Randwachs = -1;
   int RandAdd = -1;
+  int RandAnz = 0;
   int Strandoff = -1;
   int PlaceFlg = -1;
   int NoShotFlg = -1;
@@ -343,6 +344,7 @@ struct Haus
   int Ausbauflg = -1;
   int Tuerflg = -1;
   int Destroyflg = -1;
+  int AnimFrame = 0; // Unused
   ObjectKindType Kind = ObjectKindType::UNSET;
   BausampleType Bausample = BausampleType::UNSET;
   RuinenrType Ruinenr = RuinenrType::UNSET;
@@ -510,6 +512,7 @@ class Haeuser
         }
         else if (var.name() == "AnimTime")
         {
+          // protobuf explizitly checks if value is int, otherwhise set value to 0 (e.g. for "TIMENEVER" -> 0)
           h.AnimTime = var.value_int();
         }
         else if (var.name() == "AnimFrame")
