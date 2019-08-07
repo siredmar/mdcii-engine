@@ -328,11 +328,11 @@ struct Haus
   int Maxbrand = -1;
   int Rotate = -1;
   int RandAnz = -1;
+  int AnimAnz = 0;
   int AnimTime = -1;
-  int AnimFrame = -1;
-  int AnimAdd = -1;
+  int AnimFrame = 0;
+  int AnimAdd = 0;
   int Baugfx = -1;
-  int AnimAnz = -1;
   int KreuzBase = -1;
   int Randwachs = -1;
   int RandAdd = -1;
@@ -347,7 +347,10 @@ struct Haus
   BausampleType Bausample = BausampleType::UNSET;
   RuinenrType Ruinenr = RuinenrType::UNSET;
   std::vector<int> Wegspeed = {};
-  std::vector<int> Size = {};
+  struct {
+    int w;
+    int h;
+  } Size;
   struct 
   {
     int BGruppe = -1;
@@ -495,10 +498,8 @@ class Haeuser
         }
         else if (var.name() == "Size")
         {
-         for(int v = 0; v < var.value_array().value_size(); v++)
-          {
-            h.Size.push_back(var.value_array().value(v).value_int());
-          }
+          h.Size.w = var.value_array().value(0).value_int();
+          h.Size.h = var.value_array().value(1).value_int();
         }
         else if (var.name() == "Rotate")
         {
@@ -510,7 +511,14 @@ class Haeuser
         }
         else if (var.name() == "AnimTime")
         {
-          h.AnimTime = var.value_int();
+          if(var.value_string() == "TIMENEVER")
+          {
+            h.AnimTime = -1;
+          }
+          else
+          {
+            h.AnimTime = var.value_int();
+          }
         }
         else if (var.name() == "AnimFrame")
         {
