@@ -182,56 +182,104 @@ TEST_CASE("Animation - single tile of animation steps for for each direction, 1x
   REQUIRE(tile.gfx == 573);
 }
 
-TEST_CASE("Animation - multiple animation steps for for each direction, 2x2")
+TEST_CASE("Animation - get animation steps for different views, 2x2")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
 
   Object_Animation anim(501, haeuser);
-  auto tiles = anim.get_animation_step(0);
+  auto tiles = anim.get_animation_step(0, 0);
   REQUIRE(tiles.size() == haeuser->get_haus(501).value()->Rotate);
-  // REQUIRE(tiles[0].gfx == 1816);
-  // REQUIRE(tiles[1].gfx == 1817);
-  // REQUIRE(tiles[2].gfx == 1818);
-  // REQUIRE(tiles[3].gfx == 1819);
-  // REQUIRE(tiles[4].gfx == 1832);
-  // REQUIRE(tiles[5].gfx == 1833);
-  // REQUIRE(tiles[6].gfx == 1834);
-  // REQUIRE(tiles[7].gfx == 1835);
-  // REQUIRE(tiles[8].gfx == 1848);
-  // REQUIRE(tiles[9].gfx == 1849);
-  // REQUIRE(tiles[10].gfx == 1850);
-  // REQUIRE(tiles[11].gfx == 1851);
-  // REQUIRE(tiles[12].gfx == 1864);
-  // REQUIRE(tiles[13].gfx == 1865);
-  // REQUIRE(tiles[14].gfx == 1866);
-  // REQUIRE(tiles[15].gfx == 1867);
+  REQUIRE(tiles[0].gfx == 1816);
+  REQUIRE(tiles[1].gfx == 1817);
+  REQUIRE(tiles[2].gfx == 1818);
+  REQUIRE(tiles[3].gfx == 1819);
 
-  // tiles = anim.get_animation_step(1);
-  // REQUIRE(tiles.size() == 6);
-  // REQUIRE(tiles[0].gfx == 553);
-  // REQUIRE(tiles[1].gfx == 557);
-  // REQUIRE(tiles[2].gfx == 561);
-  // REQUIRE(tiles[3].gfx == 565);
-  // REQUIRE(tiles[4].gfx == 569);
-  // REQUIRE(tiles[5].gfx == 573);
+  tiles = anim.get_animation_step(0, 1);
+  REQUIRE(tiles[0].gfx == 1832);
+  REQUIRE(tiles[1].gfx == 1833);
+  REQUIRE(tiles[2].gfx == 1834);
+  REQUIRE(tiles[3].gfx == 1835);
 
-  // tiles = anim.get_animation_step(2);
-  // REQUIRE(tiles.size() == 6);
-  // REQUIRE(tiles[0].gfx == 554);
-  // REQUIRE(tiles[1].gfx == 558);
-  // REQUIRE(tiles[2].gfx == 562);
-  // REQUIRE(tiles[3].gfx == 566);
-  // REQUIRE(tiles[4].gfx == 570);
-  // REQUIRE(tiles[5].gfx == 574);
+  tiles = anim.get_animation_step(0, 2);
+  REQUIRE(tiles[0].gfx == 1848);
+  REQUIRE(tiles[1].gfx == 1849);
+  REQUIRE(tiles[2].gfx == 1850);
+  REQUIRE(tiles[3].gfx == 1851);
 
-  // tiles = anim.get_animation_step(3);
-  // REQUIRE(tiles.size() == 6);
-  // REQUIRE(tiles[0].gfx == 555);
-  // REQUIRE(tiles[1].gfx == 559);
-  // REQUIRE(tiles[2].gfx == 563);
-  // REQUIRE(tiles[3].gfx == 567);
-  // REQUIRE(tiles[4].gfx == 571);
-  // REQUIRE(tiles[5].gfx == 575);
+  tiles = anim.get_animation_step(0, 3);
+  REQUIRE(tiles[0].gfx == 1864);
+  REQUIRE(tiles[1].gfx == 1865);
+  REQUIRE(tiles[2].gfx == 1866);
+  REQUIRE(tiles[3].gfx == 1867);
+
+  tiles = anim.get_animation_step(1, 0);
+  REQUIRE(tiles[0].gfx == 1820);
+  REQUIRE(tiles[1].gfx == 1821);
+  REQUIRE(tiles[2].gfx == 1822);
+  REQUIRE(tiles[3].gfx == 1823);
+
+  tiles = anim.get_animation_step(1, 1);
+  REQUIRE(tiles[0].gfx == 1836);
+  REQUIRE(tiles[1].gfx == 1837);
+  REQUIRE(tiles[2].gfx == 1838);
+  REQUIRE(tiles[3].gfx == 1839);
+
+  tiles = anim.get_animation_step(1, 2);
+  REQUIRE(tiles[0].gfx == 1852);
+  REQUIRE(tiles[1].gfx == 1853);
+  REQUIRE(tiles[2].gfx == 1854);
+  REQUIRE(tiles[3].gfx == 1855);
+
+  tiles = anim.get_animation_step(1, 3);
+  REQUIRE(tiles[0].gfx == 1868);
+  REQUIRE(tiles[1].gfx == 1869);
+  REQUIRE(tiles[2].gfx == 1870);
+  REQUIRE(tiles[3].gfx == 1871);
+}
+
+TEST_CASE("Animation - get whole animation for different views, 2x2")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+
+  Object_Animation anim(501, haeuser);
+  auto tiles = anim.get_animation(0);
+  REQUIRE(tiles.size() == haeuser->get_haus(501).value()->AnimAnz);
+  REQUIRE(tiles[0][0].gfx == 1816);
+  REQUIRE(tiles[0][1].gfx == 1817);
+  REQUIRE(tiles[0][2].gfx == 1818);
+  REQUIRE(tiles[0][3].gfx == 1819);
+  REQUIRE(tiles[1][0].gfx == 1832);
+  REQUIRE(tiles[1][1].gfx == 1833);
+  REQUIRE(tiles[1][2].gfx == 1834);
+  REQUIRE(tiles[1][3].gfx == 1835);
+  REQUIRE(tiles[2][0].gfx == 1848);
+  REQUIRE(tiles[2][1].gfx == 1849);
+  REQUIRE(tiles[2][2].gfx == 1850);
+  REQUIRE(tiles[2][3].gfx == 1851);
+  REQUIRE(tiles[3][0].gfx == 1864);
+  REQUIRE(tiles[3][1].gfx == 1865);
+  REQUIRE(tiles[3][2].gfx == 1866);
+  REQUIRE(tiles[3][3].gfx == 1867);
+
+  tiles = anim.get_animation(1);
+  REQUIRE(tiles[0][0].gfx == 1820);
+  REQUIRE(tiles[0][1].gfx == 1821);
+  REQUIRE(tiles[0][2].gfx == 1822);
+  REQUIRE(tiles[0][3].gfx == 1823);
+  REQUIRE(tiles[1][0].gfx == 1836);
+  REQUIRE(tiles[1][1].gfx == 1837);
+  REQUIRE(tiles[1][2].gfx == 1838);
+  REQUIRE(tiles[1][3].gfx == 1839);
+  REQUIRE(tiles[2][0].gfx == 1852);
+  REQUIRE(tiles[2][1].gfx == 1853);
+  REQUIRE(tiles[2][2].gfx == 1854);
+  REQUIRE(tiles[2][3].gfx == 1855);
+  REQUIRE(tiles[3][0].gfx == 1868);
+  REQUIRE(tiles[3][1].gfx == 1869);
+  REQUIRE(tiles[3][2].gfx == 1870);
+  REQUIRE(tiles[3][3].gfx == 1871);
 }
