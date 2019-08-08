@@ -35,13 +35,18 @@ public:
     }
   }
 
-  std::vector<Tile> get_tiles(int rotation) { return AnimationTilesPerRotation[rotation]; }
+  std::vector<std::vector<Tile>> get_animation(int rotation = 0) { return AnimationTilesPerRotation[rotation]; }
+  std::vector<Tile> get_animation_step(int rotation, int animation_step = 0) { return AnimationTilesPerRotation[rotation][animation_step]; }
+  Tile get_animation_tile(int rotation, int animation_step = 0, int tile = 0) { return AnimationTilesPerRotation[rotation][animation_step][tile]; }
 
-  void start_animation() { startAnimation = true; }
 
 private:
   void calculate_tiles()
   {
+    TilesForAnimation.clear();
+    Animations.clear();
+    AnimationTilesPerRotation.clear();
+
     // Rotate = 0: There is only one image for each view
     if (rotate == 0)
     {
@@ -52,7 +57,9 @@ private:
       TilesForAnimation.push_back(t);
       for (int v = 0; v < 4; v++)
       {
-        AnimationTilesPerRotation.push_back(TilesForAnimation);
+        Animations.push_back(TilesForAnimation);
+        AnimationTilesPerRotation.push_back(Animations);
+        Animations.clear();
       }
       return;
     }
@@ -68,27 +75,59 @@ private:
         t.x = 0;
         t.y = 0;
         TilesForAnimation.push_back(t);
-        AnimationTilesPerRotation.push_back(TilesForAnimation);
+        Animations.push_back(TilesForAnimation);
         TilesForAnimation.clear();
+        AnimationTilesPerRotation.push_back(Animations);
+        Animations.clear();
       }
       return;
     }
 
-    // Rotate != 0, AnimZeit !+ TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    // Rotate == 1, AnimZeit != TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    {
+      if (rotate == 1)
+      {
+        for (int v = 0; v < 4; v++)
+        {
+          for (int a = 0; a < animCount; a++)
+          {
+            Tile t;
+            t.gfx = startGfx + a * animAdd + v;
+            t.x = 0;
+            t.y = 0;
+            TilesForAnimation.push_back(t);
+            Animations.push_back(TilesForAnimation);
+            TilesForAnimation.clear();
+          }
+          AnimationTilesPerRotation.push_back(Animations);
+          Animations.clear();
+        }
+        return;
+      }
+    }
+
+    // Rotate != 0, AnimZeit != TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
     {
       for (int v = 0; v < 4; v++)
       {
         for (int a = 0; a < animCount; a++)
         {
-          Tile t;
-          t.gfx = startGfx + a * animAdd + v;
-          t.x = 0;
-          t.y = 0;
-          TilesForAnimation.push_back(t);
+          int inc = 0;
+          for (int i = 0; i < rotate; i++)
+          {
+            Tile t;
+            t.gfx = startGfx + inc++ + a * animAdd + v * rotate;
+            t.x = 0;
+            t.y = 0;
+            TilesForAnimation.push_back(t);
+          }
+          Animations.push_back(TilesForAnimation);
+          TilesForAnimation.clear();
         }
-        AnimationTilesPerRotation.push_back(TilesForAnimation);
-        TilesForAnimation.clear();
+        AnimationTilesPerRotation.push_back(Animations);
+        Animations.clear();
       }
+      return;
     }
   }
 
@@ -101,7 +140,8 @@ private:
   const int views = 4;
   const int tiles = 1;
   std::vector<Tile> TilesForAnimation;
-  std::vector<std::vector<Tile>> AnimationTilesPerRotation;
+  std::vector<std::vector<Tile>> Animations;
+  std::vector<std::vector<std::vector<Tile>>> AnimationTilesPerRotation;
   struct
   {
     int width;
