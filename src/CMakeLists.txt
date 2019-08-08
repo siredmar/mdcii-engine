@@ -4,7 +4,7 @@ add_definitions(-std=c++14)
 find_package(Boost REQUIRED COMPONENTS iostreams program_options filesystem)
 find_package(SDL REQUIRED)
 
-ADD_SUBDIRECTORY(proto)
+add_subdirectory(proto)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -38,3 +38,6 @@ target_link_libraries(mdcii-codcat boost_iostreams)
 
 add_executable(cod_parser_test test/cod_parser_test/cod_parser_test.cpp files.cpp cod_parser.cpp)
 target_link_libraries(cod_parser_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
+
+add_executable(object_animation_test test/object_animation_test/object_animation_test.cpp cod_parser.cpp files.cpp)
+target_link_libraries(object_animation_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)

@@ -18,7 +18,7 @@ NamespaceIndentation: None
 SpaceInEmptyParentheses: 'false'
 Standard: Auto
 TabWidth: '8'
-SortIncludes: 'false'
+SortIncludes: 'true'
 AlwaysBreakTemplateDeclarations: 'true'
 AccessModifierOffset: '-2'
 AlignTrailingComments: 'true'

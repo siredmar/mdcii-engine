@@ -45,19 +45,19 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     if (feld.x_pos >= breite || feld.y_pos >= hoehe)
       continue;
 
-    auto info = haeuser->get_haus(feld.bebauung); 
+    auto info = haeuser->get_haus(feld.bebauung);
     if (info)
     {
       int x, y, u, v;
       if (feld.rot % 2 == 0)
       {
-	      u = info.value()->Size.w;
-	      v = info.value()->Size.h;
+        u = info.value()->Size.w;
+        v = info.value()->Size.h;
       }
       else
       {
         u = info.value()->Size.h;
-	      v = info.value()->Size.w;
+        v = info.value()->Size.w;
       }
 
       for (int y = 0; y < v && feld.y_pos + y < hoehe; y++)
@@ -126,7 +126,7 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
       if (files->instance()->check_file(karte) == false)
       {
         std::cout << "[ERR] Island not found: " << karte << std::endl;
-	      exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
       f.open(karte, std::ios_base::in | std::ios_base::binary);
@@ -143,8 +143,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
     {
       for (x = 0; x < this->breite; x++)
       {
-	if (schicht2[y * this->breite + x].bebauung == 0xffff)
-	  schicht2[y * this->breite + x] = schicht1[y * this->breite + x];
+        if (schicht2[y * this->breite + x].bebauung == 0xffff)
+          schicht2[y * this->breite + x] = schicht1[y * this->breite + x];
       }
     }
   }
@@ -166,7 +166,7 @@ void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
 {
   auto info = haeuser->get_haus(schicht2[y * breite + x].bebauung);
   int grafik;
-  if(info)
+  if (info)
   {
     if (schicht2[y * breite + x].bebauung != 0xffff)
     {
@@ -181,7 +181,7 @@ void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
     if (schicht1[y * breite + x].bebauung != 0xffff)
     {
       grafik = info.value()->Gfx;
-      if(info.value()->Highflg == 0 && grafik != -1)
+      if (info.value()->Highflg == 0 && grafik != -1)
       {
         ziel.index = grafik;
         ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
@@ -224,24 +224,24 @@ int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r,
     return -1;
   }
   int grafik = info.value()->Gfx;
-  if( info.value()->Kind == ObjectKindType::WALD)
+  if (info.value()->Kind == ObjectKindType::WALD)
   {
     std::cout << std::endl;
   }
 
-  if( grafik == 1092)
+  if (grafik == 1092)
   {
     std::cout << std::endl;
   }
   int richtungen = 4;
-  if(info.value()->Rotate <= 1)
+  if (info.value()->Rotate <= 1)
   {
     richtungen = 1;
   }
 
   int rotationIndex = 0;
 
-  if(info.value()->Rotate >= 1)
+  if (info.value()->Rotate >= 1)
   {
     rotationIndex = (r + feld.rot) % 4;
   }
@@ -268,15 +268,15 @@ void Insel::bewege_wasser() // FIXME
     {
       inselfeld_t& feld = schicht2[y * breite + x];
       if (feld.bebauung >= 1201 && feld.bebauung <= 1218 || feld.bebauung >= 901 && feld.bebauung <= 905 || feld.bebauung >= 1251 && feld.bebauung <= 1259
-	  || feld.bebauung == 1071 || feld.bebauung == 2311)
+          || feld.bebauung == 1071 || feld.bebauung == 2311)
       {
         auto info = haeuser->get_haus(feld.bebauung);
-	      if (info)
+        if (info)
         {
           int animAnz = 1;
-          if(info.value()->AnimAnz > 0)
+          if (info.value()->AnimAnz > 0)
           {
-	          feld.ani = (feld.ani + 1) %  (info.value()->AnimAnz);
+            feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
           }
         }
       }
@@ -291,7 +291,7 @@ void Insel::animiere_gebaeude(uint8_t x, uint8_t y)
   if (info)
   {
     int animAnz = 1;
-    if(info.value()->AnimAnz > 0)
+    if (info.value()->AnimAnz > 0)
     {
       feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
     }
