@@ -32,11 +32,6 @@ public:
       id = h.value()->Id;
       startGfx = h.value()->Gfx;
       calculate_tiles();
-      // AnimationTilesPerRotation.reserve(4);
-      // for (int v = 0; v < 4; v++)
-      // {
-      //   AnimationTilesPerRotation[v].reserve(1);
-      // }
     }
   }
 
@@ -47,7 +42,8 @@ public:
 private:
   void calculate_tiles()
   {
-    if (animCount == 0)
+    // Rotate = 0: There is only one image for each view
+    if (rotate == 0)
     {
       Tile t;
       t.gfx = startGfx;
@@ -58,26 +54,41 @@ private:
       {
         AnimationTilesPerRotation.push_back(TilesForAnimation);
       }
+      return;
     }
-    else
+
+    // Rotate != 0, AnimZeit == TIMENEVER: There is one image for each view
+    if (animTime <= 0)
     {
-      // for (int i = 0; i < animCount; i++)
-      // {
-      //   if (rotate == 0) // There is only one image for each view
-      //   {
-      //     for (int v = 0; v < 4; v++)
-      //     {
-      //       Tile t;
-      //       t.gfx = startGfx;
-      //       t.x = 0;
-      //       t.y = 0;
-      //       TilesForAnimation.push_back(t);
-      //     }
-      //   }
-      //   else
-      //   {
-      //   }
-      // }
+      int inc = 0;
+      for (int i = 0; i < 4; i++)
+      {
+        Tile t;
+        t.gfx = startGfx + inc++;
+        t.x = 0;
+        t.y = 0;
+        TilesForAnimation.push_back(t);
+        AnimationTilesPerRotation.push_back(TilesForAnimation);
+        TilesForAnimation.clear();
+      }
+      return;
+    }
+
+    // Rotate != 0, AnimZeit !+ TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    {
+      for (int v = 0; v < 4; v++)
+      {
+        for (int a = 0; a < animCount; a++)
+        {
+          Tile t;
+          t.gfx = startGfx + a * animAdd + v;
+          t.x = 0;
+          t.y = 0;
+          TilesForAnimation.push_back(t);
+        }
+        AnimationTilesPerRotation.push_back(TilesForAnimation);
+        TilesForAnimation.clear();
+      }
     }
   }
 
