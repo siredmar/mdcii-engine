@@ -106,10 +106,10 @@ private:
 
     // Rotate >= 1, AnimZeit > 0: There must be a set AnimAdd and AnimCount -> Multiple images for each view
     {
-      if (animCount == 0)
-        animCount = 1;
       for (int v = 0; v < 4; v++)
       {
+        if (animCount == 0)
+          animCount = 1;
         for (int a = 0; a < animCount; a++)
         {
           int inc = 0;

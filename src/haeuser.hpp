@@ -415,6 +415,8 @@ public:
       return &haeuser[id];
     }
   }
+  int get_haeuser_size() { return haeuser_vec.size(); }
+  Haus* get_haeuser_by_index(int index) { return haeuser_vec[index]; }
 
 private:
   void generate_haeuser()
@@ -428,6 +430,7 @@ private:
         {
           auto haus = generate_haus(&obj.objects(i));
           haeuser[haus.Id] = haus;
+          haeuser_vec.push_back(&haeuser[haus.Id]);
         }
       }
     }
@@ -749,6 +752,7 @@ private:
 
   const int id_offset = 20000;
   std::map<int, Haus> haeuser;
+  std::vector<Haus*> haeuser_vec;
   std::shared_ptr<Cod_Parser> cod;
 
   std::map<std::string, ObjectKindType> ObjectKindMap = {{"WALD", ObjectKindType::WALD}, {"TOR", ObjectKindType::TOR}, {"RUINE", ObjectKindType::RUINE},
