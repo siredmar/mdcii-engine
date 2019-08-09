@@ -66,20 +66,21 @@ TEST_CASE("Animations - only one tile for each direction, 1x1")
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   Object_Animations object_animations(haeuser);
   auto anim = object_animations.get_animation(1352);
+  REQUIRE(anim->time == -1);
 
-  auto tiles = anim->get_animation_step(0);
+  auto tiles = anim->animation->get_animation_step(0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1491);
 
-  tiles = anim->get_animation_step(1);
+  tiles = anim->animation->get_animation_step(1);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1491);
 
-  tiles = anim->get_animation_step(2);
+  tiles = anim->animation->get_animation_step(2);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1491);
 
-  tiles = anim->get_animation_step(3);
+  tiles = anim->animation->get_animation_step(3);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1491);
 }
@@ -93,25 +94,27 @@ TEST_CASE("Animation - unique tile for each direction, 1x1")
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(1011);
-  auto tiles = anim->get_animation_step(0, 0);
+  REQUIRE(anim->time == -1);
+
+  auto tiles = anim->animation->get_animation_step(0, 0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1092);
 
-  tiles = anim->get_animation_step(1, 0);
+  tiles = anim->animation->get_animation_step(1, 0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1093);
 
-  tiles = anim->get_animation_step(2, 0);
+  tiles = anim->animation->get_animation_step(2, 0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1094);
 
-  tiles = anim->get_animation_step(3, 0);
+  tiles = anim->animation->get_animation_step(3, 0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0].gfx == 1095);
 }
 
 
-TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
+TEST_CASE("Animation - multiple anim->animationation steps for for each direction, 1x1")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
@@ -119,11 +122,11 @@ TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(2311);
-  int animAnz = haeuser->get_haus(2311).value()->AnimAnz;
+  REQUIRE(anim->time == 130);
 
-  // Get tiles for rotation 0, animation step 0
-  auto tiles_anim = anim->get_animation(0);
-  REQUIRE(tiles_anim.size() == animAnz);
+  // Get tiles for rotation 0, anim->animationation step 0
+  auto tiles_anim = anim->animation->get_animation(0);
+  REQUIRE(tiles_anim.size() == 6);
   REQUIRE(tiles_anim[0][0].gfx == 552);
   REQUIRE(tiles_anim[1][0].gfx == 556);
   REQUIRE(tiles_anim[2][0].gfx == 560);
@@ -131,9 +134,8 @@ TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
   REQUIRE(tiles_anim[4][0].gfx == 568);
   REQUIRE(tiles_anim[5][0].gfx == 572);
 
-  // Get tiles for rotation 1, animation step 0
-  tiles_anim = anim->get_animation(1);
-  REQUIRE(tiles_anim.size() == animAnz);
+  // Get tiles for rotation 1, anim->animationation step 0
+  tiles_anim = anim->animation->get_animation(1);
   REQUIRE(tiles_anim[0][0].gfx == 553);
   REQUIRE(tiles_anim[1][0].gfx == 557);
   REQUIRE(tiles_anim[2][0].gfx == 561);
@@ -141,9 +143,8 @@ TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
   REQUIRE(tiles_anim[4][0].gfx == 569);
   REQUIRE(tiles_anim[5][0].gfx == 573);
 
-  // Get tiles_anim for rotation 2, animation step 0
-  tiles_anim = anim->get_animation(2);
-  REQUIRE(tiles_anim.size() == animAnz);
+  // Get tiles_anim for rotation 2, anim->animationation step 0
+  tiles_anim = anim->animation->get_animation(2);
   REQUIRE(tiles_anim[0][0].gfx == 554);
   REQUIRE(tiles_anim[1][0].gfx == 558);
   REQUIRE(tiles_anim[2][0].gfx == 562);
@@ -151,9 +152,8 @@ TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
   REQUIRE(tiles_anim[4][0].gfx == 570);
   REQUIRE(tiles_anim[5][0].gfx == 574);
 
-  // Get tiles_anim for rotation 3, animation step 0
-  tiles_anim = anim->get_animation(3);
-  REQUIRE(tiles_anim.size() == animAnz);
+  // Get tiles_anim for rotation 3, anim->animationation step 0
+  tiles_anim = anim->animation->get_animation(3);
   REQUIRE(tiles_anim[0][0].gfx == 555);
   REQUIRE(tiles_anim[1][0].gfx == 559);
   REQUIRE(tiles_anim[2][0].gfx == 563);
@@ -162,7 +162,7 @@ TEST_CASE("Animation - multiple animation steps for for each direction, 1x1")
   REQUIRE(tiles_anim[5][0].gfx == 575);
 }
 
-TEST_CASE("Animation - single tile of animation steps for for each direction, 1x1")
+TEST_CASE("Animation - single tile of anim->animationation steps for for each direction, 1x1")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
@@ -170,36 +170,38 @@ TEST_CASE("Animation - single tile of animation steps for for each direction, 1x
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(2311);
-  // Get tiles for rotation 0, animation step 0 to 5
-  auto tile = anim->get_animation_tile(0, 0, 0);
+  REQUIRE(anim->time == 130);
+
+  // Get tiles for rotation 0, anim->animationation step 0 to 5
+  auto tile = anim->animation->get_animation_tile(0, 0, 0);
   REQUIRE(tile.gfx == 552);
-  tile = anim->get_animation_tile(0, 1, 0);
+  tile = anim->animation->get_animation_tile(0, 1, 0);
   REQUIRE(tile.gfx == 556);
-  tile = anim->get_animation_tile(0, 2, 0);
+  tile = anim->animation->get_animation_tile(0, 2, 0);
   REQUIRE(tile.gfx == 560);
-  tile = anim->get_animation_tile(0, 3, 0);
+  tile = anim->animation->get_animation_tile(0, 3, 0);
   REQUIRE(tile.gfx == 564);
-  tile = anim->get_animation_tile(0, 4, 0);
+  tile = anim->animation->get_animation_tile(0, 4, 0);
   REQUIRE(tile.gfx == 568);
-  tile = anim->get_animation_tile(0, 5, 0);
+  tile = anim->animation->get_animation_tile(0, 5, 0);
   REQUIRE(tile.gfx == 572);
 
-  // Get tiles for rotation 1, animation step 0 to 5
-  tile = anim->get_animation_tile(1, 0, 0);
+  // Get tiles for rotation 1, anim->animationation step 0 to 5
+  tile = anim->animation->get_animation_tile(1, 0, 0);
   REQUIRE(tile.gfx == 553);
-  tile = anim->get_animation_tile(1, 1, 0);
+  tile = anim->animation->get_animation_tile(1, 1, 0);
   REQUIRE(tile.gfx == 557);
-  tile = anim->get_animation_tile(1, 2, 0);
+  tile = anim->animation->get_animation_tile(1, 2, 0);
   REQUIRE(tile.gfx == 561);
-  tile = anim->get_animation_tile(1, 3, 0);
+  tile = anim->animation->get_animation_tile(1, 3, 0);
   REQUIRE(tile.gfx == 565);
-  tile = anim->get_animation_tile(1, 4, 0);
+  tile = anim->animation->get_animation_tile(1, 4, 0);
   REQUIRE(tile.gfx == 569);
-  tile = anim->get_animation_tile(1, 5, 0);
+  tile = anim->animation->get_animation_tile(1, 5, 0);
   REQUIRE(tile.gfx == 573);
 }
 
-TEST_CASE("Animation - get animation steps for different views, 2x2")
+TEST_CASE("Animation - get anim->animationation steps for different views, 2x2")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
@@ -207,57 +209,59 @@ TEST_CASE("Animation - get animation steps for different views, 2x2")
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(501);
-  auto tiles = anim->get_animation_step(0, 0);
+  REQUIRE(anim->time == 90);
+
+  auto tiles = anim->animation->get_animation_step(0, 0);
   REQUIRE(tiles.size() == haeuser->get_haus(501).value()->Rotate);
   REQUIRE(tiles[0].gfx == 1816);
   REQUIRE(tiles[1].gfx == 1817);
   REQUIRE(tiles[2].gfx == 1818);
   REQUIRE(tiles[3].gfx == 1819);
 
-  tiles = anim->get_animation_step(0, 1);
+  tiles = anim->animation->get_animation_step(0, 1);
   REQUIRE(tiles[0].gfx == 1832);
   REQUIRE(tiles[1].gfx == 1833);
   REQUIRE(tiles[2].gfx == 1834);
   REQUIRE(tiles[3].gfx == 1835);
 
-  tiles = anim->get_animation_step(0, 2);
+  tiles = anim->animation->get_animation_step(0, 2);
   REQUIRE(tiles[0].gfx == 1848);
   REQUIRE(tiles[1].gfx == 1849);
   REQUIRE(tiles[2].gfx == 1850);
   REQUIRE(tiles[3].gfx == 1851);
 
-  tiles = anim->get_animation_step(0, 3);
+  tiles = anim->animation->get_animation_step(0, 3);
   REQUIRE(tiles[0].gfx == 1864);
   REQUIRE(tiles[1].gfx == 1865);
   REQUIRE(tiles[2].gfx == 1866);
   REQUIRE(tiles[3].gfx == 1867);
 
-  tiles = anim->get_animation_step(1, 0);
+  tiles = anim->animation->get_animation_step(1, 0);
   REQUIRE(tiles[0].gfx == 1820);
   REQUIRE(tiles[1].gfx == 1821);
   REQUIRE(tiles[2].gfx == 1822);
   REQUIRE(tiles[3].gfx == 1823);
 
-  tiles = anim->get_animation_step(1, 1);
+  tiles = anim->animation->get_animation_step(1, 1);
   REQUIRE(tiles[0].gfx == 1836);
   REQUIRE(tiles[1].gfx == 1837);
   REQUIRE(tiles[2].gfx == 1838);
   REQUIRE(tiles[3].gfx == 1839);
 
-  tiles = anim->get_animation_step(1, 2);
+  tiles = anim->animation->get_animation_step(1, 2);
   REQUIRE(tiles[0].gfx == 1852);
   REQUIRE(tiles[1].gfx == 1853);
   REQUIRE(tiles[2].gfx == 1854);
   REQUIRE(tiles[3].gfx == 1855);
 
-  tiles = anim->get_animation_step(1, 3);
+  tiles = anim->animation->get_animation_step(1, 3);
   REQUIRE(tiles[0].gfx == 1868);
   REQUIRE(tiles[1].gfx == 1869);
   REQUIRE(tiles[2].gfx == 1870);
   REQUIRE(tiles[3].gfx == 1871);
 }
 
-TEST_CASE("Animation - get whole animation for different views, 2x2")
+TEST_CASE("Animation - get whole anim->animationation for different views, 2x2")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
@@ -265,7 +269,9 @@ TEST_CASE("Animation - get whole animation for different views, 2x2")
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(501);
-  auto tiles = anim->get_animation(0);
+  REQUIRE(anim->time == 90);
+
+  auto tiles = anim->animation->get_animation(0);
   REQUIRE(tiles.size() == haeuser->get_haus(501).value()->AnimAnz);
   REQUIRE(tiles[0][0].gfx == 1816);
   REQUIRE(tiles[0][1].gfx == 1817);
@@ -284,7 +290,7 @@ TEST_CASE("Animation - get whole animation for different views, 2x2")
   REQUIRE(tiles[3][2].gfx == 1866);
   REQUIRE(tiles[3][3].gfx == 1867);
 
-  tiles = anim->get_animation(1);
+  tiles = anim->animation->get_animation(1);
   REQUIRE(tiles[0][0].gfx == 1820);
   REQUIRE(tiles[0][1].gfx == 1821);
   REQUIRE(tiles[0][2].gfx == 1822);
@@ -303,7 +309,7 @@ TEST_CASE("Animation - get whole animation for different views, 2x2")
   REQUIRE(tiles[3][3].gfx == 1871);
 }
 
-TEST_CASE("Animation - get tiles for object with no animation, 5x7")
+TEST_CASE("Animation - get tiles for object with no anim->animationation, 5x7")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
@@ -311,7 +317,9 @@ TEST_CASE("Animation - get tiles for object with no animation, 5x7")
   Object_Animations object_animations(haeuser);
 
   auto anim = object_animations.get_animation(831);
-  auto tiles = anim->get_animation(0);
+  REQUIRE(anim->time == -1);
+
+  auto tiles = anim->animation->get_animation(0);
   REQUIRE(tiles.size() == 1);
   REQUIRE(tiles[0][0].gfx == 4964);
   REQUIRE(tiles[0][1].gfx == 4965);
@@ -349,7 +357,7 @@ TEST_CASE("Animation - get tiles for object with no animation, 5x7")
   REQUIRE(tiles[0][33].gfx == 4997);
   REQUIRE(tiles[0][34].gfx == 4998);
 
-  tiles = anim->get_animation(1);
+  tiles = anim->animation->get_animation(1);
   REQUIRE(tiles[0][0].gfx == 4999);
   REQUIRE(tiles[0][1].gfx == 5000);
   REQUIRE(tiles[0][2].gfx == 5001);
@@ -386,7 +394,7 @@ TEST_CASE("Animation - get tiles for object with no animation, 5x7")
   REQUIRE(tiles[0][33].gfx == 5032);
   REQUIRE(tiles[0][34].gfx == 5033);
 
-  tiles = anim->get_animation(2);
+  tiles = anim->animation->get_animation(2);
   REQUIRE(tiles[0][0].gfx == 5034);
   REQUIRE(tiles[0][1].gfx == 5035);
   REQUIRE(tiles[0][2].gfx == 5036);
@@ -423,7 +431,7 @@ TEST_CASE("Animation - get tiles for object with no animation, 5x7")
   REQUIRE(tiles[0][33].gfx == 5067);
   REQUIRE(tiles[0][34].gfx == 5068);
 
-  tiles = anim->get_animation(3);
+  tiles = anim->animation->get_animation(3);
   REQUIRE(tiles[0][0].gfx == 5069);
   REQUIRE(tiles[0][1].gfx == 5070);
   REQUIRE(tiles[0][2].gfx == 5071);

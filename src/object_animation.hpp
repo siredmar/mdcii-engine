@@ -38,7 +38,7 @@ public:
   std::vector<std::vector<Tile>> get_animation(int rotation = 0) { return AnimationTilesPerRotation[rotation]; }
   std::vector<Tile> get_animation_step(int rotation, int animation_step = 0) { return AnimationTilesPerRotation[rotation][animation_step]; }
   Tile get_animation_tile(int rotation, int animation_step = 0, int tile = 0) { return AnimationTilesPerRotation[rotation][animation_step][tile]; }
-
+  int get_animTime() { return animTime; }
 
 private:
   void calculate_tiles()
@@ -142,6 +142,13 @@ private:
   std::vector<Tile> TilesForAnimation;
   std::vector<std::vector<Tile>> Animations;
   std::vector<std::vector<std::vector<Tile>>> AnimationTilesPerRotation;
+
+  class AnimationInformation
+  {
+    std::vector<std::vector<Tile>> animation;
+    int animTime;
+  };
+
   struct
   {
     int width;
