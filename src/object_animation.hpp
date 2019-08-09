@@ -17,6 +17,12 @@ public:
     int gfx;
   };
 
+  struct Size
+  {
+    int width;
+    int height;
+  };
+
   Object_Animation(int ObjectId, std::shared_ptr<Haeuser> haeuser)
     : haeuser(haeuser)
   {
@@ -35,10 +41,30 @@ public:
     }
   }
 
-  std::vector<std::vector<Tile>> get_animation(int rotation = 0) { return AnimationTilesPerRotation[rotation]; }
-  std::vector<Tile> get_animation_step(int rotation, int animation_step = 0) { return AnimationTilesPerRotation[rotation][animation_step]; }
-  Tile get_animation_tile(int rotation, int animation_step = 0, int tile = 0) { return AnimationTilesPerRotation[rotation][animation_step][tile]; }
-  int get_animTime() { return animTime; }
+  std::vector<std::vector<Tile>> get_animation(int rotation = 0)
+  {
+    return AnimationTilesPerRotation[rotation];
+  }
+
+  std::vector<Tile> get_animation_step(int rotation, int animation_step = 0)
+  {
+    return AnimationTilesPerRotation[rotation][animation_step];
+  }
+
+  Tile get_animation_tile(int rotation, int animation_step = 0, int tile = 0)
+  {
+    return AnimationTilesPerRotation[rotation][animation_step][tile];
+  }
+
+  int get_animTime()
+  {
+    return animTime;
+  }
+
+  Size get_size()
+  {
+    return size;
+  }
 
 private:
   void calculate_tiles()
@@ -148,12 +174,7 @@ private:
     std::vector<std::vector<Tile>> animation;
     int animTime;
   };
-
-  struct
-  {
-    int width;
-    int height;
-  } size;
+  Size size;
   int id;
 
   std::shared_ptr<Haeuser> haeuser;

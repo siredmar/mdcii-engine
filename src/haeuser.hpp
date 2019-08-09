@@ -415,8 +415,14 @@ public:
       return &haeuser[id];
     }
   }
-  int get_haeuser_size() { return haeuser_vec.size(); }
-  Haus* get_haeuser_by_index(int index) { return haeuser_vec[index]; }
+  int get_haeuser_size()
+  {
+    return haeuser_vec.size();
+  }
+  Haus* get_haeuser_by_index(int index)
+  {
+    return haeuser_vec[index];
+  }
 
 private:
   void generate_haeuser()

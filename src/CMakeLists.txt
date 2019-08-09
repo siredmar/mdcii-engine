@@ -42,6 +42,8 @@ target_link_libraries(cod_parser_test boost_system boost_iostreams boost_program
 add_executable(object_animation_test test/object_animation_test/object_animation_test.cpp cod_parser.cpp files.cpp)
 target_link_libraries(object_animation_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
 
-
 add_executable(object_animations_test test/object_animations_test/object_animations_test.cpp cod_parser.cpp files.cpp)
 target_link_libraries(object_animations_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
+
+add_executable(object_test test/object_test/object_test.cpp cod_parser.cpp files.cpp)
+target_link_libraries(object_test boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)

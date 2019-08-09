@@ -22,7 +22,10 @@ public:
   {
     generate_map();
   }
-  std::shared_ptr<Animation> get_animation(int id) { return animations_map[id]; }
+  std::shared_ptr<Animation> get_animation(int id)
+  {
+    return animations_map[id];
+  }
 
 private:
   void generate_map()
