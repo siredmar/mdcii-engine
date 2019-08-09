@@ -65,7 +65,7 @@ private:
     }
 
     // Rotate != 0, AnimZeit == TIMENEVER: There is one image for each view
-    if (animTime <= 0)
+    if (animTime <= 0 && rotate == 1)
     {
       int inc = 0;
       for (int i = 0; i < 4; i++)
@@ -83,31 +83,31 @@ private:
       return;
     }
 
-    // Rotate == 1, AnimZeit != TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    // Rotate == 1, AnimZeit > 0: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    if (rotate == 1)
     {
-      if (rotate == 1)
+      for (int v = 0; v < 4; v++)
       {
-        for (int v = 0; v < 4; v++)
+        for (int a = 0; a < animCount; a++)
         {
-          for (int a = 0; a < animCount; a++)
-          {
-            Tile t;
-            t.gfx = startGfx + a * animAdd + v;
-            t.x = 0;
-            t.y = 0;
-            TilesForAnimation.push_back(t);
-            Animations.push_back(TilesForAnimation);
-            TilesForAnimation.clear();
-          }
-          AnimationTilesPerRotation.push_back(Animations);
-          Animations.clear();
+          Tile t;
+          t.gfx = startGfx + a * animAdd + v;
+          t.x = 0;
+          t.y = 0;
+          TilesForAnimation.push_back(t);
+          Animations.push_back(TilesForAnimation);
+          TilesForAnimation.clear();
         }
-        return;
+        AnimationTilesPerRotation.push_back(Animations);
+        Animations.clear();
       }
+      return;
     }
 
-    // Rotate != 0, AnimZeit != TIMENEVER: There must be a set AnimAdd and AnimCount -> Multiple images for each view
+    // Rotate >= 1, AnimZeit > 0: There must be a set AnimAdd and AnimCount -> Multiple images for each view
     {
+      if (animCount == 0)
+        animCount = 1;
       for (int v = 0; v < 4; v++)
       {
         for (int a = 0; a < animCount; a++)
