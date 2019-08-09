@@ -5,6 +5,8 @@
 #include "object_animations.hpp"
 
 #include <memory>
+#include <tuple>
+#include <vector>
 
 class Object
 {
@@ -28,71 +30,34 @@ public:
     animation_trigger = true;
   }
 
-  int animate()
+  void animate()
   {
     // TODO: Add timing from SDL
     if (++current_animation_step % animimation_steps == 0)
     {
       current_animation_step = 0;
     }
-    return current_animation_step;
   }
 
-  void draw()
+  std::vector<std::tuple<int, int, int>> draw()
   {
-    // switch (rot)
-    // {
-    //     // TODO: Mapping for each view
-    //   case 0:
-    int x = 0;
-    int y = 0;
-    for (int i = 0; i < size.height * size.width; i++)
+    std::vector<std::tuple<int, int, int>> ret;
+    int x_offset = 0;
+    int y_offset = 0;
+    for (int i = 0 + rot; i < size.height * size.width + rot; i++)
     {
-      int gfx = ani->animation->get_animation_tile(rot, current_animation_step, i).gfx;
-      x++;
-      std::cout << x << "," << y << ": " << gfx << "\t";
-      if (i == size.width - 1)
+      int gfx = ani->animation->get_animation_tile(rot, current_animation_step, i % (size.height * size.width)).gfx;
+      std::tuple<int, int, int> coordinates = {x + x_offset, y + y_offset, gfx};
+      x_offset++;
+      ret.push_back(coordinates);
+      if (i - rot == size.width - 1)
       {
-        y++;
-        x = 0;
-        std::cout << std::endl;
+        y_offset++;
+        x_offset = 0;
       }
     }
     animate();
-    std::cout << std::endl;
-    // break;
-    //   case 1:
-    //     for (int x = 0; x < size.height; x++)
-    //     {
-    //       for (int y = 0; y < size.width; y++)
-    //       {
-    //         std::cout << ani->animation->get_animation_tile(rot, current_animation_step, x * y + y).gfx << " ";
-    //       }
-    //       std::cout << std::endl;
-    //     }
-    //     break;
-    //   case 2:
-    //     for (int x = 0; x < size.height; x++)
-    //     {
-    //       for (int y = 0; y < size.width; y++)
-    //       {
-    //         std::cout << ani->animation->get_animation_tile(rot, current_animation_step, x * y + y).gfx << " ";
-    //       }
-    //       std::cout << std::endl;
-    //     }
-    //     break;
-    //   case 3:
-    //     for (int x = 0; x < size.height; x++)
-    //     {
-    //       for (int y = 0; y < size.width; y++)
-    //       {
-    //         std::cout << ani->animation->get_animation_tile(rot, current_animation_step, x * y + y).gfx << " ";
-    //       }
-    //       std::cout << std::endl;
-    //     }
-    //     break;
-    // }
-    //
+    return ret;
   }
 
 private:

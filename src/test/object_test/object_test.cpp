@@ -2,6 +2,9 @@
 
 #include "../catch2/catch.hpp"
 
+#include <tuple>
+#include <vector>
+
 #include "../../cod_parser.hpp"
 #include "../../files.hpp"
 #include "../../haeuser.hpp"
@@ -74,32 +77,102 @@ TEST_CASE("Animations - only one tile for each direction, 1x1")
   }
 }
 
-TEST_CASE("Animations - animate building 2x2, view 0")
+TEST_CASE("Animations - animate building 2x2, view 0, x,y: 0x0")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(501, 1, 2, 0, object_animations);
-  std::cout << "Building 501, view 0" << std::endl;
+  Object building(501, 0, 0, 0, object_animations);
+  std::cout << "Building 501, 2x2, view 0, x,y: 0x0" << std::endl;
   for (int i = 0; i < 17; i++)
   {
     std::cout << "Animation step: " << i % 16 << std::endl;
-    building.draw();
+    std::vector<std::tuple<int, int, int>> coordinates = building.draw();
+    for (auto const& c : coordinates)
+    {
+      std::cout << std::get<0>(c) << ", " << std::get<1>(c) << ": " << std::get<2>(c) << std::endl;
+    }
   }
 }
 
-TEST_CASE("Animations - animate building 2x2, view 1")
+TEST_CASE("Animations - animate building 2x2, view 0, x,y: 10x10")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(501, 1, 2, 1, object_animations);
-  std::cout << "Building 501, view 1" << std::endl;
+  Object building(501, 10, 10, 0, object_animations);
+  std::cout << "Building 501,  2x2, view 0, x,y: 10x10" << std::endl;
   for (int i = 0; i < 17; i++)
   {
     std::cout << "Animation step: " << i % 16 << std::endl;
-    building.draw();
+    std::vector<std::tuple<int, int, int>> coordinates = building.draw();
+    for (auto const& c : coordinates)
+    {
+      std::cout << "x: " << std::get<0>(c) << ", "
+                << "y: " << std::get<1>(c) << ": " << std::get<2>(c) << std::endl;
+    }
+  }
+}
+
+TEST_CASE("Animations - animate building 2x2, view 1, x,y: 0x0")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(501, 0, 0, 1, object_animations);
+  std::cout << "Building 501, 2x2, view 1, x,y: 0x0" << std::endl;
+  for (int i = 0; i < 17; i++)
+  {
+    std::cout << "Animation step: " << i % 16 << std::endl;
+    std::vector<std::tuple<int, int, int>> coordinates = building.draw();
+    for (auto const& c : coordinates)
+    {
+      std::cout << "x: " << std::get<0>(c) << ", "
+                << "y: " << std::get<1>(c) << ": " << std::get<2>(c) << std::endl;
+    }
+  }
+}
+
+
+TEST_CASE("Animations - animate building 2x2, view 2, x,y: 0x0")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(501, 0, 0, 2, object_animations);
+  std::cout << "Building 501, 2x2, view 2, x,y: 0x0" << std::endl;
+  for (int i = 0; i < 17; i++)
+  {
+    std::cout << "Animation step: " << i % 16 << std::endl;
+    std::vector<std::tuple<int, int, int>> coordinates = building.draw();
+    for (auto const& c : coordinates)
+    {
+      std::cout << "x: " << std::get<0>(c) << ", "
+                << "y: " << std::get<1>(c) << ": " << std::get<2>(c) << std::endl;
+    }
+  }
+}
+
+TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(501, 0, 0, 3, object_animations);
+  std::cout << "Building 501, 2x2, view 3, x,y: 0x0" << std::endl;
+  for (int i = 0; i < 17; i++)
+  {
+    std::cout << "Animation step: " << i % 16 << std::endl;
+    std::vector<std::tuple<int, int, int>> coordinates = building.draw();
+    for (auto const& c : coordinates)
+    {
+      std::cout << "x: " << std::get<0>(c) << ", "
+                << "y: " << std::get<1>(c) << ": " << std::get<2>(c) << std::endl;
+    }
   }
 }
