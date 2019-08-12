@@ -3,7 +3,7 @@ BasedOnStyle: WebKit
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: 'false'
 AllowShortBlocksOnASingleLine: 'false'
-AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: 'false'
 AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'

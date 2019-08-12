@@ -4,6 +4,8 @@
 #include "object_animation.hpp"
 #include "object_animations.hpp"
 
+// #include "Matrix.hpp"
+
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -11,7 +13,17 @@
 class Object
 {
 public:
-  Object(int id, int x, int y, int rot, std::shared_ptr<Object_Animations> animations)
+  enum class Player
+  {
+    PLAYER_1 = 0,
+    PLAYER_2,
+    PLAYER_3,
+    PLAYER_4,
+    PIRATE,
+    NEUTRAL
+  };
+
+  Object(int id, int x, int y, int rot, Player player, std::shared_ptr<Object_Animations> animations)
     : x(x)
     , y(y)
     , animations(animations)
@@ -19,6 +31,7 @@ public:
     , animimation_steps(0)
     , current_animation_step(0)
     , rot(rot)
+    , player(player)
   {
     ani = animations->get_animation(id);
     animimation_steps = ani->animation->get_animation(rot).size();
@@ -39,15 +52,47 @@ public:
     }
   }
 
-  std::vector<std::tuple<int, int, int>> draw()
+  std::vector<std::tuple<int, int, int>> render()
   {
     std::vector<std::tuple<int, int, int>> ret;
     int x_offset = 0;
     int y_offset = 0;
+    // int i = size.height * size.width + rot;
+    // for (int x = 0; i < size.width; x++)
+    // {
+    //   for (int y = 0; y < size.heigth; y++)
+    //   {
+    //   }
+    // }
+
     for (int i = 0 + rot; i < size.height * size.width + rot; i++)
     {
+      int x_pos = i % size.width;
+      int y_pos = (i / size.width) % size.height;
+
       int gfx = ani->animation->get_animation_tile(rot, current_animation_step, i % (size.height * size.width)).gfx;
-      std::tuple<int, int, int> coordinates = {x + x_offset, y + y_offset, gfx};
+      int final_x = 0;
+      int final_y = 0;
+      switch (rot)
+      {
+        case 0:
+          final_x = x + x_offset;
+          final_y = y + y_offset;
+          break;
+        case 1:
+          final_x = x - x_offset;
+          final_y = y + y_offset;
+          break;
+        case 2:
+          final_x = x + x_offset;
+          final_y = y - y_offset;
+          break;
+        case 3:
+          final_x = x - x_offset;
+          final_y = y - y_offset;
+          break;
+      }
+      std::tuple<int, int, int> coordinates = {final_x, final_y, gfx};
       x_offset++;
       ret.push_back(coordinates);
       if (i - rot == size.width - 1)
@@ -67,6 +112,7 @@ private:
   int x;
   int y;
   int rot;
+  Player player;
   Object_Animation::Size size;
   std::shared_ptr<Object_Animations::Animation> ani;
   std::shared_ptr<Object_Animations> animations;

@@ -16,18 +16,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <string>
 #include "kamera.hpp"
-#include "grafiken.hpp"
 #include "files.hpp"
+#include "grafiken.hpp"
 #include "haeuser.hpp"
+#include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
 const int Kamera::grundhoehe[3] = {5, 10, 20};
 
 Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
- : haeuser(haeuser)
+  : haeuser(haeuser)
 {
   xpos = Welt::KARTENBREITE / 2;
   ypos = Welt::KARTENHOEHE / 2;
@@ -81,27 +81,27 @@ void Kamera::nach_links()
   {
     case 0:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 1:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 2:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 3:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
   }
 }
@@ -112,27 +112,27 @@ void Kamera::nach_rechts()
   {
     case 0:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 1:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 2:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 3:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
   }
 }
@@ -143,27 +143,27 @@ void Kamera::nach_oben()
   {
     case 0:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 1:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 2:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 3:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
   }
 }
@@ -174,27 +174,27 @@ void Kamera::nach_unten()
   {
     case 0:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 1:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 2:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 3:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
   }
 }
@@ -356,17 +356,13 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       inselfeld_t inselfeld;
       welt.feld_an_pos(inselfeld, x, y);
       feld_t feld;
-      if(x == 273 && y == 192)
-      {
-        std::cout << std::endl;
-      }
       int index = Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, haeuser);
       if (feld.index != -1)
       {
         int bs_x, bs_y, bs_z;
         auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
         bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
-	      felder.push_back(bild_mit_pos);
+        felder.push_back(bild_mit_pos);
       }
     }
   }
@@ -377,7 +373,7 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int bs_x, bs_y, bs_z;
     auf_bildschirm_256(bs, animation.x, animation.y, animation.z, bs_x, bs_y, bs_z);
     bild_mit_pos_t bild_mit_pos = {&effekte_bsh[vergroesserung]->gib_bsh_bild(animation.start_index + animation.ani), bs_x, bs_y, bs_z + animation.bs_z_versatz,
-	map_elem.first.first, map_elem.first.second, false};
+        map_elem.first.first, map_elem.first.second, false};
     felder.push_back(bild_mit_pos);
   }
 
@@ -469,8 +465,8 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     bs.zeichne_string(*zei, std::to_string(inselfeld.bebauung), 10, 80);
     bs.zeichne_string(*zei, "Position und Insel unter Mauszeiger:", 10, 110);
     bs.zeichne_string(*zei,
-	"(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Insel "
-	    + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
-	10, 130);
+        "(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Insel "
+            + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
+        10, 130);
   }
 }
