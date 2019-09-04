@@ -52,54 +52,98 @@ public:
     }
   }
 
+  // std::vector<std::tuple<int, int, int>> render()
+  // {
+  //   std::vector<std::tuple<int, int, int>> ret;
+  //   int x_offset = 0;
+  //   int y_offset = 0;
+  //   // int i = size.height * size.width + rot;
+  //   // for (int x = 0; i < size.width; x++)
+  //   // {
+  //   //   for (int y = 0; y < size.heigth; y++)
+  //   //   {
+  //   //   }
+  //   // }
+
+  //   for (int i = 0 + rot; i < size.height * size.width + rot; i++)
+  //   {
+  //     int x_pos = i % size.width;
+  //     int y_pos = (i / size.width) % size.height;
+
+  //     int gfx = ani->animation->get_animation_tile(rot, current_animation_step, i % (size.height * size.width)).gfx;
+  //     int final_x = 0;
+  //     int final_y = 0;
+  //     switch (rot)
+  //     {
+  //       case 0:
+  //         final_x = x + x_offset;
+  //         final_y = y + y_offset;
+  //         break;
+  //       case 1:
+  //         final_x = x - x_offset;
+  //         final_y = y + y_offset;
+  //         break;
+  //       case 2:
+  //         final_x = x + x_offset;
+  //         final_y = y - y_offset;
+  //         break;
+  //       case 3:
+  //         final_x = x - x_offset;
+  //         final_y = y - y_offset;
+  //         break;
+  //     }
+  //     std::tuple<int, int, int> coordinates = {final_x, final_y, gfx};
+  //     x_offset++;
+  //     ret.push_back(coordinates);
+  //     if (i - rot == size.width - 1)
+  //     {
+  //       y_offset++;
+  //       x_offset = 0;
+  //     }
+  //   }
+  //   animate();
+  //   return ret;
+  // }
+
+
   std::vector<std::tuple<int, int, int>> render()
   {
     std::vector<std::tuple<int, int, int>> ret;
-    int x_offset = 0;
-    int y_offset = 0;
-    // int i = size.height * size.width + rot;
-    // for (int x = 0; i < size.width; x++)
-    // {
-    //   for (int y = 0; y < size.heigth; y++)
-    //   {
-    //   }
-    // }
-
-    for (int i = 0 + rot; i < size.height * size.width + rot; i++)
+    for (int i = 0; i < size.height * size.width; i++)
     {
       int x_pos = i % size.width;
       int y_pos = (i / size.width) % size.height;
 
       int gfx = ani->animation->get_animation_tile(rot, current_animation_step, i % (size.height * size.width)).gfx;
-      int final_x = 0;
-      int final_y = 0;
-      switch (rot)
-      {
-        case 0:
-          final_x = x + x_offset;
-          final_y = y + y_offset;
-          break;
-        case 1:
-          final_x = x - x_offset;
-          final_y = y + y_offset;
-          break;
-        case 2:
-          final_x = x + x_offset;
-          final_y = y - y_offset;
-          break;
-        case 3:
-          final_x = x - x_offset;
-          final_y = y - y_offset;
-          break;
-      }
+      int final_x = x + x_pos;
+      int final_y = x + y_pos;
+      // switch (rot)
+      // {
+      //   case 0:
+      //     final_x = x + x_offset;
+      //     final_y = y + y_offset;
+      //     break;
+      //   case 1:
+      //     final_x = x - x_offset;
+      //     final_y = y + y_offset;
+      //     break;
+      //   case 2:
+      //     final_x = x + x_offset;
+      //     final_y = y - y_offset;
+      //     break;
+      //   case 3:
+      //     final_x = x - x_offset;
+      //     final_y = y - y_offset;
+      //     break;
+      // }
       std::tuple<int, int, int> coordinates = {final_x, final_y, gfx};
-      x_offset++;
+      // x_offset++;
       ret.push_back(coordinates);
-      if (i - rot == size.width - 1)
-      {
-        y_offset++;
-        x_offset = 0;
-      }
+      // if (i - rot == size.width - 1)
+      // {
+      //   // y_offset++;
+      //   // x_offset = 0;
+      // }
     }
     animate();
     return ret;

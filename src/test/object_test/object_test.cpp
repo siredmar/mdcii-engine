@@ -211,91 +211,110 @@ void draw()
 //   }
 // }
 
-// TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(501, 3, 3, 0, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 0, x,y: 0x0" << std::endl;
+  for (int i = 0; i < 2; i++)
+  {
+    clear_map();
+    std::vector<std::tuple<int, int, int>> coordinates = building.render();
+    for (auto const& c : coordinates)
+    {
+      map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+    }
+    draw();
+  }
+}
+
+TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(501, 3, 3, 1, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 1, x,y: 0x0" << std::endl;
+  for (int i = 0; i < 2; i++)
+  {
+    clear_map();
+    std::vector<std::tuple<int, int, int>> coordinates = building.render();
+    for (auto const& c : coordinates)
+    {
+      map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+    }
+    draw();
+  }
+}
+
+// TEST_CASE("Animations - rotation test - 2x2, view 0, x,y: 5x5")
 // {
 //   auto files = Files::create_instance(".");
 //   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
 //   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
 //   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-//   Object building(501, 5, 7, 3, Object::Player::PLAYER_1, object_animations);
-//   std::cout << "Building 501, 2x2, view 3, x,y: 0x0" << std::endl;
+//   Object building(831, 5, 5, 0, Object::Player::PLAYER_1, object_animations);
+//   std::cout << "Building 100, 2x2, view 0, x,y: 5x5" << std::endl;
 //   clear_map();
-//   for (int i = 0; i < 17; i++)
+//   std::vector<std::tuple<int, int, int>> coordinates = building.render();
+//   for (auto const& c : coordinates)
 //   {
-//     std::cout << "Animation step: " << i % 16 << std::endl;
-//     std::vector<std::tuple<int, int, int>> coordinates = building.render();
-//     for (auto const& c : coordinates)
-//     {
-//       map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
-//     }
-//     draw();
+//     map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
 //   }
+//   draw();
 // }
 
-TEST_CASE("Animations - rotation test - 2x2, view 0, x,y: 5x5")
-{
-  auto files = Files::create_instance(".");
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(100, 5, 5, 0, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 100, 2x2, view 0, x,y: 5x5" << std::endl;
-  clear_map();
-  std::vector<std::tuple<int, int, int>> coordinates = building.render();
-  for (auto const& c : coordinates)
-  {
-    map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
-  }
-  draw();
-}
+// TEST_CASE("Animations - rotation test - 2x2, view 1, x,y: 5x5")
+// {
+//   auto files = Files::create_instance(".");
+//   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+//   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+//   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+//   Object building(831, 5, 5, 1, Object::Player::PLAYER_1, object_animations);
+//   std::cout << "Building 100, 2x2, view 1, x,y: 5x5" << std::endl;
+//   clear_map();
+//   std::vector<std::tuple<int, int, int>> coordinates = building.render();
+//   for (auto const& c : coordinates)
+//   {
+//     map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+//   }
+//   draw();
+// }
 
-TEST_CASE("Animations - rotation test - 2x2, view 1, x,y: 5x5")
-{
-  auto files = Files::create_instance(".");
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(100, 5, 5, 1, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 100, 2x2, view 1, x,y: 5x5" << std::endl;
-  clear_map();
-  std::vector<std::tuple<int, int, int>> coordinates = building.render();
-  for (auto const& c : coordinates)
-  {
-    map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
-  }
-  draw();
-}
+// TEST_CASE("Animations - rotation test - 2x2, view 2, x,y: 5x5")
+// {
+//   auto files = Files::create_instance(".");
+//   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+//   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+//   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+//   Object building(831, 5, 5, 2, Object::Player::PLAYER_1, object_animations);
+//   std::cout << "Building 100, 2x2, view 2, x,y: 5x5" << std::endl;
+//   clear_map();
+//   std::vector<std::tuple<int, int, int>> coordinates = building.render();
+//   for (auto const& c : coordinates)
+//   {
+//     map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+//   }
+//   draw();
+// }
 
-TEST_CASE("Animations - rotation test - 2x2, view 2, x,y: 5x5")
-{
-  auto files = Files::create_instance(".");
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(100, 5, 5, 2, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 100, 2x2, view 2, x,y: 5x5" << std::endl;
-  clear_map();
-  std::vector<std::tuple<int, int, int>> coordinates = building.render();
-  for (auto const& c : coordinates)
-  {
-    map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
-  }
-  draw();
-}
-
-TEST_CASE("Animations - rotation test - 2x2, view 3, x,y: 5x5")
-{
-  auto files = Files::create_instance(".");
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(100, 5, 5, 3, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 100, 2x2, view 3, x,y: 5x5" << std::endl;
-  clear_map();
-  std::vector<std::tuple<int, int, int>> coordinates = building.render();
-  for (auto const& c : coordinates)
-  {
-    map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
-  }
-  draw();
-}
+// TEST_CASE("Animations - rotation test - 2x2, view 3, x,y: 5x5")
+// {
+//   auto files = Files::create_instance(".");
+//   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+//   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+//   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+//   Object building(831, 5, 5, 3, Object::Player::PLAYER_1, object_animations);
+//   std::cout << "Building 100, 2x2, view 3, x,y: 5x5" << std::endl;
+//   clear_map();
+//   std::vector<std::tuple<int, int, int>> coordinates = building.render();
+//   for (auto const& c : coordinates)
+//   {
+//     map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+//   }
+//   draw();
+// }
