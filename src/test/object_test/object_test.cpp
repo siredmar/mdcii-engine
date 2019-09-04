@@ -61,10 +61,10 @@ std::string file = "; object with only one tile for each view, 1x1\r\n"
                    "  AnimTime:   TIMENEVER\r\n"
                    "  AnimAdd:    0\r\n"
                    "\r\n"
-                   "; object with no animation containing separate tiles for each view, 5x7\r\n"
+                   "; object with no animation containing separate tiles for each view, 2x2\r\n"
                    "  @Nummer: +1\r\n"
                    "  Id:         20100\r\n"
-                   "  Gfx:        1\r\n"
+                   "  Gfx:        0\r\n"
                    "  Size:       2, 2\r\n"
                    "  Rotate:     4\r\n"
                    "  AnimTime:   TIMENEVER\r\n"
@@ -89,6 +89,7 @@ void clear_map()
 
 void draw()
 {
+  printf("     ");
   for (int i = 0; i < H; i++)
   {
     printf("%.4d ", i);
@@ -211,15 +212,15 @@ void draw()
 //   }
 // }
 
-TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+TEST_CASE("Animations - animate building 2x2, view 0, x,y: 3x3")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(501, 3, 3, 0, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 501, 2x2, view 0, x,y: 0x0" << std::endl;
-  for (int i = 0; i < 2; i++)
+  Object building(100, 3, 3, 0, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 0, x,y: 3x3" << std::endl;
+  for (int i = 0; i < 1; i++)
   {
     clear_map();
     std::vector<std::tuple<int, int, int>> coordinates = building.render();
@@ -231,15 +232,55 @@ TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
   }
 }
 
-TEST_CASE("Animations - animate building 2x2, view 3, x,y: 0x0")
+TEST_CASE("Animations - animate building 2x2, view 1, x,y: 3x3")
 {
   auto files = Files::create_instance(".");
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
-  Object building(501, 3, 3, 1, Object::Player::PLAYER_1, object_animations);
-  std::cout << "Building 501, 2x2, view 1, x,y: 0x0" << std::endl;
-  for (int i = 0; i < 2; i++)
+  Object building(100, 3, 3, 1, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 1, x,y: 3x3" << std::endl;
+  for (int i = 0; i < 1; i++)
+  {
+    clear_map();
+    std::vector<std::tuple<int, int, int>> coordinates = building.render();
+    for (auto const& c : coordinates)
+    {
+      map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+    }
+    draw();
+  }
+}
+
+TEST_CASE("Animations - animate building 2x2, view 2, x,y: 3x3")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(100, 3, 3, 2, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 2, x,y: 3x3" << std::endl;
+  for (int i = 0; i < 1; i++)
+  {
+    clear_map();
+    std::vector<std::tuple<int, int, int>> coordinates = building.render();
+    for (auto const& c : coordinates)
+    {
+      map[std::get<1>(c)][std::get<0>(c)] = std::get<2>(c);
+    }
+    draw();
+  }
+}
+
+TEST_CASE("Animations - animate building 2x2, view 3, x,y: 3x3")
+{
+  auto files = Files::create_instance(".");
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(file);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  std::shared_ptr<Object_Animations> object_animations = std::make_shared<Object_Animations>(haeuser);
+  Object building(100, 3, 3, 3, Object::Player::PLAYER_1, object_animations);
+  std::cout << "Building 501, 2x2, view 3, x,y: 3x3" << std::endl;
+  for (int i = 0; i < 1; i++)
   {
     clear_map();
     std::vector<std::tuple<int, int, int>> coordinates = building.render();
