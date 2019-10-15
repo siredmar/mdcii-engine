@@ -473,7 +473,7 @@ bool Cod_Parser::parse_file()
       }
     }
   }
-  // std::cout << objects.DebugString() << std::endl;
+  std::cout << objects.DebugString() << std::endl;
   // std::cout << variables.DebugString() << std::endl;
 }
 

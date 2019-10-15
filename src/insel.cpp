@@ -16,17 +16,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "strukturen.hpp"
 #include "insel.hpp"
 #include "bebauung.hpp"
-#include "grafiken.hpp"
 #include "files.hpp"
+#include "grafiken.hpp"
 #include "haeuser.hpp"
-#include <string.h>
-#include <fstream>
+#include "strukturen.hpp"
 #include <boost/format.hpp>
-#include <string>
+#include <fstream>
 #include <iostream>
+#include <string.h>
+#include <string>
 
 void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8_t breite, uint8_t hoehe)
 {
@@ -224,33 +224,60 @@ int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r,
     return -1;
   }
   int grafik = info.value()->Gfx;
-  if (info.value()->Kind == ObjectKindType::WALD)
+  if (grafik == 680)
   {
-    std::cout << std::endl;
+    std::cout << "680" << std::endl;
   }
-
-  if (grafik == 1092)
+  int index = grafik;
+  int richtungen = 1;
+  if (info.value()->AnimAdd > 0)
   {
-    std::cout << std::endl;
+    richtungen = 4;
   }
-  int richtungen = 4;
-  if (info.value()->Rotate <= 1)
+  int ani_schritte = 1;
+  if (info.value()->AnimAnz > 0)
   {
-    richtungen = 1;
+    ani_schritte = info.value()->AnimAnz;
   }
-
-  int rotationIndex = 0;
-
-  if (info.value()->Rotate >= 1)
+  index += info.value()->Rotate * ((r + feld.rot) % richtungen);
+  switch (feld.rot)
   {
-    rotationIndex = (r + feld.rot) % 4;
+    case 0:
+      index += feld.y_pos * info.value()->Size.w + feld.x_pos;
+      break;
+    case 1:
+      index += (info.value()->Size.h - feld.x_pos - 1) * info.value()->Size.w + feld.y_pos;
+      break;
+    case 2:
+      index += (info.value()->Size.h - feld.y_pos - 1) * info.value()->Size.w + (info.value()->Size.w - feld.x_pos - 1);
+      break;
+    case 3:
+      index += feld.x_pos * info.value()->Size.w + (info.value()->Size.w - feld.y_pos - 1);
+      break;
   }
-
-  int index = grafik + feld.ani * info.value()->AnimAdd + rotationIndex;
-
+  index += info.value()->Rotate * richtungen * feld.ani;
   ziel.index = index;
-  ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
-  return ziel.index;
+  int grundhoehe = 0;
+  if (info.value()->Posoffs == 20)
+  {
+    grundhoehe = 1;
+  }
+  ziel.grundhoehe = grundhoehe;
+  // int richtungen = 4;
+  // if (info.value()->Rotate == 1 || info.value()->Rotate == 0)
+  // {
+  //   richtungen = 1;
+  // }
+
+  // int rotationIndex = 0;
+
+  // rotationIndex = (r + feld.rot) % richtungen;
+
+  // int index = grafik + feld.ani * info.value()->AnimAdd + rotationIndex;
+
+  // ziel.index = index;
+  // ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
+  // return ziel.index;
 }
 
 void Insel::grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
