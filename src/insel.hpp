@@ -60,7 +60,7 @@ public:
   void grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r);
   void grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r);
   void inselfeld_bebauung(inselfeld_t& ziel, uint8_t x, uint8_t y);
-  static void grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser);
+  static int grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser);
   void bewege_wasser();
   void animiere_gebaeude(uint8_t x, uint8_t y);
 

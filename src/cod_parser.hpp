@@ -20,32 +20,35 @@
 #ifndef COD_PARSER_HPP
 #define COD_PARSER_HPP
 
+#include <cstring>
+#include <experimental/optional>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <sstream>
+#include <stack>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <cstring>
-#include <stack>
-#include <regex>
-#include <experimental/optional>
 
-#include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/regex.hpp>
 #include <boost/variant.hpp>
 
-#include <google/protobuf/util/json_util.h>
 #include "proto/cod.pb.h"
+#include <google/protobuf/util/json_util.h>
 
 class Cod_Parser
 {
 public:
   Cod_Parser(const std::string& cod_file_path, bool decode);
+  Cod_Parser(const std::string& file_as_string);
 
   cod_pb::Objects objects;
+
 private:
   // Input/Output related functions
+  bool read_file_as_string(const std::string& buffer);
   bool read_file(bool decode);
   bool parse_file();
   bool json();
@@ -125,6 +128,5 @@ private:
   std::map<std::string, int> variable_map;
   std::map<int, cod_pb::Object*> object_id_map;
   cod_pb::Object* current_object = nullptr;
-
 };
 #endif
