@@ -26,6 +26,12 @@ Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode)
   parse_file();
 }
 
+Cod_Parser::Cod_Parser(const std::string& file_as_string)
+{
+  read_file_as_string(file_as_string);
+  parse_file();
+}
+
 bool Cod_Parser::read_file(bool decode)
 {
   std::ifstream input(path, std::ios::binary);
@@ -38,6 +44,29 @@ bool Cod_Parser::read_file(bool decode)
       c = -c;
     }
   }
+  std::string line;
+  for (int i = 0; i < buffer.size() - 1; i++)
+  {
+    if (buffer[i + 1] != '\n' && buffer[i] != '\r')
+    {
+      line.append(1, buffer[i]);
+    }
+    else
+    {
+      line = trim_comment_from_line(tabs_to_spaces((line)));
+      if (is_empty(line) == false)
+      {
+        cod_txt.push_back(line);
+      }
+      line = "";
+      i++; // hop over '\n'
+    }
+  }
+  return true;
+}
+
+bool Cod_Parser::read_file_as_string(const std::string& buffer)
+{
   std::string line;
   for (int i = 0; i < buffer.size() - 1; i++)
   {
@@ -444,7 +473,7 @@ bool Cod_Parser::parse_file()
       }
     }
   }
-  // std::cout << objects.DebugString() << std::endl;
+  std::cout << objects.DebugString() << std::endl;
   // std::cout << variables.DebugString() << std::endl;
 }
 

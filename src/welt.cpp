@@ -76,11 +76,11 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     auto info = haeuser->get_haus(inselfeld.bebauung);
     if (info)
     {
-      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
-      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
+      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
+      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
       if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
       {
-        int versatz = (info.value()->Size[0] + info.value()->Size[1]) / 2;
+        int versatz = (info.value()->Size.w + info.value()->Size.h) / 2;
         versatz += (versatz & 1) * 2;
         if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
         {
@@ -107,11 +107,11 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
       auto info = haeuser->get_haus(inselfeld.bebauung);
       if (info)
       {
-        int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size[0] : info.value()->Size[1]) - 1;
-        int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size[1] : info.value()->Size[0]) - 1;
+        int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
+        int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
         if (info.value()->Kind == ObjectKindType::FELS)
         {
-          int versatz = (info.value()->Size[1] + info.value()->Size[0]) / 2;
+          int versatz = (info.value()->Size.h + info.value()->Size.w) / 2;
           versatz += (versatz & 1) * 2 + 3;
           if (erz.typ == 2) // Eisen
           {

@@ -35,7 +35,11 @@ int main(int argc, char** argv)
       auto h = haeuser.get_haus(i);
       if(h)
       {
-        std::cout << h.value()->Id-20000 << "," << h.value()->Gfx << std::endl;
+        // std::cout << h.value()->Id-20000 << "," << h.value()->Gfx << std::endl;
+        if(h.value()->Size.w * h.value()->Size.h != h.value()->Rotate)
+        {
+          std::cout << h.value()->Id-20000 << ": " << h.value()->Size.w << ", " << h.value()->Size.h << "!=" <<  h.value()->Rotate << std::endl;
+        } 
       }
     }
   }

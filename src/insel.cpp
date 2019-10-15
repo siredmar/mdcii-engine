@@ -16,17 +16,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "strukturen.hpp"
 #include "insel.hpp"
 #include "bebauung.hpp"
-#include "grafiken.hpp"
 #include "files.hpp"
+#include "grafiken.hpp"
 #include "haeuser.hpp"
-#include <string.h>
-#include <fstream>
+#include "strukturen.hpp"
 #include <boost/format.hpp>
-#include <string>
+#include <fstream>
 #include <iostream>
+#include <string.h>
+#include <string>
 
 void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8_t breite, uint8_t hoehe)
 {
@@ -45,19 +45,19 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     if (feld.x_pos >= breite || feld.y_pos >= hoehe)
       continue;
 
-    auto info = haeuser->get_haus(feld.bebauung); 
+    auto info = haeuser->get_haus(feld.bebauung);
     if (info)
     {
       int x, y, u, v;
       if (feld.rot % 2 == 0)
       {
-	      u = info.value()->Size[0];
-	      v = info.value()->Size[1];
+        u = info.value()->Size.w;
+        v = info.value()->Size.h;
       }
       else
       {
-        u = info.value()->Size[1];
-	      v = info.value()->Size[0];
+        u = info.value()->Size.h;
+        v = info.value()->Size.w;
       }
 
       for (int y = 0; y < v && feld.y_pos + y < hoehe; y++)
@@ -126,7 +126,7 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
       if (files->instance()->check_file(karte) == false)
       {
         std::cout << "[ERR] Island not found: " << karte << std::endl;
-	      exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
 
       f.open(karte, std::ios_base::in | std::ios_base::binary);
@@ -143,8 +143,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
     {
       for (x = 0; x < this->breite; x++)
       {
-	if (schicht2[y * this->breite + x].bebauung == 0xffff)
-	  schicht2[y * this->breite + x] = schicht1[y * this->breite + x];
+        if (schicht2[y * this->breite + x].bebauung == 0xffff)
+          schicht2[y * this->breite + x] = schicht1[y * this->breite + x];
       }
     }
   }
@@ -166,7 +166,7 @@ void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
 {
   auto info = haeuser->get_haus(schicht2[y * breite + x].bebauung);
   int grafik;
-  if(info)
+  if (info)
   {
     if (schicht2[y * breite + x].bebauung != 0xffff)
     {
@@ -181,7 +181,7 @@ void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
     if (schicht1[y * breite + x].bebauung != 0xffff)
     {
       grafik = info.value()->Gfx;
-      if(info.value()->Highflg == 0 && grafik != -1)
+      if (info.value()->Highflg == 0 && grafik != -1)
       {
         ziel.index = grafik;
         ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
@@ -207,13 +207,13 @@ void Insel::inselfeld_bebauung(inselfeld_t& ziel, uint8_t x, uint8_t y)
   ziel.y_pos = yp;
 }
 
-void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser)
+int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser)
 {
   if (feld.bebauung == 0xffff)
   {
     ziel.index = -1;
     ziel.grundhoehe = 0;
-    return;
+    return -1;
   }
   auto info = haeuser->get_haus(feld.bebauung);
 
@@ -221,29 +221,51 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
   {
     ziel.index = -1;
     ziel.grundhoehe = 0;
-    return;
+    return -1;
   }
   int grafik = info.value()->Gfx;
-  int16_t index = grafik;
-  index += info.value()->Size[0] * info.value()->Size[1] * ((r + feld.rot) % (info.value()->Rotate+1));
+  int index = grafik;
+  int richtungen = 1;
+  if (info.value()->Rotate > 0)
+  {
+    richtungen = 4;
+  }
+  int ani_schritte = 1;
+  if (info.value()->AnimAnz > 0)
+  {
+    ani_schritte = info.value()->AnimAnz;
+  }
+  index += info.value()->Rotate * ((r + feld.rot) % richtungen);
   switch (feld.rot)
   {
-    case 0: index += feld.y_pos * info.value()->Size[0] + feld.x_pos; break;
-    case 1: index += (info.value()->Size[1] - feld.x_pos - 1) * info.value()->Size[0] + feld.y_pos; break;
-    case 2: index += (info.value()->Size[1] - feld.y_pos - 1) * info.value()->Size[0] + (info.value()->Size[0] - feld.x_pos - 1); break;
-    case 3: index += feld.x_pos * info.value()->Size[0] + (info.value()->Size[0] - feld.y_pos - 1); break;
+    case 0:
+      index += feld.y_pos * info.value()->Size.w + feld.x_pos;
+      break;
+    case 1:
+      index += (info.value()->Size.h - feld.x_pos - 1) * info.value()->Size.w + feld.y_pos;
+      break;
+    case 2:
+      index += (info.value()->Size.h - feld.y_pos - 1) * info.value()->Size.w + (info.value()->Size.w - feld.x_pos - 1);
+      break;
+    case 3:
+      index += feld.x_pos * info.value()->Size.w + (info.value()->Size.w - feld.y_pos - 1);
+      break;
   }
-  int anim = info.value()->AnimAnz == -1 ? 1 : info.value()->AnimAnz+1;
-  index += info.value()->Size[0] * info.value()->Size[1] * info.value()->Rotate * (feld.ani % anim);
+  index += info.value()->Rotate * richtungen * (feld.ani % ani_schritte);
   ziel.index = index;
-  ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
+  int grundhoehe = 0;
+  if (info.value()->Posoffs == 20)
+  {
+    grundhoehe = 1;
+  }
+  ziel.grundhoehe = grundhoehe;
 }
 
 void Insel::grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
 {
   inselfeld_t feld;
   inselfeld_bebauung(feld, x, y);
-  grafik_bebauung_inselfeld(ziel, feld, r, haeuser);
+  int index = grafik_bebauung_inselfeld(ziel, feld, r, haeuser);
 }
 
 void Insel::bewege_wasser() // FIXME
@@ -254,12 +276,16 @@ void Insel::bewege_wasser() // FIXME
     {
       inselfeld_t& feld = schicht2[y * breite + x];
       if (feld.bebauung >= 1201 && feld.bebauung <= 1218 || feld.bebauung >= 901 && feld.bebauung <= 905 || feld.bebauung >= 1251 && feld.bebauung <= 1259
-	  || feld.bebauung == 1071 || feld.bebauung == 2311)
+          || feld.bebauung == 1071 || feld.bebauung == 2311)
       {
         auto info = haeuser->get_haus(feld.bebauung);
-	      if (info)
+        if (info)
         {
-	        feld.ani = (feld.ani + 1) % (info.value()->AnimAnz+1);
+          int animAnz = 1;
+          if (info.value()->AnimAnz > 0)
+          {
+            feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
+          }
         }
       }
     }
@@ -269,7 +295,13 @@ void Insel::bewege_wasser() // FIXME
 void Insel::animiere_gebaeude(uint8_t x, uint8_t y)
 {
   inselfeld_t& feld = schicht2[y * breite + x];
-  Haus* info = haeuser->get_haus(feld.bebauung).value();
-  if (info != nullptr)
-    feld.ani = (feld.ani + 1) % (info->AnimAnz+1);
+  auto info = haeuser->get_haus(feld.bebauung);
+  if (info)
+  {
+    int animAnz = 1;
+    if (info.value()->AnimAnz > 0)
+    {
+      feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
+    }
+  }
 }
