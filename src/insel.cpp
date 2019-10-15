@@ -224,13 +224,9 @@ int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r,
     return -1;
   }
   int grafik = info.value()->Gfx;
-  if (grafik == 680)
-  {
-    std::cout << "680" << std::endl;
-  }
   int index = grafik;
   int richtungen = 1;
-  if (info.value()->AnimAdd > 0)
+  if (info.value()->Rotate > 0)
   {
     richtungen = 4;
   }
@@ -255,7 +251,7 @@ int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r,
       index += feld.x_pos * info.value()->Size.w + (info.value()->Size.w - feld.y_pos - 1);
       break;
   }
-  index += info.value()->Rotate * richtungen * feld.ani;
+  index += info.value()->Rotate * richtungen * (feld.ani % ani_schritte);
   ziel.index = index;
   int grundhoehe = 0;
   if (info.value()->Posoffs == 20)
@@ -263,21 +259,6 @@ int Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r,
     grundhoehe = 1;
   }
   ziel.grundhoehe = grundhoehe;
-  // int richtungen = 4;
-  // if (info.value()->Rotate == 1 || info.value()->Rotate == 0)
-  // {
-  //   richtungen = 1;
-  // }
-
-  // int rotationIndex = 0;
-
-  // rotationIndex = (r + feld.rot) % richtungen;
-
-  // int index = grafik + feld.ani * info.value()->AnimAdd + rotationIndex;
-
-  // ziel.index = index;
-  // ziel.grundhoehe = info.value()->Posoffs == 0 ? 0 : 1;
-  // return ziel.index;
 }
 
 void Insel::grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
