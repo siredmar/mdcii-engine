@@ -1,6 +1,5 @@
-
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2015  Benedikt Freisen
+// Copyright (C) 2019  Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,35 +15,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <fstream>
-#include <sstream>
+#ifndef VERSION_HPP
+#define VERSION_HPP
 
-#include "grafiken.hpp"
-
-Grafiken::Grafiken(std::string dateiname)
+enum class Anno_version
 {
-  std::ifstream datei(dateiname.c_str());
-  std::string zeile;
-  while (datei.good())
-  {
-    std::getline(datei, zeile);
-    if (!zeile.empty() && zeile[0] != ';')
-    {
-      std::stringstream ss(zeile, std::ios_base::in);
-      uint16_t bebauung;
-      uint32_t grafikindex;
-      ss >> bebauung >> grafikindex;
-      if (datei.good())
-	index[bebauung] = grafikindex;
-    }
-  }
-}
+  VANILLA = 0,
+  NINA = 1,
+};
 
-int Grafiken::grafik_zu(uint16_t i)
+class Version
 {
-  auto grafik = index.find(i);
-  if (grafik != index.end())
-    return grafik->second;
-  else
-    return -1;
-}
+public:
+  static Anno_version Detect_game_version();
+};
+#endif

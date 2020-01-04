@@ -79,19 +79,19 @@ void Bildspeicher::zeichne_bsh_bild_sp(Bsh_bild& bild, int x, int y, int sx, int
     {
       if (ch == 0xfe)
       {
-	u = 0;
-	v++;
+        u = 0;
+        v++;
       }
       else
       {
-	u += ch;
+        u += ch;
 
-	for (ch = bild.puffer[i++]; ch > 0; ch--, u++, i++)
-	{
-	  zeichne_pixel(x + u, y + v, bild.puffer[i]);
-	  if (u == sx && v == sy)
-	    schnitt = true;
-	}
+        for (ch = bild.puffer[i++]; ch > 0; ch--, u++, i++)
+        {
+          zeichne_pixel(x + u, y + v, bild.puffer[i]);
+          if (u == sx && v == sy)
+            schnitt = true;
+        }
       }
     }
   }
@@ -139,13 +139,13 @@ void Bildspeicher::zeichne_linie(int x1, int y1, int x2, int y2, uint8_t farbe, 
     do
     {
       if ((muster = muster >> 1 | muster << 7) & 0x80)
-	zeichne_pixel(cx, cy, farbe);
+        zeichne_pixel(cx, cy, farbe);
       cx += ix;
       s -= ydiff;
       if (s <= 0)
       {
-	s += xdiff;
-	cy += iy;
+        s += xdiff;
+        cy += iy;
       }
     } while (cx != x2);
   }
@@ -155,13 +155,13 @@ void Bildspeicher::zeichne_linie(int x1, int y1, int x2, int y2, uint8_t farbe, 
     do
     {
       if ((muster = muster >> 1 | muster << 7) & 0x80)
-	zeichne_pixel(cx, cy, farbe);
+        zeichne_pixel(cx, cy, farbe);
       cy += iy;
       s -= xdiff;
       if (s <= 0)
       {
-	s += ydiff;
-	cx += ix;
+        s += ydiff;
+        cx += ix;
       }
     } while (cy != y2);
   }
@@ -190,7 +190,7 @@ void Bildspeicher::zeichne_zei_zeichen(Zei_zeichen& zeichen, int x, int y)
 
       for (ch = zeichen.puffer[i++]; ch > 0; ch--, u++, i++)
       {
-	zeichne_pixel(x + u, y + v, indextabelle_schriftfarbe[zeichen.puffer[i]]);
+        zeichne_pixel(x + u, y + v, indextabelle_schriftfarbe[zeichen.puffer[i]]);
       }
     }
   }

@@ -49,10 +49,10 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
       for (ch = *(quelle++); ch > 0; ch--)
       {
-	int index = ((int)*(quelle++)) * 3;
-	*(ziel++) = palette[index++];
-	*(ziel++) = palette[index++];
-	*(ziel++) = palette[index];
+        int index = ((int)*(quelle++)) * 3;
+        *(ziel++) = palette[index++];
+        *(ziel++) = palette[index++];
+        *(ziel++) = palette[index];
       }
     }
   }
@@ -78,13 +78,13 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 
       for (ch = bild.puffer[i++]; ch > 0; ch--, u++, i++)
       {
-	if (y + v >= 0 && y + v < this->hoehe && x + u >= 0 && x + u < this->breite)
-	{
-	  unsigned char a = bild.puffer[i];
-	  this->puffer[(y + v) * this->pufferbreite + (x + u) * 3] = palette[a * 3];
-	  this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 1] = palette[a * 3 + 1];
-	  this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 2] = palette[a * 3 + 2];
-	}
+        if (y + v >= 0 && y + v < this->hoehe && x + u >= 0 && x + u < this->breite)
+        {
+          unsigned char a = bild.puffer[i];
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3] = palette[a * 3];
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 1] = palette[a * 3 + 1];
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 2] = palette[a * 3 + 2];
+        }
       }
     }
   }

@@ -27,7 +27,10 @@
 #include "kamera.hpp"
 #include "bildspeicher_pal8.hpp"
 #include "spielbildschirm.hpp"
+#include "cod_parser.hpp"
 #include "files.hpp"
+#include "files_to_check.hpp"
+#include "version.hpp"
 
 namespace po = boost::program_options;
 
@@ -58,6 +61,7 @@ int main(int argc, char** argv)
   int rate;
   std::string gam_name;
   std::string files_path;
+  Anno_version version;
 
   // clang-format off
   po::options_description desc("Zulässige Optionen");
@@ -84,14 +88,16 @@ int main(int argc, char** argv)
 
   auto files = Files::create_instance(files_path);
 
-  if (files->instance()->check_file(gam_name) == false)
+  version = Version::Detect_game_version();
+  if (files->instance()->check_all_files(&files_to_check) == false)
   {
-    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
+    std::cout << "[ERR] File check failed. Exiting." << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  if (files->instance()->check_all_files() == false)
+  if (files->instance()->check_file(gam_name) == false)
   {
+    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -118,13 +124,15 @@ int main(int argc, char** argv)
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f);
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  Welt welt = Welt(f, haeuser);
 
   f.close();
 
   Bildspeicher_pal8 bs(screen_width, screen_height, 0, (uint8_t*)screen->pixels, screen->pitch);
 
-  Spielbildschirm spielbildschirm(bs);
+  Spielbildschirm spielbildschirm(bs, haeuser);
   spielbildschirm.zeichne_bild(welt, 0, 0);
 
   SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
@@ -144,56 +152,56 @@ int main(int argc, char** argv)
     {
       case SDL_QUIT: exit(EXIT_SUCCESS); break;
       case SDL_USEREVENT:
-	int x, y;
-	SDL_GetMouseState(&x, &y);
+        int x, y;
+        SDL_GetMouseState(&x, &y);
 
-	if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
-	{
-	  spielbildschirm.kamera.nach_links();
-	}
-	if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
-	{
-	  spielbildschirm.kamera.nach_rechts();
-	}
-	if (keystate[SDLK_UP] || (fullscreen && y == 0))
-	{
-	  spielbildschirm.kamera.nach_oben();
-	}
-	if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
-	{
-	  spielbildschirm.kamera.nach_unten();
-	}
+        if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
+        {
+          spielbildschirm.kamera->nach_links();
+        }
+        if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
+        {
+          spielbildschirm.kamera->nach_rechts();
+        }
+        if (keystate[SDLK_UP] || (fullscreen && y == 0))
+        {
+          spielbildschirm.kamera->nach_oben();
+        }
+        if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
+        {
+          spielbildschirm.kamera->nach_unten();
+        }
 
-	welt.simulationsschritt();
-	spielbildschirm.zeichne_bild(welt, x, y);
-	SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
-	break;
+        welt.simulationsschritt();
+        spielbildschirm.zeichne_bild(welt, x, y);
+        SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
+        break;
       case SDL_KEYDOWN:
-	if (e.key.keysym.sym == SDLK_F2)
-	{
-	  spielbildschirm.kamera.setze_vergroesserung(0);
-	}
-	if (e.key.keysym.sym == SDLK_F3)
-	{
-	  spielbildschirm.kamera.setze_vergroesserung(1);
-	}
-	if (e.key.keysym.sym == SDLK_F4)
-	{
-	  spielbildschirm.kamera.setze_vergroesserung(2);
-	}
-	if (e.key.keysym.sym == SDLK_x)
-	{
-	  spielbildschirm.kamera.rechts_drehen();
-	}
-	if (e.key.keysym.sym == SDLK_y)
-	{
-	  spielbildschirm.kamera.links_drehen();
-	}
-	if (e.key.keysym.sym == SDLK_ESCAPE)
-	{
-	  exit(EXIT_SUCCESS);
-	}
-	break;
+        if (e.key.keysym.sym == SDLK_F2)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(0);
+        }
+        if (e.key.keysym.sym == SDLK_F3)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(1);
+        }
+        if (e.key.keysym.sym == SDLK_F4)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(2);
+        }
+        if (e.key.keysym.sym == SDLK_x)
+        {
+          spielbildschirm.kamera->rechts_drehen();
+        }
+        if (e.key.keysym.sym == SDLK_y)
+        {
+          spielbildschirm.kamera->links_drehen();
+        }
+        if (e.key.keysym.sym == SDLK_ESCAPE)
+        {
+          exit(EXIT_SUCCESS);
+        }
+        break;
     }
   }
 }

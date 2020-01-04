@@ -23,16 +23,18 @@
 #include "kamera.hpp"
 #include "karte.hpp"
 #include "welt.hpp"
+#include "version.hpp"
 
 class Spielbildschirm
 {
   Bildspeicher& bs;
   Karte karte;
+  std::shared_ptr<Haeuser> haeuser;
 
 public:
-  Kamera kamera; // vorübergehend public
+  Kamera* kamera; // vorübergehend public
 
-  Spielbildschirm(Bildspeicher& bs);
+  Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser);
 
   void zeichne_bild(Welt& welt, int maus_x, int maus_y);
 };

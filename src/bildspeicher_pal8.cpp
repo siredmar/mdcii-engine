@@ -37,8 +37,8 @@ Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t f
       int diff = abs((int)palette[3 * j] - r) + abs((int)palette[3 * j + 1] - g) + abs((int)palette[3 * j + 2] - b);
       if (diff < mindiff)
       {
-	dunkel[i] = j;
-	mindiff = diff;
+        dunkel[i] = j;
+        mindiff = diff;
       }
     }
   }
@@ -65,7 +65,7 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
       ziel += ch;
 
       for (ch = *(quelle++); ch > 0; ch--)
-	*(ziel++) = *(quelle++);
+        *(ziel++) = *(quelle++);
     }
   }
 }
@@ -91,36 +91,36 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
     {
       ch = *(quelle++);
       if (ch == 0xff)
-	return;
+        return;
       if (ch == 0xfe)
       {
-	ziel = zielzeile += restbreite;
-	if (ziel >= ende)
-	  return;
+        ziel = zielzeile += restbreite;
+        if (ziel >= ende)
+          return;
       }
       else
       {
-	ziel += ch;
+        ziel += ch;
 
-	ch = *(quelle++);
-	quelle += ch;
-	ziel += ch;
+        ch = *(quelle++);
+        quelle += ch;
+        ziel += ch;
       }
     }
     while ((ch = *(quelle++)) != 0xff)
     {
       if (ch == 0xfe)
       {
-	ziel = zielzeile += restbreite;
-	if (ziel >= ende)
-	  return;
+        ziel = zielzeile += restbreite;
+        if (ziel >= ende)
+          return;
       }
       else
       {
-	ziel += ch;
+        ziel += ch;
 
-	for (ch = *(quelle++); ch > 0; ch--)
-	  *(ziel++) = *(quelle++);
+        for (ch = *(quelle++); ch > 0; ch--)
+          *(ziel++) = *(quelle++);
       }
     }
   }
@@ -130,31 +130,31 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
     {
       if (ch == 0xfe)
       {
-	ziel = zielzeile += restbreite;
-	u = 0;
-	v++;
-	if (y + v >= (int)this->hoehe)
-	  return;
+        ziel = zielzeile += restbreite;
+        u = 0;
+        v++;
+        if (y + v >= (int)this->hoehe)
+          return;
       }
       else
       {
-	u += ch;
-	ziel += ch;
+        u += ch;
+        ziel += ch;
 
-	ch = *(quelle++);
-	if (y + v >= 0)
-	{
-	  for (; ch > 0; ch--, u++, quelle++, ziel++)
-	    if (x + u >= 0 && x + u < this->breite)
-	      *ziel = *quelle;
-	}
-	else
-	{
-	  u += ch;
-	  quelle += ch;
-	  ziel += ch;
-	  ch = 0;
-	}
+        ch = *(quelle++);
+        if (y + v >= 0)
+        {
+          for (; ch > 0; ch--, u++, quelle++, ziel++)
+            if (x + u >= 0 && x + u < this->breite)
+              *ziel = *quelle;
+        }
+        else
+        {
+          u += ch;
+          quelle += ch;
+          ziel += ch;
+          ch = 0;
+        }
       }
     }
   }

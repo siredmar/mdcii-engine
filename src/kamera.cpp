@@ -18,55 +18,54 @@
 
 #include <string>
 #include "kamera.hpp"
-#include "grafiken.hpp"
 #include "files.hpp"
+#include "haeuser.hpp"
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
 const int Kamera::grundhoehe[3] = {5, 10, 20};
 
-Kamera::Kamera()
+Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
+  : haeuser(haeuser)
 {
   xpos = Welt::KARTENBREITE / 2;
   ypos = Welt::KARTENHOEHE / 2;
   drehung = 0;
   vergroesserung = 1;
   auto files = Files::instance();
-  effekte_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/effekte.bsh"));
-  effekte_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/effekte.bsh"));
-  effekte_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/effekte.bsh"));
+  effekte_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/effekte.bsh"));
+  effekte_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/effekte.bsh"));
+  effekte_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/effekte.bsh"));
 
-  // maeher_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/maeher.bsh"));
-  // maeher_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/maeher.bsh"));
-  // maeher_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/maeher.bsh"));
+  // maeher_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/maeher.bsh"));
+  // maeher_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/maeher.bsh"));
+  // maeher_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/maeher.bsh"));
 
-  // numbers_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/numbers.bsh"));
-  // numbers_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/numbers.bsh"));
-  // numbers_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/numbers.bsh"));
+  // numbers_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/numbers.bsh"));
+  // numbers_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/numbers.bsh"));
+  // numbers_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/numbers.bsh"));
 
-  ship_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/ship.bsh"));
-  ship_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/ship.bsh"));
-  ship_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/ship.bsh"));
+  ship_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/ship.bsh"));
+  ship_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/ship.bsh"));
+  ship_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/ship.bsh"));
 
-  soldat_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/soldat.bsh"));
-  soldat_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/soldat.bsh"));
-  soldat_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/soldat.bsh"));
+  soldat_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/soldat.bsh"));
+  soldat_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/soldat.bsh"));
+  soldat_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/soldat.bsh"));
 
-  stadtfld_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/stadtfld.bsh"));
-  stadtfld_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/stadtfld.bsh"));
-  stadtfld_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/stadtfld.bsh"));
+  stadtfld_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/stadtfld.bsh"));
+  stadtfld_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/stadtfld.bsh"));
+  stadtfld_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/stadtfld.bsh"));
 
-  // tiere_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/tiere.bsh"));
-  // tiere_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/tiere.bsh"));
-  // tiere_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/tiere.bsh"));
+  // tiere_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/tiere.bsh"));
+  // tiere_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/tiere.bsh"));
+  // tiere_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/tiere.bsh"));
 
-  // traeger_bsh[0] = new Bsh_leser(files->instance()->get_file("sgfx/traeger.bsh"));
-  // traeger_bsh[1] = new Bsh_leser(files->instance()->get_file("mgfx/traeger.bsh"));
-  // traeger_bsh[2] = new Bsh_leser(files->instance()->get_file("gfx/traeger.bsh"));
+  // traeger_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/traeger.bsh"));
+  // traeger_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/traeger.bsh"));
+  // traeger_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/traeger.bsh"));
 
-  zei = new Zei_leser(files->instance()->get_file("toolgfx/zeig16g_zei"));
-
-  stadtfld_grafiken = new Grafiken(files->instance()->get_file("grafiken.txt"));
+  zei = new Zei_leser(files->instance()->find_path_for_file("toolgfx/zei16g.zei"));
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
@@ -81,27 +80,27 @@ void Kamera::nach_links()
   {
     case 0:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 1:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 2:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 3:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
   }
 }
@@ -112,27 +111,27 @@ void Kamera::nach_rechts()
   {
     case 0:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 1:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 2:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 3:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
   }
 }
@@ -143,27 +142,27 @@ void Kamera::nach_oben()
   {
     case 0:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 1:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 2:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 3:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
   }
 }
@@ -174,27 +173,27 @@ void Kamera::nach_unten()
   {
     case 0:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
     case 1:
       if (xpos < Welt::KARTENBREITE - 1)
-	xpos++;
+        xpos++;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 2:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos > 0)
-	ypos--;
+        ypos--;
       break;
     case 3:
       if (xpos > 0)
-	xpos--;
+        xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
-	ypos++;
+        ypos++;
       break;
   }
 }
@@ -358,13 +357,13 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       inselfeld_t inselfeld;
       welt.feld_an_pos(inselfeld, x, y);
       feld_t feld;
-      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, *welt.bebauung, *stadtfld_grafiken);
+      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, haeuser);
       if (feld.index != -1)
       {
-	int bs_x, bs_y, bs_z;
-	auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
-	bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
-	felder.push_back(bild_mit_pos);
+        int bs_x, bs_y, bs_z;
+        auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
+        bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
+        felder.push_back(bild_mit_pos);
       }
     }
   }
@@ -376,7 +375,7 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int bs_x, bs_y, bs_z;
     auf_bildschirm_256(bs, animation.x, animation.y, animation.z, bs_x, bs_y, bs_z);
     bild_mit_pos_t bild_mit_pos = {&effekte_bsh[vergroesserung]->gib_bsh_bild(animation.start_index + animation.ani), bs_x, bs_y, bs_z + animation.bs_z_versatz,
-	map_elem.first.first, map_elem.first.second, false};
+        map_elem.first.first, map_elem.first.second, false};
     felder.push_back(bild_mit_pos);
   }
 
@@ -457,7 +456,6 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     }
   }
 
-
   bs.setze_schriftfarbe(245, 0);
   bs.zeichne_string(*zei, "aktuelle Position:", 10, 10);
   bs.zeichne_string(*zei, "(" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")", 10, 30);
@@ -469,8 +467,8 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     bs.zeichne_string(*zei, std::to_string(inselfeld.bebauung), 10, 80);
     bs.zeichne_string(*zei, "Position und Insel unter Mauszeiger:", 10, 110);
     bs.zeichne_string(*zei,
-	"(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Insel "
-	    + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
-	10, 130);
+        "(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Insel "
+            + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
+        10, 130);
   }
 }

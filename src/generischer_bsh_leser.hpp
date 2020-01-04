@@ -66,31 +66,31 @@ class Generischer_bsh_leser
 
       if (ch == 0xff)
       {
-	return true;
+        return true;
       }
       else if (ch == 0xfe)
       {
-	x = 0;
-	y++;
-	if (y == bild.hoehe)
-	  return false;
+        x = 0;
+        y++;
+        if (y == bild.hoehe)
+          return false;
       }
       else
       {
-	x += ch;
-	if (x > breite)
-	  return false;
+        x += ch;
+        if (x > breite)
+          return false;
 
-	if (i >= bild.laenge - 16)
-	  return false;
-	ch = bild.puffer[i++];
+        if (i >= bild.laenge - 16)
+          return false;
+        ch = bild.puffer[i++];
 
-	x += ch;
-	if (x > breite)
-	  return false;
-	i += ch;
-	if (i > bild.laenge - 16)
-	  return false;
+        x += ch;
+        if (x > breite)
+          return false;
+        i += ch;
+        if (i > bild.laenge - 16)
+          return false;
       }
     }
     return false;
@@ -133,7 +133,7 @@ protected:
     for (uint32_t i = 1; i < anzahl_bilder; i++)
     {
       if (bilderindex[i] < bilderindex[0])
-	throw std::logic_error("bsh: first index entry does not have smallest offset");
+        throw std::logic_error("bsh: first index entry does not have smallest offset");
     }
 
     // Liegen alle Bilder innerhalb der Datei?
@@ -142,14 +142,14 @@ protected:
     {
       uint32_t offs = bilderindex[i] + 20;
       if (offs + 16 > bsh.size() || offs + ((BILD_T*)(ptr + offs))->laenge > bsh.size())
-	throw std::range_error("picture exceeds end of file");
+        throw std::range_error("picture exceeds end of file");
     }
 
     // prüfe Integrität der einzelnen Bilder
     for (uint32_t i = 0; i < anzahl_bilder; i++)
     {
       if (!ist_bild_fehlerfrei(i))
-	throw std::logic_error("picture bytestream contains errors");
+        throw std::logic_error("picture bytestream contains errors");
     }
   }
 

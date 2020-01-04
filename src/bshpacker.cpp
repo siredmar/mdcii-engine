@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     for (uint32_t i = 0; i < number; i++)
     {
       if (file_format == "pnm")
-	bsh.pgm_anhaengen((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
+        bsh.pgm_anhaengen((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
       // else if (file_format == "bmp")
       //   bsh.bmp_anhaengen((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }

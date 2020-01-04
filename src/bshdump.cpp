@@ -85,9 +85,9 @@ int main(int argc, char** argv)
       bs.zeichne_bsh_bild(bild, 0, 0);
 
       if (file_format == "pnm")
-	bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
+        bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
       else if (file_format == "bmp")
-	bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }
   }
   else if (bpp == 8)
@@ -100,9 +100,9 @@ int main(int argc, char** argv)
       bs.zeichne_bsh_bild(bild, 0, 0);
 
       if (file_format == "pnm")
-	bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
+        bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
       else if (file_format == "bmp")
-	bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }
   }
 }

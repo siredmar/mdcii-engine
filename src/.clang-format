@@ -18,9 +18,8 @@ NamespaceIndentation: None
 SpaceInEmptyParentheses: 'false'
 Standard: Auto
 TabWidth: '8'
-UseTab: ForContinuationAndIndentation
 SortIncludes: 'false'
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: 'true'
 AccessModifierOffset: '-2'
 AlignTrailingComments: 'true'
 Cpp11BracedListStyle: 'true'

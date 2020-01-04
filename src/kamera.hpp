@@ -24,33 +24,12 @@
 #include "bildspeicher.hpp"
 #include "welt.hpp"
 
-class Grafiken;
-
 /* GFX/ MGFX/ Sgfx/  EFFEKTE.BSH MAEHER.BSH NUMBERS.BSH SHIP.BSH SOLDAT.BSH STADTFLD.BSH TIERE.BSH TRAEGER.BSH */
 
 class Kamera
 {
-  uint16_t xpos, ypos;
-  uint8_t drehung, vergroesserung;
-
-  static const int x_raster[3];
-  static const int y_raster[3];
-  static const int grundhoehe[3];
-
-  Bsh_leser* effekte_bsh[3];
-  Bsh_leser* maeher_bsh[3];
-  Bsh_leser* numbers_bsh[3];
-  Bsh_leser* ship_bsh[3];
-  Bsh_leser* soldat_bsh[3];
-  Bsh_leser* stadtfld_bsh[3];
-  Bsh_leser* tiere_bsh[3];
-  Bsh_leser* traeger_bsh[3];
-  Zei_leser* zei;
-
-  Grafiken* stadtfld_grafiken;
-
 public:
-  Kamera();
+  Kamera(std::shared_ptr<Haeuser> haeuser);
   void gehe_zu(uint16_t x, uint16_t y);
   void nach_rechts();
   void nach_links();
@@ -68,6 +47,25 @@ public:
   void auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y);
 
   void zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y);
+
+private:
+  std::shared_ptr<Haeuser> haeuser;
+  uint16_t xpos, ypos;
+  uint8_t drehung, vergroesserung;
+
+  static const int x_raster[3];
+  static const int y_raster[3];
+  static const int grundhoehe[3];
+
+  Bsh_leser* effekte_bsh[3];
+  Bsh_leser* maeher_bsh[3];
+  Bsh_leser* numbers_bsh[3];
+  Bsh_leser* ship_bsh[3];
+  Bsh_leser* soldat_bsh[3];
+  Bsh_leser* stadtfld_bsh[3];
+  Bsh_leser* tiere_bsh[3];
+  Bsh_leser* traeger_bsh[3];
+  Zei_leser* zei;
 };
 
 #endif

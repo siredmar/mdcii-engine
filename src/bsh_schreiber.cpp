@@ -63,78 +63,78 @@ void Bsh_schreiber::schreib_bsh(uint8_t* bild, int breite, int hoehe, vector<uin
     {
       if (zustand == TRANSPARENT)
       {
-	if (x == 0 && y != 0)
-	{
-	  zz++;
-	  tz = 0;
-	}
-	if (ist_transparent(bild[y * breite + x]))
-	{
-	  tz++;
-	}
-	else
-	{
-	  for (int i = 0; i < zz; i++)
-	  {
-	    ziel.push_back(0xfe);
-	  }
-	  zz = 0;
-	  while (tz > 253)
-	  {
-	    ziel.push_back(253);
-	    ziel.push_back(0);
-	    tz -= 253;
-	  }
-	  ziel.push_back(tz);
-	  tz = 1;
-	  pixel_index = y * breite + x;
-	  zustand = PIXEL;
-	}
+        if (x == 0 && y != 0)
+        {
+          zz++;
+          tz = 0;
+        }
+        if (ist_transparent(bild[y * breite + x]))
+        {
+          tz++;
+        }
+        else
+        {
+          for (int i = 0; i < zz; i++)
+          {
+            ziel.push_back(0xfe);
+          }
+          zz = 0;
+          while (tz > 253)
+          {
+            ziel.push_back(253);
+            ziel.push_back(0);
+            tz -= 253;
+          }
+          ziel.push_back(tz);
+          tz = 1;
+          pixel_index = y * breite + x;
+          zustand = PIXEL;
+        }
       }
       else
       {
-	if (x == 0 || ist_transparent(bild[y * breite + x]))
-	{
-	  // tz Pixel ausgeben
-	  while (tz > 253)
-	  {
-	    ziel.push_back(253);
-	    for (int i = 0; i < 253; i++)
-	    {
-	      ziel.push_back(bild[pixel_index]);
-	      pixel_index++;
-	    }
-	    ziel.push_back(0);
-	    tz -= 253;
-	  }
-	  ziel.push_back(tz);
-	  for (int i = 0; i < tz; i++)
-	  {
-	    ziel.push_back(bild[pixel_index]);
-	    pixel_index++;
-	  }
-	  tz = 1;
-	  if (x == 0 && !ist_transparent(bild[y * breite + x]))
-	  {
-	    ziel.push_back(0xfe);
-	    ziel.push_back(0);
-	  }
-	  else
-	  {
-	    if (ist_transparent(bild[y * breite + x]))
-	    {
-	      zustand = TRANSPARENT;
-	      if (x == 0)
-	      {
-		zz++;
-	      }
-	    }
-	  }
-	}
-	else
-	{
-	  tz++;
-	}
+        if (x == 0 || ist_transparent(bild[y * breite + x]))
+        {
+          // tz Pixel ausgeben
+          while (tz > 253)
+          {
+            ziel.push_back(253);
+            for (int i = 0; i < 253; i++)
+            {
+              ziel.push_back(bild[pixel_index]);
+              pixel_index++;
+            }
+            ziel.push_back(0);
+            tz -= 253;
+          }
+          ziel.push_back(tz);
+          for (int i = 0; i < tz; i++)
+          {
+            ziel.push_back(bild[pixel_index]);
+            pixel_index++;
+          }
+          tz = 1;
+          if (x == 0 && !ist_transparent(bild[y * breite + x]))
+          {
+            ziel.push_back(0xfe);
+            ziel.push_back(0);
+          }
+          else
+          {
+            if (ist_transparent(bild[y * breite + x]))
+            {
+              zustand = TRANSPARENT;
+              if (x == 0)
+              {
+                zz++;
+              }
+            }
+          }
+        }
+        else
+        {
+          tz++;
+        }
       }
     }
   }
@@ -146,8 +146,8 @@ void Bsh_schreiber::schreib_bsh(uint8_t* bild, int breite, int hoehe, vector<uin
       ziel.push_back(253);
       for (int i = 0; i < 253; i++)
       {
-	ziel.push_back(bild[pixel_index]);
-	pixel_index++;
+        ziel.push_back(bild[pixel_index]);
+        pixel_index++;
       }
       ziel.push_back(0);
       tz -= 253;
@@ -217,10 +217,10 @@ void Bsh_schreiber::datei_schreiben(const char* pfadname)
     for (int j = 0; j < i; j++)
     {
       if (bilder[i].crc == bilder[j].crc && bilder[i].breite == bilder[j].breite && bilder[i].hoehe == bilder[j].hoehe && bilder[i].typ == bilder[j].typ
-	  && bilder[i].laenge == bilder[j].laenge && bilder[i].daten == bilder[j].daten)
+          && bilder[i].laenge == bilder[j].laenge && bilder[i].daten == bilder[j].daten)
       {
-	bilder[i].duplikat_von = j;
-	break;
+        bilder[i].duplikat_von = j;
+        break;
       }
     }
   }

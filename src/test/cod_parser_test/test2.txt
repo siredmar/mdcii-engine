@@ -1,0 +1,28 @@
+  Objekt: A
+
+    Nummer: 0
+    OBJ = Nummer
+    a: 1
+    b: 2
+    Objekt: ASDF
+        c: 3, 4
+    EndObj;
+
+    @Nummer: +1
+    ObjFill: OBJ
+    @a: +1
+    @b: +1
+
+    @Nummer: +1
+    a: 1
+    b: 2
+    Arr: 1, 2, 3
+    ArrMath: 10-Arr[0], 11-Arr[1], 12-Arr[2]
+
+    @Nummer: +1
+    a: 1
+    b: 2
+    Arr: 10, 20, 30
+    ArrMath: 9+Arr[0], 8+Arr[1], 7+Arr[2]
+
+  EndObj;
