@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 
 add_definitions(-std=c++14)
 find_package(Boost REQUIRED COMPONENTS iostreams program_options filesystem)
-find_package(SDL REQUIRED)
+find_package(SDL2 REQUIRED)
 
 add_subdirectory(proto)
+# add_subdirectory(thirdparty/nanogui-sdl)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} thirdparty/nanogui-sdl /usr/include/SDL2 )
 
 add_compile_options(-mno-ms-bitfields)
 
@@ -17,7 +18,7 @@ add_executable(mdcii-weltbmp weltbmp.cpp bildspeicher.cpp bildspeicher_pal8.cpp 
 target_link_libraries(mdcii-weltbmp boost_system boost_iostreams boost_filesystem boost_regex cod_proto protobuf)
 
 add_executable(mdcii-sdltest sdltest.cpp bildspeicher.cpp bildspeicher_pal8.cpp block.cpp insel.cpp strukturen.cpp welt.cpp kamera.cpp karte.cpp spielbildschirm.cpp files.cpp version.cpp cod_parser.cpp)
-target_link_libraries(mdcii-sdltest SDL boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
+target_link_libraries(mdcii-sdltest SDL2 boost_system boost_iostreams boost_program_options boost_filesystem boost_regex cod_proto protobuf)
 if(WIN32)
   target_link_libraries(mdcii-sdltest mingw32 winmm dxguid SDLmain)
 endif(WIN32)

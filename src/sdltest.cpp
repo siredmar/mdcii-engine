@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <string>
 #include <boost/program_options.hpp>
@@ -31,6 +31,7 @@
 #include "files.hpp"
 #include "files_to_check.hpp"
 #include "version.hpp"
+// #include "ui/mainmenu.hpp"
 
 namespace po = boost::program_options;
 
@@ -62,6 +63,9 @@ int main(int argc, char** argv)
   std::string gam_name;
   std::string files_path;
   Anno_version version;
+  SDL_Texture* texture;
+  SDL_Surface* final_surface;
+
 
   // clang-format off
   po::options_description desc("Zulässige Optionen");
@@ -107,44 +111,51 @@ int main(int argc, char** argv)
   }
   atexit(SDL_Quit);
 
-  SDL_Surface* screen;
-  screen = SDL_SetVideoMode(screen_width, screen_height, 8, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0));
 
-  SDL_Color colors[256];
+  SDL_Window* window = SDL_CreateWindow("mdcii-sdltest", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height,
+      (fullscreen ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL);
+
+  SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+
+  SDL_Surface* s8 = SDL_CreateRGBSurface(0, screen_width, screen_height, 8, 0, 0, 0, 0);
+  SDL_Color c[256];
   int i, j;
   for (i = 0, j = 0; i < 256; i++)
   {
-    colors[i].r = palette[j++];
-    colors[i].g = palette[j++];
-    colors[i].b = palette[j++];
+    c[i].r = palette[j++];
+    c[i].g = palette[j++];
+    c[i].b = palette[j++];
   }
-  SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, colors, 0, 256);
-
-
+  SDL_SetPaletteColors(s8->format->palette, c, 0, 255);
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
+  // std::shared_ptr<MainMenu> mainMenu = std::make_shared<MainMenu>(files->instance()->find_path_for_file("basegad.dat"));
+
+  // mainMenu->Show();
 
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   Welt welt = Welt(f, haeuser);
 
   f.close();
-
-  Bildspeicher_pal8 bs(screen_width, screen_height, 0, (uint8_t*)screen->pixels, screen->pitch);
+  Bildspeicher_pal8 bs(screen_width, screen_height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
 
   Spielbildschirm spielbildschirm(bs, haeuser);
   spielbildschirm.zeichne_bild(welt, 0, 0);
-
-  SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
-
+  final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+  texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_RenderPresent(renderer);
 
   if (rate != 0)
   {
     SDL_TimerID timer_id = SDL_AddTimer(1000 / rate, timer_callback, NULL);
   }
-  Uint8* keystate = SDL_GetKeyState(NULL);
+  const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
   SDL_Event e;
+
   while (1)
   {
     SDL_WaitEvent(&e);
@@ -155,26 +166,30 @@ int main(int argc, char** argv)
         int x, y;
         SDL_GetMouseState(&x, &y);
 
-        if (keystate[SDLK_LEFT] || (fullscreen && x == 0))
+        if (keystate[SDL_SCANCODE_LEFT] || (fullscreen && x == 0))
         {
           spielbildschirm.kamera->nach_links();
         }
-        if (keystate[SDLK_RIGHT] || (fullscreen && x == screen_width - 1))
+        if (keystate[SDL_SCANCODE_RIGHT] || (fullscreen && x == screen_width - 1))
         {
           spielbildschirm.kamera->nach_rechts();
         }
-        if (keystate[SDLK_UP] || (fullscreen && y == 0))
+        if (keystate[SDL_SCANCODE_UP] || (fullscreen && y == 0))
         {
           spielbildschirm.kamera->nach_oben();
         }
-        if (keystate[SDLK_DOWN] || (fullscreen && y == screen_height - 1))
+        if (keystate[SDL_SCANCODE_DOWN] || (fullscreen && y == screen_height - 1))
         {
           spielbildschirm.kamera->nach_unten();
         }
 
         welt.simulationsschritt();
         spielbildschirm.zeichne_bild(welt, x, y);
-        SDL_UpdateRect(screen, 0, 0, screen_width, screen_height);
+        final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+        texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
         break;
       case SDL_KEYDOWN:
         if (e.key.keysym.sym == SDLK_F2)

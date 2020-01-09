@@ -287,10 +287,13 @@ void Insel::animiere_gebaeude(uint8_t x, uint8_t y)
   auto info = haeuser->get_haus(feld.bebauung);
   if (info)
   {
-    int animAnz = 1;
-    if (info.value()->AnimAnz > 0)
+    if (info.value()->AnimTime != -1)
     {
-      feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
+      int animAnz = 1;
+      if (info.value()->AnimAnz > 0)
+      {
+        feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);
+      }
     }
   }
 }
