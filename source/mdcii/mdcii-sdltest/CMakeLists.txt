@@ -1,6 +1,7 @@
 #
 # External dependencies
 #
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-psabi")
 
 SET(Boost_USE_STATIC_LIBS OFF)
@@ -8,7 +9,7 @@ SET(Boost_USE_MULTITHREAD ON)
 find_package(Boost
     1.65.1                         # Minimum or EXACT version e.g. 1.36.0
     REQUIRED                       # Fail with error if Boost is not found
-    COMPONENTS program_options     # Boost libraries by their canonical name
+    COMPONENTS  regex system iostreams program_options filesystem 
 )
 find_package(SDL2)
 
@@ -18,7 +19,7 @@ set(target mdcii-sdltest)
 # Exit here if required dependencies are not met
 message(STATUS "Application ${target}")
 
-set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/source")
+set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(sources
     ${source_path}/sdltest.cpp
@@ -66,9 +67,9 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     ${DEFAULT_LIBRARIES}
-    ${META_PROJECT_NAME}::mdcii
     ${SDL2_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${META_PROJECT_NAME}::mdcii
     
     PUBLIC
 )

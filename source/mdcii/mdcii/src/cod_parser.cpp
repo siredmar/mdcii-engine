@@ -17,6 +17,17 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "cod_parser.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/regex.hpp>
+#include <boost/variant.hpp>
+#include <regex>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <cstring>
+#include <google/protobuf/util/json_util.h>
+
 
 Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode, bool debug)
   : path(cod_file_path)
@@ -868,7 +879,7 @@ void Cod_Parser::object_finished()
 std::vector<std::string> Cod_Parser::regex_match(const std::string& regex, const std::string& str)
 {
   std::vector<std::string> ret;
-  boost::regex expr {regex};
+  boost::regex expr{regex};
   boost::smatch what;
   if (boost::regex_match(str, what, expr))
   {
@@ -883,7 +894,7 @@ std::vector<std::string> Cod_Parser::regex_match(const std::string& regex, const
 std::vector<std::string> Cod_Parser::regex_search(const std::string& regex, const std::string& str)
 {
   std::vector<std::string> ret;
-  boost::regex expr {regex};
+  boost::regex expr{regex};
   boost::smatch what;
   if (boost::regex_search(str, what, expr))
   {

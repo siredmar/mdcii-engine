@@ -19,23 +19,12 @@
 #ifndef COD_PARSER_HPP
 #define COD_PARSER_HPP
 
-#include <cstring>
 #include <experimental/optional>
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <sstream>
 #include <stack>
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/regex.hpp>
-#include <boost/variant.hpp>
-
 #include "cod.pb.h"
-#include <google/protobuf/util/json_util.h>
 
 class Cod_Parser
 {

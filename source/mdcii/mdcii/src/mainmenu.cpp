@@ -1,7 +1,7 @@
 #include "mainmenu.hpp"
 #include "SDL2/SDL.h"
 
-using namespace sdlgui;
+// using namespace sdlgui;
 
 MainMenu::MainMenu(const std::string& basegad_path, SDL_Window* pwindow, int rwidth, int rheight)
   : path(basegad_path)

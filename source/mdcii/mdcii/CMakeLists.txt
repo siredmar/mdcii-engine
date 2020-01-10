@@ -5,9 +5,13 @@
 
 # find_package(THIRDPARTY REQUIRED)
 find_package(SDL2)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-psabi")
+find_package(Boost
+    1.65.1                         # Minimum or EXACT version e.g. 1.36.0
+    REQUIRED                       # Fail with error if Boost is not found
+    COMPONENTS  regex system iostreams filesystem 
+)
 
-set(CMAKE_CXX_STANDARD 14)
-add_compile_options(-mno-ms-bitfields)
 
 # 
 # Library name and options
@@ -33,9 +37,11 @@ set(export_macro         "${target_id}_API")
 # 
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}/include/${target}")
-set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/source")
+set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(headers
+    ${include_path}/mdcii.hpp
+    ${include_path}/cod_parser.hpp
     ${include_path}/animation.hpp
     ${include_path}/basegad_dat.hpp
     ${include_path}/bildspeicher.hpp
@@ -44,7 +50,6 @@ set(headers
     ${include_path}/block.hpp
     ${include_path}/bsh_leser.hpp
     ${include_path}/bsh_schreiber.hpp
-    ${include_path}/cod_parser.hpp
     ${include_path}/files.hpp
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp
@@ -62,12 +67,13 @@ set(headers
 )
 
 set(sources
+    ${source_path}/mdcii.cpp
+    ${source_path}/cod_parser.cpp
     ${source_path}/bildspeicher.cpp
     ${source_path}/bildspeicher_pal8.cpp
     ${source_path}/bildspeicher_rgb24.cpp
     ${source_path}/block.cpp
     ${source_path}/bsh_schreiber.cpp
-    ${source_path}/cod_parser.cpp
     ${source_path}/files.cpp
     ${source_path}/insel.cpp
     ${source_path}/kamera.cpp
@@ -93,10 +99,12 @@ source_group_by_path(${source_path}  "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$"
 # 
 
 # Build library
-add_library(${target}
+add_library(${target} STATIC
     ${sources}
     ${headers}
 )
+
+target_compile_features(${target} PUBLIC cxx_std_14)
 
 # Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
@@ -172,9 +180,9 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     ${META_PROJECT_NAME}::proto-cod
+    ${Boost_LIBRARIES}
 
     PUBLIC
-    libstdc++
     ${DEFAULT_LIBRARIES}
     ${SDL2_LIBRARIES}
     INTERFACE
