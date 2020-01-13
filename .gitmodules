@@ -1,6 +1,3 @@
-[submodule "src/thirdparty/nanogui-sdl"]
-	path = src/thirdparty/nanogui-sdl
-	url = https://github.com/dalerank/nanogui-sdl.git
 [submodule "source/thirdparty/nanogui-sdl"]
 	path = source/thirdparty/nanogui-sdl
 	url = https://github.com/dalerank/nanogui-sdl.git
