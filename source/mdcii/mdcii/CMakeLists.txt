@@ -180,11 +180,12 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     ${META_PROJECT_NAME}::proto-cod
+    ${META_PROJECT_NAME}::nanogui-sdl
     ${Boost_LIBRARIES}
-
+    
     PUBLIC
     ${DEFAULT_LIBRARIES}
-    ${SDL2_LIBRARIES}
+    ${SDL2_LIBRARY}
     INTERFACE
 )
 

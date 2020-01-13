@@ -13,6 +13,7 @@ configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/${META_PROJECT_N
 
 add_subdirectory(lib)
 add_subdirectory(mdcii)
+add_subdirectory(thirdparty)
 
 # Tests
 if(OPTION_BUILD_TESTS AND NOT MINGW)
