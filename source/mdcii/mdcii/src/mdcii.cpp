@@ -127,7 +127,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);
   std::shared_ptr<MainMenu> mainMenu = std::make_shared<MainMenu>(files->instance()->find_path_for_file("basegad.dat"), window, 640, 480);
-
+#if 0
   Fps fps;
 
   bool quit = false;
@@ -167,90 +167,93 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
     std::cerr << error_msg << std::endl;
 #endif
   }
-  // std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  // std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  // Welt welt = Welt(f, haeuser);
+#else
 
-  // f.close();
-  // Bildspeicher_pal8 bs(screen_width, screen_height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
+  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
+  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  Welt welt = Welt(f, haeuser);
 
-  // Spielbildschirm spielbildschirm(bs, haeuser);
-  // spielbildschirm.zeichne_bild(welt, 0, 0);
-  // final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-  // texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-  // SDL_RenderClear(renderer);
-  // SDL_RenderCopy(renderer, texture, NULL, NULL);
-  // SDL_RenderPresent(renderer);
+  f.close();
+  Bildspeicher_pal8 bs(screen_width, screen_height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
 
-  // if (rate != 0)
-  // {
-  //   SDL_TimerID timer_id = SDL_AddTimer(1000 / rate, timer_callback, NULL);
-  // }
-  // const Uint8* keystate = SDL_GetKeyboardState(NULL);
+  Spielbildschirm spielbildschirm(bs, haeuser);
+  spielbildschirm.zeichne_bild(welt, 0, 0);
+  final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+  texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_RenderPresent(renderer);
 
-  // SDL_Event e;
+  if (rate != 0)
+  {
+    SDL_TimerID timer_id = SDL_AddTimer(1000 / rate, timer_callback, NULL);
+  }
+  const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
-  // while (1)
-  // {
-  //   SDL_WaitEvent(&e);
-  //   switch (e.type)
-  //   {
-  //     case SDL_QUIT: exit(EXIT_SUCCESS); break;
-  //     case SDL_USEREVENT:
-  //       int x, y;
-  //       SDL_GetMouseState(&x, &y);
+  SDL_Event e;
 
-  //       if (keystate[SDL_SCANCODE_LEFT] || (fullscreen && x == 0))
-  //       {
-  //         spielbildschirm.kamera->nach_links();
-  //       }
-  //       if (keystate[SDL_SCANCODE_RIGHT] || (fullscreen && x == screen_width - 1))
-  //       {
-  //         spielbildschirm.kamera->nach_rechts();
-  //       }
-  //       if (keystate[SDL_SCANCODE_UP] || (fullscreen && y == 0))
-  //       {
-  //         spielbildschirm.kamera->nach_oben();
-  //       }
-  //       if (keystate[SDL_SCANCODE_DOWN] || (fullscreen && y == screen_height - 1))
-  //       {
-  //         spielbildschirm.kamera->nach_unten();
-  //       }
+  while (1)
+  {
+    SDL_WaitEvent(&e);
+    switch (e.type)
+    {
+      case SDL_QUIT: exit(EXIT_SUCCESS); break;
+      case SDL_USEREVENT:
+        int x, y;
+        SDL_GetMouseState(&x, &y);
 
-  //       welt.simulationsschritt();
-  //       spielbildschirm.zeichne_bild(welt, x, y);
-  //       final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-  //       texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-  //       SDL_RenderClear(renderer);
-  //       SDL_RenderCopy(renderer, texture, NULL, NULL);
-  //       SDL_RenderPresent(renderer);
-  //       break;
-  //     case SDL_KEYDOWN:
-  //       if (e.key.keysym.sym == SDLK_F2)
-  //       {
-  //         spielbildschirm.kamera->setze_vergroesserung(0);
-  //       }
-  //       if (e.key.keysym.sym == SDLK_F3)
-  //       {
-  //         spielbildschirm.kamera->setze_vergroesserung(1);
-  //       }
-  //       if (e.key.keysym.sym == SDLK_F4)
-  //       {
-  //         spielbildschirm.kamera->setze_vergroesserung(2);
-  //       }
-  //       if (e.key.keysym.sym == SDLK_x)
-  //       {
-  //         spielbildschirm.kamera->rechts_drehen();
-  //       }
-  //       if (e.key.keysym.sym == SDLK_y)
-  //       {
-  //         spielbildschirm.kamera->links_drehen();
-  //       }
-  //       if (e.key.keysym.sym == SDLK_ESCAPE)
-  //       {
-  //         exit(EXIT_SUCCESS);
-  //       }
-  //       break;
-  //   }
-  // }
+        if (keystate[SDL_SCANCODE_LEFT] || (fullscreen && x == 0))
+        {
+          spielbildschirm.kamera->nach_links();
+        }
+        if (keystate[SDL_SCANCODE_RIGHT] || (fullscreen && x == screen_width - 1))
+        {
+          spielbildschirm.kamera->nach_rechts();
+        }
+        if (keystate[SDL_SCANCODE_UP] || (fullscreen && y == 0))
+        {
+          spielbildschirm.kamera->nach_oben();
+        }
+        if (keystate[SDL_SCANCODE_DOWN] || (fullscreen && y == screen_height - 1))
+        {
+          spielbildschirm.kamera->nach_unten();
+        }
+
+        welt.simulationsschritt();
+        spielbildschirm.zeichne_bild(welt, x, y);
+        final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+        texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+        break;
+      case SDL_KEYDOWN:
+        if (e.key.keysym.sym == SDLK_F2)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(0);
+        }
+        if (e.key.keysym.sym == SDLK_F3)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(1);
+        }
+        if (e.key.keysym.sym == SDLK_F4)
+        {
+          spielbildschirm.kamera->setze_vergroesserung(2);
+        }
+        if (e.key.keysym.sym == SDLK_x)
+        {
+          spielbildschirm.kamera->rechts_drehen();
+        }
+        if (e.key.keysym.sym == SDLK_y)
+        {
+          spielbildschirm.kamera->links_drehen();
+        }
+        if (e.key.keysym.sym == SDLK_ESCAPE)
+        {
+          exit(EXIT_SUCCESS);
+        }
+        break;
+    }
+  }
+#endif
 }
