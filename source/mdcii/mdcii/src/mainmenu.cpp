@@ -36,109 +36,66 @@ MainMenu::MainMenu(const std::string& basegad_path, SDL_Window* pwindow, int rwi
   , Screen(pwindow, Vector2i(rwidth, rheight), "SDL_gui Test")
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
-  // {
-  //   auto& nwindow = window("Button demo", Vector2i{15, 15}).withLayout<GroupLayout>();
-
-  //   nwindow.label("Push buttons", "sans-bold")
-  //       ._and()
-  //       .button("Plain button", [] { std::cout << "pushed!" << std::endl; })
-  //       .withTooltip("This is plain button tips");
-
-  //   nwindow.button("Styled", ENTYPO_ICON_ROCKET, [] { std::cout << "pushed!" << std::endl; }).withBackgroundColor(Color(0, 0, 255, 25));
-
-  //   nwindow.label("Toggle buttons", "sans-bold")
-  //       ._and()
-  //       .button("Toggle me", [](bool state) { std::cout << "Toggle button state: " << state << std::endl; })
-  //       .withFlags(Button::ToggleButton);
-
-  //   nwindow.label("Radio buttons", "sans-bold")._and().button("Radio button 1").withFlags(Button::RadioButton);
-
-  //   nwindow.button("Radio button 2").withFlags(Button::RadioButton)._and().label("A tool palette", "sans-bold");
-
-  //   auto& tools = nwindow.widget().boxlayout(Orientation::Horizontal, Alignment::Middle, 0, 6);
-
-  //   nwindow.label("Popup buttons", "sans-bold")
-  //       ._and()
-  //       .popupbutton("Popup", ENTYPO_ICON_EXPORT)
-  //       .popup()
-  //       .withLayout<GroupLayout>()
-  //       .label("Arbitrary widgets can be placed here")
-  //       ._and()
-  //       .checkbox("A check box")
-  //       ._and()
-  //       .popupbutton("Recursive popup", ENTYPO_ICON_FLASH)
-  //       .popup()
-  //       .withLayout<GroupLayout>()
-  //       .checkbox("Another check box");
-  // }
-
   {
-    AdvancedGridLayout* layout = new AdvancedGridLayout();
-    this->setLayout(layout);
-    layout->appendRow(100, 1);
-    layout->appendCol(100, 1);
-    auto& nwindow = window("Button demo", Vector2i{15, 15}).withLayout<AdvancedGridLayout>();
-    nwindow.setLayout(layout);
-    Button* b1 = new Button(this, "b1");
-    layout->setAnchor(b1, AdvancedGridLayout::Anchor(0, 0));
+    auto& window = wdg<Window>("Grid of small widgets");
+    window.withPosition({425, 288});
+    auto* layout = new GridLayout(Orientation::Horizontal, 2, Alignment::Middle, 15, 5);
+    layout->setColAlignment({Alignment::Maximum, Alignment::Fill});
+    layout->setSpacing(50, 10);
+    window.setLayout(layout);
 
-    // nwindow.label("Push buttons", "sans-bold")
-    //     ._and()
-    //     .button("Plain button", [] { std::cout << "pushed!" << std::endl; })
-    //     .withTooltip("This is plain button tips");
-    // nwindow.button("Styled", ENTYPO_ICON_ROCKET, [] { std::cout << "pushed!" << std::endl; }).withBackgroundColor(Color(0, 0, 255, 25));
+    window.add<Label>("Floating point :", "sans-bold");
+    auto& textBox = window.wdg<TextBox>();
+    textBox.setEditable(true);
+    textBox.setFixedSize(Vector2i(100, 20));
+    textBox.setValue("50");
+    textBox.setUnits("GiB");
+    textBox.setDefaultValue("0.0");
+    textBox.setFontSize(16);
+    textBox.setFormat("[-]?[0-9]*\\.?[0-9]+");
 
-    // nwindow.label("Toggle buttons", "sans-bold")
-    //     ._and()
-    //     .button("Toggle me", [](bool state) { std::cout << "Toggle button state: " << state << std::endl; })
-    //     .withFlags(Button::ToggleButton);
+    window.add<Label>("Positive integer :", "sans-bold");
+    auto& textBox2 = window.wdg<TextBox>();
+    textBox2.setEditable(true);
+    textBox2.setFixedSize(Vector2i(100, 20));
+    textBox2.setValue("50");
+    textBox2.setUnits("Mhz");
+    textBox2.setDefaultValue("0.0");
+    textBox2.setFontSize(16);
+    textBox2.setFormat("[1-9][0-9]*");
 
-    // nwindow.label("Radio buttons", "sans-bold")._and().button("Radio button 1").withFlags(Button::RadioButton);
+    window.add<Label>("Checkbox :", "sans-bold");
 
-    // nwindow.button("Radio button 2").withFlags(Button::RadioButton)._and().label("A tool palette", "sans-bold");
+    window.wdg<CheckBox>("Check me").withChecked(true).withFontSize(16);
 
-    // auto& tools = nwindow.widget().boxlayout(Orientation::Horizontal, Alignment::Middle, 0, 6);
+    window.add<Label>("Combo box :", "sans-bold");
+    window.wdg<ComboBox>().withItems(std::vector<std::string>{"Item 1", "Item 2", "Item 3"}).withFontSize(16).withFixedSize(Vector2i(100, 20));
 
-    // nwindow.label("Popup buttons", "sans-bold")
-    //     ._and()
-    //     .popupbutton("Popup", ENTYPO_ICON_EXPORT)
-    //     .popup()
-    //     .withLayout<GroupLayout>()
-    //     .label("Arbitrary widgets can be placed here")
-    //     ._and()
-    //     .checkbox("A check box")
-    //     ._and()
-    //     .popupbutton("Recursive popup", ENTYPO_ICON_FLASH)
-    //     .popup()
-    //     .withLayout<GroupLayout>()
-    //     .checkbox("Another check box");
+    window.add<Label>("Color button :", "sans-bold");
+    auto& popupBtn = window.wdg<PopupButton>("", 0);
+    popupBtn.setBackgroundColor(Color(255, 120, 0, 255));
+    popupBtn.setFontSize(16);
+    popupBtn.setFixedSize(Vector2i(100, 20));
+    auto& popup = popupBtn.popup().withLayout<GroupLayout>();
+
+    ColorWheel& colorwheel = popup.wdg<ColorWheel>();
+    colorwheel.setColor(popupBtn.backgroundColor());
+
+    Button& colorBtn = popup.wdg<Button>("Pick");
+    colorBtn.setFixedSize(Vector2i(100, 25));
+    Color c = colorwheel.color();
+    colorBtn.setBackgroundColor(c);
+
+    colorwheel.setCallback([&colorBtn](const Color& value) { colorBtn.setBackgroundColor(value); });
+
+    colorBtn.setChangeCallback([&colorBtn, &popupBtn](bool pushed) {
+      if (pushed)
+      {
+        popupBtn.setBackgroundColor(colorBtn.backgroundColor());
+        popupBtn.setPushed(false);
+      }
+    });
   }
 
-  // {
-  //   AdvancedGridLayout* layout = new AdvancedGridLayout();
-  //   this->setLayout(layout);
-
-  //   layout->appendRow(100, 0);
-  //   layout->appendRow(0, 1);
-  //   layout->appendCol(0, 1);
-  //   Button* b1 = new Button(this, "b1");
-  //   layout->setAnchor(b1, AdvancedGridLayout::Anchor(0, 0));
-
-  //   Widget* panel = new Widget(this);
-  //   layout->setAnchor(panel, AdvancedGridLayout::Anchor(0, 1));
-
-  //   AdvancedGridLayout* layout2 = new AdvancedGridLayout();
-  //   panel->setLayout(layout2);
-
-  //   layout2->appendCol(100, 0);
-  //   layout2->appendCol(0, 1);
-  //   layout2->appendRow(0, 1);
-
-  //   Button* b2 = new Button(panel, "b2");
-  //   layout2->setAnchor(b2, AdvancedGridLayout::Anchor(0, 0));
-
-  //   Button* b3 = new Button(panel, "b3");
-  //   layout2->setAnchor(b3, AdvancedGridLayout::Anchor(1, 0));
-  // }
   performLayout(mSDL_Renderer);
 }
