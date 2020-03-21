@@ -51,6 +51,7 @@ set(headers
     ${include_path}/bsh_leser.hpp
     ${include_path}/bsh_schreiber.hpp
     ${include_path}/files.hpp
+    ${include_path}/fps.hpp
     ${include_path}/gamewindow.hpp
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp

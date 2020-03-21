@@ -3,8 +3,10 @@
 
 #include <iostream>
 #include <memory>
-#include "basegad_dat.hpp"
+#include "haeuser.hpp"
 #include "cod_parser.hpp"
+#include "files.hpp"
+
 #include <SDL2/SDL.h>
 #include "sdlgui/window.h"
 #include "sdlgui/screen.h"
@@ -15,11 +17,17 @@ using namespace sdlgui;
 class GameWindow : public Screen
 {
 public:
-  GameWindow(const std::string& basegad_path, SDL_Window* pwindow, int rwidth, int rheight, SDL_Texture* texture);
+  GameWindow(
+      SDL_Renderer* renderer, const std::string& haeuser_cod, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen);
+  void Handle();
 
 private:
-  std::string path;
+  SDL_Renderer* renderer;
   std::shared_ptr<Cod_Parser> cod;
-  std::shared_ptr<Basegad> basegad;
+  std::shared_ptr<Haeuser> haeuser;
+  int width;
+  int height;
+  std::string gam_name;
+  bool fullscreen;
 };
 #endif
