@@ -51,6 +51,7 @@ set(headers
     ${include_path}/bsh_leser.hpp
     ${include_path}/bsh_schreiber.hpp
     ${include_path}/files.hpp
+    ${include_path}/gamewindow.hpp
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp
     ${include_path}/haeuser.hpp
@@ -75,6 +76,7 @@ set(sources
     ${source_path}/block.cpp
     ${source_path}/bsh_schreiber.cpp
     ${source_path}/files.cpp
+    ${source_path}/gamewindow.cpp
     ${source_path}/insel.cpp
     ${source_path}/kamera.cpp
     ${source_path}/karte.cpp
