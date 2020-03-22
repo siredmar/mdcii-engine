@@ -188,10 +188,12 @@ void GameWindow::Handle()
       spielbildschirm.zeichne_bild(welt, x, y);
       final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+      SDL_FreeSurface(final_surface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       this->drawAll();
       SDL_RenderPresent(renderer);
+      SDL_DestroyTexture(texture);
       fps.next();
     }
   }
@@ -204,6 +206,7 @@ void GameWindow::Handle()
     std::cerr << error_msg << std::endl;
 #endif
   }
+  SDL_FreeSurface(s8);
 }
 
 #endif

@@ -109,12 +109,12 @@ void MainMenu::Handle()
   try
   {
 
-    final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-    texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    this->drawAll();
-    SDL_RenderPresent(renderer);
+    // final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    // texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+    // SDL_RenderClear(renderer);
+    // SDL_RenderCopy(renderer, texture, NULL, NULL);
+    // this->drawAll();
+    // SDL_RenderPresent(renderer);
 
     Fps fps;
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
@@ -146,10 +146,12 @@ void MainMenu::Handle()
 
       final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+      SDL_FreeSurface(final_surface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       this->drawAll();
       SDL_RenderPresent(renderer);
+      SDL_DestroyTexture(texture);
       fps.next();
     }
   }
@@ -162,4 +164,5 @@ void MainMenu::Handle()
     std::cerr << error_msg << std::endl;
 #endif
   }
+  SDL_FreeSurface(s8);
 }
