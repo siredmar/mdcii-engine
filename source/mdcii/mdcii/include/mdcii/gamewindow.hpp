@@ -1,16 +1,35 @@
+// This file is part of the MDCII Game Engine.
+// Copyright (C) 2020  Armin Schlegel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 #ifndef GAMEWINDOW_H_
 #define GAMEWINDOW_H_
 
 #include <iostream>
 #include <memory>
-#include "haeuser.hpp"
-#include "cod_parser.hpp"
-#include "files.hpp"
 
 #include <SDL2/SDL.h>
-#include "sdlgui/window.h"
-#include "sdlgui/screen.h"
+
 #include "sdlgui/imageview.h"
+#include "sdlgui/screen.h"
+#include "sdlgui/window.h"
+
+#include "cod_parser.hpp"
+#include "files.hpp"
+#include "haeuser.hpp"
 
 using namespace sdlgui;
 
@@ -18,16 +37,16 @@ class GameWindow : public Screen
 {
 public:
   GameWindow(
-      SDL_Renderer* renderer, const std::string& haeuser_cod, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen);
+      SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen);
   void Handle();
 
 private:
   SDL_Renderer* renderer;
-  std::shared_ptr<Cod_Parser> cod;
   std::shared_ptr<Haeuser> haeuser;
   int width;
   int height;
   std::string gam_name;
   bool fullscreen;
+  bool running;
 };
 #endif
