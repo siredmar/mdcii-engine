@@ -15,20 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-#include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 #include <inttypes.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
 
 #include <fstream>
 
-#include "bsh_leser.hpp"
-#include "bildspeicher_pal8.hpp"
-#include "insel.hpp"
-#include "cod_parser.hpp"
-#include "files.hpp"
-#include "version.hpp"
+#include "mdcii/bildspeicher_pal8.hpp"
+#include "mdcii/bsh_leser.hpp"
+#include "mdcii/cod_parser.hpp"
+#include "mdcii/files.hpp"
+#include "mdcii/insel.hpp"
+#include "mdcii/version.hpp"
 
 
 #define XRASTER 32
