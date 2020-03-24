@@ -69,7 +69,7 @@ MainMenu::MainMenu(
   {
     auto& label = wdg<Label>("Tesetlabel", "sans-bold");
     label.setPosition(100, 500);
-    auto& button1 = wdg<Button>("Button", [this] {
+    auto& button1 = wdg<Button>("Start Game", [this] {
       std::cout << "loading game: " << this->gam_name << std::endl;
       this->LoadGame(this->gam_name);
     });
