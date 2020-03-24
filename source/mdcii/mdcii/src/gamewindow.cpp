@@ -1,59 +1,82 @@
+
+// This file is part of the MDCII Game Engine.
+// Copyright (C) 2020  Armin Schlegel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 #ifndef _GAMEWINDOW_H_
 #define _GAMEWINDOW_H_
 
 #include <iostream>
 
-#include "fps.hpp"
-#include "palette.hpp"
-#include "gamewindow.hpp"
-#include "files.hpp"
-#include "kamera.hpp"
-#include "bildspeicher_pal8.hpp"
-#include "spielbildschirm.hpp"
-#include "cod_parser.hpp"
-
 #include "SDL2/SDL.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-#include "sdlgui/layout.h"
-#include "sdlgui/label.h"
-#include "sdlgui/checkbox.h"
+
 #include "sdlgui/button.h"
-#include "sdlgui/toolbutton.h"
-#include "sdlgui/popupbutton.h"
+#include "sdlgui/checkbox.h"
+#include "sdlgui/colorwheel.h"
 #include "sdlgui/combobox.h"
 #include "sdlgui/dropdownbox.h"
-#include "sdlgui/progressbar.h"
 #include "sdlgui/entypo.h"
-#include "sdlgui/messagedialog.h"
-#include "sdlgui/textbox.h"
-#include "sdlgui/slider.h"
+#include "sdlgui/formhelper.h"
+#include "sdlgui/graph.h"
 #include "sdlgui/imagepanel.h"
 #include "sdlgui/imageview.h"
-#include "sdlgui/vscrollpanel.h"
-#include "sdlgui/colorwheel.h"
-#include "sdlgui/graph.h"
-#include "sdlgui/tabwidget.h"
+#include "sdlgui/label.h"
+#include "sdlgui/layout.h"
+#include "sdlgui/messagedialog.h"
+#include "sdlgui/popupbutton.h"
+#include "sdlgui/progressbar.h"
+#include "sdlgui/screen.h"
+#include "sdlgui/slider.h"
 #include "sdlgui/switchbox.h"
-#include "sdlgui/formhelper.h"
+#include "sdlgui/tabwidget.h"
+#include "sdlgui/textbox.h"
+#include "sdlgui/toolbutton.h"
+#include "sdlgui/vscrollpanel.h"
+#include "sdlgui/window.h"
+
+#include "bildspeicher_pal8.hpp"
+#include "cod_parser.hpp"
+#include "files.hpp"
+#include "fps.hpp"
+#include "gamewindow.hpp"
+#include "kamera.hpp"
+#include "palette.hpp"
+#include "spielbildschirm.hpp"
 
 using namespace sdlgui;
 
 GameWindow::GameWindow(
-    SDL_Renderer* renderer, const std::string& haeuser_cod, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen)
+    SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen)
   : renderer(renderer)
-  , cod(std::make_shared<Cod_Parser>(haeuser_cod, true, false))
-  , haeuser(std::make_shared<Haeuser>(cod))
+  , haeuser(haeuser)
   , width(rwidth)
   , height(rheight)
   , gam_name(gam_name)
   , fullscreen(fullscreen)
+  , running(true)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game")
 {
   std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
   {
-    auto& button1 = wdg<Button>("Button", [] { std::cout << "clicked" << std::endl; });
-    button1.setPosition(rwidth - 250, rheight - 40);
+    auto& button1 = wdg<Button>("Exit", [this] {
+      std::cout << "Leaving game" << std::endl;
+      this->running = false;
+    });
+    button1.setSize(sdlgui::Vector2i{100, 20});
+    button1.setPosition(rwidth - 50, rheight - 30);
   }
 
   performLayout(mSDL_Renderer);
@@ -101,16 +124,17 @@ void GameWindow::Handle()
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     SDL_Event e;
-    bool quit = false;
-    while (!quit)
+    while (running)
     {
       while (SDL_PollEvent(&e) != 0)
       {
         switch (e.type)
         {
-          this->onEvent(e);
-          case SDL_QUIT: quit = true; break;
-          case SDL_USEREVENT: break;
+          case SDL_QUIT:
+            running = false;
+            break;
+          case SDL_USEREVENT:
+            break;
           case SDL_KEYDOWN:
             if (e.key.keysym.sym == SDLK_F2)
             {
@@ -134,10 +158,11 @@ void GameWindow::Handle()
             }
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
-              quit = true;
+              running = false;
             }
             break;
         }
+        this->onEvent(e);
       }
       int x, y;
       SDL_GetMouseState(&x, &y);
@@ -163,10 +188,12 @@ void GameWindow::Handle()
       spielbildschirm.zeichne_bild(welt, x, y);
       final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+      SDL_FreeSurface(final_surface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       this->drawAll();
       SDL_RenderPresent(renderer);
+      SDL_DestroyTexture(texture);
       fps.next();
     }
   }
@@ -179,6 +206,7 @@ void GameWindow::Handle()
     std::cerr << error_msg << std::endl;
 #endif
   }
+  SDL_FreeSurface(s8);
 }
 
 #endif

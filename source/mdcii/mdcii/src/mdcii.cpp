@@ -1,22 +1,24 @@
-#include <stdlib.h>
 #include <inttypes.h>
-#include <SDL2/SDL.h>
 #include <iostream>
+#include <stdlib.h>
 #include <string>
+
 #include <boost/program_options.hpp>
 
-#include "fps.hpp"
-#include "mdcii.hpp"
-#include "palette.hpp"
-#include "kamera.hpp"
+#include <SDL2/SDL.h>
+
 #include "bildspeicher_pal8.hpp"
-#include "spielbildschirm.hpp"
 #include "cod_parser.hpp"
 #include "files.hpp"
 #include "files_to_check.hpp"
-#include "version.hpp"
-#include "mainmenu.hpp"
+#include "fps.hpp"
 #include "gamewindow.hpp"
+#include "kamera.hpp"
+#include "mainmenu.hpp"
+#include "mdcii.hpp"
+#include "palette.hpp"
+#include "spielbildschirm.hpp"
+#include "version.hpp"
 
 
 namespace po = boost::program_options;
@@ -86,6 +88,15 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-  GameWindow gameWindow(renderer, files->instance()->find_path_for_file("haeuser.cod"), window, screen_width, screen_height, gam_name, fullscreen);
-  gameWindow.Handle();
+
+  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
+  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("basegad.dat"), false, false);
+  auto basegad = std::make_shared<Basegad>(basegad_dat);
+
+  // GameWindow gameWindow(renderer, haeuser, window, screen_width, screen_height, gam_name, fullscreen);
+  // gameWindow.Handle();
+
+  MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen, gam_name);
+  mainMenu.Handle();
 }
