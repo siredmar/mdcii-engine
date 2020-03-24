@@ -1,2 +1,8 @@
 add_subdirectory(mdcii)
 add_subdirectory(mdcii-sdltest)
+add_subdirectory(bshdump)
+add_subdirectory(bshpacker)
+add_subdirectory(codcat)
+add_subdirectory(weltbmp)
+add_subdirectory(inselbmp)
+add_subdirectory(zeitext)

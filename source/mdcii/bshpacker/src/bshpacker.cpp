@@ -16,11 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <iostream>
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
+#include <iostream>
 
-#include "bsh_schreiber.hpp"
+#include "mdcii/bsh_schreiber.hpp"
 
 namespace po = boost::program_options;
 
