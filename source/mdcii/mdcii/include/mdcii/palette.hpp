@@ -1,3 +1,5 @@
+#ifndef _PALETTE_HPP
+#define _PALETTE_HPP
 // clang-format off
 const unsigned char palette[768] =
 {
@@ -258,3 +260,4 @@ const unsigned char palette[768] =
     0x00, 0xff, 0xff,
     0xff, 0xff, 0xff
 };
+#endif

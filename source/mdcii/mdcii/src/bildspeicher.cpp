@@ -228,3 +228,8 @@ void Bildspeicher::bild_loeschen()
 {
   // in einer Unterklasse implementiert
 }
+
+uint8_t* Bildspeicher::get_buffer()
+{
+  // in einer Unterklasse implementiert
+}

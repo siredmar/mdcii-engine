@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <string.h>
-#include <fstream>
 #include "bildspeicher_pal8.hpp"
 #include "palette.hpp"
+#include <fstream>
+#include <string.h>
 
 Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 1, farbe, puffer, pufferbreite)
@@ -236,4 +236,10 @@ void Bildspeicher_pal8::bild_loeschen()
 {
   for (int i = 0; i < breite * hoehe; i++)
     puffer[i] = farbe;
+}
+
+
+uint8_t* Bildspeicher_pal8::get_buffer()
+{
+  return puffer;
 }

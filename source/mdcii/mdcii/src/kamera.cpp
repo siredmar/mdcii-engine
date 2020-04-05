@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <string>
 #include "kamera.hpp"
 #include "files.hpp"
 #include "haeuser.hpp"
+#include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
@@ -257,10 +257,18 @@ void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int kart
   int y = karte_y - ypos;
   switch (drehung)
   {
-    case 0: bildschirm_z = x + y; break;
-    case 1: bildschirm_z = x - y; break;
-    case 2: bildschirm_z = -(x + y); break;
-    case 3: bildschirm_z = -(x - y); break;
+    case 0:
+      bildschirm_z = x + y;
+      break;
+    case 1:
+      bildschirm_z = x - y;
+      break;
+    case 2:
+      bildschirm_z = -(x + y);
+      break;
+    case 3:
+      bildschirm_z = -(x - y);
+      break;
   }
   bildschirm_y -= karte_z * grundhoehe[vergroesserung];
   bildschirm_z *= 256;
@@ -384,13 +392,26 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int index;
     switch (schiff.typ)
     {
-      case 0x15: index = 0; break;  // kleines Handelsschiff
-      case 0x17: index = 32; break; // großes Handelsschiff
-      case 0x1b: index = 48; break; // großes Kriegsschiff
-      case 0x1d: index = 16; break; // fliegender Händler
-      case 0x19: index = 64; break; // kleines Kriegsschiff
-      case 0x1f: index = 80; break; // Piratenschiff     TODO: fahrender Händler (0x25)
-      default: index = 0;
+      case 0x15:
+        index = 0;
+        break; // kleines Handelsschiff
+      case 0x17:
+        index = 32;
+        break; // großes Handelsschiff
+      case 0x1b:
+        index = 48;
+        break; // großes Kriegsschiff
+      case 0x1d:
+        index = 16;
+        break; // fliegender Händler
+      case 0x19:
+        index = 64;
+        break; // kleines Kriegsschiff
+      case 0x1f:
+        index = 80;
+        break; // Piratenschiff     TODO: fahrender Händler (0x25)
+      default:
+        index = 0;
     }
     int bs_x, bs_y, bs_z;
     auf_bildschirm(bs, schiff.x_pos, schiff.y_pos, 0, bs_x, bs_y, bs_z);
@@ -417,24 +438,59 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int index;
     switch (soldat.typ)
     {
-      case 1: index = 0; break;     // Infanterist, rot
-      case 2: index = 280; break;   // Infanterist, blau
-      case 3: index = 560; break;   // Infanterist, gelb
-      case 4: index = 840; break;   // Infanterist, grau
-      case 5: index = 1120; break;  // Kavallerist, rot
-      case 6: index = 1424; break;  // Kavallerist, blau
-      case 7: index = 1728; break;  // Kavallerist, gelb
-      case 8: index = 2032; break;  // Kavallerist, grau
-      case 9: index = 3200; break;  // Musketier, rot
-      case 10: index = 3336; break; // Musketier, blau
-      case 11: index = 3472; break; // Musketier, gelb
-      case 12: index = 3608; break; // Musketier, grau
-      case 13: index = 2336; break; // Kanonier, rot
-      case 14: index = 2552; break; // Kanonier, blau
-      case 15: index = 2768; break; // Kanonier, gelb
-      case 16: index = 2984; break; // Kanonier, grau
-      case 33: index = 3744; break; // Eingeborener
-      default: index = 0;
+      case 1:
+        index = 0;
+        break; // Infanterist, rot
+      case 2:
+        index = 280;
+        break; // Infanterist, blau
+      case 3:
+        index = 560;
+        break; // Infanterist, gelb
+      case 4:
+        index = 840;
+        break; // Infanterist, grau
+      case 5:
+        index = 1120;
+        break; // Kavallerist, rot
+      case 6:
+        index = 1424;
+        break; // Kavallerist, blau
+      case 7:
+        index = 1728;
+        break; // Kavallerist, gelb
+      case 8:
+        index = 2032;
+        break; // Kavallerist, grau
+      case 9:
+        index = 3200;
+        break; // Musketier, rot
+      case 10:
+        index = 3336;
+        break; // Musketier, blau
+      case 11:
+        index = 3472;
+        break; // Musketier, gelb
+      case 12:
+        index = 3608;
+        break; // Musketier, grau
+      case 13:
+        index = 2336;
+        break; // Kanonier, rot
+      case 14:
+        index = 2552;
+        break; // Kanonier, blau
+      case 15:
+        index = 2768;
+        break; // Kanonier, gelb
+      case 16:
+        index = 2984;
+        break; // Kanonier, grau
+      case 33:
+        index = 3744;
+        break; // Eingeborener
+      default:
+        index = 0;
     }
     Bsh_bild& bsh = soldat_bsh[vergroesserung]->gib_bsh_bild(index + soldat.richtung * 8); // FIXME
     int bs_x, bs_y, bs_z;

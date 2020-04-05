@@ -44,6 +44,7 @@
 #include "sdlgui/vscrollpanel.h"
 #include "sdlgui/window.h"
 
+#include "bsh_texture.hpp"
 #include "cod_parser.hpp"
 #include "files.hpp"
 #include "fps.hpp"
@@ -66,17 +67,29 @@ MainMenu::MainMenu(
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game")
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
-  {
-    auto& label = wdg<Label>("Tesetlabel", "sans-bold");
-    label.setPosition(100, 500);
-    auto& button1 = wdg<Button>("Start Game", [this] {
-      std::cout << "loading game: " << this->gam_name << std::endl;
-      this->LoadGame(this->gam_name);
-    });
-    button1.setPosition(200, 200);
-  }
+  Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start8.bsh"));
+  BshImageToSDLTextureConverter converter(renderer);
 
-  performLayout(mSDL_Renderer);
+
+  SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(0));
+
+
+  Cod_Parser baseGad(files->instance()->find_path_for_file("base.gad"), false, false);
+  std::cout << SDL_RenderCopy(renderer, singlePlayerTexture, NULL, NULL) << std::endl;
+  SDL_RenderPresent(renderer);
+  // {
+  //   auto& label = wdg<Label>("Tesetlabel", "sans-bold");
+  //   label.setPosition(100, 500);
+  //   auto& button1 = wdg<Button>("Start Game", [this] {
+  //     std::cout << "loading game: " << this->gam_name << std::endl;
+  //     this->LoadGame(this->gam_name);
+  //   });
+  //   button1.setPosition(200, 200);
+  //   // auto& singlePlayerButton = wdg<ImageView>(singlePlayerTexture);
+  //   // singlePlayerButton.setPosition(113, 382);
+  // }
+
+  // performLayout(mSDL_Renderer);
 }
 
 void MainMenu::LoadGame(const std::string& gam_name)
@@ -144,14 +157,14 @@ void MainMenu::Handle()
       int x, y;
       SDL_GetMouseState(&x, &y);
 
-      final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-      texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-      SDL_FreeSurface(final_surface);
-      SDL_RenderClear(renderer);
-      SDL_RenderCopy(renderer, texture, NULL, NULL);
-      this->drawAll();
-      SDL_RenderPresent(renderer);
-      SDL_DestroyTexture(texture);
+      // final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+      // texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+      // SDL_FreeSurface(final_surface);
+      // SDL_RenderClear(renderer);
+      // SDL_RenderCopy(renderer, texture, NULL, NULL);
+      // this->drawAll();
+      // SDL_RenderPresent(renderer);
+      // SDL_DestroyTexture(texture);
       fps.next();
     }
   }

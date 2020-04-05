@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <string.h>
-#include <fstream>
 #include "bildspeicher_rgb24.hpp"
 #include "palette.hpp"
+#include <fstream>
+#include <string.h>
 
 Bildspeicher_rgb24::Bildspeicher_rgb24(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 3, farbe, puffer, pufferbreite)
@@ -173,4 +173,9 @@ void Bildspeicher_rgb24::bild_loeschen()
     puffer[i + 1] = farbe >> 8;
     puffer[i + 2] = farbe >> 16;
   }
+}
+
+uint8_t* Bildspeicher_rgb24::get_buffer()
+{
+  return puffer;
 }
