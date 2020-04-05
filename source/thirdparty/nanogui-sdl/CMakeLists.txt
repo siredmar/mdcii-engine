@@ -122,6 +122,7 @@ set(headers
   ${include_path}/tabheader.h
   ${include_path}/tabwidget.h
   ${include_path}/textbox.h
+  ${include_path}/texturebutton.h
   ${include_path}/theme.h
   ${include_path}/toolbutton.h
   ${include_path}/vscrollpanel.h
@@ -156,6 +157,7 @@ set(sources
   ${source_path}/tabheader.cpp
   ${source_path}/tabwidget.cpp
   ${source_path}/textbox.cpp
+  ${source_path}/texturebutton.cpp
   ${source_path}/theme.cpp
   ${source_path}/vscrollpanel.cpp
   ${source_path}/widget.cpp
