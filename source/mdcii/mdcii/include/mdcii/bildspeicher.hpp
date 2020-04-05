@@ -19,9 +19,9 @@
 #ifndef BILDSPEICHER_HPP
 #define BILDSPEICHER_HPP
 
-#include <inttypes.h>
 #include "bsh_leser.hpp"
 #include "zei_leser.hpp"
+#include <inttypes.h>
 
 class Bildspeicher
 {
@@ -53,6 +53,7 @@ public:
   virtual void exportiere_pnm(const char* pfadname);
   virtual void exportiere_bmp(const char* pfadname);
   virtual void bild_loeschen();
+  virtual uint8_t* get_buffer();
 };
 
 #endif

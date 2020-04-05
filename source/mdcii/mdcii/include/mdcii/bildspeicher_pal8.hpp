@@ -19,9 +19,9 @@
 #ifndef BILDSPEICHER_PAL8_HPP
 #define BILDSPEICHER_PAL8_HPP
 
-#include <inttypes.h>
-#include "bsh_leser.hpp"
 #include "bildspeicher.hpp"
+#include "bsh_leser.hpp"
+#include <inttypes.h>
 
 class Bildspeicher_pal8 : public Bildspeicher
 {
@@ -37,6 +37,7 @@ public:
   void exportiere_pnm(const char* pfadname);
   void exportiere_bmp(const char* pfadname);
   void bild_loeschen();
+  uint8_t* get_buffer();
 };
 
 #endif

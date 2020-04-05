@@ -19,9 +19,9 @@
 #ifndef BILDSPEICHER_RGB24_HPP
 #define BILDSPEICHER_RGB24_HPP
 
-#include <inttypes.h>
-#include "bsh_leser.hpp"
 #include "bildspeicher.hpp"
+#include "bsh_leser.hpp"
+#include <inttypes.h>
 
 class Bildspeicher_rgb24 : public Bildspeicher
 {
@@ -35,6 +35,7 @@ public:
   void exportiere_pnm(const char* pfadname);
   void exportiere_bmp(const char* pfadname);
   void bild_loeschen();
+  uint8_t* get_buffer();
 };
 
 #endif

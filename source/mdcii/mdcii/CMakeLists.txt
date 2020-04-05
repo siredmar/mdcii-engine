@@ -50,6 +50,7 @@ set(headers
     ${include_path}/block.hpp
     ${include_path}/bsh_leser.hpp
     ${include_path}/bsh_schreiber.hpp
+    ${include_path}/bsh_texture.hpp
     ${include_path}/files.hpp
     ${include_path}/fps.hpp
     ${include_path}/gamewindow.hpp
