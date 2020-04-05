@@ -16,12 +16,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <stdlib.h>
-#include <inttypes.h>
 #include <SDL2/SDL.h>
-#include <iostream>
-#include <string>
 #include <boost/program_options.hpp>
+#include <inttypes.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string>
 
 #include "mdcii/mdcii.hpp"
 
@@ -32,8 +32,8 @@ int main(int argc, char** argv)
   // clang-format off
   po::options_description desc("Zulässige Optionen");
   desc.add_options()
-    ("width,W", po::value<int>()->default_value(800), "Bildschirmbreite")
-    ("height,H", po::value<int>()->default_value(600), "Bildschirmhöhe")
+    ("width,W", po::value<int>()->default_value(1024), "Bildschirmbreite")
+    ("height,H", po::value<int>()->default_value(768), "Bildschirmhöhe")
     ("fullscreen,F", po::value<bool>()->default_value(false), "Vollbildmodus (true/false)")
     ("rate,r", po::value<int>()->default_value(10), "Bildrate")
     ("load,l", po::value<std::string>()->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)")
