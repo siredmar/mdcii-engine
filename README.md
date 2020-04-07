@@ -7,6 +7,16 @@ Gegenwärtig enthält das Projekt die Programme [`mdcii-bshdump`](doc/mdcii-bshd
 
 Das komplexeste dieser Programme ist [`mdcii-sdltest`](doc/mdcii-sdltest.md), das Spielstände von ANNO 1602 animiert und navigierbar darstellen kann.
 
+How to build
+------------
+Clone the repo
+```
+mkdir build
+cd build
+cmake ..
+make -j8
+```
+The main program is called `mdcii-sdltest`.
 
 Installation
 ------------
@@ -23,10 +33,6 @@ Die erforderlichen Ordner sind:
 - Inselordner
   - `nord`: Nördliche Inseln
   - `sued`: Südliche Inseln
-
-Stammen die Dateien von der unerweiterten Originalversion oder der Demoversion, muss `grafiken_1602.txt`, umbennant zu `grafiken.txt`, als Index benutzt werden.
-Die üblicherweise in den Ausgabeordner kopierte `grafiken.txt` indiziert die Grafikdateien der NINA-Erweiterung.
-
 
 Lizenz
 ------
