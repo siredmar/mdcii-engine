@@ -79,12 +79,14 @@ set(sources
     ${source_path}/bildspeicher_trans_pal8.cpp
     ${source_path}/block.cpp
     ${source_path}/bsh_schreiber.cpp
+    ${source_path}/bsh_texture.cpp
     ${source_path}/files.cpp
     ${source_path}/gamewindow.cpp
     ${source_path}/insel.cpp
     ${source_path}/kamera.cpp
     ${source_path}/karte.cpp
     ${source_path}/mainmenu.cpp
+    ${source_path}/palette.cpp
     ${source_path}/spielbildschirm.cpp
     ${source_path}/strukturen.cpp
     ${source_path}/version.cpp

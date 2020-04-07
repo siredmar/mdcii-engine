@@ -19,9 +19,10 @@
 #ifndef BILDSPEICHER_RGB24_HPP
 #define BILDSPEICHER_RGB24_HPP
 
+#include <inttypes.h>
+
 #include "bildspeicher.hpp"
 #include "bsh_leser.hpp"
-#include <inttypes.h>
 
 class Bildspeicher_rgb24 : public Bildspeicher
 {

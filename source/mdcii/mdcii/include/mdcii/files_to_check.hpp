@@ -4,33 +4,21 @@
 #include <string>
 #include <vector>
 
+// clang-format off
 std::vector<std::string> files_to_check = {
     {"sgfx/effekte.bsh"},
-
     {"mgfx/effekte.bsh"},
-
     {"gfx/effekte.bsh"},
-
     {"sgfx/ship.bsh"},
-
     {"mgfx/ship.bsh"},
-
     {"gfx/ship.bsh"},
-
     {"sgfx/soldat.bsh"},
-
     {"mgfx/soldat.bsh"},
-
     {"gfx/soldat.bsh"},
-
     {"sgfx/stadtfld.bsh"},
-
     {"mgfx/stadtfld.bsh"},
-
     {"gfx/stadtfld.bsh"},
-
     {"toolgfx/zei16g.zei"},
-
     //, "sgfx/numbers.bsh"},
     //, "mgfx/numbers.bsh"},
     //, "gfx/numbers.bsh"},
@@ -44,5 +32,6 @@ std::vector<std::string> files_to_check = {
     //, "mgfx/maeher.bsh"},
     //, "gfx/maeher.bsh"},
 };
+// clang-format on
 
 #endif

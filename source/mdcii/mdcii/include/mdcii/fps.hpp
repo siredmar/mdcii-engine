@@ -18,6 +18,7 @@
 // Based on nanogui-sdl by Dalerank <dalerankn8@gmail.com>
 #ifndef FPS_H_
 #define FPS_H_
+
 #include <SDL2/SDL.h>
 
 class Fps
