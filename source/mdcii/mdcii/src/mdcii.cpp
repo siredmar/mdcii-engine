@@ -91,7 +91,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
 
   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("basegad.dat"), false, false);
+  auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("base.gad"), false, false);
   auto basegad = std::make_shared<Basegad>(basegad_dat);
 
   // GameWindow gameWindow(renderer, haeuser, window, screen_width, screen_height, gam_name, fullscreen);
