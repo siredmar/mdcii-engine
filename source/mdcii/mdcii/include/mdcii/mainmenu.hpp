@@ -49,6 +49,7 @@ private:
   int height;
   bool fullscreen;
   std::string gam_name;
+  bool triggerStartGame;
   SDL_Window* pwindow;
   Files* files;
 };

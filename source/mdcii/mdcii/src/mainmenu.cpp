@@ -47,6 +47,7 @@ MainMenu::MainMenu(
   , gam_name(gam_name)
   , pwindow(pwindow)
   , files(Files::instance())
+  , triggerStartGame(false)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
@@ -79,7 +80,7 @@ MainMenu::MainMenu(
     wdg<TextureView>(background);
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
-      this->LoadGame(this->gam_name);
+      triggerStartGame = true;
     });
     singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
@@ -181,6 +182,11 @@ void MainMenu::Handle()
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
+      if (triggerStartGame)
+      {
+        triggerStartGame = false;
+        this->LoadGame(this->gam_name);
+      }
       this->drawAll();
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(texture);
