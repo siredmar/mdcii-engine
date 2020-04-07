@@ -56,12 +56,16 @@ void Bildspeicher_trans_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y
   // Read until we reach the end marker
   while (true)
   {
-
     int numAlpha = *(quelle++);
 
     // End marker
     if (numAlpha == 255)
     {
+      int rest = this->pufferbreite - x;
+      for (int i = x; i < x + rest; i++)
+      {
+        puffer[y * pufferbreite + i] = transparent;
+      }
       break;
     }
 
@@ -71,7 +75,7 @@ void Bildspeicher_trans_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y
       int rest = this->pufferbreite - x;
       for (int i = x; i < x + rest; i++)
       {
-        puffer[y * pufferbreite + i] = 253;
+        puffer[y * pufferbreite + i] = transparent;
       }
       x = 0;
       y++;
@@ -81,7 +85,7 @@ void Bildspeicher_trans_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y
     // Pixel data
     for (int i = 0; i < numAlpha; i++)
     {
-      puffer[y * pufferbreite + x] = 253;
+      puffer[y * pufferbreite + x] = transparent;
       x++;
     }
     int numPixels = *(quelle++);

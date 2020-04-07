@@ -20,29 +20,11 @@
 
 #include "SDL2/SDL.h"
 
-#include "sdlgui/button.h"
-#include "sdlgui/checkbox.h"
-#include "sdlgui/colorwheel.h"
-#include "sdlgui/combobox.h"
-#include "sdlgui/dropdownbox.h"
-#include "sdlgui/entypo.h"
-#include "sdlgui/formhelper.h"
-#include "sdlgui/graph.h"
-#include "sdlgui/imagepanel.h"
-#include "sdlgui/imageview.h"
-#include "sdlgui/label.h"
 #include "sdlgui/layout.h"
 #include "sdlgui/messagedialog.h"
-#include "sdlgui/popupbutton.h"
-#include "sdlgui/progressbar.h"
 #include "sdlgui/screen.h"
-#include "sdlgui/slider.h"
-#include "sdlgui/switchbox.h"
-#include "sdlgui/tabwidget.h"
-#include "sdlgui/textbox.h"
 #include "sdlgui/texturebutton.h"
-#include "sdlgui/toolbutton.h"
-#include "sdlgui/vscrollpanel.h"
+#include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
 
 #include "bsh_texture.hpp"
@@ -94,7 +76,7 @@ MainMenu::MainMenu(
   SDL_Texture* exitTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(exitButtonGad->Gfxnr + exitButtonGad->Pressoff));
 
   {
-    wdg<TextureButton>(background);
+    wdg<TextureView>(background);
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
       this->LoadGame(this->gam_name);
