@@ -20,28 +20,11 @@
 
 #include "SDL2/SDL.h"
 
-#include "sdlgui/button.h"
-#include "sdlgui/checkbox.h"
-#include "sdlgui/colorwheel.h"
-#include "sdlgui/combobox.h"
-#include "sdlgui/dropdownbox.h"
-#include "sdlgui/entypo.h"
-#include "sdlgui/formhelper.h"
-#include "sdlgui/graph.h"
-#include "sdlgui/imagepanel.h"
-#include "sdlgui/imageview.h"
-#include "sdlgui/label.h"
 #include "sdlgui/layout.h"
 #include "sdlgui/messagedialog.h"
-#include "sdlgui/popupbutton.h"
-#include "sdlgui/progressbar.h"
 #include "sdlgui/screen.h"
-#include "sdlgui/slider.h"
-#include "sdlgui/switchbox.h"
-#include "sdlgui/tabwidget.h"
-#include "sdlgui/textbox.h"
-#include "sdlgui/toolbutton.h"
-#include "sdlgui/vscrollpanel.h"
+#include "sdlgui/texturebutton.h"
+#include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
 
 #include "bsh_texture.hpp"
@@ -64,32 +47,68 @@ MainMenu::MainMenu(
   , gam_name(gam_name)
   , pwindow(pwindow)
   , files(Files::instance())
-  , Screen(pwindow, Vector2i(rwidth, rheight), "Game")
+  , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
-  Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start8.bsh"));
+  Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
+  SDL_Texture* background = converter.Convert(&bsh_leser.gib_bsh_bild(0));
 
-  SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(0));
+  auto singlePlayerButtonGad = basegad->get_gadgets_by_index(2);
+  SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr));
+  SDL_Texture* singlePlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr + singlePlayerButtonGad->Pressoff));
 
+  auto multiPlayerButtonGad = basegad->get_gadgets_by_index(3);
+  SDL_Texture* multiPlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(multiPlayerButtonGad->Gfxnr));
+  SDL_Texture* multiPlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(multiPlayerButtonGad->Gfxnr + multiPlayerButtonGad->Pressoff));
 
-  Cod_Parser baseGad(files->instance()->find_path_for_file("base.gad"), false, false);
-  std::cout << SDL_RenderCopy(renderer, singlePlayerTexture, NULL, NULL) << std::endl;
-  SDL_RenderPresent(renderer);
-  // {
-  //   auto& label = wdg<Label>("Tesetlabel", "sans-bold");
-  //   label.setPosition(100, 500);
-  //   auto& button1 = wdg<Button>("Start Game", [this] {
-  //     std::cout << "loading game: " << this->gam_name << std::endl;
-  //     this->LoadGame(this->gam_name);
-  //   });
-  //   button1.setPosition(200, 200);
-  //   // auto& singlePlayerButton = wdg<ImageView>(singlePlayerTexture);
-  //   // singlePlayerButton.setPosition(113, 382);
-  // }
+  auto creditsButtonGad = basegad->get_gadgets_by_index(4);
+  SDL_Texture* creditsTexture = converter.Convert(&bsh_leser.gib_bsh_bild(creditsButtonGad->Gfxnr));
+  SDL_Texture* creditsTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(creditsButtonGad->Gfxnr + creditsButtonGad->Pressoff));
 
-  // performLayout(mSDL_Renderer);
+  auto introButtonGad = basegad->get_gadgets_by_index(5);
+  SDL_Texture* introTexture = converter.Convert(&bsh_leser.gib_bsh_bild(introButtonGad->Gfxnr));
+  SDL_Texture* introTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(introButtonGad->Gfxnr + introButtonGad->Pressoff));
+
+  auto exitButtonGad = basegad->get_gadgets_by_index(6);
+  SDL_Texture* exitTexture = converter.Convert(&bsh_leser.gib_bsh_bild(exitButtonGad->Gfxnr));
+  SDL_Texture* exitTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(exitButtonGad->Gfxnr + exitButtonGad->Pressoff));
+
+  {
+    wdg<TextureView>(background);
+    auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
+      std::cout << "Singleplayer pressed" << std::endl;
+      this->LoadGame(this->gam_name);
+    });
+    singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
+    singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
+    singlePlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& multiPlayerButton = wdg<TextureButton>(multiPlayerTexture, [this] { std::cout << "Multiplayer pressed" << std::endl; });
+    multiPlayerButton.setPosition(multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y);
+    multiPlayerButton.setSecondaryTexture(multiPlayerTextureClicked);
+    multiPlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& creditsButton = wdg<TextureButton>(creditsTexture, [this] { std::cout << "credits pressed" << std::endl; });
+    creditsButton.setPosition(creditsButtonGad->Pos.x, creditsButtonGad->Pos.y);
+    creditsButton.setSecondaryTexture(creditsTextureClicked);
+    creditsButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& introButton = wdg<TextureButton>(introTexture, [this] { std::cout << "intro pressed" << std::endl; });
+    introButton.setPosition(introButtonGad->Pos.x, introButtonGad->Pos.y);
+    introButton.setSecondaryTexture(introTextureClicked);
+    introButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& exitButton = wdg<TextureButton>(exitTexture, [this] {
+      std::cout << "exit pressed" << std::endl;
+      exit(0);
+    });
+    exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
+    exitButton.setSecondaryTexture(exitTextureClicked);
+    exitButton.setTextureSwitchFlags(TextureButton::OnClick);
+  }
+  performLayout(mSDL_Renderer);
 }
 
 void MainMenu::LoadGame(const std::string& gam_name)
@@ -121,13 +140,12 @@ void MainMenu::Handle()
 
   try
   {
-
-    // final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-    // texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-    // SDL_RenderClear(renderer);
-    // SDL_RenderCopy(renderer, texture, NULL, NULL);
-    // this->drawAll();
-    // SDL_RenderPresent(renderer);
+    final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    this->drawAll();
+    SDL_RenderPresent(renderer);
 
     Fps fps;
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
@@ -157,14 +175,15 @@ void MainMenu::Handle()
       int x, y;
       SDL_GetMouseState(&x, &y);
 
-      // final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-      // texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-      // SDL_FreeSurface(final_surface);
-      // SDL_RenderClear(renderer);
-      // SDL_RenderCopy(renderer, texture, NULL, NULL);
-      // this->drawAll();
-      // SDL_RenderPresent(renderer);
-      // SDL_DestroyTexture(texture);
+      final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+      texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+      SDL_FreeSurface(final_surface);
+      SDL_RenderClear(renderer);
+      SDL_RenderCopy(renderer, texture, NULL, NULL);
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
+      this->drawAll();
+      SDL_RenderPresent(renderer);
+      SDL_DestroyTexture(texture);
       fps.next();
     }
   }

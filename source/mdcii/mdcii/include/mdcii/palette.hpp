@@ -260,4 +260,16 @@ const unsigned char palette[768] =
     0x00, 0xff, 0xff,
     0xff, 0xff, 0xff
 };
+// clang-format on
+
+typedef struct
+{
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+} paletteRGBType;
+
+int getTransparentColor();
+paletteRGBType getPaletteRGB(int index);
+
 #endif

@@ -32,6 +32,7 @@ class ImagePanel;
 class DropdownBox;
 class TextBox;
 class TextureButton;
+class TextureView;
 
 /**
  * \class Widget widget.h sdl_gui/widget.h
@@ -410,6 +411,11 @@ public:
   TextureButton& texturebutton(const Args&... args)
   {
     return wdg<TextureButton>(args...);
+  }
+  template<typename... Args>
+  TextureView& textureview(const Args&... args)
+  {
+    return wdg<TextureView>(args...);
   }
 
 

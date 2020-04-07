@@ -16,29 +16,31 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef BILDSPEICHER_PAL8_HPP
-#define BILDSPEICHER_PAL8_HPP
+#ifndef BILDSPEICHER_TRANS_PAL8_HPP
+#define BILDSPEICHER_TRANS_PAL8_HPP
 
 #include <inttypes.h>
 
 #include "bildspeicher.hpp"
 #include "bsh_leser.hpp"
 
-class Bildspeicher_pal8 : public Bildspeicher
+
+class Bildspeicher_trans_pal8 : public Bildspeicher
 {
-  uint8_t dunkel[256];
-
-  void zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y);
-  void zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y);
-
 public:
-  Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0);
+  Bildspeicher_trans_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0, uint8_t transparent = 253);
   void zeichne_bsh_bild(Bsh_bild& bild, int x, int y);
   void zeichne_pixel(int x, int y, uint8_t farbe);
   void exportiere_pnm(const char* pfadname);
   void exportiere_bmp(const char* pfadname);
   void bild_loeschen();
   uint8_t* get_buffer();
+
+private:
+  uint8_t transparent;
+  uint8_t dunkel[256];
+
+  void zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y);
 };
 
 #endif

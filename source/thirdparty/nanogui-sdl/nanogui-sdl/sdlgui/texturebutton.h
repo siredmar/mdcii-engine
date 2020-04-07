@@ -1,6 +1,8 @@
 /*
     sdl_gui/texturebutton.h -- Texture button
 
+    The texture button widget was contributed by Armin Schlegel <armin.schlegel@gmx.de>
+
     Based on NanoGUI by Wenzel Jakob <wenzel@inf.ethz.ch>.
     Adaptation for SDL by Dalerank <dalerankn8@gmail.com>
 
@@ -18,10 +20,8 @@ NAMESPACE_BEGIN(sdlgui)
 /**
  * \class TextureBUtton texturebutton.h sdl_gui/texturebutton.h
  *
- * \brief Textture button widget.
+ * \brief Texture button widget.
  *
- * The font and color can be customized. When \ref Widget::setFixedWidth()
- * is used, the text is wrapped when it surpasses the specified width.
  */
 class TextureButton : public Widget
 {

@@ -16,18 +16,20 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "cod_parser.hpp"
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <sstream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/regex.hpp>
 #include <boost/variant.hpp>
-#include <regex>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <cstring>
+
 #include <google/protobuf/util/json_util.h>
 
+#include "cod_parser.hpp"
 
 Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode, bool debug)
   : path(cod_file_path)
@@ -197,7 +199,7 @@ void Cod_Parser::parse_file()
           int current_value = 0;
           if (index != -1)
           {
-            current_value = current_object->variables().variable(index).value_array().value(i).value_int();
+            current_value = variable_numbers_array[current_object->variables().variable(index).name()][i];
             current_value = calculate_operation(current_value, "+", offsets[i]);
             current_object->mutable_variables()->mutable_variable(index)->mutable_value_array()->mutable_value(i)->set_value_int(current_value);
           }
