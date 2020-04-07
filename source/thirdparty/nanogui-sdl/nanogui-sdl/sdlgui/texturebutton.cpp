@@ -1,6 +1,8 @@
 /*
     sdlgui/texturebutton.cpp -- SDL_Texture with clickable behaviour like a button
 
+    The texture button widget was contributed by Armin Schlegel <armin.schlegel@gmx.de>
+
     Based on NanoGUI by Wenzel Jakob <wenzel@inf.ethz.ch>.
     Adaptation for SDL by Dalerank <dalerankn8@gmail.com>
 
@@ -20,7 +22,6 @@ TextureButton::TextureButton(Widget* parent, SDL_Texture* texture)
   , mPushed(false)
   , mFlags(0)
   , _pushedTemp(false)
-
 {
 }
 

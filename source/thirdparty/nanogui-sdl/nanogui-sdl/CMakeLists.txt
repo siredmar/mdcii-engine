@@ -114,6 +114,7 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/tabwidget.h
      sdlgui/textbox.h
      sdlgui/texturebutton.h
+     sdlgui/textureview.h
      sdlgui/theme.h
      sdlgui/vscrollpanel.h
      sdlgui/switchbox.h
@@ -147,6 +148,7 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/tabwidget.cpp
      sdlgui/textbox.cpp
      sdlgui/texturebutton.cpp
+     sdlgui/textureview.cpp
      sdlgui/switchbox.cpp
      sdlgui/dropdownbox.cpp
      sdlgui/theme.cpp
