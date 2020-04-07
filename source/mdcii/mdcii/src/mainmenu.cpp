@@ -73,31 +73,58 @@ MainMenu::MainMenu(
 
   SDL_Texture* background = converter.Convert(&bsh_leser.gib_bsh_bild(0));
 
-  auto singlePlayerButtonPosition = basegad->get_gadgets_by_index(2);
-  SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(2));
-  SDL_Texture* singlePlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(7));
+  auto singlePlayerButtonGad = basegad->get_gadgets_by_index(2);
+  SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr));
+  SDL_Texture* singlePlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr + singlePlayerButtonGad->Pressoff));
 
-  auto multiPlayerButtonPosition = basegad->get_gadgets_by_index(3);
-  SDL_Texture* multiPlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(3));
-  SDL_Texture* multiPlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(8));
+  auto multiPlayerButtonGad = basegad->get_gadgets_by_index(3);
+  SDL_Texture* multiPlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(multiPlayerButtonGad->Gfxnr));
+  SDL_Texture* multiPlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(multiPlayerButtonGad->Gfxnr + multiPlayerButtonGad->Pressoff));
+
+  auto creditsButtonGad = basegad->get_gadgets_by_index(4);
+  SDL_Texture* creditsTexture = converter.Convert(&bsh_leser.gib_bsh_bild(creditsButtonGad->Gfxnr));
+  SDL_Texture* creditsTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(creditsButtonGad->Gfxnr + creditsButtonGad->Pressoff));
+
+  auto introButtonGad = basegad->get_gadgets_by_index(5);
+  SDL_Texture* introTexture = converter.Convert(&bsh_leser.gib_bsh_bild(introButtonGad->Gfxnr));
+  SDL_Texture* introTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(introButtonGad->Gfxnr + introButtonGad->Pressoff));
+
+  auto exitButtonGad = basegad->get_gadgets_by_index(6);
+  SDL_Texture* exitTexture = converter.Convert(&bsh_leser.gib_bsh_bild(exitButtonGad->Gfxnr));
+  SDL_Texture* exitTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(exitButtonGad->Gfxnr + exitButtonGad->Pressoff));
 
   {
     wdg<TextureButton>(background);
-    auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] { std::cout << "Singleplayer pressed" << std::endl; });
-    singlePlayerButton.setPosition(singlePlayerButtonPosition->Pos.x, singlePlayerButtonPosition->Pos.y);
+    auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
+      std::cout << "Singleplayer pressed" << std::endl;
+      this->LoadGame(this->gam_name);
+    });
+    singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
     singlePlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     auto& multiPlayerButton = wdg<TextureButton>(multiPlayerTexture, [this] { std::cout << "Multiplayer pressed" << std::endl; });
-    multiPlayerButton.setPosition(multiPlayerButtonPosition->Pos.x, multiPlayerButtonPosition->Pos.y);
+    multiPlayerButton.setPosition(multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y);
     multiPlayerButton.setSecondaryTexture(multiPlayerTextureClicked);
     multiPlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
 
-    // auto& b = wdg<Button>("Start Game", [this] {
-    //   std::cout << "loading game: " << this->gam_name << std::endl;
-    //   this->LoadGame(this->gam_name);
-    // });
-    // b.setPosition(400, 200);
+    auto& creditsButton = wdg<TextureButton>(creditsTexture, [this] { std::cout << "credits pressed" << std::endl; });
+    creditsButton.setPosition(creditsButtonGad->Pos.x, creditsButtonGad->Pos.y);
+    creditsButton.setSecondaryTexture(creditsTextureClicked);
+    creditsButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& introButton = wdg<TextureButton>(introTexture, [this] { std::cout << "intro pressed" << std::endl; });
+    introButton.setPosition(introButtonGad->Pos.x, introButtonGad->Pos.y);
+    introButton.setSecondaryTexture(introTextureClicked);
+    introButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    auto& exitButton = wdg<TextureButton>(exitTexture, [this] {
+      std::cout << "exit pressed" << std::endl;
+      exit(0);
+    });
+    exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
+    exitButton.setSecondaryTexture(exitTextureClicked);
+    exitButton.setTextureSwitchFlags(TextureButton::OnClick);
   }
   performLayout(mSDL_Renderer);
 }
@@ -131,7 +158,6 @@ void MainMenu::Handle()
 
   try
   {
-
     final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
     texture = SDL_CreateTextureFromSurface(renderer, final_surface);
     SDL_RenderClear(renderer);
@@ -172,6 +198,7 @@ void MainMenu::Handle()
       SDL_FreeSurface(final_surface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
       this->drawAll();
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(texture);

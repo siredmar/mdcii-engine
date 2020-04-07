@@ -260,4 +260,5 @@ const unsigned char palette[768] =
     0x00, 0xff, 0xff,
     0xff, 0xff, 0xff
 };
+// clang-format on
 #endif

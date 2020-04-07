@@ -47,6 +47,7 @@ set(headers
     ${include_path}/bildspeicher.hpp
     ${include_path}/bildspeicher_pal8.hpp
     ${include_path}/bildspeicher_rgb24.hpp
+    ${include_path}/bildspeicher_trans_pal8.hpp
     ${include_path}/block.hpp
     ${include_path}/bsh_leser.hpp
     ${include_path}/bsh_schreiber.hpp
@@ -75,6 +76,7 @@ set(sources
     ${source_path}/bildspeicher.cpp
     ${source_path}/bildspeicher_pal8.cpp
     ${source_path}/bildspeicher_rgb24.cpp
+    ${source_path}/bildspeicher_trans_pal8.cpp
     ${source_path}/block.cpp
     ${source_path}/bsh_schreiber.cpp
     ${source_path}/files.cpp
