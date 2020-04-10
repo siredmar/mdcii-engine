@@ -86,9 +86,10 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   }
 
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-
+  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  // std::make_shared<Palette>(files->instance()->find_path_for_file("stadtfld.col"));
   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
   auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("base.gad"), false, false);

@@ -24,17 +24,18 @@
 Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 1, farbe, puffer, pufferbreite)
 {
+  auto palette = Palette::instance();
   // erzeuge Index der Paletteneinträge mit der jeweils halben Helligkeit
-  for (int i = 0; i < 256; i++)
+  for (int i = 0; i < palette->size(); i++)
   {
-    uint8_t r = palette[3 * i] >> 1;
-    uint8_t g = palette[3 * i + 1] >> 1;
-    uint8_t b = palette[3 * i + 2] >> 1;
+    uint8_t r = palette->getColor(i).getRed() >> 1;
+    uint8_t g = palette->getColor(i).getGreen() >> 1;
+    uint8_t b = palette->getColor(i).getBlue() >> 1;
 
     int mindiff = 0x7fffffff;
-    for (int j = 0; j < 256; j++)
+    for (uint8_t j = 0; j < palette->size(); j++)
     {
-      int diff = abs((int)palette[3 * j] - r) + abs((int)palette[3 * j + 1] - g) + abs((int)palette[3 * j + 2] - b);
+      int diff = abs((int)palette->getColor(i).getRed() - r) + abs((int)palette->getColor(i).getGreen() - g) + abs((int)palette->getColor(i).getBlue() - b);
       if (diff < mindiff)
       {
         dunkel[i] = j;
@@ -188,6 +189,7 @@ void Bildspeicher_pal8::exportiere_pnm(const char* pfadname)
 
 void Bildspeicher_pal8::exportiere_bmp(const char* pfadname)
 {
+  auto palette = Palette::instance();
   uint32_t bytes_pro_zeile = (breite + 3) & 0xfffffffc;
   struct tagBITMAPFILEHEADER
   {
@@ -217,9 +219,9 @@ void Bildspeicher_pal8::exportiere_bmp(const char* pfadname)
   bmp.write((char*)&bmfh, sizeof(struct tagBITMAPFILEHEADER));
   bmp.write((char*)&bmih, sizeof(struct tagBITMAPINFOHEADER));
 
-  for (int i = 0; i < 256; i++)
+  for (int i = 0; i < palette->size(); i++)
   {
-    bmp << palette[i * 3 + 2] << palette[i * 3 + 1] << palette[i * 3] << (char)0;
+    bmp << palette->getColor(i).getBlue() << palette->getColor(i).getBlue() << palette->getColor(i).getRed() << (char)0;
   }
 
   for (int i = hoehe - 1; i >= 0; i--)
