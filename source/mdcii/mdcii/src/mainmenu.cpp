@@ -125,19 +125,20 @@ void MainMenu::LoadGame(const std::string& gam_name)
 // todo: add signal/slot for exiting window
 void MainMenu::Handle()
 {
+  auto palette = Palette::instance();
   SDL_Texture* texture;
   SDL_Surface* final_surface;
 
   SDL_Surface* s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
-  SDL_Color c[256];
+  SDL_Color c[palette->size()];
   int i, j;
-  for (i = 0, j = 0; i < 256; i++)
+  for (i = 0, j = 0; i < palette->size(); i++)
   {
-    c[i].r = palette[j++];
-    c[i].g = palette[j++];
-    c[i].b = palette[j++];
+    c[i].r = palette->getColor(i).getRed();
+    c[i].g = palette->getColor(i).getGreen();
+    c[i].b = palette->getColor(i).getBlue();
   }
-  SDL_SetPaletteColors(s8->format->palette, c, 0, 255);
+  SDL_SetPaletteColors(s8->format->palette, c, 0, palette->size());
 
   try
   {

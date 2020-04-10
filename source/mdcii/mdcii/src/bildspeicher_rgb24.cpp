@@ -29,6 +29,7 @@ Bildspeicher_rgb24::Bildspeicher_rgb24(uint32_t breite, uint32_t hoehe, uint32_t
 
 void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 {
+  auto palette = Palette::instance();
   uint8_t ch;
   uint8_t* quelle = bild.puffer;
   uint8_t* zielzeile;
@@ -49,10 +50,11 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
       for (ch = *(quelle++); ch > 0; ch--)
       {
-        int index = ((int)*(quelle++)) * 3;
-        *(ziel++) = palette[index++];
-        *(ziel++) = palette[index++];
-        *(ziel++) = palette[index];
+        uint8_t index = ((uint8_t) * (quelle++)) * 3;
+        *(ziel++) = palette->getColor(index).getRed();
+        *(ziel++) = palette->getColor(index).getGreen();
+        *(ziel++) = palette->getColor(index).getBlue();
+        index += 3;
       }
     }
   }
@@ -60,6 +62,8 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_rgb24::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 {
+  auto palette = Palette::instance();
+
   int u = 0;
   int v = 0;
   int i = 0;
@@ -81,9 +85,9 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
         if (y + v >= 0 && y + v < this->hoehe && x + u >= 0 && x + u < this->breite)
         {
           unsigned char a = bild.puffer[i];
-          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3] = palette[a * 3];
-          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 1] = palette[a * 3 + 1];
-          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 2] = palette[a * 3 + 2];
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3] = palette->getColor(a).getRed();
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 1] = palette->getColor(a).getGreen();
+          this->puffer[(y + v) * this->pufferbreite + (x + u) * 3 + 2] = palette->getColor(a).getBlue();
         }
       }
     }
@@ -102,11 +106,12 @@ void Bildspeicher_rgb24::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_rgb24::zeichne_pixel(int x, int y, uint8_t farbe)
 {
+  auto palette = Palette::instance();
   if (x < 0 || y < 0 || x >= breite || y >= hoehe)
     return;
-  puffer[y * pufferbreite + 3 * x] = palette[3 * farbe];
-  puffer[y * pufferbreite + 3 * x + 1] = palette[3 * farbe + 1];
-  puffer[y * pufferbreite + 3 * x + 2] = palette[3 * farbe + 2];
+  puffer[y * pufferbreite + 3 * x] = palette->getColor(farbe).getRed();
+  puffer[y * pufferbreite + 3 * x + 1] = palette->getColor(farbe).getGreen();
+  puffer[y * pufferbreite + 3 * x + 2] = palette->getColor(farbe).getBlue();
 }
 
 void Bildspeicher_rgb24::exportiere_pnm(const char* pfadname)
