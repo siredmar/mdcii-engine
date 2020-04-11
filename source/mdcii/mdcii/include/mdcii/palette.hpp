@@ -58,7 +58,7 @@ public:
   void init(const std::string& palette_file_path);
 
   std::vector<PaletteColor> getPalette();
-  size_t size();
+  int size();
   int getTransparentColor();
   PaletteColor getColor(int index);
 

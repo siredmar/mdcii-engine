@@ -33,7 +33,7 @@ Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t f
     uint8_t b = palette->getColor(i).getBlue() >> 1;
 
     int mindiff = 0x7fffffff;
-    for (uint8_t j = 0; j < palette->size(); j++)
+    for (int j = 0; j < (int)palette->size(); j++)
     {
       int diff = abs((int)palette->getColor(i).getRed() - r) + abs((int)palette->getColor(i).getGreen() - g) + abs((int)palette->getColor(i).getBlue() - b);
       if (diff < mindiff)
