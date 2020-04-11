@@ -50,7 +50,7 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
       for (ch = *(quelle++); ch > 0; ch--)
       {
-        uint8_t index = ((uint8_t) * (quelle++)) * 3;
+        int index = ((int)*(quelle++)) * 3;
         *(ziel++) = palette->getColor(index).getRed();
         *(ziel++) = palette->getColor(index).getGreen();
         *(ziel++) = palette->getColor(index).getBlue();

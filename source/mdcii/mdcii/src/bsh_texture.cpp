@@ -25,11 +25,9 @@ SDL_Texture* BshImageToSDLTextureConverter::Convert(Bsh_bild* image)
   bs.bild_loeschen();
   bs.zeichne_bsh_bild(*image, 0, 0);
   auto transparentColor = palette->getColor(palette->getTransparentColor());
-  SDL_SetColorKey(s8, SDL_TRUE, SDL_MapRGB(s8->format, transparentColor.getRed(), transparentColor.getGreen(), transparentColor.getBlue()));
-  std::cout << std::hex << (int)*((uint8_t*)s8->pixels) << ", " << std::hex << (int)*((uint8_t*)(s8->pixels + 1)) << ", " << std::hex
-            << (int)*((uint8_t*)(s8->pixels + 2)) << std::endl;
-  // SDL_SetColorKey(s8, SDL_TRUE, SDL_MapRGB(s8->format, palette->getColor(25).getRed(), palette->getColor(25).getGreen(), palette->getColor(25).getBlue()));
   final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+  SDL_SetColorKey(
+      final_surface, SDL_TRUE, SDL_MapRGB(final_surface->format, transparentColor.getRed(), transparentColor.getGreen(), transparentColor.getBlue()));
   auto texture = SDL_CreateTextureFromSurface(renderer, final_surface);
   return texture;
 }

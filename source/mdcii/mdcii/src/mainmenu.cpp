@@ -126,6 +126,11 @@ void MainMenu::LoadGame(const std::string& gam_name)
 void MainMenu::Handle()
 {
   auto palette = Palette::instance();
+
+  auto transparentColor = palette->getColor(palette->getTransparentColor());
+  std::cout << "[INFO] Transparent color: " << (int)transparentColor.getRed() << ", " << (int)transparentColor.getGreen() << ", "
+            << (int)transparentColor.getBlue() << std::endl;
+
   SDL_Texture* texture;
   SDL_Surface* final_surface;
 

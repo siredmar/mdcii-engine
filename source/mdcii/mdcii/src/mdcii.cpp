@@ -81,7 +81,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   if (window == NULL)
   {
     // In the event that the window could not be made...
-    std::cout << "Could not create window: " << SDL_GetError() << '\n';
+    std::cout << "[ERR] Could not create window: " << SDL_GetError() << '\n';
     SDL_Quit();
   }
 
@@ -89,7 +89,6 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
   auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  // std::make_shared<Palette>(files->instance()->find_path_for_file("stadtfld.col"));
   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
   auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("base.gad"), false, false);

@@ -71,13 +71,15 @@ int Palette::findTransparentColorIndex()
     // this is hard coded to magenta: 0xFF, 0x00, 0xFF
     if (palette[i].getRed() == 0xFF && palette[i].getGreen() == 0x00 && palette[i].getBlue() == 0xFF)
     {
+      std::cout << "[INFO] transparent color palette index: " << i << std::endl;
       return i;
     }
   }
+  std::cout << "[ERR] transparent color palette index not found" << std::endl;
   return -1;
 }
 
-size_t Palette::size()
+int Palette::size()
 {
-  return palette.size();
+  return (int)palette.size();
 }
