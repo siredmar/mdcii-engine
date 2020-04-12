@@ -24,25 +24,6 @@
 Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 1, farbe, puffer, pufferbreite)
 {
-  auto palette = Palette::instance();
-  // erzeuge Index der Paletteneinträge mit der jeweils halben Helligkeit
-  for (int i = 0; i < palette->size(); i++)
-  {
-    uint8_t r = palette->getColor(i).getRed() >> 1;
-    uint8_t g = palette->getColor(i).getGreen() >> 1;
-    uint8_t b = palette->getColor(i).getBlue() >> 1;
-
-    int mindiff = 0x7fffffff;
-    for (int j = 0; j < (int)palette->size(); j++)
-    {
-      int diff = abs((int)palette->getColor(i).getRed() - r) + abs((int)palette->getColor(i).getGreen() - g) + abs((int)palette->getColor(i).getBlue() - b);
-      if (diff < mindiff)
-      {
-        dunkel[i] = j;
-        mindiff = diff;
-      }
-    }
-  }
 }
 
 void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)

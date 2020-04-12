@@ -90,15 +90,7 @@ void GameWindow::Handle()
   SDL_Surface* final_surface;
 
   SDL_Surface* s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
-  SDL_Color c[palette->size()];
-  int i, j;
-  for (i = 0, j = 0; i < palette->size(); i++)
-  {
-    c[i].r = palette->getColor(i).getRed();
-    c[i].g = palette->getColor(i).getGreen();
-    c[i].b = palette->getColor(i).getBlue();
-  }
-  SDL_SetPaletteColors(s8->format->palette, c, 0, palette->size());
+  SDL_SetPaletteColors(s8->format->palette, palette->getSDLColors(), 0, palette->size());
 
   std::ifstream f;
   f.open(gam_name, std::ios_base::in | std::ios_base::binary);

@@ -20,6 +20,9 @@
 
 #include <vector>
 
+#include <SDL2/SDL.h>
+
+
 class PaletteColor
 {
 public:
@@ -58,6 +61,7 @@ public:
   void init(const std::string& palette_file_path);
 
   std::vector<PaletteColor> getPalette();
+  SDL_Color* getSDLColors();
   int size();
   int getTransparentColor();
   PaletteColor getColor(int index);
@@ -66,6 +70,7 @@ private:
   std::string path;
   std::vector<PaletteColor> palette;
   int transparentColor;
+  SDL_Color* c;
 
   static Palette* _instance;
   ~Palette() {}

@@ -37,6 +37,13 @@ Palette* Palette::create_instance(const std::string& palette_file_path)
   {
     _instance = new Palette(palette_file_path);
     _instance->transparentColor = _instance->findTransparentColorIndex();
+    _instance->c = (SDL_Color*)malloc(_instance->size() * sizeof(SDL_Color));
+    for (int i = 0; i < _instance->size(); i++)
+    {
+      _instance->c[i].r = _instance->getColor(i).getRed();
+      _instance->c[i].g = _instance->getColor(i).getGreen();
+      _instance->c[i].b = _instance->getColor(i).getBlue();
+    }
   }
   return _instance;
 }
@@ -52,6 +59,11 @@ void Palette::init(const std::string& palette_file_path)
     PaletteColor color(static_cast<uint8_t>(buffer[i]), static_cast<uint8_t>(buffer[i + 1]), static_cast<uint8_t>(buffer[i + 2]));
     palette.push_back(color);
   }
+}
+
+SDL_Color* Palette::getSDLColors()
+{
+  return c;
 }
 
 PaletteColor Palette::getColor(int index)
