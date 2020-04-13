@@ -35,6 +35,7 @@
 #include "haeuser.hpp"
 #include "mainmenu.hpp"
 #include "palette.hpp"
+#include "singleplayerwindow.hpp"
 
 using namespace sdlgui;
 MainMenu::MainMenu(
@@ -47,7 +48,7 @@ MainMenu::MainMenu(
   , gam_name(gam_name)
   , pwindow(pwindow)
   , files(Files::instance())
-  , triggerStartGame(false)
+  , triggerSinglePlayer(false)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
@@ -86,7 +87,7 @@ MainMenu::MainMenu(
 
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
-      triggerStartGame = true;
+      triggerSinglePlayer = true;
     });
     singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
@@ -186,10 +187,13 @@ void MainMenu::Handle()
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-      if (triggerStartGame)
+      if (triggerSinglePlayer)
       {
-        triggerStartGame = false;
-        this->LoadGame(this->gam_name);
+        triggerSinglePlayer = false;
+        SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen);
+        singleplayerwindow.Handle();
+        Handle();
+        // this->LoadGame(this->gam_name);
       }
       this->drawAll();
       SDL_RenderPresent(renderer);

@@ -15,8 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _BASEGAD_DAT_H_
-#define _BASEGAD_DAT_H_
+#ifndef _HOST_GAD_H_
+#define _HOST_GAD_H_
 
 #include <experimental/optional>
 #include <map>
@@ -24,13 +24,14 @@
 #include "cod_parser.hpp"
 
 
-enum class BaseGadKindType
+enum class HostGadKindType
 {
   UNSET = 0,
+  GAD_TEXTL,
   GAD_GFX
 };
 
-struct BaseGadGadget
+struct HostGadGadget
 {
   typedef struct Position
   {
@@ -45,25 +46,30 @@ struct BaseGadGadget
   };
 
   int Id = -1;
-  int Blocknr = -1;
+  // Ignore Blocknr for now
+  // int Blocknr = -1;
   int Gfxnr = -1;
-  BaseGadKindType Kind = BaseGadKindType::UNSET;
+  HostGadKindType Kind = HostGadKindType::UNSET;
   int Noselflg = -1;
-  int Pressoff = -1;
   Position Pos = {-1, -1};
   Size Size = {-1, -1};
+  int Basenr = -1;
+  int Reiheflg = -1;
+  int Pressoff = -1;
+  std::vector<int> Color = {-1, -1};
+  Position Posoffs = {-1, -1};
 };
 
-class Basegad
+class Hostgad
 {
 public:
-  Basegad(std::shared_ptr<Cod_Parser> cod)
+  Hostgad(std::shared_ptr<Cod_Parser> cod)
     : cod(cod)
   {
     generate_gadgets();
   }
 
-  std::experimental::optional<BaseGadGadget*> get_gadget(int id)
+  std::experimental::optional<HostGadGadget*> get_gadget(int id)
   {
     if (gadgets.find(id) == gadgets.end())
     {
@@ -75,7 +81,7 @@ public:
     }
   }
   int get_gadgets_size() { return gadgets_vec.size(); }
-  BaseGadGadget* get_gadgets_by_index(int index) { return gadgets_vec[index]; }
+  HostGadGadget* get_gadgets_by_index(int index) { return gadgets_vec[index]; }
 
 private:
   void generate_gadgets()
@@ -95,9 +101,9 @@ private:
     }
   }
 
-  BaseGadGadget generate_gadget(const cod_pb::Object* obj)
+  HostGadGadget generate_gadget(const cod_pb::Object* obj)
   {
-    BaseGadGadget h;
+    HostGadGadget h;
     if (obj->has_variables() == true)
     {
       for (int i = 0; i < obj->variables().variable_size(); i++)
@@ -116,10 +122,11 @@ private:
               h.Id = var.value_int() - id_offset;
             }
           }
-          else if (var.name() == "Blocknr")
-          {
-            h.Blocknr = var.value_int();
-          }
+          // Ignore Blocknr for now
+          // else if (var.name() == "Blocknr")
+          // {
+          //   h.Blocknr = var.value_int();
+          // }
           else if (var.name() == "Gfxnr")
           {
             h.Gfxnr = var.value_int();
@@ -132,14 +139,6 @@ private:
           {
             h.Noselflg = var.value_int();
           }
-          else if (var.name() == "Pressoff")
-          {
-            h.Pressoff = var.value_int();
-          }
-          else if (var.name() == "Blocknr")
-          {
-            h.Blocknr = var.value_int();
-          }
           else if (var.name() == "Pos")
           {
             h.Pos.x = var.value_array().value(0).value_int();
@@ -150,6 +149,28 @@ private:
             h.Size.w = var.value_array().value(0).value_int();
             h.Size.h = var.value_array().value(1).value_int();
           }
+          else if (var.name() == "Basenr")
+          {
+            h.Basenr = var.value_int();
+          }
+          else if (var.name() == "Reiheflg")
+          {
+            h.Reiheflg = var.value_int();
+          }
+          else if (var.name() == "Pressoff")
+          {
+            h.Pressoff = var.value_int();
+          }
+          else if (var.name() == "Color")
+          {
+            h.Color[0] = var.value_array().value(0).value_int();
+            h.Color[1] = var.value_array().value(1).value_int();
+          }
+          else if (var.name() == "Posoffs")
+          {
+            h.Posoffs.x = var.value_array().value(0).value_int();
+            h.Posoffs.y = var.value_array().value(1).value_int();
+          }
         }
       }
       return h;
@@ -157,12 +178,12 @@ private:
   }
 
 private:
-  const int id_offset = 30000;
-  std::map<int, BaseGadGadget> gadgets;
-  std::vector<BaseGadGadget*> gadgets_vec;
+  const int id_offset = 0;
+  std::map<int, HostGadGadget> gadgets;
+  std::vector<HostGadGadget*> gadgets_vec;
   std::shared_ptr<Cod_Parser> cod;
 
-  std::map<std::string, BaseGadKindType> KindMap = {{"GAD_GFX", BaseGadKindType::GAD_GFX}};
+  std::map<std::string, HostGadKindType> KindMap = {{"GAD_GFX", HostGadKindType::GAD_GFX}, {"GAD_TEXTL", HostGadKindType::GAD_TEXTL}};
 };
 
-#endif //_BASEGAD_DAT_H_
+#endif //_HOST_GAD_H_

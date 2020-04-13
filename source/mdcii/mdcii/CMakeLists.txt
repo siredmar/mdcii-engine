@@ -58,11 +58,13 @@ set(headers
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp
     ${include_path}/haeuser.hpp
+    ${include_path}/host_gad.hpp
     ${include_path}/insel.hpp
     ${include_path}/kamera.hpp
     ${include_path}/karte.hpp
     ${include_path}/mainmenu.hpp
     ${include_path}/palette.hpp
+    ${include_path}/singleplayerwindow.hpp
     ${include_path}/spielbildschirm.hpp
     ${include_path}/strukturen.hpp
     ${include_path}/version.hpp
@@ -87,6 +89,7 @@ set(sources
     ${source_path}/karte.cpp
     ${source_path}/mainmenu.cpp
     ${source_path}/palette.cpp
+    ${source_path}/singleplayerwindow.cpp
     ${source_path}/spielbildschirm.cpp
     ${source_path}/strukturen.cpp
     ${source_path}/version.cpp

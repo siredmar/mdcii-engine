@@ -1,6 +1,6 @@
 
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2015  Benedikt Freisen
+// Copyright (C) 2020 Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

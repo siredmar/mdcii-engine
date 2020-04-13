@@ -15,8 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
+#ifndef SINGLEPLAYERWINDOW_H_
+#define SINGLEPLAYERWINDOW_H_
 
 #include <iostream>
 #include <memory>
@@ -28,29 +28,26 @@
 #include "sdlgui/window.h"
 
 #include "basegad_dat.hpp"
-#include "cod_parser.hpp"
 #include "files.hpp"
+#include "host_gad.hpp"
 
 
 using namespace sdlgui;
 
-class MainMenu : public Screen
+class SinglePlayerWindow : public Screen
 {
 public:
-  MainMenu(
-      SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, const std::string& gam_name);
+  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
   void Handle();
-  void LoadGame(const std::string& gam_name);
 
 private:
   SDL_Renderer* renderer;
-  std::shared_ptr<Basegad> basegad;
   int width;
   int height;
   bool fullscreen;
-  std::string gam_name;
-  bool triggerSinglePlayer;
   SDL_Window* pwindow;
   Files* files;
+  bool quit;
+  std::shared_ptr<Hostgad> hostgad;
 };
 #endif
