@@ -56,6 +56,9 @@ MainMenu::MainMenu(
 
   SDL_Texture* background = converter.Convert(&bsh_leser.gib_bsh_bild(0));
 
+  auto shipGad = basegad->get_gadgets_by_index(1);
+  SDL_Texture* shipTexture = converter.Convert(&bsh_leser.gib_bsh_bild(shipGad->Gfxnr));
+
   auto singlePlayerButtonGad = basegad->get_gadgets_by_index(2);
   SDL_Texture* singlePlayerTexture = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr));
   SDL_Texture* singlePlayerTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(singlePlayerButtonGad->Gfxnr + singlePlayerButtonGad->Pressoff));
@@ -78,6 +81,9 @@ MainMenu::MainMenu(
 
   {
     wdg<TextureView>(background);
+    auto& ship = wdg<TextureView>(shipTexture);
+    ship.setPosition(shipGad->Pos.x, shipGad->Pos.y);
+
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
       triggerStartGame = true;
