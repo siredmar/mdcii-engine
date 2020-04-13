@@ -31,6 +31,7 @@
 #include "cod_parser.hpp"
 #include "fps.hpp"
 #include "palette.hpp"
+#include "savegames.hpp"
 #include "singleplayerwindow.hpp"
 
 using namespace sdlgui;
@@ -100,6 +101,14 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     mainMenuButton.setPosition(mainMenuButtonGad->Pos.x, mainMenuButtonGad->Pos.y);
     mainMenuButton.setSecondaryTexture(mainMenuTextureClicked);
     mainMenuButton.setTextureSwitchFlags(TextureButton::OnClick);
+
+    Savegames save;
+    auto s = save.getSavegames();
+
+    for (int i = 0; i < s.size(); i++)
+    {
+      std::cout << "Savegame " << i << ": " << s[i] << std::endl;
+    }
   }
   performLayout(mSDL_Renderer);
 }

@@ -64,6 +64,7 @@ set(headers
     ${include_path}/karte.hpp
     ${include_path}/mainmenu.hpp
     ${include_path}/palette.hpp
+    ${include_path}/savegames.hpp
     ${include_path}/singleplayerwindow.hpp
     ${include_path}/spielbildschirm.hpp
     ${include_path}/strukturen.hpp
@@ -89,6 +90,7 @@ set(sources
     ${source_path}/karte.cpp
     ${source_path}/mainmenu.cpp
     ${source_path}/palette.cpp
+    ${source_path}/savegames.cpp
     ${source_path}/singleplayerwindow.cpp
     ${source_path}/spielbildschirm.cpp
     ${source_path}/strukturen.cpp

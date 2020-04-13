@@ -34,16 +34,22 @@ public:
   bool check_file(const std::string& filename);
   bool check_all_files(std::vector<std::string>* files);
   std::string find_path_for_file(std::string file);
+  std::vector<std::string> get_directory_tree(const std::string& path);
+  std::vector<std::string> get_directories_files(const std::string& directory);
+  std::string string_to_lower_case(const std::string& str);
 
 private:
   static Files* _instance;
-  ~Files() {}
-  Files(std::string path) { init(path); }
+  ~Files()
+  {
+  }
+  Files(std::string path)
+  {
+    init(path);
+  }
 
   Files(const Files&);
 
-  std::vector<std::string> get_directory_tree(const std::string& path);
-  std::string string_to_lower_case(const std::string& str);
 
   std::vector<std::string> tree;
 

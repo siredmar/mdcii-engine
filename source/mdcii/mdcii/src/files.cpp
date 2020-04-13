@@ -17,11 +17,15 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <algorithm>
-#include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
 
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
+
 #include "files.hpp"
+
+using namespace boost::filesystem;
 
 Files* Files::_instance = 0;
 
@@ -112,4 +116,20 @@ std::vector<std::string> Files::get_directory_tree(const std::string& path)
     tree.push_back(p.path().string());
   }
   return tree;
+}
+
+std::vector<std::string> Files::get_directories_files(const std::string& directory)
+{
+  std::vector<std::string> files;
+  path p(directory);
+  if (is_directory(p))
+  {
+    std::cout << p << " is a directory containing:\n";
+
+    for (auto& entry : boost::make_iterator_range(directory_iterator(p), {}))
+    {
+      files.push_back(entry.path().string());
+    }
+  }
+  return files;
 }
