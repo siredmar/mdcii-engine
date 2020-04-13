@@ -95,3 +95,23 @@ int Palette::size()
 {
   return (int)palette.size();
 }
+
+uint8_t Palette::index(int index)
+{
+  if (index / 3 >= size())
+  {
+    return 0;
+  }
+  if (index % 3 == 0)
+  {
+    return getColor(index / 3).getRed();
+  }
+  else if (index % 3 == 1)
+  {
+    return getColor(index / 3).getGreen();
+  }
+  else
+  {
+    return getColor(index / 3).getBlue();
+  }
+}

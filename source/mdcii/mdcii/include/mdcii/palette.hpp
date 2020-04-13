@@ -65,6 +65,7 @@ public:
   int size();
   int getTransparentColor();
   PaletteColor getColor(int index);
+  uint8_t index(int index);
 
 private:
   std::string path;

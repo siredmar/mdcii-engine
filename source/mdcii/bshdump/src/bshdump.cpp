@@ -23,11 +23,14 @@
 #include "mdcii/bildspeicher_pal8.hpp"
 #include "mdcii/bildspeicher_rgb24.hpp"
 #include "mdcii/bsh_leser.hpp"
+#include "mdcii/files.hpp"
+#include "mdcii/palette.hpp"
 
 namespace po = boost::program_options;
 
 int main(int argc, char** argv)
 {
+
   std::string input_name;
   std::string file_format;
   std::string prefix;
@@ -42,6 +45,7 @@ int main(int argc, char** argv)
     ("bpp,b", po::value<int>(&bpp)->default_value(24), "Bits pro Pixel (8 oder 24)")
     ("prefix,p", po::value<std::string>(&prefix)->default_value("g_"), "Präfix (inklusive Pfad) für die Zieldateinamen")
     ("color,c", po::value<int>(&color)->default_value(0), "Hintergrundfarbe für transparente Bereiche")
+    ("path,l", po::value<std::string>()->default_value("."), "Pfad zur ANNO1602-Installation")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
   // clang-format on
@@ -73,6 +77,14 @@ int main(int argc, char** argv)
     std::cout << "Gültige Werte für --format sind bmp und pnm" << std::endl;
     exit(EXIT_FAILURE);
   }
+  if (vm.count("path") != 1)
+  {
+    std::cout << "Keine Anno1602 Installation angegeben" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  auto files = Files::create_instance(vm["path"].as<std::string>());
+  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
 
   Bsh_leser bsh(input_name);
   if (bpp == 24)
