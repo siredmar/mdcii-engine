@@ -27,6 +27,7 @@ Bildspeicher_trans_pal8::Bildspeicher_trans_pal8(uint32_t breite, uint32_t hoehe
   : Bildspeicher(breite, hoehe, 1, farbe, puffer, pufferbreite)
   , transparent(transparent)
 {
+  bild_loeschen();
 }
 
 void Bildspeicher_trans_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)

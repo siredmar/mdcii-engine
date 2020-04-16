@@ -36,7 +36,6 @@ int main(int argc, char** argv)
     ("height,H", po::value<int>()->default_value(768), "Bildschirmhöhe")
     ("fullscreen,F", po::value<bool>()->default_value(false), "Vollbildmodus (true/false)")
     ("rate,r", po::value<int>()->default_value(10), "Bildrate")
-    ("load,l", po::value<std::string>()->default_value("game00.gam"), "Lädt den angegebenen Spielstand (*.gam)")
     ("path,p", po::value<std::string>()->default_value("."), "Pfad zur ANNO1602-Installation")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
@@ -52,7 +51,6 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
-  Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["rate"].as<int>(), vm["path"].as<std::string>(),
-      vm["load"].as<std::string>());
+  Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["rate"].as<int>(), vm["path"].as<std::string>());
   return 0;
 }

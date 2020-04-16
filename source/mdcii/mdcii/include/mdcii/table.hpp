@@ -1,5 +1,5 @@
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2020  Armin Schlegel
+// Copyright (C) 2019  Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,23 +15,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _BSH_TEXTURE
-#define _BSH_TEXTURE
+#ifndef TABLE_HPP
+#define TABLE_HPP
 
-#include <SDL2/SDL.h>
-
-#include "bildspeicher_pal8.hpp"
-#include "bsh_leser.hpp"
-#include "palette.hpp"
-
-class BshImageToSDLTextureConverter
+class Table
 {
 public:
-  BshImageToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(Bsh_bild* image);
-
-private:
-  SDL_Renderer* renderer;
+  Table()
+  {
+  }
 };
 
 #endif

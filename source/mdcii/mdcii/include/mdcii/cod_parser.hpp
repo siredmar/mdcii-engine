@@ -117,5 +117,6 @@ private:
   std::map<std::string, int> variable_map;
   std::map<int, cod_pb::Object*> object_id_map;
   cod_pb::Object* current_object = nullptr;
+  std::vector<std::string> unparsedLines;
 };
 #endif

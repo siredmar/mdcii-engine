@@ -15,23 +15,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _BSH_TEXTURE
-#define _BSH_TEXTURE
+#ifndef _ZEI_TEXTURE
+#define _ZEI_TEXTURE
 
 #include <SDL2/SDL.h>
 
 #include "bildspeicher_pal8.hpp"
 #include "bsh_leser.hpp"
+#include "files.hpp"
 #include "palette.hpp"
 
-class BshImageToSDLTextureConverter
+class StringToSDLTextureConverter
 {
 public:
-  BshImageToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(Bsh_bild* image);
+  StringToSDLTextureConverter(SDL_Renderer* renderer);
+  SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
 
 private:
   SDL_Renderer* renderer;
+  Files* files;
+  std::shared_ptr<Zei_leser> zei;
 };
 
 #endif

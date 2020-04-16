@@ -15,23 +15,25 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _BSH_TEXTURE
-#define _BSH_TEXTURE
+#ifndef _SAVEGAMES_H_
+#define _SAVEGAMES_H_
 
-#include <SDL2/SDL.h>
+#include <experimental/optional>
+#include <string>
+#include <vector>
 
-#include "bildspeicher_pal8.hpp"
-#include "bsh_leser.hpp"
-#include "palette.hpp"
+#include "files.hpp"
 
-class BshImageToSDLTextureConverter
+class Savegames
 {
 public:
-  BshImageToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(Bsh_bild* image);
+  Savegames();
+  int size() const;
+  std::experimental::optional<std::string> getPath(int index) const;
+  std::vector<std::string> getSavegames() const;
 
 private:
-  SDL_Renderer* renderer;
+  std::vector<std::string> savegames;
 };
 
-#endif
+#endif // _SAVEGAMES_H_

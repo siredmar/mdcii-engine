@@ -35,19 +35,19 @@
 #include "haeuser.hpp"
 #include "mainmenu.hpp"
 #include "palette.hpp"
+#include "singleplayerwindow.hpp"
 
 using namespace sdlgui;
-MainMenu::MainMenu(
-    SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, const std::string& gam_name)
+MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
   : renderer(renderer)
   , basegad(basegad)
   , width(rwidth)
   , height(rheight)
   , fullscreen(fullscreen)
-  , gam_name(gam_name)
   , pwindow(pwindow)
   , files(Files::instance())
-  , triggerStartGame(false)
+  , triggerSinglePlayer(false)
+  , quit(false)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
@@ -86,7 +86,7 @@ MainMenu::MainMenu(
 
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
-      triggerStartGame = true;
+      triggerSinglePlayer = true;
     });
     singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
@@ -109,23 +109,13 @@ MainMenu::MainMenu(
 
     auto& exitButton = wdg<TextureButton>(exitTexture, [this] {
       std::cout << "exit pressed" << std::endl;
-      exit(0);
+      quit = true;
     });
     exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
     exitButton.setSecondaryTexture(exitTextureClicked);
     exitButton.setTextureSwitchFlags(TextureButton::OnClick);
   }
   performLayout(mSDL_Renderer);
-}
-
-void MainMenu::LoadGame(const std::string& gam_name)
-{
-  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
-
-  GameWindow gameWindow(renderer, haeuser, pwindow, width, height, gam_name, fullscreen);
-  gameWindow.Handle();
-  Handle();
 }
 
 // todo: add signal/slot for exiting window
@@ -155,8 +145,8 @@ void MainMenu::Handle()
     Fps fps;
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
+    SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen);
     SDL_Event e;
-    bool quit = false;
     while (!quit)
     {
       while (SDL_PollEvent(&e) != 0)
@@ -186,10 +176,11 @@ void MainMenu::Handle()
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-      if (triggerStartGame)
+      if (triggerSinglePlayer)
       {
-        triggerStartGame = false;
-        this->LoadGame(this->gam_name);
+        triggerSinglePlayer = false;
+        singleplayerwindow.Handle();
+        Handle();
       }
       this->drawAll();
       SDL_RenderPresent(renderer);
