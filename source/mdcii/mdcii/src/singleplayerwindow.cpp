@@ -20,6 +20,7 @@
 
 #include "SDL2/SDL.h"
 
+#include "sdlgui/label.h"
 #include "sdlgui/layout.h"
 #include "sdlgui/messagedialog.h"
 #include "sdlgui/screen.h"
@@ -30,9 +31,11 @@
 #include "bsh_texture.hpp"
 #include "cod_parser.hpp"
 #include "fps.hpp"
+#include "gamewindow.hpp"
 #include "palette.hpp"
 #include "savegames.hpp"
 #include "singleplayerwindow.hpp"
+#include "zei_texture.hpp"
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
@@ -44,6 +47,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , files(Files::instance())
   , hostgad(std::make_shared<Hostgad>(std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("host.gad"), false, false)))
   , quit(false)
+  , stringConverter(StringToSDLTextureConverter(renderer))
+  , savegame("")
+  , triggerStartGame(false)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "host.gad: " << hostgad->get_gadgets_size() << std::endl;
@@ -73,13 +79,10 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
   {
     wdg<TextureView>(background);
-    auto& table = wdg<TextureView>(tableTexture);
-    table.setPosition(tableGad->Pos.x, tableGad->Pos.y);
+    auto& tableFrame = wdg<TextureView>(tableTexture);
+    tableFrame.setPosition(tableGad->Pos.x, tableGad->Pos.y);
 
-    auto& newGameButton = wdg<TextureButton>(newGameTexture, [this] {
-      std::cout << "Singleplayer pressed" << std::endl;
-      // triggerStartGame = true;
-    });
+    auto& newGameButton = wdg<TextureButton>(newGameTexture, [this] { std::cout << "Singleplayer pressed" << std::endl; });
     newGameButton.setPosition(newGameButtonGad->Pos.x, newGameButtonGad->Pos.y);
     newGameButton.setSecondaryTexture(newGameTextureClicked);
     newGameButton.setTextureSwitchFlags(TextureButton::OnClick);
@@ -109,19 +112,38 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     {
       std::cout << "Savegame " << i << ": " << s[i] << std::endl;
     }
+    auto& table = ListTable(this, s, tableGad->Pos.x + 12, tableGad->Pos.y + 13);
   }
   performLayout(mSDL_Renderer);
 }
 
-// void MainMenu::LoadGame(const std::string& gam_name)
-// {
-//   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-//   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
+Widget& SinglePlayerWindow::ListTable(Widget* parent, std::vector<std::string> list, int x, int y)
+{
+  auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 8);
+  table.setPosition(x, y);
+  int index = 0;
+  for (auto& entry : list)
+  {
+    auto texture = stringConverter.Convert(entry);
+    auto& button = table.texturebutton(texture, [this, entry] {
+      std::cout << entry << " clicked" << std::endl;
+      savegame = entry;
+      triggerStartGame = true;
+    });
+    index++;
+  }
+  return table;
+}
 
-//   GameWindow gameWindow(renderer, haeuser, pwindow, width, height, gam_name, fullscreen);
-//   gameWindow.Handle();
-//   Handle();
-// }
+void SinglePlayerWindow::LoadGame(const std::string& gam_name)
+{
+  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
+  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
+
+  GameWindow gameWindow(renderer, haeuser, pwindow, width, height, gam_name, fullscreen);
+  gameWindow.Handle();
+  Handle();
+}
 
 // todo: add signal/slot for exiting window
 void SinglePlayerWindow::Handle()
@@ -180,11 +202,11 @@ void SinglePlayerWindow::Handle()
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-      // if (triggerStartGame)
-      // {
-      //   triggerStartGame = false;
-      //   this->LoadGame(this->gam_name);
-      // }
+      if (triggerStartGame)
+      {
+        triggerStartGame = false;
+        this->LoadGame(savegame);
+      }
       this->drawAll();
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(texture);

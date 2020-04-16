@@ -196,6 +196,7 @@ void Bildspeicher::zeichne_zei_zeichen(Zei_zeichen& zeichen, int x, int y)
   }
 }
 
+
 void Bildspeicher::zeichne_string(Zei_leser& zei_leser, std::string s, int x, int y)
 {
   for (char ch : s)
@@ -212,6 +213,11 @@ void Bildspeicher::setze_schriftfarbe(uint8_t schrift, uint8_t schatten)
 {
   indextabelle_schriftfarbe[1] = schrift;
   indextabelle_schriftfarbe[7] = schatten;
+}
+
+void Bildspeicher::fill_with_color(uint8_t color)
+{
+  memset((uint8_t*)puffer, color, hoehe * breite);
 }
 
 void Bildspeicher::exportiere_pnm(const char* pfadname)
