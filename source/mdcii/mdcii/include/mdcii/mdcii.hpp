@@ -3,7 +3,7 @@
 class Mdcii
 {
 public:
-  Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path, const std::string& gam_name);
+  Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path);
 
 private:
   static Uint32 timer_callback(Uint32 interval, void* param);

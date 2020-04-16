@@ -16,18 +16,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "bildspeicher_pal8.hpp"
-#include "palette.hpp"
 #include <fstream>
 #include <string.h>
+
+#include "bildspeicher_pal8.hpp"
+#include "palette.hpp"
 
 Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 1, farbe, puffer, pufferbreite)
 {
+  bild_loeschen();
 }
 
 void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 {
+  auto palette = Palette::instance();
   uint8_t ch;
   uint8_t* quelle = bild.puffer;
   uint8_t* zielzeile;
@@ -36,8 +39,15 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
   ziel = zielzeile = this->puffer + y * this->pufferbreite + x;
   int restbreite = this->pufferbreite;
 
-  while ((ch = *(quelle++)) != 0xff)
+  while (1)
   {
+    ch = *(quelle++);
+    if (ch == 0xff)
+    {
+      for (int i = restbreite; i < breite; i++)
+        *(ziel++) = palette->getTransparentColor();
+      break;
+    }
     if (ch == 0xfe)
     {
       ziel = zielzeile += restbreite;
@@ -50,6 +60,21 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
         *(ziel++) = *(quelle++);
     }
   }
+
+  //   while ((ch = *(quelle++)) != 0xff)
+  // {
+  //   if (ch == 0xfe)
+  //   {
+  //     ziel = zielzeile += restbreite;
+  //   }
+  //   else
+  //   {
+  //     ziel += ch;
+
+  //     for (ch = *(quelle++); ch > 0; ch--)
+  //       *(ziel++) = *(quelle++);
+  //   }
+  // }
 }
 
 void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)

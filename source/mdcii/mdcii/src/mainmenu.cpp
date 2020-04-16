@@ -38,14 +38,12 @@
 #include "singleplayerwindow.hpp"
 
 using namespace sdlgui;
-MainMenu::MainMenu(
-    SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, const std::string& gam_name)
+MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
   : renderer(renderer)
   , basegad(basegad)
   , width(rwidth)
   , height(rheight)
   , fullscreen(fullscreen)
-  , gam_name(gam_name)
   , pwindow(pwindow)
   , files(Files::instance())
   , triggerSinglePlayer(false)

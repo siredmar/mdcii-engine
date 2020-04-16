@@ -24,7 +24,7 @@
 Bildspeicher_rgb24::Bildspeicher_rgb24(uint32_t breite, uint32_t hoehe, uint32_t farbe, uint8_t* puffer, uint32_t pufferbreite)
   : Bildspeicher(breite, hoehe, 3, farbe, puffer, pufferbreite)
 {
-  // leer
+  bild_loeschen();
 }
 
 void Bildspeicher_rgb24::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)

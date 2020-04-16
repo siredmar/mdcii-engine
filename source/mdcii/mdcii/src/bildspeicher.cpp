@@ -177,8 +177,13 @@ void Bildspeicher::zeichne_zei_zeichen(Zei_zeichen& zeichen, int x, int y)
   int i = 0;
   unsigned char ch;
 
-  while ((ch = zeichen.puffer[i++]) != 0xff)
+  while (1)
   {
+    ch = zeichen.puffer[i++];
+    if (ch == 0xff)
+    {
+      break;
+    }
     if (ch == 0xfe)
     {
       u = 0;

@@ -37,8 +37,7 @@ using namespace sdlgui;
 class MainMenu : public Screen
 {
 public:
-  MainMenu(
-      SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, const std::string& gam_name);
+  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
   void Handle();
 
 private:
@@ -47,7 +46,6 @@ private:
   int width;
   int height;
   bool fullscreen;
-  std::string gam_name;
   bool triggerSinglePlayer;
   SDL_Window* pwindow;
   Files* files;

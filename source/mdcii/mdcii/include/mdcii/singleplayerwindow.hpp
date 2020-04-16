@@ -44,7 +44,7 @@ public:
 
 private:
   void LoadGame(const std::string& gam_name);
-  Widget& ListTable(Widget* parent, std::vector<std::string> list, int x, int y);
+  Widget& ListTable(Widget* parent, std::vector<std::string> list, int x, int y, int verticalMargin);
 
   SDL_Renderer* renderer;
   int width;

@@ -43,7 +43,7 @@ Uint32 Mdcii::timer_callback(Uint32 interval, void* param)
 }
 
 
-Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path, const std::string& gam_name)
+Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path)
 {
   Anno_version version;
 
@@ -53,12 +53,6 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   if (files->instance()->check_all_files(&files_to_check) == false)
   {
     std::cout << "[ERR] File check failed. Exiting." << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (files->instance()->check_file(gam_name) == false)
-  {
-    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -97,6 +91,6 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   // GameWindow gameWindow(renderer, haeuser, window, screen_width, screen_height, gam_name, fullscreen);
   // gameWindow.Handle();
 
-  MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen, gam_name);
+  MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
   mainMenu.Handle();
 }

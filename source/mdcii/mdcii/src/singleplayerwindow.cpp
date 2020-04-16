@@ -112,24 +112,27 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     {
       std::cout << "Savegame " << i << ": " << s[i] << std::endl;
     }
-    auto& table = ListTable(this, s, tableGad->Pos.x + 12, tableGad->Pos.y + 13);
+    auto& table = ListTable(this, s, tableGad->Pos.x + 15, tableGad->Pos.y + 13, 2);
   }
   performLayout(mSDL_Renderer);
 }
 
-Widget& SinglePlayerWindow::ListTable(Widget* parent, std::vector<std::string> list, int x, int y)
+Widget& SinglePlayerWindow::ListTable(Widget* parent, std::vector<std::string> list, int x, int y, int verticalMargin)
 {
-  auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 8);
+  auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 3);
   table.setPosition(x, y);
   int index = 0;
   for (auto& entry : list)
   {
-    auto texture = stringConverter.Convert(entry);
+    auto texture = stringConverter.Convert(entry, 240, 0, 2);
+    auto textureHover = stringConverter.Convert(entry, 245, 0, 2);
     auto& button = table.texturebutton(texture, [this, entry] {
       std::cout << entry << " clicked" << std::endl;
       savegame = entry;
       triggerStartGame = true;
     });
+    button.setSecondaryTexture(textureHover);
+    button.setTextureSwitchFlags(TextureButton::OnClick);
     index++;
   }
   return table;
@@ -139,6 +142,12 @@ void SinglePlayerWindow::LoadGame(const std::string& gam_name)
 {
   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
+
+  if (files->instance()->check_file(gam_name) == false)
+  {
+    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   GameWindow gameWindow(renderer, haeuser, pwindow, width, height, gam_name, fullscreen);
   gameWindow.Handle();

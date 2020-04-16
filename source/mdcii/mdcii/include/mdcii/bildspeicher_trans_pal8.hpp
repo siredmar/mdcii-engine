@@ -1,5 +1,6 @@
+
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2020  Armin Schlegel
+// Copyright (C) 2020 Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,26 +16,31 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _ZEI_TEXTURE
-#define _ZEI_TEXTURE
+#ifndef BILDSPEICHER_TRANS_PAL8_HPP
+#define BILDSPEICHER_TRANS_PAL8_HPP
 
-#include <SDL2/SDL.h>
+#include <inttypes.h>
 
-#include "bildspeicher_pal8.hpp"
+#include "bildspeicher.hpp"
 #include "bsh_leser.hpp"
-#include "files.hpp"
-#include "palette.hpp"
 
-class StringToSDLTextureConverter
+
+class Bildspeicher_trans_pal8 : public Bildspeicher
 {
 public:
-  StringToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
+  Bildspeicher_trans_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0, uint8_t transparent = 253);
+  void zeichne_bsh_bild(Bsh_bild& bild, int x, int y);
+  void zeichne_pixel(int x, int y, uint8_t farbe);
+  void exportiere_pnm(const char* pfadname);
+  void exportiere_bmp(const char* pfadname);
+  void bild_loeschen();
+  uint8_t* get_buffer();
 
 private:
-  SDL_Renderer* renderer;
-  Files* files;
-  std::shared_ptr<Zei_leser> zei;
+  uint8_t transparent;
+  uint8_t dunkel[256];
+
+  void zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y);
 };
 
 #endif
