@@ -25,12 +25,14 @@
 
 #include "sdlgui/imageview.h"
 #include "sdlgui/screen.h"
+#include "sdlgui/widget.h"
 #include "sdlgui/window.h"
 
 #include "basegad_dat.hpp"
 #include "files.hpp"
 #include "host_gad.hpp"
-
+#include "zei_leser.hpp"
+#include "zei_texture.hpp"
 
 using namespace sdlgui;
 
@@ -41,6 +43,9 @@ public:
   void Handle();
 
 private:
+  void LoadGame(const std::string& gam_name);
+  Widget& ListTable(Widget* parent, std::vector<std::string> list, int x, int y);
+
   SDL_Renderer* renderer;
   int width;
   int height;
@@ -49,5 +54,8 @@ private:
   Files* files;
   bool quit;
   std::shared_ptr<Hostgad> hostgad;
+  StringToSDLTextureConverter stringConverter;
+  std::string savegame;
+  bool triggerStartGame;
 };
 #endif

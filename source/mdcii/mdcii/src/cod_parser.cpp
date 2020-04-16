@@ -258,6 +258,12 @@ void Cod_Parser::parse_file()
           std::vector<std::string> result = regex_search("(\\b(?!Objekt\\b)\\w+)\\s*:\\s*(.+)", line);
           if (result.size() > 0)
           {
+            if (object_stack.size() == 0)
+            {
+              unparsedLines.push_back(line);
+              continue;
+            }
+
             std::vector<int> current_array_values;
             std::vector<std::string> values = split_by_delimiter(result[2], ",");
             for (auto& v : values)
@@ -382,6 +388,12 @@ void Cod_Parser::parse_file()
       std::vector<std::string> result = regex_search("(\\b(?!Objekt|ObjFill|Nummer\\b)\\w+)\\s*:\\s*(\\w+)", line);
       if (result.size() > 0)
       {
+        if (object_stack.size() == 0)
+        {
+          unparsedLines.push_back(line);
+          continue;
+        }
+
         int index = exists_in_current_object(result[1]);
 
         cod_pb::Variable* var;

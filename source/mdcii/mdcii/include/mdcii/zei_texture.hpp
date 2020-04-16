@@ -15,42 +15,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
-
-#include <iostream>
-#include <memory>
+#ifndef _ZEI_TEXTURE
+#define _ZEI_TEXTURE
 
 #include <SDL2/SDL.h>
 
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "basegad_dat.hpp"
-#include "cod_parser.hpp"
+#include "bildspeicher_pal8.hpp"
+#include "bsh_leser.hpp"
 #include "files.hpp"
+#include "palette.hpp"
 
-
-using namespace sdlgui;
-
-class MainMenu : public Screen
+class StringToSDLTextureConverter
 {
 public:
-  MainMenu(
-      SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, const std::string& gam_name);
-  void Handle();
+  StringToSDLTextureConverter(SDL_Renderer* renderer);
+  SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0);
 
 private:
   SDL_Renderer* renderer;
-  std::shared_ptr<Basegad> basegad;
-  int width;
-  int height;
-  bool fullscreen;
-  std::string gam_name;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
   Files* files;
-  bool quit;
+  std::shared_ptr<Zei_leser> zei;
 };
+
 #endif

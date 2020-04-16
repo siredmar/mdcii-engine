@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "bildspeicher_trans_pal8.hpp"
+#include "bildspeicher_pal8.hpp"
 #include "bsh_leser.hpp"
 #include "palette.hpp"
 
