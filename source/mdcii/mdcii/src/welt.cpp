@@ -16,9 +16,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "welt.hpp"
-#include "files.hpp"
+#include <iostream>
 #include <string.h>
+
+#include <SDL2/SDL.h>
+
+#include "files.hpp"
+#include "welt.hpp"
 
 Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
   : haeuser(haeuser)
@@ -152,14 +156,21 @@ Insel* Welt::insel_an_pos(uint16_t x, uint16_t y)
 
 void Welt::simulationsschritt()
 {
-  auto info = haeuser->get_haus(1201);
-  if (info)
+  uint32_t now = SDL_GetTicks();
+  static uint32_t old = 0;
+  uint32_t tickdiff = now - old;
+  auto water = haeuser->get_haus(1201);
+  if (water)
   {
-    ani = (ani + 1) % info.value()->AnimAnz;
-  }
-  for (Insel* insel : inseln)
-  {
-    insel->bewege_wasser();
+    if (tickdiff >= water.value()->AnimTime)
+    {
+      ani = (ani + 1) % water.value()->AnimAnz;
+      for (Insel* insel : inseln)
+      {
+        insel->bewege_wasser();
+      }
+      old = now;
+    }
   }
   for (Prodlist& prod : prodlist)
   {
