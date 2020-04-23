@@ -72,6 +72,9 @@ set(headers
     ${include_path}/welt.hpp
     ${include_path}/zei_leser.hpp
     ${include_path}/zei_texture.hpp
+    ${include_path}/gam/chunk.hpp
+    ${include_path}/gam/island.hpp
+    ${include_path}/gam/gamParser.hpp
 )
 
 set(sources
@@ -98,6 +101,9 @@ set(sources
     ${source_path}/version.cpp
     ${source_path}/welt.cpp
     ${source_path}/zei_texture.cpp
+    ${source_path}/gam/chunk.cpp
+    ${source_path}/gam/island.cpp
+    ${source_path}/gam/gamParser.cpp
 )
 
 # Group source files
