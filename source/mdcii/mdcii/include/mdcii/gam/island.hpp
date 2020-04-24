@@ -2,8 +2,9 @@
 #define _INSEL_5_HPP
 
 #include <inttypes.h>
+#include <string>
 
-struct OreMountainData // ErzbergData
+struct OreMountainData // Erzberg
 {
   uint8_t ware;        // Welche Ware liegt hier??
   uint8_t posx;        // Position auf Insel
@@ -14,7 +15,7 @@ struct OreMountainData // ErzbergData
   uint16_t lager;      // Wieviel liegt hier ??
 };
 
-struct Island5Data
+struct Island5Data // Insel5
 {
   uint8_t inselnr;
   uint8_t felderx;
@@ -49,9 +50,11 @@ struct Island5Data
 class Island5
 {
 public:
-  Island5(uint8_t* data, uint32_t length);
-
+  Island5(uint8_t* data, uint32_t length, const std::string& name);
   Island5Data island5;
+
+private:
+  std::string name;
 };
 
 #endif // _INSEL_5_HPP

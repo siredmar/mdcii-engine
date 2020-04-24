@@ -74,6 +74,7 @@ set(headers
     ${include_path}/zei_texture.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/island.hpp
+    ${include_path}/gam/mission.hpp
     ${include_path}/gam/gamParser.hpp
 )
 
@@ -103,6 +104,7 @@ set(sources
     ${source_path}/zei_texture.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/island.cpp
+    ${source_path}/gam/mission.cpp
     ${source_path}/gam/gamParser.cpp
 )
 
