@@ -5,6 +5,7 @@
 
 # find_package(THIRDPARTY REQUIRED)
 find_package(SDL2)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-psabi")
 find_package(Boost
     1.65.1                         # Minimum or EXACT version e.g. 1.36.0
@@ -74,7 +75,7 @@ set(headers
     ${include_path}/zei_texture.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/island.hpp
-    ${include_path}/gam/mission.hpp
+    ${include_path}/gam/missions.hpp
     ${include_path}/gam/gamParser.hpp
 )
 
@@ -104,7 +105,7 @@ set(sources
     ${source_path}/zei_texture.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/island.cpp
-    ${source_path}/gam/mission.cpp
+    ${source_path}/gam/missions.cpp
     ${source_path}/gam/gamParser.cpp
 )
 
@@ -127,7 +128,7 @@ add_library(${target} STATIC
     ${headers}
 )
 
-target_compile_features(${target} PUBLIC cxx_std_14)
+target_compile_features(${target} PUBLIC cxx_std_17)
 
 # Create namespaced alias
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})

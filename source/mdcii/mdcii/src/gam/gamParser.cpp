@@ -9,6 +9,10 @@ GamParser::GamParser(std::string gam)
 {
   auto files = Files::instance();
   auto path = files->find_path_for_file(gam);
+  if (path == "")
+  {
+    throw("canno find file");
+  }
   std::ifstream f;
   f.open(path, std::ios_base::in | std::ios_base::binary);
   while (!f.eof())
@@ -74,10 +78,13 @@ GamParser::GamParser(std::string gam)
     else if (chunkName == "PLAYER2" || chunkName == "PLAYER2" || chunkName == "PLAYER4")
     {
     }
-    else if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2" || chunkName == "AUFTRAG4")
+    else if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2")
     {
-      auto i = std::make_shared<Mission>(c->chunk.data, c->chunk.length, chunkName);
-      missions.push_back(i);
+      mission2 = std::make_shared<Mission2>(c->chunk.data, c->chunk.length, chunkName);
+    }
+    else if (chunkName == "AUFTRAG4")
+    {
+      mission4 = std::make_shared<Mission4>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE")
     {
@@ -97,12 +104,20 @@ GamParser::GamParser(std::string gam)
     }
   }
 
+
   std::cout << "chunks: " << chunks.size() << std::endl;
   std::cout << "islands: " << islands.size() << std::endl;
-  std::cout << "missions: " << missions.size() << std::endl;
-  for (auto m : missions)
+  if (mission2)
   {
-    std::cout << std::string(m->mission.infotxt) << std::endl;
+    std::cout << "mission2: " << mission2->missions.size() << std::endl;
   }
+  if (mission4)
+  {
+    std::cout << "mission4: " << mission4->missions.size() << std::endl;
+  }
+  // for (auto m : missions->missions)
+  // {
+  //   std::cout << std::string(m->infotxt[0]) << std::endl;
+  // }
   f.close();
 }
