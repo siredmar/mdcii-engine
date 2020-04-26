@@ -1,7 +1,7 @@
 #
 # External dependencies
 #
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-psabi")
 
 SET(Boost_USE_STATIC_LIBS OFF)

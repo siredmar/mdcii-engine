@@ -4,7 +4,10 @@
 
 Chunk::Chunk(std::istream& f)
 {
-  f.read(chunk.name, sizeof(chunk.name));
+  int ChunkSize = 16;
+  char n[ChunkSize];
+  f.read(n, ChunkSize);
+  chunk.name = std::string(n);
   f.read((char*)&chunk.length, sizeof(chunk.length));
   chunk.data = new uint8_t[chunk.length];
   f.read((char*)chunk.data, chunk.length);

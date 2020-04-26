@@ -5,7 +5,7 @@
 
 struct ChunkData
 {
-  char name[16];
+  std::string name;
   uint32_t length;
   uint8_t* data;
 };
