@@ -6,47 +6,45 @@
 #include <variant>
 #include <vector>
 
-typedef unsigned char BYTE;
-typedef unsigned short UWORD;
-typedef unsigned int UINT;
-
-enum class MonopolyGood
+enum class MonopolyGood : uint8_t
 {
-  ore = 0x02,       // erz
-  gold = 0x03,      // gold
-  cacao = 0x33,     // kakao
-  wool = 0x31,      // baumwolle
-  spices = 0x2f,    // gewuerze
-  tabaco = 0x2e,    // tabak
-  whine = 0x32,     // wein
-  sugar_cane = 0x30 // zuckerrohr
+  Ore = 0x02,       // Erz
+  Gold = 0x03,      // Gold
+  Tabaco = 0x2e,    // Tabak
+  Spices = 0x2f,    // Gewuerze
+  SugarCane = 0x30, // Zuckerrohr
+  Wool = 0x31,      // Baumwolle
+  Whine = 0x32,     // Wein
+  Cacao = 0x33      // Kakao
 };
 
-struct MissionGoodsData // Auftragware, WaremMoni
+struct MissionGoods
 {
-  uint8_t ware; // MonopolyGood
+  MonopolyGood ware;
   uint8_t anz;
 };
 
-struct CityMinData // Auftragcity
+enum class BGruppWohn : int32_t
 {
-  int wohnanz;
-  int bgruppnr;
-  UINT bgruppwohn;
+  Pioneer = 0,
+  Settlers = 1,
+  Citizens = 2,
+  Merchants = 3,
+  Aristocrats = 4
 };
 
-struct WareMinData // Auftragware
+struct CityMin
 {
-  BYTE ware;   // index of good
-  BYTE leer1;  // empty
-  UWORD lager; // amount in 1/32 t (bitshift by 5)
+  int32_t wohnanz;
+  BGruppWohn bgruppnr;
+  uint32_t bgruppwohn;
 };
 
-struct Mission2Data // Auftrag2
+struct WareMin
 {
-  uint32_t nr;           // mission for specific player (0...3)
-  char infotxt[13][128]; // 13 lines of text
-  char padding[16];      // empty
+  uint8_t ware;    // index of good // TODO find out good indexes
+  uint8_t leer1;   // empty
+  uint16_t amount; // amount in 1/32 t (bitshift by 5)
 };
 
 struct Mission4Flags
@@ -70,8 +68,8 @@ struct Mission4Flags
   uint8_t tradingbalance : 1; // 16, 0x10000
   uint8_t palace : 1;         // 17, 0x20000, a palace needs to be built
   uint8_t cathedral : 1;      // 18, 0x40000, a cathedrale needs to be built
-  uint8_t empty6 : 5;
-  uint8_t empty7;
+  uint8_t empty6 : 5;         // empty
+  uint8_t empty7;             // empty
 };
 
 struct Mission4LooseFlags
@@ -80,56 +78,97 @@ struct Mission4LooseFlags
   uint8_t stadtanzminfrmd : 1; // enables stadtanzminfrmd
   uint8_t empty1 : 2;          // empty
   uint8_t stadtminfrmd : 1;    // enables stadtminfrmd
-  uint8_t emprty2 : 3;
-  uint32_t empty3 : 24;
+  uint8_t empty2 : 3;          // empty
+  uint32_t empty3 : 24;        // empty
+};
+
+enum class EndMovie : int
+{
+  EndMovieDisabled = 0x54,
+  EndMovie1 = 0x55,
+  EndMovie2 = 0x56,
+  EndMovie3 = 0x57,
+  EndMovie4 = 0x5F,
+  EndMovie5 = 0x60,
+  EndMovie6 = 0x62,
+  EndMovie7 = 0x63,
+  EndMovie8 = 0x64,
+  EndMovie9 = 0x65,
+  EndMovie10 = 0x66,
+  EndMovie11 = 0x67,
+  EndMovie12 = 0x68,
+  EndMovie13 = 0x69,
+  EndMovie14 = 0x6A,
+  EndMovie15 = 0x6B
+};
+
+enum class HelpPlayer : uint8_t
+{
+  Player0 = 0,
+  Player1 = 1,
+  Player2 = 2,
+  Player3 = 3,
+  AnyPlayer = 7
+};
+
+enum class MissionNumber : uint8_t
+{
+  Mission0 = 0,
+  Mission1 = 1,
+  Mission2 = 2,
+  Mission3 = 3
 };
 
 struct Mission4Data // Auftrag4
 {
-  int nr;                        // mission for specific player (0...3)
+  MissionNumber nr;              // mission number, max 4 missions
   Mission4Flags flags;           // flags that enable specific parts of the mission to win the game
   Mission4LooseFlags looseflags; // flags that enable specific parts of the mission to loose the game
-  UINT empty[5];                 // empty
-  MissionGoodsData waremono[2];  // monopoly for goods
-  BYTE helpplayernr;             // which player shall be helped: 0, 1, 2, 3 (players), 6 (native), 7 (any)
-  BYTE leer2[6];                 // empty
-  BYTE killanz;                  // unused? Number of opponents to be killed?
-  BYTE killplayernr[16];         // which players shall be killed ([0]: 0, ...[3]: 3, [4] not set, [5]: any, [6]: pirates)
-  int killstadtanz;              // unused? Number of opponents cities to be destroyed?
-  int stadtanz;                  // unused? Number of own cities to be built? maybe number for stadtmin?
-  int wohnanz;                   // how much settlers must be reached (overall sum)
-  int money;                     // how much money shall be reached
-  int bilanz;                    // how good must the balance sheet be
-  int meldnr;                    // unused?
-  int handelsbilanz;             // how good must the trading balance sheet be
-  int stadtanzmin;               // unused? maybe number for stadtmin?
-  short stadtanzminfrmd;         // foreign allied city goals to _hold_ number of _cities_
-  short leer4[1];                // empty
-  int leer3[2];                  // empty
+  uint32_t empty1[5];            // empty
+  MissionGoods waremono[2];      // monopoly for goods
+  HelpPlayer helpPlayer;         // which player shall receive help
+  uint8_t empty2[6];             // empty
+  uint8_t killanz;               // unused? Number of opponents to be killed?
+  uint8_t killplayernr[16];      // which players shall be killed ([0]: any, [1] ... [4]: players 1 - 4, [5] not set, [5]: empty, [6]: pirates, [7...15] empty)
+  int32_t killstadtanz;          // unused? Number of opponents cities to be destroyed?
+  int32_t stadtanz;              // unused? Number of own cities to be built? maybe number for stadtmin?
+  int32_t wohnanz;               // how much settlers must be reached (overall sum)
+  int32_t money;                 // how much money shall be reached
+  int32_t bilanz;                // how good must the `balance sheet` be
+  EndMovie endMovie;             // movie number that is shown when mission is finished
+  int32_t handelsbilanz;         // how good must the `trading balance sheet` be
+  int32_t stadtanzmin;           // unused? maybe number for stadtmin?
+  int16_t stadtanzminfrmd;       // foreign allied city goal to `_hold_ number of _cities_`
+  uint8_t empty3[10];            // empty
   char infotxt[2048];            // mission info text
-  WareMinData waremin[2];        // goal to have specific amount of goods. Enabled by `store1` and `store2` in flags
-  CityMinData stadtmin[4];       // goal to reach cities with specific settlers. Enabled by `city1`, `city2` and `city3` in flags
-  CityMinData stadtlowfrmd;      // foreign allied city goal to _hold_ specific amount of _settlers_
-  CityMinData stadtminall;       // unused?
-  CityMinData stadtminfrmd;      // foreign allied city goal to _reach_ specific amount of _settlers_
+  WareMin waremin[2];            // goal to have specific amount of goods. Enabled by `store1` and `store2` in flags
+  CityMin stadtmin[4];           // goal to reach cities with specific settlers. Enabled by `city1`, `city2` and `city3` in flags
+  CityMin stadtlowfrmd;          // foreign allied city goal to `_hold_ specific amount of _settlers_`
+  CityMin stadtminall;           // unused?
+  CityMin stadtminfrmd;          // foreign allied city goal to `_reach_ specific amount of _settlers_`
 };
 
 class Mission4
 {
 public:
   Mission4(uint8_t* data, uint32_t length, const std::string& name);
-  // multiple Missions are placed in one chunk
   std::vector<Mission4Data> missions;
 
 private:
   std::string name;
 };
 
+struct Mission2Data // Auftrag2
+{
+  uint32_t nr;           // mission for specific player (0...3)
+  char infotxt[13][128]; // 13 lines of text
+  char padding[16];      // empty
+};
+
 class Mission2
 {
 public:
   Mission2(uint8_t* data, uint32_t length, const std::string& name);
-  // multiple Missions are placed in one chunk
   std::vector<Mission2Data> missions;
 
 private:

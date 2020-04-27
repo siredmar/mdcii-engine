@@ -50,14 +50,14 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
 
   auto files = Files::create_instance(files_path);
 
-  // try
-  // {
-  //   GamParser gamParser("buendnis.szs");
-  // }
-  // catch (std::exception& ex)
-  // {
-  //   std::cout << ex.what() << std::endl;
-  // }
+  try
+  {
+    GamParser gamParser("buendnis.szs");
+  }
+  catch (std::exception& ex)
+  {
+    std::cout << ex.what() << std::endl;
+  }
 
   version = Version::Detect_game_version();
   if (files->instance()->check_all_files(&files_to_check) == false)
