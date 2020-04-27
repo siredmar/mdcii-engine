@@ -8,14 +8,14 @@
 
 enum class MonopolyGood : uint8_t
 {
-  Ore = 0x02,       // Erz
-  Gold = 0x03,      // Gold
-  Tabaco = 0x2e,    // Tabak
-  Spices = 0x2f,    // Gewuerze
-  SugarCane = 0x30, // Zuckerrohr
-  Wool = 0x31,      // Baumwolle
-  Whine = 0x32,     // Wein
-  Cacao = 0x33      // Kakao
+  Ore = 0x02,    // Erz
+  Gold = 0x03,   // Gold
+  Tabaco = 0x2e, // Tabak
+  Spices = 0x2f, // Gewuerze
+  Sugar = 0x30,  // Zuckerrohr
+  Wool = 0x31,   // Baumwolle
+  Whine = 0x32,  // Wein
+  Cacao = 0x33   // Kakao
 };
 
 struct MissionGoods
@@ -40,9 +40,36 @@ struct CityMin
   uint32_t bgruppwohn;
 };
 
+enum class Goods : uint8_t
+{
+  None = 0,
+  Empty = 1,
+  Ore = 2,        // Eisenerz
+  Gold = 3,       // Gold
+  Wool = 4,       // Wolle
+  Sugar = 5,      // Zucker
+  Tabaco = 6,     // Tabak
+  Cattle = 7,     // Schlachtvieh
+  Corn = 8,       // Korn
+  Flour = 9,      // Mehl
+  Iron = 10,      // Eisen
+  Sword = 11,     // Schwerter
+  Musket = 12,    // Musketen
+  Canon = 13,     // Kanonen
+  Food = 14,      // Nahrung
+  Cigaretts = 15, // Tabakwaren
+  Spices = 16,    // Gewuerze
+  Cacao = 17,     // Kakao
+  Alcohol = 18,   // Alkohol
+  Fabric = 19,    // Stoffe
+  Clothing = 20,  // Kleidung
+  Jewellery = 21, // Schmuck
+  Tools = 22,     // Werkzeug
+};
+
 struct WareMin
 {
-  uint8_t ware;    // index of good // TODO find out good indexes
+  Goods ware;      // index of good // TODO find out good indexes
   uint8_t leer1;   // empty
   uint16_t amount; // amount in 1/32 t (bitshift by 5)
 };

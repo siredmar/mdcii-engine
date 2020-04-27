@@ -7,6 +7,7 @@
 #include "chunk.hpp"
 #include "files.hpp"
 #include "island.hpp"
+#include "kontor.hpp"
 #include "missions.hpp"
 
 class GamParser
@@ -19,6 +20,7 @@ private:
   std::vector<std::shared_ptr<Island5>> islands;
   std::shared_ptr<Mission2> mission2;
   std::shared_ptr<Mission4> mission4;
+  std::shared_ptr<Kontor2> kontor2;
 };
 
 #endif // _GAM_PARSER_HPP

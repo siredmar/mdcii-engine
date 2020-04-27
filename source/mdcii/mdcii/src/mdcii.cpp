@@ -52,7 +52,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
 
   try
   {
-    GamParser gamParser("buendnis.szs");
+    GamParser gamParser("asdf3.szs");
   }
   catch (std::exception& ex)
   {

@@ -47,6 +47,7 @@ GamParser::GamParser(std::string gam)
     }
     else if (chunkName == "KONTOR2")
     {
+      kontor2 = std::make_shared<Kontor2>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "MARKT2")
     {
@@ -84,6 +85,7 @@ GamParser::GamParser(std::string gam)
     }
     else if (chunkName == "AUFTRAG4")
     {
+
       mission4 = std::make_shared<Mission4>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE")
