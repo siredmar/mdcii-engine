@@ -111,7 +111,7 @@ enum class HelpPlayer : uint8_t
   AnyPlayer = 7
 };
 
-enum class MissionNumber : uint8_t
+enum class MissionNumber : uint32_t
 {
   Mission0 = 0,
   Mission1 = 1,
@@ -160,7 +160,7 @@ private:
 
 struct Mission2Data // Auftrag2
 {
-  uint32_t nr;           // mission for specific player (0...3)
+  MissionNumber nr;      // mission for specific player (0...3)
   char infotxt[13][128]; // 13 lines of text
   char padding[16];      // empty
 };
