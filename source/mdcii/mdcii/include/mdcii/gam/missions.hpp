@@ -65,6 +65,8 @@ enum class Goods : uint8_t
   Clothing = 20,  // Kleidung
   Jewellery = 21, // Schmuck
   Tools = 22,     // Werkzeug
+  Wood = 23,      // Holz
+  Stone = 24,     // Ziegel
 };
 
 struct WareMin
