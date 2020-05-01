@@ -17,7 +17,8 @@ public:
 
 private:
   std::vector<std::shared_ptr<Chunk>> chunks;
-  std::vector<std::shared_ptr<Island5>> islands;
+  std::vector<std::shared_ptr<Island5>> islands5;
+  std::vector<std::shared_ptr<Island3>> islands3;
   std::shared_ptr<Mission2> mission2;
   std::shared_ptr<Mission4> mission4;
   std::shared_ptr<Kontor2> kontor2;

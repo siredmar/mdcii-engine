@@ -22,10 +22,15 @@ GamParser::GamParser(std::string gam)
   for (auto& c : chunks)
   {
     auto chunkName = std::string(c->chunk.name);
-    if (chunkName == "INSEL3" || chunkName == "INSEL4" || chunkName == "INSEL5")
+    if (chunkName == "INSEL3")
+    {
+      auto i = std::make_shared<Island3>(c->chunk.data, c->chunk.length, chunkName);
+      islands3.push_back(i);
+    }
+    else if (chunkName == "INSEL4" || chunkName == "INSEL5")
     {
       auto i = std::make_shared<Island5>(c->chunk.data, c->chunk.length, chunkName);
-      islands.push_back(i);
+      islands5.push_back(i);
     }
     else if (chunkName == "INSELHAUS")
     {

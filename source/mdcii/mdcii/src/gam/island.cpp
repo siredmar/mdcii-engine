@@ -8,3 +8,9 @@ Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
 {
   memcpy((char*)&island5, data, length);
 }
+
+Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
+{
+  memcpy((char*)&island3, data, length);
+}
