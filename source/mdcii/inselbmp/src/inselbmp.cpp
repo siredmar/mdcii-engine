@@ -19,15 +19,16 @@
 #include <inttypes.h>
 #include <iostream>
 #include <stdlib.h>
-#include <string.h>
 
 #include <fstream>
+#include <string>
 
 #include "mdcii/bildspeicher_pal8.hpp"
 #include "mdcii/bsh_leser.hpp"
 #include "mdcii/cod_parser.hpp"
 #include "mdcii/files.hpp"
 #include "mdcii/insel.hpp"
+#include "mdcii/palette.hpp"
 #include "mdcii/version.hpp"
 
 
@@ -41,9 +42,9 @@
 */
 int main(int argc, char** argv)
 {
-  if (argc < 3)
+  if (argc < 4)
   {
-    std::cout << "usage: ./mdcii-inselbmp <island.scp> <output.bmp>" << std::endl;
+    std::cout << "usage: ./mdcii-inselbmp <island.scp> <output.bmp> <anno path>" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -55,10 +56,10 @@ int main(int argc, char** argv)
 
   f.close();
 
-  auto files = Files::create_instance(".");
+  auto files = Files::create_instance(std::string(argv[3]));
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-
+  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
   Anno_version version = Version::Detect_game_version();
 
   Insel insel = Insel(&inselX, &inselhaus, haeuser);

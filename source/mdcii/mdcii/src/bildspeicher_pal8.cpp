@@ -227,7 +227,7 @@ void Bildspeicher_pal8::exportiere_bmp(const char* pfadname)
 
   for (int i = 0; i < palette->size(); i++)
   {
-    bmp << palette->getColor(i).getBlue() << palette->getColor(i).getBlue() << palette->getColor(i).getRed() << (char)0;
+    bmp << palette->getColor(i).getBlue() << palette->getColor(i).getGreen() << palette->getColor(i).getRed() << (char)0;
   }
 
   for (int i = hoehe - 1; i >= 0; i--)
