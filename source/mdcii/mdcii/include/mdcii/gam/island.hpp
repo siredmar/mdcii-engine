@@ -1,18 +1,18 @@
-#ifndef _INSEL_5_HPP
-#define _INSEL_5_HPP
+#ifndef _ISLAND_HPP
+#define _ISLAND_HPP
 
 #include <inttypes.h>
 #include <string>
 
 struct OreMountainData // Erzberg
 {
-  uint8_t ware;        // Welche Ware liegt hier??
-  uint8_t posx;        // Position auf Insel
-  uint8_t posy;        // "
-  uint8_t playerflags; // Welche Spieler kennen Geheimnis (ACHTUNG: PLAYER_MAX)
-  uint8_t kind;        // Welche Ausführung??
-  uint8_t leer1;       // Reserve ist immer gut
-  uint16_t lager;      // Wieviel liegt hier ??
+  uint8_t ware;        // which good lays here?
+  uint8_t posx;        // position on island x
+  uint8_t posy;        // position on island y
+  uint8_t playerflags; // which player knows this secret? (DANGER: PLAYER_MAX)
+  uint8_t kind;        // which kind?
+  uint8_t empty;       // empty
+  uint16_t stock;      // how much of this good lays here?
 };
 
 struct Island5Data // Insel5
@@ -57,4 +57,28 @@ private:
   std::string name;
 };
 
-#endif // _INSEL_5_HPP
+struct Island3Data // Insel3
+{
+  uint8_t inselnr;    // ID for this island (per game)
+  uint8_t breite;     // width
+  uint8_t hoehe;      // height
+  uint8_t a;          // TODO: unknown
+  uint16_t x_pos;     // position of island x
+  uint16_t y_pos;     // position of island y
+  uint16_t b;         // TODO: unknown
+  uint16_t c;         // TODO: unknown
+  uint8_t bytes1[28]; // TODO: unknown
+};
+
+class Island3
+{
+public:
+  Island3(uint8_t* data, uint32_t length, const std::string& name);
+  Island3Data island3;
+
+private:
+  std::string name;
+};
+
+
+#endif // _ISLAND_HPP
