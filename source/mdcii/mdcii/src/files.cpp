@@ -76,17 +76,18 @@ bool Files::check_all_files(std::vector<std::string>* files)
 
 std::string Files::find_path_for_file(std::string file)
 {
+  std::string lcaseFile = string_to_lower_case(file);
   // Search for the file as substring in the lowercased directory tree
   for (auto t : tree)
   {
     std::string tree_file = string_to_lower_case(t);
-    if (tree_file.find(boost::filesystem::path::preferred_separator + file) != std::string::npos)
+    if (tree_file.find(boost::filesystem::path::preferred_separator + lcaseFile) != std::string::npos)
     {
       std::cout << "[INFO] Path found [" << file << "]: " << t << std::endl;
       return t;
     }
   }
-  return file;
+  return "";
 }
 
 std::string Files::string_to_lower_case(const std::string& str)
