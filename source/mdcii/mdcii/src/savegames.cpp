@@ -21,7 +21,7 @@
 Savegames::Savegames()
 {
   auto files = Files::instance();
-  auto savegamefolder = files->find_path_for_file("savegame");
+  auto savegamefolder = files->find_path_for_file("/savegame");
   auto tree = files->get_directories_files(savegamefolder);
   for (auto& s : tree)
   {
