@@ -113,7 +113,8 @@ GamParser::GamParser(std::string gam)
 
 
   std::cout << "chunks: " << chunks.size() << std::endl;
-  std::cout << "islands: " << islands.size() << std::endl;
+  std::cout << "islands: " << islands5.size() << std::endl;
+  std::cout << "islands: " << islands3.size() << std::endl;
   if (mission2)
   {
     std::cout << "mission2: " << mission2->missions.size() << std::endl;
