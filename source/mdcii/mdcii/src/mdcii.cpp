@@ -12,7 +12,7 @@
 #include "files.hpp"
 #include "files_to_check.hpp"
 #include "fps.hpp"
-#include "gam/gamParser.hpp"
+#include "gam/gam_parser.hpp"
 #include "gamewindow.hpp"
 #include "kamera.hpp"
 #include "mainmenu.hpp"
@@ -49,15 +49,6 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   Anno_version version;
 
   auto files = Files::create_instance(files_path);
-
-  // try
-  // {
-  //   GamParser gamParser("asdf3.szs");
-  // }
-  // catch (std::exception& ex)
-  // {
-  //   std::cout << ex.what() << std::endl;
-  // }
 
   version = Version::Detect_game_version();
   if (files->instance()->check_all_files(&files_to_check) == false)

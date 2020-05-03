@@ -14,7 +14,7 @@ find_package(Boost
 find_package(SDL2)
 
 # Target name
-set(target cod_parser_test)
+set(target cod_parser)
 
 # Exit here if required dependencies are not met
 message(STATUS "Application ${target}")
@@ -22,7 +22,7 @@ message(STATUS "Application ${target}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(sources
-    ${source_path}/cod_parser_test.cpp
+    ${source_path}/cod_parser.cpp
 )
 
 #

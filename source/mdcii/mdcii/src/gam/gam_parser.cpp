@@ -1,9 +1,27 @@
+// This file is part of the MDCII Game Engine.
+// Copyright (C) 2020  Armin Schlegel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include "gam/gamParser.hpp"
+#include "files.hpp"
+#include "gam/gam_parser.hpp"
 
 GamParser::GamParser(std::string gam)
 {
@@ -11,7 +29,7 @@ GamParser::GamParser(std::string gam)
   auto path = files->find_path_for_file(gam);
   if (path == "")
   {
-    throw("canno find file");
+    throw("cannot find file");
   }
   std::ifstream f;
   f.open(path, std::ios_base::in | std::ios_base::binary);
@@ -112,9 +130,9 @@ GamParser::GamParser(std::string gam)
   }
 
 
-  std::cout << "chunks: " << chunks.size() << std::endl;
-  std::cout << "islands: " << islands5.size() << std::endl;
-  std::cout << "islands: " << islands3.size() << std::endl;
+  std::cout << "overall chunks num: " << chunks.size() << std::endl;
+  std::cout << "islands5: " << islands5.size() << std::endl;
+  std::cout << "islands3: " << islands3.size() << std::endl;
   if (mission2)
   {
     std::cout << "mission2: " << mission2->missions.size() << std::endl;
@@ -123,9 +141,5 @@ GamParser::GamParser(std::string gam)
   {
     std::cout << "mission4: " << mission4->missions.size() << std::endl;
   }
-  // for (auto m : missions->missions)
-  // {
-  //   std::cout << std::string(m->infotxt[0]) << std::endl;
-  // }
   f.close();
 }
