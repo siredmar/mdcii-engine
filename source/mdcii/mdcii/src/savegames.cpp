@@ -27,7 +27,11 @@ Savegames::Savegames()
   {
     if (s.find(".gam") != std::string::npos)
     {
-      savegames.push_back(s);
+      // ignoring lastgame.gam file in list as this is a copy of one other savegame.
+      if (s.find("lastgame.gam") == std::string::npos)
+      {
+        savegames.push_back(s);
+      }
     }
   }
 }

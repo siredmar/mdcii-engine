@@ -92,7 +92,10 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     loadGameButton.setSecondaryTexture(loadGameTextureClicked);
     loadGameButton.setTextureSwitchFlags(TextureButton::OnClick);
 
-    auto& continueGameButton = wdg<TextureButton>(continueTexture, [this] { std::cout << "Continue Game pressed" << std::endl; });
+    auto& continueGameButton = wdg<TextureButton>(continueTexture, [this] {
+      std::cout << "Continue Game pressed" << std::endl;
+      LoadGame(Files::instance()->find_path_for_file("lastgame.gam"));
+    });
     continueGameButton.setPosition(continueGameButtonGad->Pos.x, continueGameButtonGad->Pos.y);
     continueGameButton.setSecondaryTexture(continueTextureClicked);
     continueGameButton.setTextureSwitchFlags(TextureButton::OnClick);
