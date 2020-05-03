@@ -15,38 +15,29 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _GENERIC_HPP_
-#define _GENERIC_HPP_
+#ifndef _GAM_PARSER_HPP
+#define _GAM_PARSER_HPP
 
-#include <inttypes.h>
+#include <memory>
+#include <string>
 
-struct FPos
+#include "chunk.hpp"
+#include "island.hpp"
+#include "kontor.hpp"
+#include "missions.hpp"
+
+class GamParser
 {
-  uint8_t a; // TODO: field position? bit field? what is that?
+public:
+  GamParser(std::string gam);
+
+private:
+  std::vector<std::shared_ptr<Chunk>> chunks;
+  std::vector<std::shared_ptr<Island5>> islands5;
+  std::vector<std::shared_ptr<Island3>> islands3;
+  std::shared_ptr<Mission2> mission2;
+  std::shared_ptr<Mission4> mission4;
+  std::shared_ptr<Kontor2> kontor2;
 };
 
-struct IPos
-{
-  uint8_t x; // TODO: coordinate on island with max 255? guess?
-  uint8_t y; // TODO: coordinate on island with max 255? guess?
-};
-
-struct IsoObj
-{
-  uint8_t kind;
-  union {
-    uint8_t inselnr;
-    FPos posh;
-  };
-  union {
-    IPos pos;
-    uint16_t nr;
-    struct
-    {
-      uint8_t stadtnr;
-      uint8_t leer1;
-    };
-  };
-};
-
-#endif // _GENERIC_HPP_
+#endif // _GAM_PARSER_HPP
