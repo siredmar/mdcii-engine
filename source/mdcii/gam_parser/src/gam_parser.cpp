@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
   try
   {
-    GamParser gamParser(vm["input"].as<std::string>());
+    GamParser gamParser(vm["input"].as<std::string>(), false);
   }
   catch (std::exception& ex)
   {

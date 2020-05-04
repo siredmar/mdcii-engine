@@ -23,7 +23,7 @@
 #include "files.hpp"
 #include "gam/gam_parser.hpp"
 
-GamParser::GamParser(const std::string& gam)
+GamParser::GamParser(const std::string& gam, bool peek)
 {
   auto files = Files::instance();
   auto path = files->find_path_for_file(gam);
@@ -40,75 +40,13 @@ GamParser::GamParser(const std::string& gam)
   for (auto& c : chunks)
   {
     auto chunkName = std::string(c->chunk.name);
-    if (chunkName == "INSEL3")
-    {
-      auto i = std::make_shared<Island3>(c->chunk.data, c->chunk.length, chunkName);
-      islands3.push_back(i);
-    }
-    else if (chunkName == "INSEL4" || chunkName == "INSEL5")
-    {
-      auto i = std::make_shared<Island5>(c->chunk.data, c->chunk.length, chunkName);
-      islands5.push_back(i);
-    }
-    else if (chunkName == "INSELHAUS")
-    {
-    }
-    else if (chunkName == "PRODLIST2")
-    {
-    }
-    else if (chunkName == "ROHWACHS2")
-    {
-    }
-    else if (chunkName == "SIEDLER")
-    {
-    }
-    else if (chunkName == "WERFT")
-    {
-    }
-    else if (chunkName == "MILITAR")
-    {
-    }
-    else if (chunkName == "KONTOR2")
-    {
-      kontor2 = std::make_shared<Kontor2>(c->chunk.data, c->chunk.length, chunkName);
-    }
-    else if (chunkName == "MARKT2")
-    {
-    }
-    else if (chunkName == "STADT3" || chunkName == "STADT4")
-    {
-    }
-    else if (chunkName == "HIRSCH2")
-    {
-    }
-    else if (chunkName == "SHIP4")
-    {
-    }
-    else if (chunkName == "HANDLER")
-    {
-    }
-    else if (chunkName == "SOLDAT2" || chunkName == "SOLDAT3")
-    {
-    }
-    else if (chunkName == "SOLDATINSEL")
-    {
-    }
-    else if (chunkName == "TURM")
-    {
-    }
-    else if (chunkName == "TIMERS")
-    {
-    }
-    else if (chunkName == "PLAYER2" || chunkName == "PLAYER2" || chunkName == "PLAYER4")
-    {
-    }
-    else if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2")
+
+    if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2")
     {
       mission2 = std::make_shared<Mission2>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "AUFTRAG4")
     {
-
       mission4 = std::make_shared<Mission4>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE")
@@ -131,11 +69,83 @@ GamParser::GamParser(const std::string& gam)
     {
       //
     }
+    if (peek == false)
+    {
+      if (chunkName == "INSEL3")
+      {
+        auto i = std::make_shared<Island3>(c->chunk.data, c->chunk.length, chunkName);
+        islands3.push_back(i);
+      }
+      else if (chunkName == "INSEL4" || chunkName == "INSEL5")
+      {
+        auto i = std::make_shared<Island5>(c->chunk.data, c->chunk.length, chunkName);
+        islands5.push_back(i);
+      }
+      else if (chunkName == "INSELHAUS")
+      {
+      }
+      else if (chunkName == "PRODLIST2")
+      {
+      }
+      else if (chunkName == "ROHWACHS2")
+      {
+      }
+      else if (chunkName == "SIEDLER")
+      {
+      }
+      else if (chunkName == "WERFT")
+      {
+      }
+      else if (chunkName == "MILITAR")
+      {
+      }
+      else if (chunkName == "KONTOR2")
+      {
+        kontor2 = std::make_shared<Kontor2>(c->chunk.data, c->chunk.length, chunkName);
+      }
+      else if (chunkName == "MARKT2")
+      {
+      }
+      else if (chunkName == "STADT3" || chunkName == "STADT4")
+      {
+      }
+      else if (chunkName == "HIRSCH2")
+      {
+      }
+      else if (chunkName == "SHIP4")
+      {
+      }
+      else if (chunkName == "HANDLER")
+      {
+      }
+      else if (chunkName == "SOLDAT2" || chunkName == "SOLDAT3")
+      {
+      }
+      else if (chunkName == "SOLDATINSEL")
+      {
+      }
+      else if (chunkName == "TURM")
+      {
+      }
+      else if (chunkName == "TIMERS")
+      {
+      }
+      else if (chunkName == "PLAYER2" || chunkName == "PLAYER2" || chunkName == "PLAYER4")
+      {
+      }
+      else
+      {
+        //
+      }
+    }
   }
 
   std::cout << "overall chunks num: " << chunks.size() << std::endl;
-  std::cout << "islands5: " << islands5.size() << std::endl;
-  std::cout << "islands3: " << islands3.size() << std::endl;
+  if (peek == false)
+  {
+    std::cout << "islands5: " << islands5.size() << std::endl;
+    std::cout << "islands3: " << islands3.size() << std::endl;
+  }
   if (mission2)
   {
     std::cout << "mission2: " << mission2->missions.size() << std::endl;

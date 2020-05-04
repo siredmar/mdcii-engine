@@ -42,7 +42,6 @@ SDL_Texture* StringToSDLTextureConverter::Convert(const std::string& str, int co
   std::wstring wide = converter.from_bytes(str);
   for (auto& ch : wide)
   {
-    std::cout << ch << ": " << ch - ' ' << std::endl;
     try
     {
       Zei_zeichen& zz = zei->gib_bsh_bild(ch - ' ');
