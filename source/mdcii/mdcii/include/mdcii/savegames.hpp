@@ -20,6 +20,7 @@
 
 #include <experimental/optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "files.hpp"
@@ -27,13 +28,16 @@
 class Savegames
 {
 public:
-  Savegames();
+  Savegames(const std::string& basepath, const std::string& file_ending);
   int size() const;
   std::experimental::optional<std::string> getPath(int index) const;
-  std::vector<std::string> getSavegames() const;
+  std::experimental::optional<std::string> getName(int index) const;
+  std::experimental::optional<int> getRanking(int index) const;
+  std::vector<std::tuple<std::string, std::string, int>> getSavegames() const;
 
 private:
-  std::vector<std::string> savegames;
+  // vector element contains: path, name, ranking
+  std::vector<std::tuple<std::string, std::string, int>> savegames;
 };
 
 #endif // _SAVEGAMES_H_

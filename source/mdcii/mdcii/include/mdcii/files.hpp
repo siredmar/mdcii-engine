@@ -37,6 +37,7 @@ public:
   std::vector<std::string> get_directory_tree(const std::string& path);
   std::vector<std::string> get_directories_files(const std::string& directory);
   std::string string_to_lower_case(const std::string& str);
+  static std::string get_file_name(std::string file_path, bool with_extension = true);
 
 private:
   static Files* _instance;

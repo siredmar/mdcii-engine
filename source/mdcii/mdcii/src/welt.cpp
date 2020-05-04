@@ -74,28 +74,40 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
 
   for (auto& prod : prodlist)
   {
-    int x = prod.x_pos + inseln[prod.inselnummer]->xpos;
-    int y = prod.y_pos + inseln[prod.inselnummer]->ypos;
-    inselfeld_t inselfeld;
-    feld_an_pos(inselfeld, x, y);
-    auto info = haeuser->get_haus(inselfeld.bebauung);
-    if (info)
+    try
     {
-      int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
-      int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
-      if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
+      if (prod.inselnummer <= inseln.size())
       {
-        int versatz = (info.value()->Size.w + info.value()->Size.h) / 2;
-        versatz += (versatz & 1) * 2;
-        if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
+        int x = prod.x_pos + inseln[prod.inselnummer]->xpos;
+        int y = prod.y_pos + inseln[prod.inselnummer]->ypos;
+        inselfeld_t inselfeld;
+        feld_an_pos(inselfeld, x, y);
+        auto info = haeuser->get_haus(inselfeld.bebauung);
+        if (info)
         {
-          animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 350, 32, (max_x + max_y) * 128, true};
-        }
-        if ((prod.ani & 0x0f) == 0x0f) // Betrieb hat Rohstoffmangel
-        {
-          animationen[std::pair<int, int>(x, y)] = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 382, 32, (max_x + max_y) * 128, true};
+          int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
+          int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
+          if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
+          {
+            int versatz = (info.value()->Size.w + info.value()->Size.h) / 2;
+            versatz += (versatz & 1) * 2;
+            if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
+            {
+              animationen[std::pair<int, int>(x, y)]
+                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 350, 32, (max_x + max_y) * 128, true};
+            }
+            if ((prod.ani & 0x0f) == 0x0f) // Betrieb hat Rohstoffmangel
+            {
+              animationen[std::pair<int, int>(x, y)]
+                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 382, 32, (max_x + max_y) * 128, true};
+            }
+          }
         }
       }
+    }
+    catch (std::exception& ex)
+    {
+      std::cout << ex.what() << std::endl;
     }
   }
 
@@ -174,8 +186,11 @@ void Welt::simulationsschritt()
   }
   for (Prodlist& prod : prodlist)
   {
-    if (prod.modus & 1 && prod.rohstoff1_menge >= 16 && prod.produkt_menge < 320)
-      inseln[prod.inselnummer]->animiere_gebaeude(prod.x_pos, prod.y_pos);
+    if (prod.inselnummer <= inseln.size())
+    {
+      if (prod.modus & 1 && prod.rohstoff1_menge >= 16 && prod.produkt_menge < 320)
+        inseln[prod.inselnummer]->animiere_gebaeude(prod.x_pos, prod.y_pos);
+    }
   }
   for (auto& map_elem : animationen)
   {

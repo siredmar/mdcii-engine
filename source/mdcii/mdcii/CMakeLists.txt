@@ -77,6 +77,7 @@ set(headers
     ${include_path}/gam/island.hpp
     ${include_path}/gam/missions.hpp
     ${include_path}/gam/kontor.hpp
+    ${include_path}/gam/scene.hpp
     ${include_path}/gam/gam_parser.hpp
 )
 
@@ -108,6 +109,7 @@ set(sources
     ${source_path}/gam/island.cpp
     ${source_path}/gam/missions.cpp
     ${source_path}/gam/kontor.cpp
+    ${source_path}/gam/scene.cpp
     ${source_path}/gam/gam_parser.cpp
 )
 

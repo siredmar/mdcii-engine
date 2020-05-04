@@ -134,3 +134,21 @@ std::vector<std::string> Files::get_directories_files(const std::string& directo
   }
   return files;
 }
+
+std::string Files::get_file_name(std::string file_path, bool with_extension)
+{
+  boost::filesystem::path p(file_path);
+
+  if (with_extension == false)
+  {
+    if (p.has_stem())
+    {
+      return p.stem().string();
+    }
+    return "";
+  }
+  else
+  {
+    return p.filename().string();
+  }
+}

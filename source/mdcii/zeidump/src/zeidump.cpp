@@ -90,24 +90,47 @@ int main(int argc, char** argv)
   auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
 
   Zei_leser zei(input_name);
-  vector<Zei_zeichen*> zeichen;
+  int zeimaxbreite = 0;
+  int zeimaxhoehe = 0;
   int breite = 0;
   int hoehe = 0;
-  for (int c : text)
+  int colums = 10;
+
+  for (int i = 0; i < zei.anzahl(); i++)
   {
-    Zei_zeichen& z = zei.gib_bsh_bild(c - ' ');
-    zeichen.push_back(&z);
-    breite += z.breite;
-    if (z.hoehe > hoehe)
-      hoehe = z.hoehe;
+    Zei_zeichen& z = zei.gib_bsh_bild(i);
+    if (z.breite > zeimaxbreite)
+    {
+      zeimaxbreite = z.breite;
+    }
+    if (z.hoehe > zeimaxhoehe)
+    {
+      zeimaxhoehe = z.hoehe;
+    }
   }
+  breite = 10 * zeimaxbreite;
+  hoehe = (zei.anzahl() / colums + 1) * zeimaxhoehe;
+
   int position = 0;
   if (bpp == 24)
   {
     Bildspeicher_rgb24 bs(breite, hoehe, color);
     bs.setze_schriftfarbe(255, 0);
     bs.bild_loeschen();
-    bs.zeichne_string(zei, text, 0, 0);
+    int x, y = 0;
+    for (int i = 0; i < zei.anzahl(); i++)
+    {
+      bs.zeichne_zei_zeichen(zei.gib_bsh_bild(i), x, y);
+      if (i % colums == 0)
+      {
+        y += zeimaxhoehe;
+        x = 0;
+      }
+      else
+      {
+        x += zeimaxbreite;
+      }
+    }
 
     if (file_format == "pnm")
       bs.exportiere_pnm((output + ".ppm").c_str());
@@ -119,7 +142,20 @@ int main(int argc, char** argv)
     Bildspeicher_pal8 bs(breite, hoehe, color);
     bs.setze_schriftfarbe(255, 0);
     bs.bild_loeschen();
-    bs.zeichne_string(zei, text, 0, 0);
+    int x, y = 0;
+    for (int i = 0; i < zei.anzahl(); i++)
+    {
+      if (i % colums == 0)
+      {
+        y += zeimaxhoehe;
+        x = 0;
+      }
+      else
+      {
+        x += zeimaxbreite;
+      }
+      bs.zeichne_zei_zeichen(zei.gib_bsh_bild(i), x, y);
+    }
 
     if (file_format == "pnm")
       bs.exportiere_pnm((output + ".pgm").c_str());

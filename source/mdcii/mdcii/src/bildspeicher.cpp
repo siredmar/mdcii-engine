@@ -214,6 +214,18 @@ void Bildspeicher::zeichne_string(Zei_leser& zei_leser, std::string s, int x, in
   }
 }
 
+void Bildspeicher::zeichne_string(Zei_leser& zei_leser, std::wstring s, int x, int y)
+{
+  for (auto ch : s)
+  {
+    if (ch - ' ' < 0 || ch - ' ' >= zei_leser.anzahl())
+      continue;
+    Zei_zeichen& zz = zei_leser.gib_bsh_bild(ch - ' ');
+    zeichne_zei_zeichen(zz, x, y);
+    x += zz.breite;
+  }
+}
+
 void Bildspeicher::setze_schriftfarbe(uint8_t schrift, uint8_t schatten)
 {
   indextabelle_schriftfarbe[1] = schrift;

@@ -15,30 +15,25 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _ZEI_TEXTURE
-#define _ZEI_TEXTURE
+#ifndef _SCENE_HPP
+#define _SCENE_HPP
 
-#include <codecvt>
-#include <locale>
+#include <inttypes.h>
+#include <string>
 
-#include <SDL2/SDL.h>
-
-#include "bildspeicher_pal8.hpp"
-#include "bsh_leser.hpp"
-#include "files.hpp"
-#include "palette.hpp"
-
-class StringToSDLTextureConverter
+struct SceneRankingData
 {
-public:
-  StringToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
-
-private:
-  SDL_Renderer* renderer;
-  Files* files;
-  std::shared_ptr<Zei_leser> zei;
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  int32_t ranking; // The ranking of the mission 0 to 3 stars
 };
 
-#endif
+class SceneRanking
+{
+public:
+  SceneRanking(uint8_t* data, uint32_t length, const std::string& name);
+  SceneRankingData sceneRanking;
+
+private:
+  std::string name;
+};
+
+#endif // _SCENE_HPP

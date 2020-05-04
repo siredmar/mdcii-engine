@@ -15,30 +15,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _ZEI_TEXTURE
-#define _ZEI_TEXTURE
+#include <cstring>
 
-#include <codecvt>
-#include <locale>
+#include "gam/scene.hpp"
 
-#include <SDL2/SDL.h>
 
-#include "bildspeicher_pal8.hpp"
-#include "bsh_leser.hpp"
-#include "files.hpp"
-#include "palette.hpp"
-
-class StringToSDLTextureConverter
+SceneRanking::SceneRanking(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-public:
-  StringToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
-
-private:
-  SDL_Renderer* renderer;
-  Files* files;
-  std::shared_ptr<Zei_leser> zei;
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-};
-
-#endif
+  memcpy((char*)&sceneRanking, data, length);
+}
