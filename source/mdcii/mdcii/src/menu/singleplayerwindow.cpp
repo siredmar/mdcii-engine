@@ -48,7 +48,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , files(Files::instance())
   , hostgad(std::make_shared<Hostgad>(std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("host.gad"), false, false)))
   , quit(false)
-  , stringConverter(StringToSDLTextureConverter(renderer))
+  , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
   , savegame("")
   , triggerStartGame(false)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)

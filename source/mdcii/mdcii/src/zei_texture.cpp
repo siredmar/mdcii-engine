@@ -24,10 +24,11 @@
 #include "zei_leser.hpp"
 #include "zei_texture.hpp"
 
-StringToSDLTextureConverter::StringToSDLTextureConverter(SDL_Renderer* renderer)
+StringToSDLTextureConverter::StringToSDLTextureConverter(SDL_Renderer* renderer, const std::string& font)
   : renderer(renderer)
+  , font(font)
   , files(Files::instance())
-  , zei(std::make_shared<Zei_leser>(files->instance()->find_path_for_file("zei20v.zei")))
+  , zei(std::make_shared<Zei_leser>(files->instance()->find_path_for_file(font)))
 {
 }
 
