@@ -57,5 +57,6 @@ private:
   StringToSDLTextureConverter stringConverter;
   std::string savegame;
   bool triggerStartGame;
+  std::vector<SDL_Texture*> tableStars;
 };
 #endif
