@@ -13,14 +13,13 @@
 #include "files_to_check.hpp"
 #include "fps.hpp"
 #include "gam/gam_parser.hpp"
-#include "gamewindow.hpp"
 #include "kamera.hpp"
-#include "mainmenu.hpp"
 #include "mdcii.hpp"
 #include "palette.hpp"
 #include "spielbildschirm.hpp"
 #include "version.hpp"
 
+#include "menu/mainmenu.hpp"
 
 namespace po = boost::program_options;
 

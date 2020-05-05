@@ -31,11 +31,12 @@
 #include "bsh_texture.hpp"
 #include "cod_parser.hpp"
 #include "fps.hpp"
-#include "gamewindow.hpp"
 #include "palette.hpp"
 #include "savegames.hpp"
-#include "singleplayerwindow.hpp"
 #include "zei_texture.hpp"
+
+#include "menu/gamewindow.hpp"
+#include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
