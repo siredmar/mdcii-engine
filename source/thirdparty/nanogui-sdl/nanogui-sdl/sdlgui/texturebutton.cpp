@@ -23,6 +23,10 @@ TextureButton::TextureButton(Widget* parent, SDL_Texture* texture)
   , mFlags(0)
   , _pushedTemp(false)
 {
+  int w, h;
+  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+  Vector2i size = {w, h};
+  setSize(size);
 }
 
 Vector2i TextureButton::preferredSize(SDL_Renderer* ctx) const
