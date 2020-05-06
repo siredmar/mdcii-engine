@@ -157,7 +157,7 @@ Widget& SinglePlayerWindow::ListTable(Widget* parent, const std::vector<std::tup
   for (auto& entry : list)
   {
     auto& tableEntry = table.widget();
-    auto texture = stringConverter.Convert(std::get<1>(entry), 240, 0, 0);
+    auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
     auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
     auto& button = tableEntry.texturebutton(texture, [this, entry] {
       std::cout << std::get<1>(entry) << " clicked" << std::endl;
