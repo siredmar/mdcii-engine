@@ -178,8 +178,3 @@ void Bildspeicher_rgb24::bild_loeschen()
     puffer[i + 2] = farbe >> 16;
   }
 }
-
-uint8_t* Bildspeicher_rgb24::get_buffer()
-{
-  return puffer;
-}

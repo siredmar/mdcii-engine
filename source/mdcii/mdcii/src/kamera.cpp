@@ -65,15 +65,13 @@ Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
   // traeger_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/traeger.bsh"));
   // traeger_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/traeger.bsh"));
 
-  zei = new Zei_leser(files->instance()->find_path_for_file("toolgfx/zei16g.zei"));
+  zei = std::make_shared<Zei_leser>(files->instance()->find_path_for_file("toolgfx/zei16g.zei"));
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
 {
   xpos = ((x >= Welt::KARTENBREITE) ? Welt::KARTENBREITE - 1 : x);
   ypos = ((y >= Welt::KARTENHOEHE) ? Welt::KARTENHOEHE - 1 : y);
-  // xpos = (x < 0) ? 0 : ((x >= Welt::KARTENBREITE) ? Welt::KARTENBREITE - 1 : x);
-  // ypos = (y < 0) ? 0 : ((y >= Welt::KARTENHOEHE) ? Welt::KARTENHOEHE - 1 : y);
 }
 
 void Kamera::nach_links()
@@ -418,13 +416,13 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     int bs_x, bs_y, bs_z;
     auf_bildschirm(bs, schiff.x_pos, schiff.y_pos, 0, bs_x, bs_y, bs_z);
     // zeichne Bugwellen
-    if ((schiff.kurs_ziel & 0xff) != 0) // FIXME: Bedeutet dies wirklich, dass das Schiff fährt?
+    if ((schiff.kurs_ziel & 0xff) != 0) // Bedeutet dies wirklich, dass das Schiff fährt?
     {
       Bsh_bild& wellen = ship_bsh[vergroesserung]->gib_bsh_bild(12 * schiff.richtung + 96);
       felder.push_back({&wellen, bs_x, bs_y + y_raster[vergroesserung] * 2, bs_z + 512, schiff.x_pos, schiff.y_pos, false});
     }
     // zeichne Schiff
-    Bsh_bild& bsh = ship_bsh[vergroesserung]->gib_bsh_bild(index + schiff.richtung); // FIXME
+    Bsh_bild& bsh = ship_bsh[vergroesserung]->gib_bsh_bild(index + schiff.richtung);
     felder.push_back({&bsh, bs_x, bs_y + y_raster[vergroesserung], bs_z + 512, schiff.x_pos, schiff.y_pos, false});
     // zeichne Flagge
     if (schiff.spieler != 4)
@@ -494,7 +492,7 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       default:
         index = 0;
     }
-    Bsh_bild& bsh = soldat_bsh[vergroesserung]->gib_bsh_bild(index + soldat.richtung * 8); // FIXME
+    Bsh_bild& bsh = soldat_bsh[vergroesserung]->gib_bsh_bild(index + soldat.richtung * 8);
     int bs_x, bs_y, bs_z;
     auf_bildschirm_256(bs, soldat.x_pos_2 * 128, soldat.y_pos_2 * 128, 256, bs_x, bs_y, bs_z);
     felder.push_back({&bsh, bs_x, bs_y + y_raster[vergroesserung], bs_z + 256, soldat.x_pos_2 / 2, soldat.y_pos_2 / 2, false});

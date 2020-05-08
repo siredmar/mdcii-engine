@@ -34,7 +34,6 @@ public:
   void exportiere_pnm(const char* pfadname);
   void exportiere_bmp(const char* pfadname);
   void bild_loeschen();
-  uint8_t* get_buffer();
 
 private:
   uint8_t transparent;

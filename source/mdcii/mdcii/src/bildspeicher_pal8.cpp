@@ -230,9 +230,3 @@ void Bildspeicher_pal8::bild_loeschen()
   for (int i = 0; i < breite * hoehe; i++)
     puffer[i] = farbe;
 }
-
-
-uint8_t* Bildspeicher_pal8::get_buffer()
-{
-  return puffer;
-}

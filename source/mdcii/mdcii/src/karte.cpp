@@ -40,14 +40,25 @@ void Karte::zeichne_bild(Bildspeicher& bs, Welt& welt)
         uint8_t nummer = (feld.spieler < 4) ? welt.spielerfarbe(feld.spieler) : feld.spieler;
         switch (nummer)
         {
-          case 0: farbe = 183; break; // rot
-          case 1: farbe = 97; break;  // blau
-          case 2: farbe = 71; break;  // gelb
-          case 3: farbe = 7; break;   // grau
-          case 6: farbe = 2; break;   // Eingeborene
-          case 7: farbe = 182; break; // frei
+          case 0:
+            farbe = 183;
+            break; // rot
+          case 1:
+            farbe = 97;
+            break; // blau
+          case 2:
+            farbe = 71;
+            break; // gelb
+          case 3:
+            farbe = 7;
+            break; // grau
+          case 6:
+            farbe = 2;
+            break; // Eingeborene
+          case 7:
+            farbe = 182;
+            break; // frei
         }
-        // FIXME: Ineffizient! Zu viele Divisionen
         if (!(feld.bebauung >= 1201 && feld.bebauung <= 1221 || feld.bebauung >= 1251 && feld.bebauung <= 1259))
           bs.zeichne_pixel(xpos + (insel->xpos + x) * breite / Welt::KARTENBREITE, ypos + (insel->ypos + y) * hoehe / Welt::KARTENHOEHE, farbe);
       }

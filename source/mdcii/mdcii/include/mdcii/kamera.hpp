@@ -20,8 +20,10 @@
 #define KAMERA_HPP
 
 #include <inttypes.h>
-#include "bsh_leser.hpp"
+#include <memory>
+
 #include "bildspeicher.hpp"
+#include "bsh_leser.hpp"
 #include "welt.hpp"
 
 /* GFX/ MGFX/ Sgfx/  EFFEKTE.BSH MAEHER.BSH NUMBERS.BSH SHIP.BSH SOLDAT.BSH STADTFLD.BSH TIERE.BSH TRAEGER.BSH */
@@ -65,7 +67,7 @@ private:
   Bsh_leser* stadtfld_bsh[3];
   Bsh_leser* tiere_bsh[3];
   Bsh_leser* traeger_bsh[3];
-  Zei_leser* zei;
+  std::shared_ptr<Zei_leser> zei;
 };
 
 #endif

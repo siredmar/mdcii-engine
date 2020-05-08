@@ -50,7 +50,7 @@ Palette* Palette::create_instance(const std::string& palette_file_path)
 
 Palette::~Palette()
 {
-  delete c;
+  free(_instance->c);
 }
 
 void Palette::init(const std::string& palette_file_path)
