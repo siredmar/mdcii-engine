@@ -118,7 +118,7 @@ void Bildspeicher_rgb24::exportiere_pnm(const char* pfadname)
   std::ofstream pnm;
   pnm.open(pfadname, std::ios_base::out | std::ios_base::binary);
   pnm << "P6\n" << breite << " " << hoehe << "\n255\n";
-  pnm.write((char*)puffer, breite * hoehe * format);
+  pnm.write((char*)puffer, static_cast<std::streamsize>(breite * hoehe * format));
   pnm.close();
 }
 

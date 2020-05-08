@@ -26,6 +26,11 @@ Spielbildschirm::Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeu
   kamera = new Kamera(haeuser);
 }
 
+Spielbildschirm::~Spielbildschirm()
+{
+  delete kamera;
+}
+
 void Spielbildschirm::zeichne_bild(Welt& welt, int maus_x, int maus_y)
 {
   kamera->zeichne_bild(bs, welt, maus_x, maus_y);

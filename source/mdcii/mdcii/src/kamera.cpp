@@ -70,8 +70,10 @@ Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
 {
-  xpos = (x < 0) ? 0 : ((x >= Welt::KARTENBREITE) ? Welt::KARTENBREITE - 1 : x);
-  ypos = (y < 0) ? 0 : ((y >= Welt::KARTENHOEHE) ? Welt::KARTENHOEHE - 1 : y);
+  xpos = ((x >= Welt::KARTENBREITE) ? Welt::KARTENBREITE - 1 : x);
+  ypos = ((y >= Welt::KARTENHOEHE) ? Welt::KARTENHOEHE - 1 : y);
+  // xpos = (x < 0) ? 0 : ((x >= Welt::KARTENBREITE) ? Welt::KARTENBREITE - 1 : x);
+  // ypos = (y < 0) ? 0 : ((y >= Welt::KARTENHOEHE) ? Welt::KARTENHOEHE - 1 : y);
 }
 
 void Kamera::nach_links()

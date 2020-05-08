@@ -234,7 +234,7 @@ void Bildspeicher::setze_schriftfarbe(uint8_t schrift, uint8_t schatten)
 
 void Bildspeicher::fill_with_color(uint8_t color)
 {
-  memset((uint8_t*)puffer, color, hoehe * breite);
+  memset((uint8_t*)puffer, color, static_cast<size_t>(hoehe * breite));
 }
 
 void Bildspeicher::exportiere_pnm(const char* pfadname)

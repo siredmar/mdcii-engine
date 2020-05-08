@@ -48,6 +48,11 @@ Palette* Palette::create_instance(const std::string& palette_file_path)
   return _instance;
 }
 
+Palette::~Palette()
+{
+  delete c;
+}
+
 void Palette::init(const std::string& palette_file_path)
 {
   path = palette_file_path;

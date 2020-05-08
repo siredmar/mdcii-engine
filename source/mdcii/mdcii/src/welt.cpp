@@ -32,7 +32,14 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
 
   while (!f.eof())
   {
-    bloecke.push_back(new Block(f));
+    try
+    {
+      bloecke.push_back(new Block(f));
+    }
+    catch (const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
   }
   std::vector<Block*>::iterator i = bloecke.begin();
   while (i < bloecke.end())

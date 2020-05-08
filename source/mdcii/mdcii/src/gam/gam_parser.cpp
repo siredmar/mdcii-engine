@@ -35,7 +35,14 @@ GamParser::GamParser(const std::string& gam, bool peek)
   f.open(path, std::ios_base::in | std::ios_base::binary);
   while (!f.eof())
   {
-    chunks.push_back(std::make_shared<Chunk>(f));
+    try
+    {
+      chunks.push_back(std::make_shared<Chunk>(f));
+    }
+    catch (const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
   }
   for (auto& c : chunks)
   {
@@ -51,6 +58,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
     }
     else if (chunkName == "SZENE")
     {
+      // more to come later
     }
     else if (chunkName == "SZENE_RANKING")
     {
@@ -58,16 +66,19 @@ GamParser::GamParser(const std::string& gam, bool peek)
     }
     else if (chunkName == "RANDTAB")
     {
+      // more to come later
     }
     else if (chunkName == "NAME")
     {
+      // more to come later
     }
     else if (chunkName == "CUSTOM")
     {
+      // more to come later
     }
     else
     {
-      //
+      // other chunks than parsed in peek mode
     }
     if (peek == false)
     {
@@ -83,21 +94,27 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "INSELHAUS")
       {
+        // more to come later
       }
       else if (chunkName == "PRODLIST2")
       {
+        // more to come later
       }
       else if (chunkName == "ROHWACHS2")
       {
+        // more to come later
       }
       else if (chunkName == "SIEDLER")
       {
+        // more to come later
       }
       else if (chunkName == "WERFT")
       {
+        // more to come later
       }
       else if (chunkName == "MILITAR")
       {
+        // more to come later
       }
       else if (chunkName == "KONTOR2")
       {
@@ -105,37 +122,47 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "MARKT2")
       {
+        // more to come later
       }
       else if (chunkName == "STADT3" || chunkName == "STADT4")
       {
+        // more to come later
       }
       else if (chunkName == "HIRSCH2")
       {
+        // more to come later
       }
       else if (chunkName == "SHIP4")
       {
+        // more to come later
       }
       else if (chunkName == "HANDLER")
       {
+        // more to come later
       }
       else if (chunkName == "SOLDAT2" || chunkName == "SOLDAT3")
       {
+        // more to come later
       }
       else if (chunkName == "SOLDATINSEL")
       {
+        // more to come later
       }
       else if (chunkName == "TURM")
       {
+        // more to come later
       }
       else if (chunkName == "TIMERS")
       {
+        // more to come later
       }
       else if (chunkName == "PLAYER2" || chunkName == "PLAYER2" || chunkName == "PLAYER4")
       {
+        // more to come later
       }
       else
       {
-        //
+        // unknown chunk
       }
     }
   }
