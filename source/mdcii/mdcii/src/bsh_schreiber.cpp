@@ -172,7 +172,7 @@ void Bsh_schreiber::lies_pgm(const char* pfadname, uint8_t*& bild, int& breite, 
   pgm >> breite >> hoehe >> "255";
   pgm.get();
   bild = new uint8_t[breite * hoehe];
-  pgm.read(reinterpret_cast<char*>(bild), breite * hoehe);
+  pgm.read(reinterpret_cast<char*>(bild), static_cast<std::streamsize>(breite * hoehe));
   pgm.close();
 }
 

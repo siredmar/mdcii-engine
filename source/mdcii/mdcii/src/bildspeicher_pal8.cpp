@@ -60,21 +60,6 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
         *(ziel++) = *(quelle++);
     }
   }
-
-  //   while ((ch = *(quelle++)) != 0xff)
-  // {
-  //   if (ch == 0xfe)
-  //   {
-  //     ziel = zielzeile += restbreite;
-  //   }
-  //   else
-  //   {
-  //     ziel += ch;
-
-  //     for (ch = *(quelle++); ch > 0; ch--)
-  //       *(ziel++) = *(quelle++);
-  //   }
-  // }
 }
 
 void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
@@ -189,7 +174,7 @@ void Bildspeicher_pal8::exportiere_pnm(const char* pfadname)
   std::ofstream pnm;
   pnm.open(pfadname, std::ios_base::out | std::ios_base::binary);
   pnm << "P5\n" << breite << " " << hoehe << "\n255\n";
-  pnm.write((char*)puffer, breite * hoehe * format);
+  pnm.write((char*)puffer, static_cast<std::streamsize>(breite * hoehe * format));
   pnm.close();
 }
 

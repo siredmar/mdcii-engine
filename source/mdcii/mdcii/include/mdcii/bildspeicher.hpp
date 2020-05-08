@@ -40,7 +40,7 @@ public:
   uint32_t hoehe;
 
   Bildspeicher(uint32_t breite, uint32_t hoehe, uint32_t format = 1, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0);
-  ~Bildspeicher();
+  virtual ~Bildspeicher();
   virtual void zeichne_bsh_bild(Bsh_bild& bild, int x, int y);
   void zeichne_bsh_bild_oz(Bsh_bild& bild, int x, int y);
   virtual void zeichne_bsh_bild_sp(Bsh_bild& bild, int x, int y, int sx, int sy, bool& schnitt);

@@ -33,9 +33,18 @@ public:
   {
   }
 
-  uint8_t getRed() { return r; }
-  uint8_t getGreen() { return g; }
-  uint8_t getBlue() { return b; }
+  uint8_t getRed()
+  {
+    return r;
+  }
+  uint8_t getGreen()
+  {
+    return g;
+  }
+  uint8_t getBlue()
+  {
+    return b;
+  }
 
   bool operator==(PaletteColor const& obj)
   {
@@ -74,8 +83,11 @@ private:
   SDL_Color* c;
 
   static Palette* _instance;
-  ~Palette() {}
-  Palette(const std::string& palette_file_path) { init(palette_file_path); }
+  ~Palette();
+  Palette(const std::string& palette_file_path)
+  {
+    init(palette_file_path);
+  }
 
   Palette(const Palette&);
 

@@ -21,9 +21,8 @@
 
 Chunk::Chunk(std::istream& f)
 {
-  int ChunkSize = 16;
-  char n[ChunkSize];
-  f.read(n, ChunkSize);
+  char n[chunkNameSize];
+  f.read(n, chunkNameSize);
   chunk.name = std::string(n);
   f.read((char*)&chunk.length, sizeof(chunk.length));
   chunk.data = new uint8_t[chunk.length];
