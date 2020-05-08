@@ -15,29 +15,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _SAVEGAMES_H_
-#define _SAVEGAMES_H_
+#include <cstring>
 
-#include <experimental/optional>
-#include <string>
-#include <tuple>
-#include <vector>
+#include "gam/scene.hpp"
 
-#include "files.hpp"
 
-class Savegames
+SceneRanking::SceneRanking(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-public:
-  Savegames(const std::string& basepath, const std::string& file_ending);
-  int size() const;
-  std::experimental::optional<std::string> getPath(int index) const;
-  std::experimental::optional<std::string> getName(int index) const;
-  std::experimental::optional<int> getRanking(int index) const;
-  std::vector<std::tuple<std::string, std::string, int>> getSavegames() const;
-
-private:
-  // vector element contains: path, name, ranking
-  std::vector<std::tuple<std::string, std::string, int>> savegames;
-};
-
-#endif // _SAVEGAMES_H_
+  memcpy((char*)&sceneRanking, data, length);
+}

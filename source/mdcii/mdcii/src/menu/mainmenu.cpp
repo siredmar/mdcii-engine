@@ -31,11 +31,11 @@
 #include "cod_parser.hpp"
 #include "files.hpp"
 #include "fps.hpp"
-#include "gamewindow.hpp"
 #include "haeuser.hpp"
-#include "mainmenu.hpp"
 #include "palette.hpp"
-#include "singleplayerwindow.hpp"
+
+#include "menu/mainmenu.hpp"
+#include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
 MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)

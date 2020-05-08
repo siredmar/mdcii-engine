@@ -55,7 +55,6 @@ set(headers
     ${include_path}/bsh_texture.hpp
     ${include_path}/files.hpp
     ${include_path}/fps.hpp
-    ${include_path}/gamewindow.hpp
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp
     ${include_path}/haeuser.hpp
@@ -63,20 +62,22 @@ set(headers
     ${include_path}/insel.hpp
     ${include_path}/kamera.hpp
     ${include_path}/karte.hpp
-    ${include_path}/mainmenu.hpp
     ${include_path}/palette.hpp
     ${include_path}/savegames.hpp
-    ${include_path}/singleplayerwindow.hpp
     ${include_path}/spielbildschirm.hpp
     ${include_path}/strukturen.hpp
     ${include_path}/version.hpp
     ${include_path}/welt.hpp
     ${include_path}/zei_leser.hpp
     ${include_path}/zei_texture.hpp
+    ${include_path}/menu/mainmenu.hpp
+    ${include_path}/menu/singleplayerwindow.hpp
+    ${include_path}/menu/gamewindow.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/island.hpp
     ${include_path}/gam/missions.hpp
     ${include_path}/gam/kontor.hpp
+    ${include_path}/gam/scene.hpp
     ${include_path}/gam/gam_parser.hpp
 )
 
@@ -91,23 +92,24 @@ set(sources
     ${source_path}/bsh_schreiber.cpp
     ${source_path}/bsh_texture.cpp
     ${source_path}/files.cpp
-    ${source_path}/gamewindow.cpp
     ${source_path}/insel.cpp
     ${source_path}/kamera.cpp
     ${source_path}/karte.cpp
-    ${source_path}/mainmenu.cpp
     ${source_path}/palette.cpp
     ${source_path}/savegames.cpp
-    ${source_path}/singleplayerwindow.cpp
     ${source_path}/spielbildschirm.cpp
     ${source_path}/strukturen.cpp
     ${source_path}/version.cpp
     ${source_path}/welt.cpp
     ${source_path}/zei_texture.cpp
+    ${source_path}/menu/mainmenu.cpp
+    ${source_path}/menu/singleplayerwindow.cpp
+    ${source_path}/menu/gamewindow.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/island.cpp
     ${source_path}/gam/missions.cpp
     ${source_path}/gam/kontor.cpp
+    ${source_path}/gam/scene.cpp
     ${source_path}/gam/gam_parser.cpp
 )
 

@@ -18,6 +18,9 @@
 #ifndef _ZEI_TEXTURE
 #define _ZEI_TEXTURE
 
+#include <codecvt>
+#include <locale>
+
 #include <SDL2/SDL.h>
 
 #include "bildspeicher_pal8.hpp"
@@ -28,13 +31,15 @@
 class StringToSDLTextureConverter
 {
 public:
-  StringToSDLTextureConverter(SDL_Renderer* renderer);
+  StringToSDLTextureConverter(SDL_Renderer* renderer, const std::string& font);
   SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
 
 private:
   SDL_Renderer* renderer;
+  std::string font;
   Files* files;
   std::shared_ptr<Zei_leser> zei;
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 };
 
 #endif

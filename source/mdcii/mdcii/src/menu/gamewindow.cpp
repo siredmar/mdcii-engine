@@ -24,37 +24,17 @@
 #include "SDL2/SDL.h"
 
 #include "sdlgui/button.h"
-#include "sdlgui/checkbox.h"
-#include "sdlgui/colorwheel.h"
-#include "sdlgui/combobox.h"
-#include "sdlgui/dropdownbox.h"
-#include "sdlgui/entypo.h"
-#include "sdlgui/formhelper.h"
-#include "sdlgui/graph.h"
-#include "sdlgui/imagepanel.h"
-#include "sdlgui/imageview.h"
-#include "sdlgui/label.h"
-#include "sdlgui/layout.h"
-#include "sdlgui/messagedialog.h"
-#include "sdlgui/popupbutton.h"
-#include "sdlgui/progressbar.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/slider.h"
-#include "sdlgui/switchbox.h"
-#include "sdlgui/tabwidget.h"
-#include "sdlgui/textbox.h"
-#include "sdlgui/toolbutton.h"
-#include "sdlgui/vscrollpanel.h"
-#include "sdlgui/window.h"
+#include "sdlgui/widget.h"
 
 #include "bildspeicher_pal8.hpp"
 #include "cod_parser.hpp"
 #include "files.hpp"
 #include "fps.hpp"
-#include "gamewindow.hpp"
 #include "kamera.hpp"
 #include "palette.hpp"
 #include "spielbildschirm.hpp"
+
+#include "menu/gamewindow.hpp"
 
 using namespace sdlgui;
 
@@ -82,7 +62,6 @@ GameWindow::GameWindow(
   performLayout(mSDL_Renderer);
 }
 
-// todo: add signal/slot for exiting window
 void GameWindow::Handle()
 {
   auto palette = Palette::instance();

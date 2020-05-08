@@ -17,17 +17,24 @@
 
 #include "savegames.hpp"
 #include "files.hpp"
+#include "gam/gam_parser.hpp"
 
-Savegames::Savegames()
+Savegames::Savegames(const std::string& basepath, const std::string& file_ending)
 {
   auto files = Files::instance();
-  auto savegamefolder = files->find_path_for_file("/savegame");
+  auto savegamefolder = files->find_path_for_file(basepath);
   auto tree = files->get_directories_files(savegamefolder);
   for (auto& s : tree)
   {
-    if (s.find(".gam") != std::string::npos)
+    if (s.find(file_ending) != std::string::npos)
     {
-      savegames.push_back(s);
+      // ignoring lastgame.gam file in list as this is a copy of one other savegame.
+      if (s.find("lastgame.gam") == std::string::npos)
+      {
+        GamParser p(s, true);
+        std::string gameName = files->instance()->get_file_name(s, false);
+        savegames.push_back(std::tuple<std::string, std::string, int>(s, gameName, p.getSceneRanking()));
+      }
     }
   }
 }
@@ -41,12 +48,32 @@ std::experimental::optional<std::string> Savegames::getPath(int index) const
 {
   if (index < savegames.size())
   {
-    return savegames[index];
+    return std::get<0>(savegames[index]);
   }
   return {};
 }
 
-std::vector<std::string> Savegames::getSavegames() const
+std::experimental::optional<std::string> Savegames::getName(int index) const
+{
+  if (index < savegames.size())
+  {
+    return std::get<1>(savegames[index]);
+  }
+  return {};
+}
+
+
+std::experimental::optional<int> Savegames::getRanking(int index) const
+{
+  if (index < savegames.size())
+  {
+    return std::get<2>(savegames[index]);
+  }
+  return {};
+}
+
+
+std::vector<std::tuple<std::string, std::string, int>> Savegames::getSavegames() const
 {
   return savegames;
 }
