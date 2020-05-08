@@ -1,5 +1,4 @@
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/siredmar/mdcii-engine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/siredmar/mdcii-engine/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/siredmar/mdcii-engine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/siredmar/mdcii-engine/context:cpp)
-
+[![CodeFactor](https://www.codefactor.io/repository/github/siredmar/mdcii-engine/badge)](https://www.codefactor.io/repository/github/siredmar/mdcii-engine)
 
 MDCII Game Engine
 =================
