@@ -28,5 +28,5 @@ Block::Block(std::istream& f)
 
 Block::~Block()
 {
-  delete daten;
+  delete[] daten;
 }

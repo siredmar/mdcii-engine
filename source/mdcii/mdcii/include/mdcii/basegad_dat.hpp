@@ -74,8 +74,14 @@ public:
       return &gadgets[id];
     }
   }
-  int get_gadgets_size() { return gadgets_vec.size(); }
-  BaseGadGadget* get_gadgets_by_index(int index) { return gadgets_vec[index]; }
+  int get_gadgets_size()
+  {
+    return gadgets_vec.size();
+  }
+  BaseGadGadget* get_gadgets_by_index(int index)
+  {
+    return gadgets_vec[index];
+  }
 
 private:
   void generate_gadgets()
@@ -152,8 +158,8 @@ private:
           }
         }
       }
-      return h;
     }
+    return h;
   }
 
 private:

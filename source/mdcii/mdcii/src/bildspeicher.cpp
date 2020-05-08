@@ -45,7 +45,7 @@ Bildspeicher::Bildspeicher(uint32_t breite, uint32_t hoehe, uint32_t format, uin
 Bildspeicher::~Bildspeicher()
 {
   if (puffer_freigeben)
-    delete puffer;
+    delete[] puffer;
 }
 
 void Bildspeicher::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
@@ -248,11 +248,6 @@ void Bildspeicher::exportiere_bmp(const char* pfadname)
 }
 
 void Bildspeicher::bild_loeschen()
-{
-  // in einer Unterklasse implementiert
-}
-
-uint8_t* Bildspeicher::get_buffer()
 {
   // in einer Unterklasse implementiert
 }

@@ -56,7 +56,6 @@ public:
   virtual void exportiere_pnm(const char* pfadname);
   virtual void exportiere_bmp(const char* pfadname);
   virtual void bild_loeschen();
-  virtual uint8_t* get_buffer();
 };
 
 #endif

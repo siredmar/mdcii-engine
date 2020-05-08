@@ -31,5 +31,5 @@ Chunk::Chunk(std::istream& f)
 
 Chunk::~Chunk()
 {
-  delete chunk.data;
+  delete[] chunk.data;
 }
