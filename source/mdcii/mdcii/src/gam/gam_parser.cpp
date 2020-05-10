@@ -58,7 +58,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
     }
     else if (chunkName == "SZENE")
     {
-      // more to come later
+      sceneSave = std::make_shared<SceneSave>(c->chunk.data, c->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE_RANKING")
     {
@@ -184,6 +184,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
   if (sceneRanking)
   {
     std::cout << "scene ranking: " << sceneRanking->sceneRanking.ranking << std::endl;
+  }
+  if (sceneSave)
+  {
+    std::cout << "scene number of islands: " << sceneSave->sceneSave.inselanz << std::endl;
   }
   f.close();
 }

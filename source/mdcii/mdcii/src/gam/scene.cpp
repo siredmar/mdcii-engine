@@ -25,3 +25,9 @@ SceneRanking::SceneRanking(uint8_t* data, uint32_t length, const std::string& na
 {
   memcpy((char*)&sceneRanking, data, length);
 }
+
+SceneSave::SceneSave(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
+{
+  memcpy((char*)&sceneSave, data, length);
+}
