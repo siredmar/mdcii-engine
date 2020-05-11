@@ -76,6 +76,32 @@ The main structure is `SceneSaveData` and contains all other structures and enum
 | amount     | uint16       | specifies how many resources there are    |
 | -          | union uint32 | unused? kind, price, percent              |
 
+| RandomOre    | Type       | Description                          |
+| ------------ | ---------- | ------------------------------------ |
+| smallOreMine | RandomGood | specifies the random small ore mines |
+| greatOreMine | RandomGood | specifies the random great ore mines |
+| goldMine     | RandomGood | specifies the random gold mines      |
+| empty        | RandomGood | unused                               |
+
+| RandomRawMaterials | Type          | Description                                                    |
+| ------------------ | ------------- | -------------------------------------------------------------- |
+| tabaco             | RandomGood    | specifies the distribution for random tabaco 100% growth rates |
+| spices             | RandomGood    | specifies the distribution for random spices 100% growth rates |
+| sugar              | RandomGood    | specifies the distribution for random sugar 100% growth rates  |
+| wool               | RandomGood    | specifies the distribution for random wool 100% growth rates   |
+| wine               | RandomGood    | specifies the distribution for random wine 100% growth rates   |
+| cacao              | RandomGood    | specifies the distribution for random cacao 100% growth rates  |
+| empty              | RandomGood[6] | empty                                                          |
+
+| RandomGoodies | Type          | Description                          |
+| ------------- | ------------- | ------------------------------------ |
+| treasure      | RandomGood    | specifies amount of random treasures |
+| empty         | RandomGood[3] | empty                                |
+
+| RandomHardware | Type          | Description |
+| -------------- | ------------- | ----------- |
+| empty          | RandomGood[8] | unused?     |
+
 | RandomNativeVillages | Type      | Description                                |
 | -------------------- | --------- | ------------------------------------------ |
 | strawRoofCount       | uint32    | specifies the count of straw roof villages |
@@ -97,19 +123,19 @@ The main structure is `SceneSaveData` and contains all other structures and enum
 | empty         | uint16      | empty                                                                                                                                                                                    |
 | pos           | Position    | position of the island in the world                                                                                                                                                      |
 
-| SceneSaveData  | Type                 | Description                                                                |
-| -------------- | -------------------- | -------------------------------------------------------------------------- |
-| name           | char\[]              | the name of the scenario                                                   |
-| nativeVillages | RandomNativeVillages | amount of random native villages                                           |
-| empty1         | int32                | empty                                                                      |
-| rohstmax       | int32                | amount of 100% growing raw materials for islands? Always 2?                |
-| islandsCount   | int32                | overall count of islands                                                   |
-| goldminsizenr  | int32                | unused? always 1?                                                          |
-| goldmaxsizenr  | int32                | unused? always 2?                                                          |
-| empty2         | int32                | empty                                                                      |
-| empty3         | RandomGood\[]        | empty                                                                      |
-| ores           | RandomGood\[]        | 0: small ore, 1: great ore, 2: gold, 3: empty                              |
-| rawMaterials   | RandomGood\[]        | 0: tabaco, 1: spices, 2: sugar, 3: wool, 4: wine, 5: cacao, 6 .. 11: empty |
-| goodies        | RandomGood\[]        | 0: treasure, 1 .. 3: empty                                                 |
-| hardware       | RandomGood\[]        | 0 .. 7: empty                                                              |
-| islands        | RandomIsland\[]      | random islands definitions                                                 |
+| SceneSaveData  | Type                 | Description                                                 |
+| -------------- | -------------------- | ----------------------------------------------------------- |
+| name           | char\[]              | the name of the scenario                                    |
+| nativeVillages | RandomNativeVillages | amount of random native villages                            |
+| empty1         | int32                | empty                                                       |
+| rohstmax       | int32                | amount of 100% growing raw materials for islands? Always 2? |
+| islandsCount   | int32                | overall count of islands                                    |
+| goldminsizenr  | int32                | unused? always 1?                                           |
+| goldmaxsizenr  | int32                | unused? always 2?                                           |
+| empty2         | int32                | empty                                                       |
+| empty3         | RandomGood\[]        | empty                                                       |
+| ores           | RandomOre            | random ores                                                 |
+| rawMaterials   | RandomRawMaterials   | random raw materials                                        |
+| goodies        | RandomGoodies        | random goodies                                              |
+| hardware       | RandomHardware       | random hardware, unused?                                    |
+| islands        | RandomIsland\[]      | random islands definitions                                  |

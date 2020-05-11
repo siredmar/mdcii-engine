@@ -68,6 +68,36 @@ struct RandomGood
   };
 };
 
+struct RandomOre
+{
+  RandomGood smallOreMine; // specifies the random small ore mines
+  RandomGood greatOreMine; // specifies the random great ore mines
+  RandomGood goldMine;     // specifies the random gold mines
+  RandomGood empty;        // unused
+};
+
+struct RandomRawMaterials
+{
+  RandomGood tabaco;   // specifies the distribution for random tabaco 100% growth rates
+  RandomGood spices;   // specifies the distribution for random spices 100% growth rates
+  RandomGood sugar;    // specifies the distribution for random sugar  100% growth rates
+  RandomGood wool;     // specifies the distribution for random wool   100% growth rates
+  RandomGood wine;     // specifies the distribution for random wine   100% growth rates
+  RandomGood cacao;    // specifies the distribution for random cacao  100% growth rates
+  RandomGood empty[6]; // empty
+};
+
+struct RandomGoodies
+{
+  RandomGood treasure; // specifies amount of random treasures
+  RandomGood empty[3]; // empty
+};
+
+struct RandomHardware
+{
+  RandomGood empty[8]; // unused?
+};
+
 struct RandomNativeVillages
 {
   uint32_t strawRoofCount; // count of straw roof villages
@@ -103,10 +133,10 @@ struct SceneSaveData
   int32_t goldmaxsizenr;               // unused? always 2?
   int32_t empty2;                      // empty
   RandomGood empty3[4];                // empty
-  RandomGood ores[4];                  // 0: small ore, 1: great ore, 2: gold, 3: empty
-  RandomGood rawMaterials[12];         // 0: tabaco, 1: spices, 2: sugar, 3: wool, 4: wine, 5: cacao, 6 .. 11: empty
-  RandomGood goodies[4];               // 0: treasure, 1 .. 3: empty
-  RandomGood hardware[8];              // 0 .. 7: empty
+  RandomOre ores;                      // random ores
+  RandomRawMaterials rawMaterials;     // random raw materials
+  RandomGoodies goodies;               // random goodies
+  RandomHardware hardware;             // random hardware, unused?
   RandomIsland islands[50];            // random islands definitions
 };
 
