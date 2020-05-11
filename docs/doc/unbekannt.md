@@ -1,32 +1,31 @@
-Fehlende Informationen
-======================
+# Fehlende Informationen
 
-Schiffe
--------
-- Weiße Flagge
-- Patrouille (Punkt 1, Punkt 2)
-- Im Angriff
-- Animationsschritt?
-- Sinkt gerade
-- Formation?
+## Schiffe
 
-Werft
------
-- Lagerstand Stoffe (wird offenbar nicht mitgespeichert)
-- Hat Rohstoffmangel
-- Auslastung?
-- Lebenspunkte?
+-   Weiße Flagge
+-   Patrouille (Punkt 1, Punkt 2)
+-   Im Angriff
+-   Animationsschritt?
+-   Sinkt gerade
+-   Formation?
 
-Timer
------
+## Werft
+
+-   Lagerstand Stoffe (wird offenbar nicht mitgespeichert)
+-   Hat Rohstoffmangel
+-   Auslastung?
+-   Lebenspunkte?
+
+## Timer
+
 (alles unbekannt)
 
-Player
-------
-- Punktestand
-- ...
+## Player
 
-Soldat
-------
-- Formation
-- ...
+-   Punktestand
+-   ...
+
+## Soldat
+
+-   Formation
+-   ...
