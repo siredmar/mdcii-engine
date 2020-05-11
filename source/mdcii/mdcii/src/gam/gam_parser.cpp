@@ -187,7 +187,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
   }
   if (sceneSave)
   {
-    std::cout << "scene number of islands: " << sceneSave->sceneSave.inselanz << std::endl;
+    std::cout << "scene number of islands: " << sceneSave->sceneSave.islandsCount << std::endl;
   }
   f.close();
 }

@@ -24,42 +24,92 @@ The final result after loading the scene file is a savegame file (`.gam`).
 
 ### Structs
 
-| SceneRanking | Type  | Size | Description                                 |
-| ------------ | ----- | ---- | ------------------------------------------- |
-| ranking      | int32 | 4    | The ranking of the missions (stars): 0 to 3 |
+The main structure is `SceneRanking`.
+
+| SceneRanking | Type  | Description                                 |
+| ------------ | ----- | ------------------------------------------- |
+| ranking      | int32 | The ranking of the missions (stars): 0 to 3 |
 
 ## SZENE
 
+The main structure is `SceneSaveData` and contains all other structures and enums listed below.
+
 ### Enums
 
-| ClimateType | Type  | Values    |
-| ----------- | ----- | --------- |
-| ClimateType | uint8 | North : 0 |
-|             |       | South: 1  |
-|             |       | Random: 2 |
+| ClimateType | Type  | Enum   | Value |
+| ----------- | ----- | ------ | ----- |
+|             | uint8 | North  | 0     |
+|             |       | South  | 1     |
+|             |       | Random | 2     |
 
-| SizeType | Type  | Values   |
-| -------- | ----- | -------- |
-| SizeType | uint8 | Size0: 0 |
-|          |       | Size1: 1 |
-|          |       | Size2: 2 |
-|          |       | Size3: 3 |
-|          |       | Size4: 4 |
+| SizeType | Type  | Enum  | Value |
+| -------- | ----- | ----- | ----- |
+|          | uint8 | Size0 | 0     |
+|          |       | Size1 | 1     |
+|          |       | Size2 | 2     |
+|          |       | Size3 | 3     |
+|          |       | Size4 | 4     |
 
-| NativeFlag | Type  | Values        |
-| ---------- | ----- | ------------- |
-| NativeFlag | uint8 | NoNatives : 0 |
-|            |       | Natives: 1    |
+| NativeFlag | Type  | Enum      | Value |
+| ---------- | ----- | --------- | ----- |
+|            | uint8 | NoNatives | 0     |
+|            |       | Natives   | 1     |
+
+| GoodsHouseId | Type   | Enum             | Value |
+| ------------ | ------ | ---------------- | ----- |
+|              | uint16 | None             | 0     |
+|              |        | Treasure         | 533   |
+|              |        | OreMine          | 2401  |
+|              |        | GoldMine         | 2405  |
+|              |        | TabacoPlantation | 1336  |
+|              |        | WinePlantation   | 1344  |
+|              |        | SugarPlantation  | 1340  |
+|              |        | CacaoPlantation  | 1338  |
+|              |        | WoolPlantation   | 1332  |
+|              |        | SpicesPlantation | 1342  |
 
 ### Structs
+
+| RandomGood | Type         | Description                               |
+| ---------- | ------------ | ----------------------------------------- |
+| houseId    | GoodsHouseId | specifies the houseId that can build this |
+| amount     | uint16       | specifies how many resources there are    |
+| -          | union uint32 | unused? kind, price, percent              |
+
+| RandomNativeVillages | Type      | Description                                |
+| -------------------- | --------- | ------------------------------------------ |
+| strawRoofCount       | uint32    | specifies the count of straw roof villages |
+| incasCount           | uint32    | specifies the count of incas villages      |
+| empty                | uint32[3] | empty                                      |
+
+| Position | Type   | Description                   |
+| -------- | ------ | ----------------------------- |
+| x        | uint32 | X position of island in world |
+| y        | uint32 | Y position of island in world |
 
 | RandomIslands | Type        | Description                                                                                                                                                                              |
 | ------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | climateType   | ClimateType | specifies the climate for "random" island generation                                                                                                                                     |
 | sizenr        | SizeType    | specifies the size for "random" island generation                                                                                                                                        |
 | nativflg      | NativeFlag  | unused?                                                                                                                                                                                  |
-| islandNumber  | uint8_t     | mixed increment with this number and the number field from ISLAND5 islands                                                                                                               |
-| filenr        | uint16_t    | 0xFF means this island shall be choosen randomly between all present island files with the given size. Other values say to chose the specific island in combination with the climateType |
-| empty         | uint16_t    | empty                                                                                                                                                                                    |
-| posx          | uint32_t    | position of the island in x direction                                                                                                                                                    |
-| posy          | uint32_t    | position of the island in y direction                                                                                                                                                    |
+| islandNumber  | uint8       | mixed increment with this number and the number field from ISLAND5 islands                                                                                                               |
+| filenr        | uint16      | 0xFF means this island shall be choosen randomly between all present island files with the given size. Other values say to chose the specific island in combination with the climateType |
+| empty         | uint16      | empty                                                                                                                                                                                    |
+| pos           | Position    | position of the island in the world                                                                                                                                                      |
+
+| SceneSaveData  | Type                 | Description                                                                |
+| -------------- | -------------------- | -------------------------------------------------------------------------- |
+| name           | char\[]              | the name of the scenario                                                   |
+| nativeVillages | RandomNativeVillages | amount of random native villages                                           |
+| empty1         | int32                | empty                                                                      |
+| rohstmax       | int32                | amount of 100% growing raw materials for islands? Always 2?                |
+| islandsCount   | int32                | overall count of islands                                                   |
+| goldminsizenr  | int32                | unused? always 1?                                                          |
+| goldmaxsizenr  | int32                | unused? always 2?                                                          |
+| empty2         | int32                | empty                                                                      |
+| empty3         | RandomGood\[]        | empty                                                                      |
+| ores           | RandomGood\[]        | 0: small ore, 1: great ore, 2: gold, 3: empty                              |
+| rawMaterials   | RandomGood\[]        | 0: tabaco, 1: spices, 2: sugar, 3: wool, 4: wine, 5: cacao, 6 .. 11: empty |
+| goodies        | RandomGood\[]        | 0: treasure, 1 .. 3: empty                                                 |
+| hardware       | RandomGood\[]        | 0 .. 7: empty                                                              |
+| islands        | RandomIsland\[]      | random islands definitions                                                 |
