@@ -23,7 +23,7 @@ The most complex program is [`mdcii-sdltest`](doc/mdcii-sdltest.md) that can loa
 
 See this video for a short demonstration of an earlier stage
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/1Nw7DcvG0gk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![mdcii youtube playlist](http://img.youtube.com/vi/1Nw7DcvG0gk/0.jpg)](https://www.youtube.com/playlist?list=PLsCp-i-X4SH-TQPoUgN8kicQza2BJ5K0h)
 
 ## How to build
 
