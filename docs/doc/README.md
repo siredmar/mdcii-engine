@@ -1,4 +1,3 @@
-Dokumentation
-=============
+# Documentation
 
-In diesem Ordner soll all das dokumentiert werden, wofür doxygen-Kommentare ungeeignet sind.
+This folder is intended to document all those things for which doxygen comments are unsuitable.

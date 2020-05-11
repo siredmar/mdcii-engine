@@ -1,116 +1,113 @@
-Bitflags
-========
+# Bitflags
 
-Bits im `flags`-Attribut der `Siedler`-Struktur
------------------------------------------------
+## Bits in the 'flags' attribute of the 'settler' structure
 
-Noch einzuordnen sind:
-- Gesundheit/Krankheit
-- Nahrung
-- Alkohol
-- Tabakwaren
-- Gewürze
-- Kleidung
-- Kakao
-- Schmuck
+Still to be classified:
 
-Unbekannte benutzte Bits sind: 6, 8, 9, 11, 16, 17, 19
+-   Health/disease
+-   Food
+-   Alcohol
+-   Tobacco products
+-   Spices
+-   Clothing
+-   Cocoa
+-   Jewellery
 
-| Bit | Bedeutung         |
-|----:|:------------------|
-|   0 |                   |
-|   1 |                   |
-|   2 |                   |
-|   3 |                   |
-|   4 |                   |
-|   5 |                   |
-|   6 |                   |
-|   7 | Stoffe            |
-|   8 |                   |
-|   9 |                   |
-|  10 |                   |
-|  11 |                   |
-|  12 |                   |
-|  13 |                   |
-|  14 |                   |
-|  15 |                   |
-|  16 |                   |
-|  17 |                   |
-|  18 |                   |
-|  19 |                   |
-|  20 |                   |
-|  21 | Zufrieden         |
-|  22 | Markt             |
-|  23 | Kirche/Kathedrale |
-|  24 | Wirtshaus         |
-|  25 | Badehaus          |
-|  26 | Theater           |
-|  27 |                   |
-|  28 | Schule            |
-|  29 | Hochschule        |
-|  30 | Kapelle           |
-|  31 | Arzt              |
+Unknown bits used are: 6, 8, 9, 11, 16, 17, 19
 
-Bits im `modus`-Attribut der `Prodlist`-Struktur
-------------------------------------------------
+| bit | meaning          |        |     |
+| --: | :--------------- | ------ | --- |
+|   0 |                  |        |     |
+|   1 |                  |        |     |
+|   2 |                  |        |     |
+|   3 |                  |        |     |
+|   4 |                  |        |     |
+|   5 |                  |        |     |
+|   6 |                  |        |     |
+|   7 | Cloth            |        |     |
+|   8 |                  |        |     |
+|   9 |                  |        |     |
+|  10 |                  |        |     |
+|  11 |                  |        |     |
+|  12 |                  |        |     |
+|  13 |                  |        |     |
+|  14 |                  |        |     |
+|  15 |                  |        |     |
+|  16 |                  |        |     |
+|  17 |                  |        |     |
+|  18 |                  |        |     |
+|  19 |                  |        |     |
+|  20 |                  |        |     |
+|  21 | Satisfied        |        |     |
+|  22 | Market           |        |     |
+|  23 | Church/Cathedral |        |     |
+|  24 |                  | tavern |     |
+|  25 | bathhouse        |        |     |
+|  26 | theatre          |        |     |
+|  27 |                  |        |     |
+|  28 | school           |        |     |
+|  29 | college          |        |     |
+|  30 | chapel           |        |     |
+|  31 |                  | doctor |     |
 
-- bit 0 = aktiv
-- bit 6 = nicht abholen
+## Bits in the 'mode' attribute of the 'Prodlist' structure
 
-Bits im `fruchtbarkeit`-Attribut der `Insel5`-Struktur
-------------------------------------------------------
+-   bit 0 = active
+-   bit 6 = do not pick up
 
-Die Bits geben an, was zu 100% statt zu 50% wächst.
+## Bits in the 'fertility' attribute of the 'island5' structure
 
-| Bit | Bedeutung       |
-|----:|:----------------|
-|   0 | (immer 1)       |
-|   1 | 100% Tabak      |
-|   2 | 100% Gewürze    |
-|   3 | 100% Zuckerrohr |
-|   4 | 100% Baumwolle  |
-|   5 | 100% Wein       |
-|   6 | 100% Kakao      |
-|   7 | (immer 1)       |
+The bits indicate what is growing at 100% instead of 50%.
 
-Bits im `freigeschaltet`-Attribut der `Player`-Struktur
--------------------------------------------------------
+| bit | meaning         |
+| --: | :-------------- |
+|   0 | (always 1)      |
+|   1 | 100% tobacco    |
+|   2 | 100% spices     |
+|   3 | 100% sugar cane |
+|   4 | 100% cotton     |
+|   5 | 100% wine       |
+|   6 | 100% cocoa      |
+|   7 | (always 1)      |
 
-Ein gesetztes Bit bedeutet, dass die entsprechenden Gebäude gebaut werden können.
+## Bits in the 'enabled' attribute of the 'player' structure
 
-| Bit | Bedingung¹        | Bedeutung
-|----:|:------------------|:------------------
-|   0 |                   | (ignoriert)
-|   1 |                   | (ignoriert)
-|   2 | 100 Siedler       | Schule
-|   3 | 50 Siedler        | Wirtshaus
-|   4 | 150 Bürger        | Kirche
-|   5 | 210 Bürger        | Badehaus
-|   6 | 300 Kaufleute     | Theater
-|   7 | 250 Kaufleute     | Hochschule
-|   8 | 50 Bürger         | Arzt
-|   9 | 100 Bürger        | Galgen
-|  10 | 1500 Aristokraten | Schloss
-|  11 | 2500 Aristokraten | Kathedrale
-|  12 |                   | (nichts)
-|  13 |                   | (nichts)
-|  14 | 30 Pioniere       | Fleischerei, Rinderfarm
-|  15 | 15 Siedler        | Pflasterstraße, Steinbrücke, Steinbruch, Steinmetz, Feuerwehr
-|  16 | 30 Siedler        | Palisade, Holztor, Kontor II
-|  17 | 40 Siedler        | Tabakwarenladen, Rumbrennerei, Weingut, Weinstöcke, Zuckerrohrplantage, Zuckerrohrfeld, Tabakplantage, Tabakfeld, Gewürzplantage, Gewürzfeld
-|  18 | 75 Siedler        | Windmühle, Bäckerei, Getreidefarm, Getreidefeld
-|  19 | 100 Siedler       | Werkzeugschmiede
-|  20 | 120 Siedler       | Erzmine, Werft, Erzschmelze
-|  21 | 200 Siedler       | kleine Burg, Steinwall, Steintor, Wachturm, Stadttor, Platz I, Schwertschmiede
-|  22 | 100 Bürger        | Kontor III
-|  23 | 150 Bürger        | Goldmine
-|  24 | 200 Bürger        | Schneiderei, Weberei, Baumwollplantage, Baumwollfeld, Kakaoplantage, Kakaofeld
-|  25 |                   | (nichts)
-|  26 | 400 Bürger        | Kanonengießerei
-|  27 | 450 Bürger        | tiefe Erzmine
-|  28 | 250 Kaufleute     | Platz II, Platz III, Zierbaum, Goldschmiede, Kontor IV
-|  29 | 400 Kaufleute     | große Burg, Musketenbauer
-|  30 | 500 Kaufleute     | große Werft
-|  31 | 600 Aristokraten  | Festung
+A set bit means that the corresponding buildings can be constructed.
 
-1) Quelle: [AnnoWiki 1602](http://1602.annowiki.de/). Die Bedingung muss nur einmal erfüllt gewesen sein.
+|        bit | condition¹       | meaning                                                                                                                                                  |           |
+| ---------: | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+|          0 | (ignores)        |                                                                                                                                                          |           |
+|          1 | (ignores)        |                                                                                                                                                          |           |
+|          2 | 100 settlers     | school                                                                                                                                                   |           |
+|          3 | 50 settlers      | tavern                                                                                                                                                   |           |
+|          4 | 150 citizens     | church                                                                                                                                                   |           |
+|          5 | 210 citizens     | bathhouse                                                                                                                                                |           |
+|          6 | 300 merchants    | theatre                                                                                                                                                  |           |
+|          7 | 250 merchants    |                                                                                                                                                          |           |
+| university |                  |                                                                                                                                                          |           |
+|          8 | 50 citizens      | doctor                                                                                                                                                   |           |
+|          9 | 100 citizens     | gallows                                                                                                                                                  |           |
+|         10 | 1500 aristocrats | castle                                                                                                                                                   |           |
+|         11 | 2500 aristocrats | cathedral                                                                                                                                                |           |
+|            | 12               |                                                                                                                                                          | (nothing) |
+|            | 13               |                                                                                                                                                          | (nothing) |
+|         14 | 30 pioneers      | butchery, cattle farm                                                                                                                                    |           |
+|         15 | 15 settlers      | cobblestone road, stone bridge, quarry, stonemason, fire brigade                                                                                         |           |
+|         16 | 30 Settlers      | Palisade, Wooden Gate, Warehouse II                                                                                                                      |           |
+|         17 | 40 settlers      | tobacco shop, rum distillery, vineyard, vines, sugar cane plantation, sugar cane field, tobacco plantation, tobacco field, spice plantation, spice field |           |
+|         18 | 75 settlers      | windmill, bakery, grain farm, cornfield                                                                                                                  |           |
+|         19 | 100 settlers     | tool smithy                                                                                                                                              |           |
+|         20 | 120 settlers     | ore mine, shipyard, ore smelting                                                                                                                         |           |
+|         21 | 200 settlers     | small castle, stone wall, stone gate, watchtower, city gate, square I, swordsmiths                                                                       |           |
+|         22 | 100 citizens     | Kontor III                                                                                                                                               |           |
+|         23 | 150 citizens     | gold mine                                                                                                                                                |           |
+|         24 | 200 citizens     | tailoring, weaving mill, cotton plantation, cotton field, cocoa plantation, cocoa field                                                                  |           |
+|         25 |                  | (nothing)a                                                                                                                                               |           |
+|         26 | 400 citizens     | cannon foundry                                                                                                                                           |           |
+|         27 | 450 citizens     | deep ore mine                                                                                                                                            |           |
+|         28 | 250 merchants    | Place II, Place III, ornamental tree, goldsmiths, office IV                                                                                              |           |
+|         29 | 400 merchants    | great castle, musket maker                                                                                                                               |           |
+|         30 | 500 merchants    | large shipyard                                                                                                                                           |           |
+|         31 | 600 aristocrats  | fortress                                                                                                                                                 |           |
+
+1) Source: [AnnoWiki 1602](http://1602.annowiki.de/). The condition must have been fulfilled only once.

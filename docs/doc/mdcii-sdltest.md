@@ -1,21 +1,14 @@
-mdcii-sdltest
-=============
+# mdcii-sdltest
 
-Das Programm `mdcii-sdltest` kann Spielstände animiert und navigierbar darstellen.
+The programm `mdcii-sdltest` is the main program of mdcii. It provides the main menu and allows to view savegames and single player scenarios.
 
-Bedienung
----------
+## Usage
 
-Die folgenden Kommandozeilenparameter können beim Programmaufruf angegebenen werden:
+There are following command line arguments:
 
-    Zulässige Optionen:
-      -W [ --width ] arg (=800)       Bildschirmbreite
-      -H [ --height ] arg (=600)      Bildschirmhöhe
-      -F [ --fullscreen ] arg (=0)    Vollbildmodus (true/false)
-      -r [ --rate ] arg (=10)         Bildrate
-      -l [ --load ] arg (=game00.gam) Lädt den angegebenen Spielstand (*.gam)
-      -p [ --path ] arg (=.)          Pfad zur ANNO1602-Installation
-      -h [ --help ]                   Gibt diesen Hilfetext aus
-    
-
-Alle Parameter haben sinnvolle Voreinstellungen, sodass das Programm normalerweise ohne Kommandozeilenparameter aufgerufen werden kann.
+    Options:
+      -w [ --width ] arg (=1024)      Screen width
+      -h [ --height ] arg (=768)      Screen height
+      -f [ --fullscreen ] arg (=0)    Fullscreen (true/false)
+      -p [ --path ] arg (=.)          Path to your instalation path of the game
+      -h [ --help ]                   Prints this help

@@ -1,43 +1,40 @@
-Ablauf der Produktion
-=====================
+# Production sequence
 
-Notizen zu Änderungen in den Prodlist-Daten zwischen unmittelbar nacheinander gespeicherten Spielständen
+Notes on changes in the Prodlist data between saved scores immediately after each other
 
     0e 05 29
-aktives Gebäude ohne Rohstoffe: warteschritt 3 wahrscheinlich um 4 auf 10 reduziert => ani von 3 auf 4 erhöht und auslastung_nenner von 179 auf 190
+
+active building without resources: wait step 3 probably reduced by 4 to 10 => ani increased from 3 to 4 and load_denominator from 179 to 190
 
     0e 28 10
-auslastung_nenner = 231  =>  auslastung_nenner = 121  (= (231+11)/2 )
+
+load_denominator = 231 => load_denominator = 121 (= (231+11)/2 )
     0e 0b 18
 229 => 120
 
+Assumption for ani: Number of zero crossings of the waiting step without production
 
-
-Vermutung für ani: Anzahl der Nulldurchgänge von warteschritt ohne Produktion
-
-
-
-
-Mit Produktion
+With production
 
     0e 0c 25
     0e 13 16
     0e 13 1e
 
+Assumed sequence
 
+wait step is reduced by 1 every second.
+At zero crossing
 
-Vermuteter Ablauf
+-   a modulo dependent on the building type is added to wait step.
+-   the modulo is added to occupancy_denominator
+-   if the building is currently producing (i.e. if there are enough raw materials)
+    -   another type-dependent value added to load_counter
+    -   ani set to 0
+    -   a type-dependent value of raw material (and raw material2) deducted
+    -   a type-dependent value added to product
+-   otherwise
+    -   ani increased by 1 (not above 0x0f)
 
-warteschritt wird sekündlich um 1 verringert.
-Bei Nulldurchgang wird
-- ein vom Gebäudetyp abhängiger Modulo zu warteschritt addiert.
-- der Modulo zu auslastung_nenner addiert
-- wenn das Gebäude gerade produziert (d.h. wenn genug Rohstoffe da sind)
-  - ein anderer typabhängiger Wert zu auslastung_zaehler addiert
-  - ani auf 0 gesetzt
-  - ein typabhängiger Wert von rohstoff (und rohstoff2) abgezogen
-  - ein typabhängiger Wert zu produkt addiert
-- sonst
-  - ani um 1 erhöht (nicht über 0x0f)
+If utilization_denominator exceeds a certain value, utilization_denominator and utilization_counter are halved.
 
-Übersteigt auslastung_nenner einen bestimmten Wert, werden auslastung_nenner und auslastung_zaehler halbiert.
+Translated with www.DeepL.com/Translator (free version)

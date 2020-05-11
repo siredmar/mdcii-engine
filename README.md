@@ -2,11 +2,28 @@
 
 # MDCII Game Engine
 
-Ziel des MDCII-Projekts ist eine unabhängige Neuimplementierung der Engine des PC-Spiels **ANNO 1602** unter freier Lizenz.
+The main goal of this project is to provid an independent reimplementation of the game engine for Anno 1602/1602 AD under a free license.
 
-Gegenwärtig enthält das Projekt die Programme [`mdcii-bshdump`](doc/mdcii-bshdump.md), [`mdcii-bshpacker`](doc/mdcii-bshpacker.md), `mdcii-codcat`, `mdcii-inselbmp`, [`mdcii-sdltest`](doc/mdcii-sdltest.md) und `mdcii-weltbmp`.
+Currently this project contains several helper tools:
 
-Das komplexeste dieser Programme ist [`mdcii-sdltest`](doc/mdcii-sdltest.md), das Spielstände von ANNO 1602 animiert und navigierbar darstellen kann.
+-   [`bshdump`](doc/bshdump.md)
+-   [`bshpacker`](doc/bshpacker.md)
+-   `cod_parser`   
+-   `codcat`
+-   `gam_parser`
+-   `paldump`
+-   `zeidump`
+-   `inselbmp`
+-   `weltbmp`
+-   `zeitext`
+
+The most complex program is [`mdcii-sdltest`](doc/mdcii-sdltest.md) that can load savegames and scenario files and animate the buildings.
+
+## Media
+
+See this video for a short demonstration of an earlier stage
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1Nw7DcvG0gk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## How to build
 
@@ -19,21 +36,12 @@ Clone the repo
 
 The main program is called `mdcii-sdltest`.
 
-## Installation
+## How to run the game
 
-Die Programme erwarten in ihrem Ordner bestimmte Ordner und Dateien aus der ANNO-1602-Installation beziehungsweise vom ANNO-1602-Datenträger.
+The game uses the original files from your Anno 1602/1602 AD installation.
 
-Die erforderlichen Ordner sind:
+    $ ./mdcii-sdltest -p <path-to-1602-ad-installation>
 
--   Grafikordner
-    -   `sgfx`: Grafiken der kleinsten Vergrößerungsstufe
-    -   `mgfx`: Grafiken der mittleren Vergrößerungsstufe
-    -   `gfx`: Grafiken der höchsten Vergrößerungsstufe
-    -   `toolgfx`: Schriftarten und Menügrafiken (letztere ungenutzt)
--   Inselordner
-    -   `nord`: Nördliche Inseln
-    -   `sued`: Südliche Inseln
+## License
 
-## Lizenz
-
-GPL Version 2 oder neuer, siehe [COPYING](COPYING).
+GPL Version 2 or newer, see [COPYING](COPYING).

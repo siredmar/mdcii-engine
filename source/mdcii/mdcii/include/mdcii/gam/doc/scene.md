@@ -55,18 +55,18 @@ The main structure is `SceneSaveData` and contains all other structures and enum
 |            | uint8 | NoNatives | 0     |
 |            |       | Natives   | 1     |
 
-| GoodsHouseId | Type   | Enum             | Value |
-| ------------ | ------ | ---------------- | ----- |
-|              | uint16 | None             | 0     |
-|              |        | Treasure         | 533   |
-|              |        | OreMine          | 2401  |
-|              |        | GoldMine         | 2405  |
-|              |        | TabacoPlantation | 1336  |
-|              |        | WinePlantation   | 1344  |
-|              |        | SugarPlantation  | 1340  |
-|              |        | CacaoPlantation  | 1338  |
-|              |        | WoolPlantation   | 1332  |
-|              |        | SpicesPlantation | 1342  |
+| GoodsHouseId | Type   | Enum              | Value |
+| ------------ | ------ | ----------------- | ----- |
+|              | uint16 | None              | 0     |
+|              |        | Treasure          | 533   |
+|              |        | OreMine           | 2401  |
+|              |        | GoldMine          | 2405  |
+|              |        | TobaccoPlantation | 1336  |
+|              |        | WinePlantation    | 1344  |
+|              |        | SugarPlantation   | 1340  |
+|              |        | CocoaPlantation   | 1338  |
+|              |        | WoolPlantation    | 1332  |
+|              |        | SpicesPlantation  | 1342  |
 
 ### Structs
 
@@ -83,15 +83,15 @@ The main structure is `SceneSaveData` and contains all other structures and enum
 | goldMine     | RandomGood | specifies the random gold mines      |
 | empty        | RandomGood | unused                               |
 
-| RandomRawMaterials | Type           | Description                                                    |
-| ------------------ | -------------- | -------------------------------------------------------------- |
-| tabaco             | RandomGood     | specifies the distribution for random tabaco 100% growth rates |
-| spices             | RandomGood     | specifies the distribution for random spices 100% growth rates |
-| sugar              | RandomGood     | specifies the distribution for random sugar 100% growth rates  |
-| wool               | RandomGood     | specifies the distribution for random wool 100% growth rates   |
-| wine               | RandomGood     | specifies the distribution for random wine 100% growth rates   |
-| cacao              | RandomGood     | specifies the distribution for random cacao 100% growth rates  |
-| empty              | RandomGood\[6] | empty                                                          |
+| RandomRawMaterials | Type           | Description                                                     |
+| ------------------ | -------------- | --------------------------------------------------------------- |
+| tobacco            | RandomGood     | specifies the distribution for random tobacco 100% growth rates |
+| spices             | RandomGood     | specifies the distribution for random spices 100% growth rates  |
+| sugar              | RandomGood     | specifies the distribution for random sugar 100% growth rates   |
+| wool               | RandomGood     | specifies the distribution for random wool 100% growth rates    |
+| wine               | RandomGood     | specifies the distribution for random wine 100% growth rates    |
+| cocoa              | RandomGood     | specifies the distribution for random cocoa 100% growth rates   |
+| empty              | RandomGood\[6] | empty                                                           |
 
 | RandomGoodies | Type           | Description                          |
 | ------------- | -------------- | ------------------------------------ |

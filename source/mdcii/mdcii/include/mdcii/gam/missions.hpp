@@ -25,14 +25,14 @@
 
 enum class MonopolyGood : uint8_t
 {
-  Ore = 0x02,    // Erz
-  Gold = 0x03,   // Gold
-  Tabaco = 0x2e, // Tabak
-  Spices = 0x2f, // Gewuerze
-  Sugar = 0x30,  // Zuckerrohr
-  Wool = 0x31,   // Baumwolle
-  Whine = 0x32,  // Wein
-  Cacao = 0x33   // Kakao
+  Ore = 0x02,     // Erz
+  Gold = 0x03,    // Gold
+  Tobacco = 0x2e, // Tabak
+  Spices = 0x2f,  // Gewuerze
+  Sugar = 0x30,   // Zuckerrohr
+  Wool = 0x31,    // Baumwolle
+  Whine = 0x32,   // Wein
+  Cocoa = 0x33    // Kakao
 };
 
 struct MissionGoods
@@ -65,7 +65,7 @@ enum class Goods : uint8_t
   Gold = 3,       // Gold
   Wool = 4,       // Wolle
   Sugar = 5,      // Zucker
-  Tabaco = 6,     // Tabak
+  Tobacco = 6,    // Tabak
   Cattle = 7,     // Schlachtvieh
   Corn = 8,       // Korn
   Flour = 9,      // Mehl
@@ -76,7 +76,7 @@ enum class Goods : uint8_t
   Food = 14,      // Nahrung
   Cigaretts = 15, // Tabakwaren
   Spices = 16,    // Gewuerze
-  Cacao = 17,     // Kakao
+  Cocoa = 17,     // Kakao
   Alcohol = 18,   // Alkohol
   Fabric = 19,    // Stoffe
   Clothing = 20,  // Kleidung
