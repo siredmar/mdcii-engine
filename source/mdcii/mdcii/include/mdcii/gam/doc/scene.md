@@ -83,30 +83,30 @@ The main structure is `SceneSaveData` and contains all other structures and enum
 | goldMine     | RandomGood | specifies the random gold mines      |
 | empty        | RandomGood | unused                               |
 
-| RandomRawMaterials | Type          | Description                                                    |
-| ------------------ | ------------- | -------------------------------------------------------------- |
-| tabaco             | RandomGood    | specifies the distribution for random tabaco 100% growth rates |
-| spices             | RandomGood    | specifies the distribution for random spices 100% growth rates |
-| sugar              | RandomGood    | specifies the distribution for random sugar 100% growth rates  |
-| wool               | RandomGood    | specifies the distribution for random wool 100% growth rates   |
-| wine               | RandomGood    | specifies the distribution for random wine 100% growth rates   |
-| cacao              | RandomGood    | specifies the distribution for random cacao 100% growth rates  |
-| empty              | RandomGood[6] | empty                                                          |
+| RandomRawMaterials | Type           | Description                                                    |
+| ------------------ | -------------- | -------------------------------------------------------------- |
+| tabaco             | RandomGood     | specifies the distribution for random tabaco 100% growth rates |
+| spices             | RandomGood     | specifies the distribution for random spices 100% growth rates |
+| sugar              | RandomGood     | specifies the distribution for random sugar 100% growth rates  |
+| wool               | RandomGood     | specifies the distribution for random wool 100% growth rates   |
+| wine               | RandomGood     | specifies the distribution for random wine 100% growth rates   |
+| cacao              | RandomGood     | specifies the distribution for random cacao 100% growth rates  |
+| empty              | RandomGood\[6] | empty                                                          |
 
-| RandomGoodies | Type          | Description                          |
-| ------------- | ------------- | ------------------------------------ |
-| treasure      | RandomGood    | specifies amount of random treasures |
-| empty         | RandomGood[3] | empty                                |
+| RandomGoodies | Type           | Description                          |
+| ------------- | -------------- | ------------------------------------ |
+| treasure      | RandomGood     | specifies amount of random treasures |
+| empty         | RandomGood\[3] | empty                                |
 
-| RandomHardware | Type          | Description |
-| -------------- | ------------- | ----------- |
-| empty          | RandomGood[8] | unused?     |
+| RandomHardware | Type           | Description |
+| -------------- | -------------- | ----------- |
+| empty          | RandomGood\[8] | unused?     |
 
-| RandomNativeVillages | Type      | Description                                |
-| -------------------- | --------- | ------------------------------------------ |
-| strawRoofCount       | uint32    | specifies the count of straw roof villages |
-| incasCount           | uint32    | specifies the count of incas villages      |
-| empty                | uint32[3] | empty                                      |
+| RandomNativeVillages | Type       | Description                                |
+| -------------------- | ---------- | ------------------------------------------ |
+| strawRoofCount       | uint32     | specifies the count of straw roof villages |
+| incasCount           | uint32     | specifies the count of incas villages      |
+| empty                | uint32\[3] | empty                                      |
 
 | Position | Type   | Description                   |
 | -------- | ------ | ----------------------------- |
