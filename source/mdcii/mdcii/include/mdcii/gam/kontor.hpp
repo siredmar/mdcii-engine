@@ -43,7 +43,7 @@ struct Kontor2Data
   uint32_t posx : 8;
   uint32_t posy : 8;
   uint32_t stadtnr : 4;
-  KontorWare waren[50]; //  ACHTUNG falls WARE_MAX > 50
+  KontorWare waren[MAXKONTWARESAVE]; //  ACHTUNG falls WARE_MAX > 50
 };
 
 class Kontor2

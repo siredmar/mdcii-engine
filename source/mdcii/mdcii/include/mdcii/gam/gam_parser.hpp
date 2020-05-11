@@ -41,6 +41,7 @@ private:
   std::shared_ptr<Mission4> mission4;
   std::shared_ptr<Kontor2> kontor2;
   std::shared_ptr<SceneRanking> sceneRanking;
+  std::shared_ptr<SceneSave> sceneSave;
 };
 
 #endif // _GAM_PARSER_HPP
