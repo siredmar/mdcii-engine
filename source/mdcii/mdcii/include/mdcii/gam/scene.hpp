@@ -49,10 +49,10 @@ enum class GoodsHouseId : uint16_t
   Treasure = 533,
   OreMine = 2401,
   GoldMine = 2405,
-  TabacoPlantation = 1336,
+  TobaccoPlantation = 1336,
   WinePlantation = 1344,
   SugarPlantation = 1340,
-  CacaoPlantation = 1338,
+  CocoaPlantation = 1338,
   WoolPlantation = 1332,
   SpicesPlantation = 1342
 };
@@ -78,12 +78,12 @@ struct RandomOre
 
 struct RandomRawMaterials
 {
-  RandomGood tabaco;   // specifies the distribution for random tabaco 100% growth rates
+  RandomGood tobacco;  // specifies the distribution for random tobacco 100% growth rates
   RandomGood spices;   // specifies the distribution for random spices 100% growth rates
   RandomGood sugar;    // specifies the distribution for random sugar  100% growth rates
   RandomGood wool;     // specifies the distribution for random wool   100% growth rates
   RandomGood wine;     // specifies the distribution for random wine   100% growth rates
-  RandomGood cacao;    // specifies the distribution for random cacao  100% growth rates
+  RandomGood cocoa;    // specifies the distribution for random cocoa  100% growth rates
   RandomGood empty[6]; // empty
 };
 

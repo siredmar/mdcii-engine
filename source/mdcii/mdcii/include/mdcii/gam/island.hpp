@@ -32,6 +32,24 @@ struct OreMountainData // Erzberg
   uint16_t stock;      // how much of this good lays here?
 };
 
+enum class Fertility : uint32_t
+{
+  Random = 0x0000,
+  None = 0x1181,
+  TobaccoOnly = 0x1183,
+  WineOnly = 0x11A1,
+  SugarOnly = 0x1189,
+  CocoaOnly = 0x11C1,
+  WoolOnly = 0x1191,
+  SpicesOnly = 0x1185,
+  TobaccoAndSpices = 0x1187,
+  TobaccoAndSugar = 0x118B,
+  SpicesAndSugar = 0x118D,
+  WoolAndWine = 0x11B1,
+  WoolAndCocoa = 0x11D1,
+  WineAndCocoa = 0x11E1
+};
+
 struct Island5Data // Insel5
 {
   uint8_t inselnr;
@@ -52,7 +70,7 @@ struct Island5Data // Insel5
   uint8_t playerflags;
   OreMountainData eisenberg[4];
   OreMountainData vulkanberg[4];
-  uint32_t rohstflags;
+  Fertility fertility;
   uint16_t filenr;
   uint16_t sizenr;
   uint8_t klimanr;
