@@ -6,8 +6,8 @@ The main goal of this project is to provid an independent reimplementation of th
 
 Currently this project contains several helper tools:
 
--   [`bshdump`](doc/bshdump.md)
--   [`bshpacker`](doc/bshpacker.md)
+-   [`bshdump`](docs/doc/bshdump.md)
+-   [`bshpacker`](docs/doc/bshpacker.md)
 -   `cod_parser`   
 -   `codcat`
 -   `gam_parser`
@@ -17,7 +17,7 @@ Currently this project contains several helper tools:
 -   `weltbmp`
 -   `zeitext`
 
-The most complex program is [`mdcii-sdltest`](doc/mdcii-sdltest.md) that can load savegames and scenario files and animate the buildings.
+The most complex program is [`mdcii-sdltest`](docs/doc/mdcii-sdltest.md) that can load savegames and scenario files and animate the buildings.
 
 ## Media
 
