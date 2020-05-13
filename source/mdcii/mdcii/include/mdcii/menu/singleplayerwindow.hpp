@@ -30,6 +30,7 @@
 
 #include "basegad_dat.hpp"
 #include "files.hpp"
+#include "haeuser.hpp"
 #include "host_gad.hpp"
 #include "zei_leser.hpp"
 #include "zei_texture.hpp"
@@ -39,7 +40,7 @@ using namespace sdlgui;
 class SinglePlayerWindow : public Screen
 {
 public:
-  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
+  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, std::shared_ptr<Haeuser> haeuser);
   void Handle();
 
 private:
@@ -50,6 +51,7 @@ private:
   int width;
   int height;
   bool fullscreen;
+  std::shared_ptr<Haeuser> haeuser;
   SDL_Window* pwindow;
   Files* files;
   bool quit;

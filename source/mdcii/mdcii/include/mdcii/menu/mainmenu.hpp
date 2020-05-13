@@ -37,11 +37,12 @@ using namespace sdlgui;
 class MainMenu : public Screen
 {
 public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
+  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Haeuser>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
   void Handle();
 
 private:
   SDL_Renderer* renderer;
+  std::shared_ptr<Haeuser> haeuser;
   std::shared_ptr<Basegad> basegad;
   int width;
   int height;

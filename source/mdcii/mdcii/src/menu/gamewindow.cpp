@@ -39,13 +39,13 @@
 using namespace sdlgui;
 
 GameWindow::GameWindow(
-    SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen)
+    SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
   : renderer(renderer)
-  , haeuser(haeuser)
   , width(rwidth)
   , height(rheight)
   , gam_name(gam_name)
   , fullscreen(fullscreen)
+  , haeuser(haeuser)
   , running(true)
   , Screen(pwindow, Vector2i(rwidth, rheight), "Game")
 {

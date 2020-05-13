@@ -37,16 +37,16 @@ class GameWindow : public Screen
 {
 public:
   GameWindow(
-      SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen);
+      SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen, std::shared_ptr<Haeuser> haeuser);
   void Handle();
 
 private:
   SDL_Renderer* renderer;
-  std::shared_ptr<Haeuser> haeuser;
   int width;
   int height;
   std::string gam_name;
   bool fullscreen;
+  std::shared_ptr<Haeuser> haeuser;
   bool running;
 };
 #endif

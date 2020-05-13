@@ -38,8 +38,10 @@
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
-MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
+MainMenu::MainMenu(
+    SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
   : renderer(renderer)
+  , haeuser(haeuser)
   , basegad(basegad)
   , width(rwidth)
   , height(rheight)
@@ -145,7 +147,7 @@ void MainMenu::Handle()
     Fps fps;
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
-    SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen);
+    SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen, haeuser);
     SDL_Event e;
     while (!quit)
     {
