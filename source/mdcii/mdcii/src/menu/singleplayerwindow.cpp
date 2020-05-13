@@ -39,11 +39,12 @@
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
-SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
+SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
   : renderer(renderer)
   , width(rwidth)
   , height(rheight)
   , fullscreen(fullscreen)
+  , haeuser(haeuser)
   , pwindow(pwindow)
   , files(Files::instance())
   , hostgad(std::make_shared<Hostgad>(std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("host.gad"), false, false)))
@@ -185,16 +186,13 @@ Widget& SinglePlayerWindow::ListTable(Widget* parent, const std::vector<std::tup
 
 void SinglePlayerWindow::LoadGame(const std::string& gam_name)
 {
-  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
-
   if (files->instance()->check_file(gam_name) == false)
   {
     std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  GameWindow gameWindow(renderer, haeuser, pwindow, width, height, gam_name, fullscreen);
+  GameWindow gameWindow(renderer, pwindow, width, height, gam_name, fullscreen, haeuser);
   gameWindow.Handle();
   Handle();
 }

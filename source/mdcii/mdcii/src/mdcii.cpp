@@ -99,15 +99,12 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, con
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
   auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
   auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("base.gad"), false, false);
   auto basegad = std::make_shared<Basegad>(basegad_dat);
 
-  // GameWindow gameWindow(renderer, haeuser, window, screen_width, screen_height, gam_name, fullscreen);
-  // gameWindow.Handle();
-
-  MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
+  MainMenu mainMenu(renderer, haeuser, basegad, window, screen_width, screen_height, fullscreen);
   mainMenu.Handle();
 }
