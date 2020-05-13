@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/22d6e29f7c7646fcaf269b691536c2b5)](https://app.codacy.com/manual/armin.schlegel/mdcii-engine?utm_source=github.com&utm_medium=referral&utm_content=siredmar/mdcii-engine&utm_campaign=Badge_Grade_Dashboard)
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/siredmar/mdcii-engine) [![CodeFactor](https://www.codefactor.io/repository/github/siredmar/mdcii-engine/badge)](https://www.codefactor.io/repository/github/siredmar/mdcii-engine)
 
 # MDCII Game Engine
