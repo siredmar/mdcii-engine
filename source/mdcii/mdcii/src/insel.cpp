@@ -46,7 +46,7 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     auto info = haeuser->get_haus(feld.bebauung);
     if (info)
     {
-      int x, y, u, v;
+      int u, v;
       if (feld.rot % 2 == 0)
       {
         u = info.value()->Size.w;

@@ -47,7 +47,7 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     if (strcmp((*i)->kennung, Insel5::kennung) == 0)
     {
       inseln.push_back(new Insel(*i, *(i + 1), haeuser));
-      i++;
+      ++i;
     }
     else if (strcmp((*i)->kennung, Kontor::kennung) == 0)
     {

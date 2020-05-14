@@ -37,8 +37,8 @@ SDL_Texture* StringToSDLTextureConverter::Convert(const std::string& str, int co
   auto palette = Palette::instance();
   int transparent = palette->getTransparentColor();
   auto transparentColor = palette->getColor(transparent);
-  int stringLength = 0;
-  int stringHeight = 0;
+  unsigned int stringLength = 0;
+  unsigned int stringHeight = 0;
 
   std::wstring wide = converter.from_bytes(str);
   for (auto& ch : wide)
@@ -63,7 +63,7 @@ SDL_Texture* StringToSDLTextureConverter::Convert(const std::string& str, int co
   }
 
   SDL_Surface* final_surface;
-  SDL_Surface* s8 = SDL_CreateRGBSurface(0, stringLength, stringHeight, 8, 0, 0, 0, 0);
+  SDL_Surface* s8 = SDL_CreateRGBSurface(0, static_cast<int>(stringLength), static_cast<int>(stringHeight), 8, 0, 0, 0, 0);
   SDL_SetPaletteColors(s8->format->palette, palette->getSDLColors(), 0, palette->size());
   Bildspeicher_trans_pal8 bs(
       stringLength, stringHeight, palette->getTransparentColor(), static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch, palette->getTransparentColor());

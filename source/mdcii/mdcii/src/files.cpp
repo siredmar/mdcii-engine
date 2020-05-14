@@ -92,7 +92,6 @@ std::string Files::find_path_for_file(std::string file)
 
 std::string Files::string_to_lower_case(const std::string& str)
 {
-  std::locale loc;
   std::string modified_str = str;
 
   for (auto& c : modified_str)

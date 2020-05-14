@@ -55,9 +55,9 @@ class Generischer_bsh_leser
 
     uint32_t breite = bild.breite + BILD_T::extraspalten;
 
-    int i = 0;
-    int x = 0;
-    int y = 0;
+    unsigned int i = 0;
+    unsigned int x = 0;
+    unsigned int y = 0;
 
     while (i < bild.laenge - 16)
     {
