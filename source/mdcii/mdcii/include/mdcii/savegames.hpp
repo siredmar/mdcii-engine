@@ -28,7 +28,7 @@
 class Savegames
 {
 public:
-  Savegames(const std::string& basepath, const std::string& file_ending);
+  explicit Savegames(const std::string& basepath, const std::string& file_ending);
   int size() const;
   std::experimental::optional<std::string> getPath(int index) const;
   std::experimental::optional<std::string> getName(int index) const;

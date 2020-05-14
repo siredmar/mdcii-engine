@@ -31,7 +31,7 @@
 class StringToSDLTextureConverter
 {
 public:
-  StringToSDLTextureConverter(SDL_Renderer* renderer, const std::string& font);
+  explicit StringToSDLTextureConverter(SDL_Renderer* renderer, const std::string& font);
   SDL_Texture* Convert(const std::string& str, int color = 245, int shadowColor = 0, int verticalMargin = 0);
 
 private:

@@ -109,11 +109,10 @@ void Cod_Parser::parse_file()
   std::map<std::string, int> variable_numbers;
   std::map<std::string, std::vector<int>> variable_numbers_array;
 
-  int spaces = -1;
   for (int line_index = 0; line_index < cod_txt.size(); line_index++)
   {
     std::string line = cod_txt[line_index];
-    spaces = count_front_spaces(line);
+    int spaces = count_front_spaces(line);
 
     if (is_substring(line, "Nahrung:") || is_substring(line, "Soldat:") || is_substring(line, "Turm:"))
     {
@@ -790,11 +789,10 @@ cod_pb::Variable Cod_Parser::get_value(const std::string& key, const std::string
 // Variables related functions
 int Cod_Parser::exists_in_current_object(const std::string& variable_name)
 {
-  int index = -1;
   if (current_object)
   {
     // Check if variable already exists in current_object (e.g. copied from ObjFill)
-    for (index = 0; index < current_object->variables().variable_size(); index++)
+    for (int index = 0; index < current_object->variables().variable_size(); index++)
     {
       if (current_object->variables().variable(index).name() == variable_name)
       {

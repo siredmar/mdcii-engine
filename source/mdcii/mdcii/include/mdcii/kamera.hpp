@@ -31,7 +31,7 @@
 class Kamera
 {
 public:
-  Kamera(std::shared_ptr<Haeuser> haeuser);
+  explicit Kamera(std::shared_ptr<Haeuser> haeuser);
   void gehe_zu(uint16_t x, uint16_t y);
   void nach_rechts();
   void nach_links();

@@ -19,10 +19,10 @@
 #ifndef KARTE_HPP
 #define KARTE_HPP
 
-#include <inttypes.h>
 #include "bildspeicher.hpp"
-#include "welt.hpp"
 #include "kamera.hpp"
+#include "welt.hpp"
+#include <inttypes.h>
 
 class Karte
 {
@@ -30,7 +30,7 @@ class Karte
   int breite, hoehe;
 
 public:
-  Karte(int xpos = 0, int ypos = 0, int breite = 500, int hoehe = 350);
+  explicit Karte(int xpos = 0, int ypos = 0, int breite = 500, int hoehe = 350);
 
   void zeichne_bild(Bildspeicher& bs, Welt& welt);
   void zeichne_kameraposition(Bildspeicher& bs, Kamera& kamera);

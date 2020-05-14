@@ -28,7 +28,7 @@ struct TemplateData //
 class Template
 {
 public:
-  Template(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
   TemplateData template;
 
 private:

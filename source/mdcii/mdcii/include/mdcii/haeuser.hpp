@@ -397,7 +397,7 @@ struct Haus
 class Haeuser
 {
 public:
-  Haeuser(std::shared_ptr<Cod_Parser> cod)
+  explicit Haeuser(std::shared_ptr<Cod_Parser> cod)
     : cod(cod)
   {
     generate_haeuser();
@@ -414,8 +414,14 @@ public:
       return &haeuser[id];
     }
   }
-  int get_haeuser_size() { return haeuser_vec.size(); }
-  Haus* get_haeuser_by_index(int index) { return haeuser_vec[index]; }
+  int get_haeuser_size()
+  {
+    return haeuser_vec.size();
+  }
+  Haus* get_haeuser_by_index(int index)
+  {
+    return haeuser_vec[index];
+  }
 
 private:
   void generate_haeuser()

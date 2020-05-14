@@ -30,7 +30,7 @@ struct ChunkData
 class Chunk
 {
 public:
-  Chunk(std::istream& f);
+  explicit Chunk(std::istream& f);
   ~Chunk();
   ChunkData chunk;
 

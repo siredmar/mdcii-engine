@@ -74,7 +74,7 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
       for (int j = 0; j < (*i)->laenge / sizeof(Player); j++)
         spieler.push_back((Player&)(*i)->daten[j * sizeof(Player)]);
     }
-    i++;
+    ++i;
   }
 
   // Initialisiere Animationen über Gebäuden

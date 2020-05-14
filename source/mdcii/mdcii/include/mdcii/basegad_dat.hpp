@@ -32,32 +32,29 @@ enum class BaseGadKindType
 
 struct BaseGadGadget
 {
-  typedef struct Position
-  {
-    int x;
-    int y;
-  };
-
-  typedef struct Size
-  {
-    int h;
-    int w;
-  };
-
   int Id = -1;
   int Blocknr = -1;
   int Gfxnr = -1;
   BaseGadKindType Kind = BaseGadKindType::UNSET;
   int Noselflg = -1;
   int Pressoff = -1;
-  Position Pos = {-1, -1};
-  Size Size = {-1, -1};
+  struct
+  {
+    int x;
+    int y;
+  } Pos;
+
+  struct
+  {
+    int h;
+    int w;
+  } Size;
 };
 
 class Basegad
 {
 public:
-  Basegad(std::shared_ptr<Cod_Parser> cod)
+  explicit Basegad(std::shared_ptr<Cod_Parser> cod)
     : cod(cod)
   {
     generate_gadgets();

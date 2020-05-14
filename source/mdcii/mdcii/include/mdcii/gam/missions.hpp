@@ -197,7 +197,7 @@ struct Mission4Data // Auftrag4
 class Mission4
 {
 public:
-  Mission4(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Mission4(uint8_t* data, uint32_t length, const std::string& name);
   std::vector<Mission4Data> missions;
 
 private:
@@ -214,7 +214,7 @@ struct Mission2Data // Auftrag2
 class Mission2
 {
 public:
-  Mission2(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Mission2(uint8_t* data, uint32_t length, const std::string& name);
   std::vector<Mission2Data> missions;
 
 private:

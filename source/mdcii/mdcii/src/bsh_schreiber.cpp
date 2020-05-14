@@ -205,12 +205,16 @@ void Bsh_schreiber::datei_schreiben(const char* pfadname)
 
   fstream bsh;
   bsh.open(pfadname, fstream::in | fstream::out | fstream::trunc | fstream::binary);
-  char signatur_bsh[16] = {'B', 'S', 'H', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
-  char signatur_zei[16] = {'Z', 'E', 'I', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
   if (ist_zei)
+  {
+    char signatur_zei[16] = {'Z', 'E', 'I', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
     bsh.write(signatur_zei, sizeof(signatur_zei));
+  }
   else
+  {
+    char signatur_bsh[16] = {'B', 'S', 'H', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
     bsh.write(signatur_bsh, sizeof(signatur_bsh));
+  }
 
   for (int i = 0; i < bilder.size(); i++)
   {

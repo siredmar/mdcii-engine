@@ -30,7 +30,7 @@ struct Zei_zeichen : public Generisches_bsh_bild<3>
 class Zei_leser : public Generischer_bsh_leser<Zei_zeichen>
 {
 public:
-  Zei_leser(std::string pfadname)
+  explicit Zei_leser(const std::string& pfadname)
     : Generischer_bsh_leser<Zei_zeichen>(pfadname, "ZEI")
   {
   }

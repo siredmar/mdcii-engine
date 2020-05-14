@@ -85,7 +85,7 @@ struct Island5Data // Insel5
 class Island5
 {
 public:
-  Island5(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   Island5Data island5;
 
 private:
@@ -108,7 +108,7 @@ struct Island3Data // Insel3
 class Island3
 {
 public:
-  Island3(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Island3(uint8_t* data, uint32_t length, const std::string& name);
   Island3Data island3;
 
 private:

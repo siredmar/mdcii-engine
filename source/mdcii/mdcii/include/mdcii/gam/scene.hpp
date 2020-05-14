@@ -143,7 +143,7 @@ struct SceneSaveData
 class SceneSave
 {
 public:
-  SceneSave(uint8_t* data, uint32_t length, const std::string& name);
+  explicit SceneSave(uint8_t* data, uint32_t length, const std::string& name);
   SceneSaveData sceneSave;
 
 private:
@@ -158,7 +158,7 @@ struct SceneRankingData
 class SceneRanking
 {
 public:
-  SceneRanking(uint8_t* data, uint32_t length, const std::string& name);
+  explicit SceneRanking(uint8_t* data, uint32_t length, const std::string& name);
   SceneRankingData sceneRanking;
 
 private:
