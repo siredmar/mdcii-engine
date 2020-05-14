@@ -55,14 +55,13 @@ class Generischer_bsh_leser
 
     uint32_t breite = bild.breite + BILD_T::extraspalten;
 
-    uint8_t ch;
     int i = 0;
     int x = 0;
     int y = 0;
 
     while (i < bild.laenge - 16)
     {
-      ch = bild.puffer[i++];
+      uint8_t ch = bild.puffer[i++];
 
       if (ch == 0xff)
       {
@@ -97,15 +96,15 @@ class Generischer_bsh_leser
   }
 
 protected:
-  Generischer_bsh_leser(std::string pfadname, std::string signatur)
+  explicit Generischer_bsh_leser(const std::string& pfadname, std::string signatur)
+    : bsh(boost::iostreams::mapped_file_source(pfadname))
   {
-    bsh = boost::iostreams::mapped_file_source(pfadname);
 
     // Ist die Datei groß genug für einen BSH-Header?
     if (bsh.size() < 20)
       throw std::range_error("bsh header too small");
 
-    Block* bsh_header = (Block*)bsh.data();
+    auto bsh_header = reinterpret_cast<const Block*>(bsh.data());
 
     // Trägt der Header die Kennung "BSH"?
     if (strcmp(bsh_header->kennung, signatur.substr(0, 15).c_str()) != 0)
@@ -141,7 +140,8 @@ protected:
     for (uint32_t i = 0; i < anzahl_bilder; i++)
     {
       uint32_t offs = bilderindex[i] + 20;
-      if (offs + 16 > bsh.size() || offs + ((BILD_T*)(ptr + offs))->laenge > bsh.size())
+
+      if (((offs + 16) > bsh.size()) || (offs + reinterpret_cast<const BILD_T*>(ptr + offs)->laenge > bsh.size()))
         throw std::range_error("picture exceeds end of file");
     }
 
@@ -160,10 +160,13 @@ public:
       throw std::range_error("index out of range");
     const char* ptr = bsh.data();
     uint32_t offs = bilderindex[index] + 20;
-    return *((BILD_T*)(ptr + offs));
+    return *(const_cast<BILD_T*>(reinterpret_cast<const BILD_T*>(ptr + offs)));
   }
 
-  uint32_t anzahl() { return anzahl_bilder; }
+  uint32_t anzahl()
+  {
+    return anzahl_bilder;
+  }
 };
 
 

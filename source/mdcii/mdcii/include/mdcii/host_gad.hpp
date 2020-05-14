@@ -63,7 +63,7 @@ struct HostGadGadget
 class Hostgad
 {
 public:
-  Hostgad(std::shared_ptr<Cod_Parser> cod)
+  explicit Hostgad(std::shared_ptr<Cod_Parser> cod)
     : cod(cod)
   {
     generate_gadgets();
@@ -80,8 +80,14 @@ public:
       return &gadgets[id];
     }
   }
-  int get_gadgets_size() { return gadgets_vec.size(); }
-  HostGadGadget* get_gadgets_by_index(int index) { return gadgets_vec[index]; }
+  int get_gadgets_size()
+  {
+    return gadgets_vec.size();
+  }
+  HostGadGadget* get_gadgets_by_index(int index)
+  {
+    return gadgets_vec[index];
+  }
 
 private:
   void generate_gadgets()
@@ -108,69 +114,66 @@ private:
     {
       for (int i = 0; i < obj->variables().variable_size(); i++)
       {
-        if (obj->has_variables() == true)
+        auto var = obj->variables().variable(i);
+        if (var.name() == "Id")
         {
-          auto var = obj->variables().variable(i);
-          if (var.name() == "Id")
+          if (var.value_int() == 0)
           {
-            if (var.value_int() == 0)
-            {
-              h.Id = 0;
-            }
-            else
-            {
-              h.Id = var.value_int() - id_offset;
-            }
+            h.Id = 0;
           }
-          // Ignore Blocknr for now
-          // else if (var.name() == "Blocknr")
-          // {
-          //   h.Blocknr = var.value_int();
-          // }
-          else if (var.name() == "Gfxnr")
+          else
           {
-            h.Gfxnr = var.value_int();
+            h.Id = var.value_int() - id_offset;
           }
-          else if (var.name() == "Kind")
-          {
-            h.Kind = KindMap[var.value_string()];
-          }
-          else if (var.name() == "Noselflg")
-          {
-            h.Noselflg = var.value_int();
-          }
-          else if (var.name() == "Pos")
-          {
-            h.Pos.x = var.value_array().value(0).value_int();
-            h.Pos.y = var.value_array().value(1).value_int();
-          }
-          else if (var.name() == "Size")
-          {
-            h.Size.w = var.value_array().value(0).value_int();
-            h.Size.h = var.value_array().value(1).value_int();
-          }
-          else if (var.name() == "Basenr")
-          {
-            h.Basenr = var.value_int();
-          }
-          else if (var.name() == "Reiheflg")
-          {
-            h.Reiheflg = var.value_int();
-          }
-          else if (var.name() == "Pressoff")
-          {
-            h.Pressoff = var.value_int();
-          }
-          else if (var.name() == "Color")
-          {
-            h.Color[0] = var.value_array().value(0).value_int();
-            h.Color[1] = var.value_array().value(1).value_int();
-          }
-          else if (var.name() == "Posoffs")
-          {
-            h.Posoffs.x = var.value_array().value(0).value_int();
-            h.Posoffs.y = var.value_array().value(1).value_int();
-          }
+        }
+        // Ignore Blocknr for now
+        // else if (var.name() == "Blocknr")
+        // {
+        //   h.Blocknr = var.value_int();
+        // }
+        else if (var.name() == "Gfxnr")
+        {
+          h.Gfxnr = var.value_int();
+        }
+        else if (var.name() == "Kind")
+        {
+          h.Kind = KindMap[var.value_string()];
+        }
+        else if (var.name() == "Noselflg")
+        {
+          h.Noselflg = var.value_int();
+        }
+        else if (var.name() == "Pos")
+        {
+          h.Pos.x = var.value_array().value(0).value_int();
+          h.Pos.y = var.value_array().value(1).value_int();
+        }
+        else if (var.name() == "Size")
+        {
+          h.Size.w = var.value_array().value(0).value_int();
+          h.Size.h = var.value_array().value(1).value_int();
+        }
+        else if (var.name() == "Basenr")
+        {
+          h.Basenr = var.value_int();
+        }
+        else if (var.name() == "Reiheflg")
+        {
+          h.Reiheflg = var.value_int();
+        }
+        else if (var.name() == "Pressoff")
+        {
+          h.Pressoff = var.value_int();
+        }
+        else if (var.name() == "Color")
+        {
+          h.Color[0] = var.value_array().value(0).value_int();
+          h.Color[1] = var.value_array().value(1).value_int();
+        }
+        else if (var.name() == "Posoffs")
+        {
+          h.Posoffs.x = var.value_array().value(0).value_int();
+          h.Posoffs.y = var.value_array().value(1).value_int();
         }
       }
       return h;

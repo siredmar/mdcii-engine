@@ -62,11 +62,9 @@ Uint32 Mdcii::timer_callback(Uint32 interval, void* param)
 
 Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path)
 {
-  Anno_version version;
-
   auto files = Files::create_instance(files_path);
 
-  version = Version::Detect_game_version();
+  Version::Detect_game_version();
   if (files->instance()->check_all_files(&files_to_check) == false)
   {
     std::cout << "[ERR] File check failed. Exiting." << std::endl;

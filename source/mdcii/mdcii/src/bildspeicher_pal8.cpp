@@ -31,7 +31,6 @@ Bildspeicher_pal8::Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t f
 void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 {
   auto palette = Palette::instance();
-  uint8_t ch;
   uint8_t* quelle = bild.puffer;
   uint8_t* zielzeile;
   uint8_t* ziel;
@@ -41,7 +40,7 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
   while (1)
   {
-    ch = *(quelle++);
+    uint8_t ch = *(quelle++);
     if (ch == 0xff)
     {
       for (int i = restbreite; i < breite; i++)
@@ -64,9 +63,6 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 {
-  int u = 0;
-  int v = 0;
-  int i = 0;
   unsigned char ch;
 
   uint8_t* quelle = bild.puffer;
@@ -118,6 +114,8 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
   }
   else
   {
+    int u = 0;
+    int v = 0;
     while ((ch = *(quelle++)) != 0xff)
     {
       if (ch == 0xfe)

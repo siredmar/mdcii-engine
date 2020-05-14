@@ -26,10 +26,10 @@
 class Files
 {
 public:
-  static Files* create_instance(std::string path);
+  static Files* create_instance(const std::string& path);
   static Files* instance();
   void init();
-  void init(std::string path);
+  void init(const std::string& path);
 
   bool check_file(const std::string& filename);
   bool check_all_files(std::vector<std::string>* files);

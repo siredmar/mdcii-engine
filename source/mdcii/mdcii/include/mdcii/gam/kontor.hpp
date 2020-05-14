@@ -49,7 +49,7 @@ struct Kontor2Data
 class Kontor2
 {
 public:
-  Kontor2(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Kontor2(uint8_t* data, uint32_t length, const std::string& name);
   std::vector<Kontor2Data> kontors;
 
 private:

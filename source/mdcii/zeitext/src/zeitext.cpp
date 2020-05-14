@@ -88,7 +88,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
   auto files = Files::create_instance(path);
-  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
 
   Zei_leser zei(input_name);
   vector<Zei_zeichen*> zeichen;
@@ -102,7 +102,6 @@ int main(int argc, char** argv)
     if (z.hoehe > hoehe)
       hoehe = z.hoehe;
   }
-  int position = 0;
   if (bpp == 24)
   {
     Bildspeicher_rgb24 bs(breite, hoehe, color);

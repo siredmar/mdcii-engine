@@ -65,10 +65,8 @@ GameWindow::GameWindow(
 void GameWindow::Handle()
 {
   auto palette = Palette::instance();
-  SDL_Texture* texture;
-  SDL_Surface* final_surface;
 
-  SDL_Surface* s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
+  auto s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
   SDL_SetPaletteColors(s8->format->palette, palette->getSDLColors(), 0, palette->size());
 
   std::ifstream f;
@@ -84,9 +82,8 @@ void GameWindow::Handle()
 
   try
   {
-
-    final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-    texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+    auto final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    auto texture = SDL_CreateTextureFromSurface(renderer, final_surface);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     this->drawAll();

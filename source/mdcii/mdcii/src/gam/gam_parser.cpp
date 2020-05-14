@@ -156,7 +156,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         // more to come later
       }
-      else if (chunkName == "PLAYER2" || chunkName == "PLAYER2" || chunkName == "PLAYER4")
+      else if (chunkName == "PLAYER2" || chunkName == "PLAYER3" || chunkName == "PLAYER4")
       {
         // more to come later
       }

@@ -27,7 +27,7 @@
 class BshImageToSDLTextureConverter
 {
 public:
-  BshImageToSDLTextureConverter(SDL_Renderer* renderer);
+  explicit BshImageToSDLTextureConverter(SDL_Renderer* renderer);
   SDL_Texture* Convert(Bsh_bild* image);
 
 private:

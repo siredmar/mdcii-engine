@@ -59,8 +59,8 @@ int main(int argc, char** argv)
   auto files = Files::create_instance(std::string(argv[3]));
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  auto palette = Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  Anno_version version = Version::Detect_game_version();
+  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  Version::Detect_game_version();
 
   Insel insel = Insel(&inselX, &inselhaus, haeuser);
   uint8_t width = insel.breite;

@@ -30,7 +30,7 @@
 class GamParser
 {
 public:
-  GamParser(const std::string& gam, bool peek);
+  explicit GamParser(const std::string& gam, bool peek);
   int getSceneRanking();
 
 private:

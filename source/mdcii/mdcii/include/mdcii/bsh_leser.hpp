@@ -30,7 +30,7 @@ struct Bsh_bild : public Generisches_bsh_bild<0>
 class Bsh_leser : public Generischer_bsh_leser<Bsh_bild>
 {
 public:
-  Bsh_leser(std::string pfadname)
+  explicit Bsh_leser(const std::string& pfadname)
     : Generischer_bsh_leser<Bsh_bild>(pfadname, "BSH")
   {
   }

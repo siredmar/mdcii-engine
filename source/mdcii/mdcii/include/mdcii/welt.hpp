@@ -19,20 +19,21 @@
 #ifndef WELT_HPP
 #define WELT_HPP
 
-#include <vector>
-#include <map>
-#include <fstream>
-#include <inttypes.h>
-#include <memory>
-#include "insel.hpp"
+#include "animation.hpp"
 #include "block.hpp"
 #include "haeuser.hpp"
+#include "insel.hpp"
 #include "strukturen.hpp"
-#include "animation.hpp"
+#include <fstream>
+#include <inttypes.h>
+#include <map>
+#include <memory>
+#include <vector>
 
 class Welt
 {
 public:
+  explicit Welt(std::istream&, std::shared_ptr<Haeuser> haeuser);
   enum
   {
     KARTENBREITE = 500
@@ -54,7 +55,6 @@ public:
   std::vector<Soldat> soldaten;
   std::vector<Prodlist> prodlist;
   std::vector<Player> spieler;
-  Welt(std::istream&, std::shared_ptr<Haeuser> haeuser);
   void simulationsschritt();
   void feld_an_pos(inselfeld_t& feld, int x, int y);
   Prodlist* prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y);

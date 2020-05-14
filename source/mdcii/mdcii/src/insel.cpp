@@ -163,12 +163,11 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
 void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
 {
   auto info = haeuser->get_haus(schicht2[y * breite + x].bebauung);
-  int grafik;
   if (info)
   {
+    int grafik = info.value()->Gfx;
     if (schicht2[y * breite + x].bebauung != 0xffff)
     {
-      grafik = info.value()->Gfx;
       if ((info.value()->Posoffs == 0 ? 0 : 1) == 0 && grafik != -1)
       {
         ziel.index = grafik;
@@ -178,7 +177,6 @@ void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
     }
     if (schicht1[y * breite + x].bebauung != 0xffff)
     {
-      grafik = info.value()->Gfx;
       if (info.value()->Highflg == 0 && grafik != -1)
       {
         ziel.index = grafik;
@@ -297,7 +295,6 @@ void Insel::animiere_gebaeude(uint8_t x, uint8_t y)
   {
     if (info.value()->AnimTime != -1)
     {
-      int animAnz = 1;
       if (info.value()->AnimAnz > 0)
       {
         feld.ani = (feld.ani + 1) % (info.value()->AnimAnz);

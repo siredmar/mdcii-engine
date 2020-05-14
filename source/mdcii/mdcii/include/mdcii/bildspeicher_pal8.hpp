@@ -32,7 +32,7 @@ class Bildspeicher_pal8 : public Bildspeicher
   void zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y);
 
 public:
-  Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0);
+  explicit Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0);
   void zeichne_bsh_bild(Bsh_bild& bild, int x, int y);
   void zeichne_pixel(int x, int y, uint8_t farbe);
   void exportiere_pnm(const char* pfadname);

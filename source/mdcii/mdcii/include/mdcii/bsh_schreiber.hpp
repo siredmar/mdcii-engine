@@ -20,8 +20,8 @@
 #define BSH_SCHREIBER_HPP
 
 #include <cstdint>
-#include <vector>
 #include <fstream>
+#include <vector>
 
 class Bsh_schreiber
 {
@@ -38,7 +38,7 @@ class Bsh_schreiber
   std::vector<Bild_und_meta> bilder;
 
 public:
-  Bsh_schreiber(int transp_farbe = 0, int extra_spalten = 0, bool ist_zei = false);
+  explicit Bsh_schreiber(int transp_farbe = 0, int extra_spalten = 0, bool ist_zei = false);
   ~Bsh_schreiber();
   void schreib_bsh(uint8_t* bild, int breite, int hoehe, std::vector<uint8_t>& ziel);
   void lies_pgm(const char* pfadname, uint8_t*& bild, int& breite, int& hoehe);

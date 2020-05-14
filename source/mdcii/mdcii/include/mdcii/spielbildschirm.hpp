@@ -28,7 +28,7 @@
 class Spielbildschirm
 {
 public:
-  Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser);
+  explicit Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser);
   ~Spielbildschirm();
   void zeichne_bild(Welt& welt, int maus_x, int maus_y);
 

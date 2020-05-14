@@ -34,7 +34,7 @@ Files* Files::instance()
   return _instance;
 }
 
-Files* Files::create_instance(std::string path)
+Files* Files::create_instance(const std::string& path)
 {
   static CGuard g;
   if (!_instance)
@@ -50,7 +50,7 @@ void Files::init()
   init(".");
 }
 
-void Files::init(std::string path)
+void Files::init(const std::string& path)
 {
   tree = get_directory_tree(path);
 }

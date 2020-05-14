@@ -19,8 +19,8 @@
 #ifndef BLOCK_HPP
 #define BLOCK_HPP
 
-#include <istream>
 #include <inttypes.h>
+#include <istream>
 
 class Block
 {
@@ -29,7 +29,7 @@ public:
   uint32_t laenge;
   uint8_t* daten;
 
-  Block(std::istream& f);
+  explicit Block(std::istream& f);
   ~Block();
 };
 
