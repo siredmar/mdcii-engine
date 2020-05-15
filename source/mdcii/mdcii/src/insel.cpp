@@ -128,7 +128,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
       }
 
       f.open(karte, std::ios_base::in | std::ios_base::binary);
-      Block inselX_basis = Block(f);
+      // The first read is the inselX_basis. It is not needed here. Therefore read it and throw it away
+      (void)Block(f);
       Block inselhaus_basis = Block(f);
       this->insel_rastern((inselfeld_t*)inselhaus_basis.daten, inselhaus_basis.laenge / 8, schicht1, this->breite, this->hoehe);
       f.close();

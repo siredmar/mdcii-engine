@@ -74,7 +74,7 @@ bool Files::check_all_files(std::vector<std::string>* files)
   return true;
 }
 
-std::string Files::find_path_for_file(std::string file)
+std::string Files::find_path_for_file(const std::string& file)
 {
   std::string lcaseFile = string_to_lower_case(file);
   // Search for the file as substring in the lowercased directory tree
@@ -134,7 +134,7 @@ std::vector<std::string> Files::get_directories_files(const std::string& directo
   return files;
 }
 
-std::string Files::get_file_name(std::string file_path, bool with_extension)
+std::string Files::get_file_name(const std::string& file_path, bool with_extension)
 {
   boost::filesystem::path p(file_path);
 

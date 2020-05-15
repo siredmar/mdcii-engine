@@ -33,11 +33,11 @@ public:
 
   bool check_file(const std::string& filename);
   bool check_all_files(std::vector<std::string>* files);
-  std::string find_path_for_file(std::string file);
+  std::string find_path_for_file(const std::string& file);
   std::vector<std::string> get_directory_tree(const std::string& path);
   std::vector<std::string> get_directories_files(const std::string& directory);
   std::string string_to_lower_case(const std::string& str);
-  static std::string get_file_name(std::string file_path, bool with_extension = true);
+  static std::string get_file_name(const std::string& file_path, bool with_extension = true);
 
 private:
   static Files* _instance;
