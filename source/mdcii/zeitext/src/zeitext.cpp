@@ -92,8 +92,8 @@ int main(int argc, char** argv)
 
   Zei_leser zei(input_name);
   vector<Zei_zeichen*> zeichen;
-  int breite = 0;
-  int hoehe = 0;
+  unsigned int breite = 0;
+  unsigned int hoehe = 0;
   for (int c : text)
   {
     Zei_zeichen& z = zei.gib_bsh_bild(c - ' ');

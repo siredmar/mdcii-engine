@@ -40,14 +40,14 @@ using namespace sdlgui;
 
 GameWindow::GameWindow(
     SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
-  : renderer(renderer)
+  : Screen(pwindow, Vector2i(rwidth, rheight), "Game")
+  , renderer(renderer)
   , width(rwidth)
   , height(rheight)
   , gam_name(gam_name)
   , fullscreen(fullscreen)
   , haeuser(haeuser)
   , running(true)
-  , Screen(pwindow, Vector2i(rwidth, rheight), "Game")
 {
   std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
   {
@@ -125,6 +125,8 @@ void GameWindow::Handle()
             {
               spielbildschirm.kamera->links_drehen();
             }
+            break;
+          default:
             break;
         }
         this->onEvent(e);

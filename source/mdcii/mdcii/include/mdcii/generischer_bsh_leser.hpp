@@ -99,7 +99,6 @@ protected:
   explicit Generischer_bsh_leser(const std::string& pfadname, std::string signatur)
     : bsh(boost::iostreams::mapped_file_source(pfadname))
   {
-
     // Ist die Datei groß genug für einen BSH-Header?
     if (bsh.size() < 20)
       throw std::range_error("bsh header too small");

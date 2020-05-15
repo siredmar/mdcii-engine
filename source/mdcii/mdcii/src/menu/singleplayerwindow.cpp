@@ -40,7 +40,8 @@
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
-  : renderer(renderer)
+  : Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
+  , renderer(renderer)
   , width(rwidth)
   , height(rheight)
   , fullscreen(fullscreen)
@@ -52,7 +53,6 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
   , savegame("")
   , triggerStartGame(false)
-  , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "host.gad: " << hostgad->get_gadgets_size() << std::endl;
   Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start.bsh"));
@@ -94,7 +94,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     /// savegames
     Savegames saveRaw("/savegame", ".gam");
     auto saves = saveRaw.getSavegames();
-    for (int i = 0; i < saves.size(); i++)
+    for (unsigned int i = 0; i < saves.size(); i++)
     {
       std::cout << "Savegame " << i << ": " << std::get<1>(saves[i]) << std::endl;
     }
@@ -105,7 +105,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     Savegames szenesRaw("/szenes", ".szs");
     auto szenes = szenesRaw.getSavegames();
 
-    for (int i = 0; i < szenes.size(); i++)
+    for (unsigned int i = 0; i < szenes.size(); i++)
     {
       std::cout << "Szenes " << i << ": " << std::get<1>(szenes[i]) << std::endl;
     }
@@ -150,7 +150,8 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   performLayout(mSDL_Renderer);
 }
 
-Widget& SinglePlayerWindow::ListTable(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, int verticalMargin)
+Widget& SinglePlayerWindow::ListTable(
+    [[maybe_unused]] Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, [[maybe_unused]] int verticalMargin)
 {
   auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 1);
   table.setPosition(x, y);
@@ -219,7 +220,8 @@ void SinglePlayerWindow::Handle()
     SDL_RenderPresent(renderer);
 
     Fps fps;
-    const Uint8* keystate = SDL_GetKeyboardState(NULL);
+    // later used for key inputs, uncommented for now
+    // const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     SDL_Event e;
     while (!quit)
@@ -238,6 +240,8 @@ void SinglePlayerWindow::Handle()
             {
               quit = true;
             }
+            break;
+          default:
             break;
         }
         this->onEvent(e);

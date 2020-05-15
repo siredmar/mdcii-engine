@@ -33,31 +33,31 @@ enum class HostGadKindType
 
 struct HostGadGadget
 {
-  typedef struct Position
-  {
-    int x;
-    int y;
-  };
-
-  typedef struct Size
-  {
-    int h;
-    int w;
-  };
-
   int Id = -1;
   // Ignore Blocknr for now
   // int Blocknr = -1;
   int Gfxnr = -1;
   HostGadKindType Kind = HostGadKindType::UNSET;
   int Noselflg = -1;
-  Position Pos = {-1, -1};
-  Size Size = {-1, -1};
   int Basenr = -1;
   int Reiheflg = -1;
   int Pressoff = -1;
   std::vector<int> Color = {-1, -1};
-  Position Posoffs = {-1, -1};
+  struct
+  {
+    int x;
+    int y;
+  } Pos;
+  struct
+  {
+    int x;
+    int y;
+  } Posoffs;
+  struct
+  {
+    int h;
+    int w;
+  } Size;
 };
 
 class Hostgad
@@ -176,8 +176,8 @@ private:
           h.Posoffs.y = var.value_array().value(1).value_int();
         }
       }
-      return h;
     }
+    return h;
   }
 
 private:

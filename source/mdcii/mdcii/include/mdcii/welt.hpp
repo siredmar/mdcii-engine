@@ -62,8 +62,8 @@ public:
   uint8_t spielerfarbe(uint8_t spieler);
 
 private:
-  int ani;
   std::shared_ptr<Haeuser> haeuser;
+  int ani;
 };
 
 #endif

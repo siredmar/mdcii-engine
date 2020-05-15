@@ -40,17 +40,17 @@
 using namespace sdlgui;
 MainMenu::MainMenu(
     SDL_Renderer* renderer, std::shared_ptr<Haeuser> haeuser, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen)
-  : renderer(renderer)
+  : Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
+  , renderer(renderer)
   , haeuser(haeuser)
   , basegad(basegad)
   , width(rwidth)
   , height(rheight)
   , fullscreen(fullscreen)
+  , triggerSinglePlayer(false)
   , pwindow(pwindow)
   , files(Files::instance())
-  , triggerSinglePlayer(false)
   , quit(false)
-  , Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
 {
   std::cout << "Basegad: " << basegad->get_gadgets_size() << std::endl;
   Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start.bsh"));
@@ -142,7 +142,6 @@ void MainMenu::Handle()
     SDL_RenderPresent(renderer);
 
     Fps fps;
-    const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
     SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen, haeuser);
     SDL_Event e;
@@ -162,6 +161,8 @@ void MainMenu::Handle()
             {
               quit = true;
             }
+            break;
+          default:
             break;
         }
         this->onEvent(e);

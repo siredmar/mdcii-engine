@@ -58,9 +58,11 @@ void Karte::zeichne_bild(Bildspeicher& bs, Welt& welt)
           case 7:
             farbe = 182;
             break; // frei
+          default:
+            break;
         }
-        if (!(feld.bebauung >= 1201 && feld.bebauung <= 1221 || feld.bebauung >= 1251 && feld.bebauung <= 1259))
-          bs.zeichne_pixel(xpos + (insel->xpos + x) * breite / Welt::KARTENBREITE, ypos + (insel->ypos + y) * hoehe / Welt::KARTENHOEHE, farbe);
+        if (!(((feld.bebauung >= 1201) && (feld.bebauung <= 1221)) || ((feld.bebauung >= 1251) && (feld.bebauung <= 1259))))
+          bs.zeichne_pixel(xpos + ((insel->xpos + x) * breite) / Welt::KARTENBREITE, ypos + ((insel->ypos + y) * hoehe) / Welt::KARTENHOEHE, farbe);
       }
     }
   }

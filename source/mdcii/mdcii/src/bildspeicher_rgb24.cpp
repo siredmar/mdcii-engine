@@ -81,7 +81,7 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 
       for (ch = bild.puffer[i++]; ch > 0; ch--, u++, i++)
       {
-        if (y + v >= 0 && y + v < this->hoehe && x + u >= 0 && x + u < this->breite)
+        if (y + v >= 0 && y + v < static_cast<int>(hoehe) && x + u >= 0 && x + u < static_cast<int>(breite))
         {
           unsigned char a = bild.puffer[i];
           this->puffer[(y + v) * this->pufferbreite + (x + u) * 3] = palette->getColor(a).getRed();
@@ -95,22 +95,28 @@ void Bildspeicher_rgb24::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_rgb24::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
 {
-  if (x >= (int)this->breite || y >= (int)this->hoehe || x + (int)bild.breite < 0 || y + (int)bild.hoehe < 0)
+  if (x >= static_cast<int>(breite) || y >= static_cast<int>(hoehe) || x + static_cast<int>(bild.breite) < 0 || y + static_cast<int>(bild.hoehe) < 0)
+  {
     return;
-  if ((x < 0) || (y < 0) || (x + (int)bild.breite > (int)this->breite) || (y + (int)bild.hoehe > (int)this->hoehe))
+  }
+  if ((x < 0) || (y < 0) || (x + static_cast<int>(bild.breite) > static_cast<int>(breite)) || (y + static_cast<int>(bild.hoehe) > static_cast<int>(hoehe)))
+  {
     zeichne_bsh_bild_partiell(bild, x, y);
+  }
   else
+  {
     zeichne_bsh_bild_ganz(bild, x, y);
+  }
 }
 
 void Bildspeicher_rgb24::zeichne_pixel(int x, int y, uint8_t farbe)
 {
   auto palette = Palette::instance();
-  if (x < 0 || y < 0 || x >= breite || y >= hoehe)
+  if ((x < 0) || (y < 0) || (x >= static_cast<int>(breite)) || (y >= static_cast<int>(hoehe)))
     return;
-  puffer[y * pufferbreite + 3 * x] = palette->getColor(farbe).getRed();
-  puffer[y * pufferbreite + 3 * x + 1] = palette->getColor(farbe).getGreen();
-  puffer[y * pufferbreite + 3 * x + 2] = palette->getColor(farbe).getBlue();
+  puffer[static_cast<unsigned int>(y * pufferbreite + 3 * x)] = palette->getColor(farbe).getRed();
+  puffer[static_cast<unsigned int>(y * pufferbreite + 3 * x + 1)] = palette->getColor(farbe).getGreen();
+  puffer[static_cast<unsigned int>(y * pufferbreite + 3 * x + 2)] = palette->getColor(farbe).getBlue();
 }
 
 void Bildspeicher_rgb24::exportiere_pnm(const char* pfadname)
@@ -154,9 +160,9 @@ void Bildspeicher_rgb24::exportiere_bmp(const char* pfadname)
   bmp.write((char*)&bmih, sizeof(struct tagBITMAPINFOHEADER));
 
   uint8_t* zeile = new uint8_t[bytes_pro_zeile];
-  for (int i = hoehe - 1; i >= 0; i--)
+  for (int i = static_cast<int>(hoehe) - 1; i >= 0; i--)
   {
-    for (int x = 0; x < breite; x++)
+    for (int x = 0; x < static_cast<int>(breite); x++)
     {
       zeile[x * 3] = puffer[breite * 3 * i + x * 3 + 2];
       zeile[x * 3 + 1] = puffer[breite * 3 * i + x * 3 + 1];
@@ -171,7 +177,7 @@ void Bildspeicher_rgb24::exportiere_bmp(const char* pfadname)
 
 void Bildspeicher_rgb24::bild_loeschen()
 {
-  for (int i = 0; i < breite * hoehe * 3; i += 3)
+  for (unsigned int i = 0; i < breite * hoehe * 3; i += 3)
   {
     puffer[i] = farbe;
     puffer[i + 1] = farbe >> 8;

@@ -102,6 +102,8 @@ void Kamera::nach_links()
       if (ypos > 0)
         ypos--;
       break;
+    default:
+      break;
   }
 }
 
@@ -132,6 +134,8 @@ void Kamera::nach_rechts()
         xpos++;
       if (ypos < Welt::KARTENHOEHE - 1)
         ypos++;
+      break;
+    default:
       break;
   }
 }
@@ -164,6 +168,8 @@ void Kamera::nach_oben()
       if (ypos > 0)
         ypos--;
       break;
+    default:
+      break;
   }
 }
 
@@ -194,6 +200,8 @@ void Kamera::nach_unten()
         xpos--;
       if (ypos < Welt::KARTENHOEHE - 1)
         ypos++;
+      break;
+    default:
       break;
   }
 }
@@ -247,6 +255,8 @@ void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int& bil
       bildschirm_x = bs.breite / 2 - (-x - y - 1) * x_raster[vergroesserung];
       bildschirm_y = bs.hoehe / 2 - (x + -y) * y_raster[vergroesserung];
       break;
+    default:
+      break;
   }
 }
 
@@ -268,6 +278,8 @@ void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int kart
       break;
     case 3:
       bildschirm_z = -(x - y);
+      break;
+    default:
       break;
   }
   bildschirm_y -= karte_z * grundhoehe[vergroesserung];
@@ -300,6 +312,8 @@ void Kamera::auf_bildschirm_256(Bildspeicher& bs, int karte_x, int karte_y, int 
       bildschirm_y = bs.hoehe / 2 - (x + -y) * y_raster[vergroesserung] / 256;
       bildschirm_z = -(x - y);
       break;
+    default:
+      break;
   }
   bildschirm_y -= karte_z * grundhoehe[vergroesserung] / 256;
 }
@@ -326,6 +340,8 @@ void Kamera::auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int
     case 3:
       karte_x = -temp3 + xpos;
       karte_y = temp1 + temp3 + ypos;
+      break;
+    default:
       break;
   }
 }
