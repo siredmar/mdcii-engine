@@ -95,14 +95,14 @@ int main(int argc, char** argv)
   Bsh_schreiber bsh(color, extra, signature == "ZEI");
   if (bpp == 24)
   {
-    for (uint32_t i = 0; i < number; i++)
+    for (int i = 0; i < number; i++)
     {
       // TODO
     }
   }
   else if (bpp == 8)
   {
-    for (uint32_t i = 0; i < number; i++)
+    for (int i = 0; i < number; i++)
     {
       if (file_format == "pnm")
         bsh.pgm_anhaengen((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());

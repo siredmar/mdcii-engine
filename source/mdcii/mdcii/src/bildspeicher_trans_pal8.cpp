@@ -33,9 +33,7 @@ Bildspeicher_trans_pal8::Bildspeicher_trans_pal8(uint32_t breite, uint32_t hoehe
 void Bildspeicher_trans_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
 {
   uint8_t* quelle = bild.puffer;
-  uint8_t* ziel;
 
-  ziel = this->puffer;
   // Read until we reach the end marker
   while (true)
   {
@@ -90,7 +88,7 @@ void Bildspeicher_trans_pal8::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_trans_pal8::zeichne_pixel(int x, int y, uint8_t farbe)
 {
-  if (x < 0 || y < 0 || x >= breite || y >= hoehe)
+  if (x < 0 || y < 0 || x >= static_cast<int>(breite) || y >= static_cast<int>(hoehe))
     return;
   puffer[y * pufferbreite + x] = farbe;
 }
@@ -153,6 +151,6 @@ void Bildspeicher_trans_pal8::exportiere_bmp(const char* pfadname)
 
 void Bildspeicher_trans_pal8::bild_loeschen()
 {
-  for (int i = 0; i < breite * hoehe; i++)
+  for (unsigned int i = 0; i < breite * hoehe; i++)
     puffer[i] = farbe;
 }

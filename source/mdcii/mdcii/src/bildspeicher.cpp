@@ -48,7 +48,7 @@ Bildspeicher::~Bildspeicher()
     delete[] puffer;
 }
 
-void Bildspeicher::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
+void Bildspeicher::zeichne_bsh_bild([[maybe_unused]] Bsh_bild& bild, [[maybe_unused]] int x, [[maybe_unused]] int y)
 {
   // in einer Unterklasse implementiert
 }
@@ -64,7 +64,7 @@ void Bildspeicher::zeichne_bsh_bild_sp(Bsh_bild& bild, int x, int y, int sx, int
   sx -= x;
   sy -= y;
 
-  if (sx < 0 || sy < 0 || sx >= bild.breite || sy >= bild.hoehe)
+  if (sx < 0 || sy < 0 || sx >= static_cast<int>(bild.breite) || sy >= static_cast<int>(bild.hoehe))
   {
     zeichne_bsh_bild(bild, x, y);
   }
@@ -108,10 +108,10 @@ void Bildspeicher::zeichne_rechteck(int x1, int y1, int x2, int y2, uint8_t farb
     x1 = 0;
   if (y1 < 0)
     y1 = 0;
-  if (x2 >= breite)
-    x2 = breite - 1;
-  if (y2 >= hoehe)
-    y2 = hoehe - 1;
+  if (x2 >= static_cast<int>(breite))
+    x2 = static_cast<int>(breite) - 1;
+  if (y2 >= static_cast<int>(hoehe))
+    y2 = static_cast<int>(hoehe) - 1;
 
   for (int y = y1; y <= y2; y++)
   {
@@ -175,11 +175,10 @@ void Bildspeicher::zeichne_zei_zeichen(Zei_zeichen& zeichen, int x, int y)
   int u = 0;
   int v = 0;
   int i = 0;
-  unsigned char ch;
 
   while (1)
   {
-    ch = zeichen.puffer[i++];
+    unsigned char ch = zeichen.puffer[i++];
     if (ch == 0xff)
     {
       break;
@@ -206,7 +205,7 @@ void Bildspeicher::zeichne_string(Zei_leser& zei_leser, std::string s, int x, in
 {
   for (char ch : s)
   {
-    if (ch - ' ' < 0 || ch - ' ' >= zei_leser.anzahl())
+    if (((ch - ' ') < 0) || (static_cast<uint32_t>(ch - ' ') >= zei_leser.anzahl()))
       continue;
     Zei_zeichen& zz = zei_leser.gib_bsh_bild(ch - ' ');
     zeichne_zei_zeichen(zz, x, y);
@@ -218,7 +217,7 @@ void Bildspeicher::zeichne_string(Zei_leser& zei_leser, std::wstring s, int x, i
 {
   for (auto ch : s)
   {
-    if (ch - ' ' < 0 || ch - ' ' >= zei_leser.anzahl())
+    if (((ch - ' ') < 0) || (static_cast<uint32_t>(ch - ' ') >= zei_leser.anzahl()))
       continue;
     Zei_zeichen& zz = zei_leser.gib_bsh_bild(ch - ' ');
     zeichne_zei_zeichen(zz, x, y);
@@ -237,12 +236,12 @@ void Bildspeicher::fill_with_color(uint8_t color)
   memset((uint8_t*)puffer, color, static_cast<size_t>(hoehe * breite));
 }
 
-void Bildspeicher::exportiere_pnm(const char* pfadname)
+void Bildspeicher::exportiere_pnm([[maybe_unused]] const char* pfadname)
 {
   // in einer Unterklasse implementiert
 }
 
-void Bildspeicher::exportiere_bmp(const char* pfadname)
+void Bildspeicher::exportiere_bmp([[maybe_unused]] const char* pfadname)
 {
   // in einer Unterklasse implementiert
 }

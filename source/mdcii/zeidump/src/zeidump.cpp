@@ -90,13 +90,13 @@ int main(int argc, char** argv)
   Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
 
   Zei_leser zei(input_name);
-  int zeimaxbreite = 0;
-  int zeimaxhoehe = 0;
-  int breite = 0;
-  int hoehe = 0;
-  int colums = 10;
+  unsigned int zeimaxbreite = 0;
+  unsigned int zeimaxhoehe = 0;
+  unsigned int breite = 0;
+  unsigned int hoehe = 0;
+  unsigned int colums = 10;
 
-  for (int i = 0; i < zei.anzahl(); i++)
+  for (unsigned int i = 0; i < zei.anzahl(); i++)
   {
     Zei_zeichen& z = zei.gib_bsh_bild(i);
     if (z.breite > zeimaxbreite)
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
     bs.setze_schriftfarbe(255, 0);
     bs.bild_loeschen();
     int x, y = 0;
-    for (int i = 0; i < zei.anzahl(); i++)
+    for (unsigned int i = 0; i < zei.anzahl(); i++)
     {
       bs.zeichne_zei_zeichen(zei.gib_bsh_bild(i), x, y);
       if (i % colums == 0)
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     bs.setze_schriftfarbe(255, 0);
     bs.bild_loeschen();
     int x, y = 0;
-    for (int i = 0; i < zei.anzahl(); i++)
+    for (unsigned int i = 0; i < zei.anzahl(); i++)
     {
       if (i % colums == 0)
       {

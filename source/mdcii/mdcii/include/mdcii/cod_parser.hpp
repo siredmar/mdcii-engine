@@ -93,7 +93,7 @@ private:
     cod_pb::Object object;
     std::string start;
     std::string stop;
-    int stacksize = 0;
+    unsigned int stacksize = 0;
     bool filling = false;
   };
 

@@ -40,7 +40,7 @@
 
 namespace po = boost::program_options;
 
-Uint32 Mdcii::timer_callback(Uint32 interval, void* param)
+Uint32 Mdcii::timer_callback(Uint32 interval, [[maybe_unused]] void* param)
 {
   SDL_Event event;
   SDL_UserEvent userevent;
@@ -60,7 +60,7 @@ Uint32 Mdcii::timer_callback(Uint32 interval, void* param)
 }
 
 
-Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, int rate, const std::string& files_path)
+Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::string& files_path)
 {
   auto files = Files::create_instance(files_path);
 

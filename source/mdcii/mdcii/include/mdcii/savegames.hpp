@@ -29,10 +29,10 @@ class Savegames
 {
 public:
   explicit Savegames(const std::string& basepath, const std::string& file_ending);
-  int size() const;
-  std::experimental::optional<std::string> getPath(int index) const;
-  std::experimental::optional<std::string> getName(int index) const;
-  std::experimental::optional<int> getRanking(int index) const;
+  unsigned int size() const;
+  std::experimental::optional<std::string> getPath(unsigned int index) const;
+  std::experimental::optional<std::string> getName(unsigned int index) const;
+  std::experimental::optional<int> getRanking(unsigned int index) const;
   std::vector<std::tuple<std::string, std::string, int>> getSavegames() const;
 
 private:

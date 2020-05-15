@@ -39,12 +39,12 @@ Savegames::Savegames(const std::string& basepath, const std::string& file_ending
   }
 }
 
-int Savegames::size() const
+unsigned int Savegames::size() const
 {
-  return (int)savegames.size();
+  return savegames.size();
 }
 
-std::experimental::optional<std::string> Savegames::getPath(int index) const
+std::experimental::optional<std::string> Savegames::getPath(unsigned int index) const
 {
   if (index < savegames.size())
   {
@@ -53,7 +53,7 @@ std::experimental::optional<std::string> Savegames::getPath(int index) const
   return {};
 }
 
-std::experimental::optional<std::string> Savegames::getName(int index) const
+std::experimental::optional<std::string> Savegames::getName(unsigned int index) const
 {
   if (index < savegames.size())
   {
@@ -63,7 +63,7 @@ std::experimental::optional<std::string> Savegames::getName(int index) const
 }
 
 
-std::experimental::optional<int> Savegames::getRanking(int index) const
+std::experimental::optional<int> Savegames::getRanking(unsigned int index) const
 {
   if (index < savegames.size())
   {

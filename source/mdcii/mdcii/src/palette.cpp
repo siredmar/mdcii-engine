@@ -58,8 +58,8 @@ void Palette::init(const std::string& palette_file_path)
   path = palette_file_path;
   std::ifstream input(path, std::ios::binary);
   std::vector<uint8_t> buffer(std::istreambuf_iterator<char>(input), {});
-
-  for (int i = 20; i < buffer.size() - 4; i = i + 4)
+  // 20 is the chunk definition int bytes to jump over
+  for (unsigned int i = 20; i < buffer.size() - 4; i = i + 4)
   {
     PaletteColor color(static_cast<uint8_t>(buffer[i]), static_cast<uint8_t>(buffer[i + 1]), static_cast<uint8_t>(buffer[i + 2]));
     palette.push_back(color);

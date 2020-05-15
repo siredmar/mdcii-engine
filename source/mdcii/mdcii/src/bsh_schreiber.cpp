@@ -216,9 +216,9 @@ void Bsh_schreiber::datei_schreiben(const char* pfadname)
     bsh.write(signatur_bsh, sizeof(signatur_bsh));
   }
 
-  for (int i = 0; i < bilder.size(); i++)
+  for (unsigned int i = 0; i < bilder.size(); i++)
   {
-    for (int j = 0; j < i; j++)
+    for (unsigned int j = 0; j < i; j++)
     {
       if (bilder[i].crc == bilder[j].crc && bilder[i].breite == bilder[j].breite && bilder[i].hoehe == bilder[j].hoehe && bilder[i].typ == bilder[j].typ
           && bilder[i].laenge == bilder[j].laenge && bilder[i].daten == bilder[j].daten)
@@ -230,7 +230,7 @@ void Bsh_schreiber::datei_schreiben(const char* pfadname)
   }
 
   uint32_t versatz_absolut = bilder.size() * sizeof(uint32_t);
-  for (int i = 0; i < bilder.size(); i++)
+  for (unsigned int i = 0; i < bilder.size(); i++)
   {
     if (bilder[i].duplikat_von == -1)
     {

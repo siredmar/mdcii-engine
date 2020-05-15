@@ -54,8 +54,8 @@ private:
   std::shared_ptr<Haeuser> haeuser;
   SDL_Window* pwindow;
   Files* files;
-  bool quit;
   std::shared_ptr<Hostgad> hostgad;
+  bool quit;
   StringToSDLTextureConverter stringConverter;
   std::string savegame;
   bool triggerStartGame;

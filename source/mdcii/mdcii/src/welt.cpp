@@ -28,8 +28,6 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
   : haeuser(haeuser)
   , ani(0)
 {
-  auto files = Files::instance();
-
   while (!f.eof())
   {
     try
@@ -47,31 +45,31 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     if (strcmp((*i)->kennung, Insel5::kennung) == 0)
     {
       inseln.push_back(new Insel(*i, *(i + 1), haeuser));
-      i++;
+      ++i;
     }
     else if (strcmp((*i)->kennung, Kontor::kennung) == 0)
     {
-      for (int j = 0; j < (*i)->laenge / sizeof(Kontor); j++)
+      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Kontor); j++)
         kontore.push_back((Kontor&)(*i)->daten[j * sizeof(Kontor)]);
     }
     else if (strcmp((*i)->kennung, Ship::kennung) == 0)
     {
-      for (int j = 0; j < (*i)->laenge / sizeof(Ship); j++)
+      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Ship); j++)
         schiffe.push_back((Ship&)(*i)->daten[j * sizeof(Ship)]);
     }
     else if (strcmp((*i)->kennung, Soldat::kennung) == 0)
     {
-      for (int j = 0; j < (*i)->laenge / sizeof(Soldat); j++)
+      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Soldat); j++)
         soldaten.push_back((Soldat&)(*i)->daten[j * sizeof(Soldat)]);
     }
     else if (strcmp((*i)->kennung, Prodlist::kennung) == 0)
     {
-      for (int j = 0; j < (*i)->laenge / sizeof(Prodlist); j++)
+      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Prodlist); j++)
         prodlist.push_back((Prodlist&)(*i)->daten[j * sizeof(Prodlist)]);
     }
     else if (strcmp((*i)->kennung, Player::kennung) == 0)
     {
-      for (int j = 0; j < (*i)->laenge / sizeof(Player); j++)
+      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Player); j++)
         spieler.push_back((Player&)(*i)->daten[j * sizeof(Player)]);
     }
     ++i;
@@ -155,7 +153,7 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
 
 int Welt::inselnummer_an_pos(uint16_t x, uint16_t y)
 {
-  for (int i = 0; i < inseln.size(); i++)
+  for (unsigned int i = 0; i < inseln.size(); i++)
   {
     if ((x >= inseln[i]->xpos) && (y >= inseln[i]->ypos) && (x < inseln[i]->xpos + inseln[i]->breite) && (y < inseln[i]->ypos + inseln[i]->hoehe))
       return i;
@@ -177,7 +175,7 @@ void Welt::simulationsschritt()
 {
   uint32_t now = SDL_GetTicks();
   static uint32_t old = 0;
-  uint32_t tickdiff = now - old;
+  int tickdiff = static_cast<int>(now - old);
   auto water = haeuser->get_haus(1201);
   if (water)
   {
@@ -239,7 +237,7 @@ void Welt::feld_an_pos(inselfeld_t& feld, int x, int y)
 Prodlist* Welt::prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y)
 {
   // Provisorium! Muss viel effizienter werden!
-  for (int i = 0; i < prodlist.size(); i++)
+  for (unsigned int i = 0; i < prodlist.size(); i++)
   {
     if (prodlist[i].inselnummer == insel && prodlist[i].x_pos == x && prodlist[i].y_pos == y)
       return &prodlist[i];
@@ -250,7 +248,7 @@ Prodlist* Welt::prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y)
 Ship* Welt::schiff_an_pos(uint16_t x, uint16_t y)
 {
   // Provisorium! Muss viel effizienter werden!
-  for (int i = 0; i < schiffe.size(); i++)
+  for (unsigned int i = 0; i < schiffe.size(); i++)
   {
     if (schiffe[i].x_pos == x && schiffe[i].y_pos == y)
       return &schiffe[i];

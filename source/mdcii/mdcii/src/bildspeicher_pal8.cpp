@@ -33,17 +33,15 @@ void Bildspeicher_pal8::zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y)
   auto palette = Palette::instance();
   uint8_t* quelle = bild.puffer;
   uint8_t* zielzeile;
-  uint8_t* ziel;
-
-  ziel = zielzeile = this->puffer + y * this->pufferbreite + x;
-  int restbreite = this->pufferbreite;
+  uint8_t* ziel = zielzeile = this->puffer + y * this->pufferbreite + x;
+  uint32_t restbreite = this->pufferbreite;
 
   while (1)
   {
     uint8_t ch = *(quelle++);
     if (ch == 0xff)
     {
-      for (int i = restbreite; i < breite; i++)
+      for (uint32_t i = restbreite; i < breite; i++)
         *(ziel++) = palette->getTransparentColor();
       break;
     }
@@ -123,7 +121,7 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
         ziel = zielzeile += restbreite;
         u = 0;
         v++;
-        if (y + v >= (int)this->hoehe)
+        if (y + v >= static_cast<int>(this->hoehe))
           return;
       }
       else
@@ -135,7 +133,7 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
         if (y + v >= 0)
         {
           for (; ch > 0; ch--, u++, quelle++, ziel++)
-            if (x + u >= 0 && x + u < this->breite)
+            if (x + u >= 0 && x + u < static_cast<int>(breite))
               *ziel = *quelle;
         }
         else
@@ -152,17 +150,23 @@ void Bildspeicher_pal8::zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y)
 
 void Bildspeicher_pal8::zeichne_bsh_bild(Bsh_bild& bild, int x, int y)
 {
-  if (x >= (int)this->breite || y >= (int)this->hoehe || x + (int)bild.breite < 0 || y + (int)bild.hoehe < 0)
+  if (x >= static_cast<int>(breite) || y >= static_cast<int>(hoehe) || x + static_cast<int>(bild.breite) < 0 || y + static_cast<int>(bild.hoehe) < 0)
+  {
     return;
-  if ((x < 0) || (y < 0) || (x + (int)bild.breite > (int)this->breite) || (y + (int)bild.hoehe > (int)this->hoehe))
+  }
+  if ((x < 0) || (y < 0) || (x + static_cast<int>(bild.breite) > static_cast<int>(breite)) || (y + static_cast<int>(bild.hoehe) > static_cast<int>(hoehe)))
+  {
     zeichne_bsh_bild_partiell(bild, x, y);
+  }
   else
+  {
     zeichne_bsh_bild_ganz(bild, x, y);
+  }
 }
 
 void Bildspeicher_pal8::zeichne_pixel(int x, int y, uint8_t farbe)
 {
-  if (x < 0 || y < 0 || x >= breite || y >= hoehe)
+  if (x < 0 || y < 0 || x >= static_cast<int>(breite) || y >= static_cast<int>(hoehe))
     return;
   puffer[y * pufferbreite + x] = farbe;
 }
@@ -225,6 +229,6 @@ void Bildspeicher_pal8::exportiere_bmp(const char* pfadname)
 
 void Bildspeicher_pal8::bild_loeschen()
 {
-  for (int i = 0; i < breite * hoehe; i++)
+  for (uint32_t i = 0; i < (breite * hoehe); i++)
     puffer[i] = farbe;
 }

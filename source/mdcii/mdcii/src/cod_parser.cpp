@@ -61,7 +61,7 @@ bool Cod_Parser::read_file(bool decode)
     }
   }
   std::string line;
-  for (int i = 0; i < buffer.size() - 1; i++)
+  for (unsigned int i = 0; i < buffer.size() - 1; i++)
   {
     if (buffer[i + 1] != '\n' && buffer[i] != '\r')
     {
@@ -84,7 +84,7 @@ bool Cod_Parser::read_file(bool decode)
 bool Cod_Parser::read_file_as_string(const std::string& buffer)
 {
   std::string line;
-  for (int i = 0; i < buffer.size() - 1; i++)
+  for (unsigned int i = 0; i < buffer.size() - 1; i++)
   {
     if (buffer[i + 1] != '\n' && buffer[i] != '\r')
     {
@@ -109,7 +109,7 @@ void Cod_Parser::parse_file()
   std::map<std::string, int> variable_numbers;
   std::map<std::string, std::vector<int>> variable_numbers_array;
 
-  for (int line_index = 0; line_index < cod_txt.size(); line_index++)
+  for (unsigned int line_index = 0; line_index < cod_txt.size(); line_index++)
   {
     std::string line = cod_txt[line_index];
     int spaces = count_front_spaces(line);
@@ -193,7 +193,7 @@ void Cod_Parser::parse_file()
         }
         int index = exists_in_current_object(name);
         std::vector<int> current_array_values;
-        for (int i = 0; i < offsets.size(); i++)
+        for (unsigned int i = 0; i < offsets.size(); i++)
         {
           int current_value = 0;
           if (index != -1)
@@ -459,7 +459,7 @@ void Cod_Parser::parse_file()
         current_object = create_object(true, spaces, true);
         current_object->set_name(name);
         object_map[name] = current_object;
-        if (name == ObjFill_range.stop || object_stack.size() < ObjFill_range.stacksize)
+        if ((name == ObjFill_range.stop) || (object_stack.size() < ObjFill_range.stacksize))
         {
           reset_objfill_prefill();
         }
@@ -895,7 +895,7 @@ std::vector<std::string> Cod_Parser::regex_match(const std::string& regex, const
   boost::smatch what;
   if (boost::regex_match(str, what, expr))
   {
-    for (int i = 0; i < what.size(); i++)
+    for (unsigned int i = 0; i < what.size(); i++)
     {
       ret.push_back(what[i]);
     }
@@ -910,7 +910,7 @@ std::vector<std::string> Cod_Parser::regex_search(const std::string& regex, cons
   boost::smatch what;
   if (boost::regex_search(str, what, expr))
   {
-    for (int i = 0; i < what.size(); i++)
+    for (unsigned int i = 0; i < what.size(); i++)
     {
       ret.push_back(what[i]);
     }

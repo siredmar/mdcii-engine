@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  auto files = Files::create_instance(vm["path"].as<std::string>());
+  Files::create_instance(vm["path"].as<std::string>());
 
   try
   {

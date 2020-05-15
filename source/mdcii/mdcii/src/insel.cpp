@@ -36,7 +36,7 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     }
   }
 
-  for (int i = 0; i < laenge; i++)
+  for (unsigned int i = 0; i < laenge; i++)
   {
     inselfeld_t& feld = a[i];
 
@@ -46,7 +46,7 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     auto info = haeuser->get_haus(feld.bebauung);
     if (info)
     {
-      int x, y, u, v;
+      int u, v;
       if (feld.rot % 2 == 0)
       {
         u = info.value()->Size.w;
@@ -128,7 +128,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
       }
 
       f.open(karte, std::ios_base::in | std::ios_base::binary);
-      Block inselX_basis = Block(f);
+      // The first read is the inselX_basis. It is not needed here. Therefore read it and throw it away
+      (void)Block(f);
       Block inselhaus_basis = Block(f);
       this->insel_rastern((inselfeld_t*)inselhaus_basis.daten, inselhaus_basis.laenge / 8, schicht1, this->breite, this->hoehe);
       f.close();
@@ -160,7 +161,7 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
   }
 }
 
-void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
+void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, [[maybe_unused]] uint8_t r)
 {
   auto info = haeuser->get_haus(schicht2[y * breite + x].bebauung);
   if (info)
@@ -246,6 +247,8 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
     case 3:
       index += feld.x_pos * info.value()->Size.w + (info.value()->Size.w - feld.y_pos - 1);
       break;
+    default:
+      break;
   }
   index += info.value()->Size.h * info.value()->Size.w * richtungen * (feld.ani % ani_schritte);
   ziel.index = index;
@@ -271,8 +274,8 @@ void Insel::bewege_wasser()
     for (int x = 0; x < breite; x++)
     {
       inselfeld_t& feld = schicht2[y * breite + x];
-      if (feld.bebauung >= 1201 && feld.bebauung <= 1218 || feld.bebauung >= 901 && feld.bebauung <= 905 || feld.bebauung >= 1251 && feld.bebauung <= 1259
-          || feld.bebauung == 1071 || feld.bebauung == 2311)
+      if (((feld.bebauung >= 1201) && (feld.bebauung <= 1218)) || ((feld.bebauung >= 901) && (feld.bebauung <= 905))
+          || ((feld.bebauung >= 1251) && (feld.bebauung <= 1259)) || ((feld.bebauung == 1071) || (feld.bebauung == 2311)))
       {
         auto info = haeuser->get_haus(feld.bebauung);
         if (info)
