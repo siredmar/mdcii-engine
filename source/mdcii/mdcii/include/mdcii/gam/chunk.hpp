@@ -33,9 +33,6 @@ public:
   explicit Chunk(std::istream& f);
   ~Chunk();
   ChunkData chunk;
-
-private:
-  const int chunkNameSize{16};
 };
 
 // /*========================================+

@@ -20,6 +20,8 @@
 #include <memory>
 #include <string>
 
+#include <iostream>
+
 #include "files.hpp"
 #include "gam/gam_parser.hpp"
 
@@ -44,25 +46,26 @@ GamParser::GamParser(const std::string& gam, bool peek)
       std::cerr << e.what() << '\n';
     }
   }
-  for (auto& c : chunks)
+  // for (auto& c : chunks)
+  for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
-    auto chunkName = std::string(c->chunk.name);
+    auto chunkName = std::string(chunks[chunkIndex]->chunk.name);
 
     if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2")
     {
-      mission2 = std::make_shared<Mission2>(c->chunk.data, c->chunk.length, chunkName);
+      mission2 = std::make_shared<Mission2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "AUFTRAG4")
     {
-      mission4 = std::make_shared<Mission4>(c->chunk.data, c->chunk.length, chunkName);
+      mission4 = std::make_shared<Mission4>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE")
     {
-      sceneSave = std::make_shared<SceneSave>(c->chunk.data, c->chunk.length, chunkName);
+      sceneSave = std::make_shared<SceneSave>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE_RANKING")
     {
-      sceneRanking = std::make_shared<SceneRanking>(c->chunk.data, c->chunk.length, chunkName);
+      sceneRanking = std::make_shared<SceneRanking>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "RANDTAB")
     {
@@ -80,21 +83,21 @@ GamParser::GamParser(const std::string& gam, bool peek)
     {
       // other chunks than parsed in peek mode
     }
-    if (peek == false)
+    // if (peek == false)
     {
       if (chunkName == "INSEL3")
       {
-        auto i = std::make_shared<Island3>(c->chunk.data, c->chunk.length, chunkName);
+        auto i = std::make_shared<Island3>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         islands3.push_back(i);
       }
       else if (chunkName == "INSEL4" || chunkName == "INSEL5")
       {
-        auto i = std::make_shared<Island5>(c->chunk.data, c->chunk.length, chunkName);
+        std::cout << "chunkIndex: " << chunkIndex << std::endl;
+        auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        // Next chunk after INSEL5 is INSELHAUS
+        i->setIslandHouse(chunks[++chunkIndex]);
+        std::cout << "chunkIndex: " << chunkIndex << std::endl;
         islands5.push_back(i);
-      }
-      else if (chunkName == "INSELHAUS")
-      {
-        // more to come later
       }
       else if (chunkName == "PRODLIST2")
       {
@@ -118,7 +121,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "KONTOR2")
       {
-        kontor2 = std::make_shared<Kontor2>(c->chunk.data, c->chunk.length, chunkName);
+        kontor2 = std::make_shared<Kontor2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "MARKT2")
       {
@@ -162,9 +165,11 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else
       {
-        // unknown chunk
+        // INSELHAUS is handeled by INSEL4 and INSEL5
+        // others are unknown chunks
       }
     }
+    chunkIndex++;
   }
 
   std::cout << "overall chunks num: " << chunks.size() << std::endl;

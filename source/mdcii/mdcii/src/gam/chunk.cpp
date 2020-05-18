@@ -18,11 +18,11 @@
 #include <fstream>
 
 #include "gam/chunk.hpp"
-
+#define CHUNK_NAME_SIZE (16u)
 Chunk::Chunk(std::istream& f)
 {
-  char n[chunkNameSize];
-  f.read(n, chunkNameSize);
+  char n[CHUNK_NAME_SIZE];
+  f.read(n, CHUNK_NAME_SIZE);
   chunk.name = std::string(n);
   f.read((char*)&chunk.length, sizeof(chunk.length));
   chunk.data = new uint8_t[chunk.length];

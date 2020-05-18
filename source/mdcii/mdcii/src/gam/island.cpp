@@ -16,14 +16,31 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <cstring>
+#include <memory>
 
+#include "gam/chunk.hpp"
 #include "gam/island.hpp"
 
+IslandHouse::IslandHouse(uint8_t* data, uint32_t length, const char* name)
+  : name(name)
+{
+  for (unsigned int i = 0; i < length / sizeof(IslandHouseData); i++)
+  {
+    IslandHouseData h;
+    memcpy((char*)&h, (data + i), sizeof(IslandHouseData));
+    islandHouse.push_back(h);
+  }
+}
 
 Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
   memcpy((char*)&island5, data, length);
+}
+
+void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
+{
+  islandHouse = std::make_shared<IslandHouse>(c->chunk.data, c->chunk.length, "INELHAUS");
 }
 
 Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
