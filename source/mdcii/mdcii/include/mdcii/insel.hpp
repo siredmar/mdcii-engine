@@ -22,7 +22,7 @@
 #include <inttypes.h>
 
 #include "block.hpp"
-#include "haeuser.hpp"
+#include "cod/haeuser.hpp"
 
 class Grafiken;
 class Bebauung;

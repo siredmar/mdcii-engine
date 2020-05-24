@@ -28,10 +28,10 @@
 #include "sdlgui/widget.h"
 #include "sdlgui/window.h"
 
-#include "basegad_dat.hpp"
+#include "cod/basegad_dat.hpp"
+#include "cod/haeuser.hpp"
+#include "cod/host_gad.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
-#include "host_gad.hpp"
 #include "zei_leser.hpp"
 #include "zei_texture.hpp"
 

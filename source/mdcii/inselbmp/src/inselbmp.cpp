@@ -25,7 +25,7 @@
 
 #include "mdcii/bildspeicher_pal8.hpp"
 #include "mdcii/bsh_leser.hpp"
-#include "mdcii/cod_parser.hpp"
+#include "mdcii/cod/cod_parser.hpp"
 #include "mdcii/files.hpp"
 #include "mdcii/insel.hpp"
 #include "mdcii/palette.hpp"

@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "kamera.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
 #include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};

@@ -2,9 +2,9 @@
 
 #include <boost/program_options.hpp>
 
-#include "mdcii/cod_parser.hpp"
+#include "mdcii/cod/cod_parser.hpp"
+#include "mdcii/cod/haeuser.hpp"
 #include "mdcii/files.hpp"
-#include "mdcii/haeuser.hpp"
 
 namespace po = boost::program_options;
 

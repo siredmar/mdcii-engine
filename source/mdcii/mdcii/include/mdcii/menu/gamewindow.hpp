@@ -27,9 +27,9 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
 
 using namespace sdlgui;
 

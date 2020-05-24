@@ -42,9 +42,7 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(headers
     ${include_path}/mdcii.hpp
-    ${include_path}/cod_parser.hpp
     ${include_path}/animation.hpp
-    ${include_path}/basegad_dat.hpp
     ${include_path}/bildspeicher.hpp
     ${include_path}/bildspeicher_pal8.hpp
     ${include_path}/bildspeicher_rgb24.hpp
@@ -57,8 +55,6 @@ set(headers
     ${include_path}/fps.hpp
     ${include_path}/files_to_check.hpp
     ${include_path}/generischer_bsh_leser.hpp
-    ${include_path}/haeuser.hpp
-    ${include_path}/host_gad.hpp
     ${include_path}/insel.hpp
     ${include_path}/kamera.hpp
     ${include_path}/karte.hpp
@@ -73,6 +69,10 @@ set(headers
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
     ${include_path}/menu/gamewindow.hpp
+    ${include_path}/cod/cod_parser.hpp
+    ${include_path}/cod/basegad_dat.hpp
+    ${include_path}/cod/haeuser.hpp
+    ${include_path}/cod/host_gad.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/island.hpp
     ${include_path}/gam/missions.hpp
@@ -83,7 +83,6 @@ set(headers
 
 set(sources
     ${source_path}/mdcii.cpp
-    ${source_path}/cod_parser.cpp
     ${source_path}/bildspeicher.cpp
     ${source_path}/bildspeicher_pal8.cpp
     ${source_path}/bildspeicher_rgb24.cpp
@@ -105,6 +104,10 @@ set(sources
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp
     ${source_path}/menu/gamewindow.cpp
+    ${source_path}/cod/cod_parser.cpp
+    ${source_path}/cod/basegad_dat.cpp
+    ${source_path}/cod/haeuser.cpp
+    ${source_path}/cod/host_gad.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/island.cpp
     ${source_path}/gam/missions.cpp

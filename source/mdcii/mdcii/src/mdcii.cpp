@@ -25,7 +25,7 @@
 #include <SDL2/SDL.h>
 
 #include "bildspeicher_pal8.hpp"
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
 #include "files.hpp"
 #include "files_to_check.hpp"
 #include "fps.hpp"

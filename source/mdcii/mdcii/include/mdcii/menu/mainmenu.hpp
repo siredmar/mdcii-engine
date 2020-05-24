@@ -27,8 +27,8 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
-#include "basegad_dat.hpp"
-#include "cod_parser.hpp"
+#include "cod/basegad_dat.hpp"
+#include "cod/cod_parser.hpp"
 #include "files.hpp"
 
 

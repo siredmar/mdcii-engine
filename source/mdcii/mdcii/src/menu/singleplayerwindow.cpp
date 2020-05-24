@@ -29,7 +29,7 @@
 #include "sdlgui/window.h"
 
 #include "bsh_texture.hpp"
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
 #include "fps.hpp"
 #include "palette.hpp"
 #include "savegames.hpp"
