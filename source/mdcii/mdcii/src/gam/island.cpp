@@ -24,10 +24,11 @@
 IslandHouse::IslandHouse(uint8_t* data, uint32_t length, const char* name)
   : name(name)
 {
-  for (unsigned int i = 0; i < length / sizeof(IslandHouseData); i++)
+  size_t islandHouseSize = sizeof(IslandHouseData);
+  for (unsigned int i = 0; i < length / islandHouseSize; i += islandHouseSize)
   {
     IslandHouseData h;
-    memcpy((char*)&h, (data + i), sizeof(IslandHouseData));
+    memcpy((char*)&h, (data + i), islandHouseSize);
     islandHouse.push_back(h);
   }
 }
