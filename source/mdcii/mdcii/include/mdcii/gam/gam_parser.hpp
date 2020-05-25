@@ -23,9 +23,9 @@
 
 #include "chunk.hpp"
 #include "island.hpp"
-#include "kontor.hpp"
 #include "missions.hpp"
 #include "scene.hpp"
+#include "warehouse.hpp"
 
 class GamParser
 {
@@ -39,7 +39,7 @@ private:
   std::vector<std::shared_ptr<Island3>> islands3;
   std::shared_ptr<Mission2> mission2;
   std::shared_ptr<Mission4> mission4;
-  std::shared_ptr<Kontor2> kontor2;
+  std::vector<std::shared_ptr<Warehouse2>> warehouses2;
   std::shared_ptr<SceneRanking> sceneRanking;
   std::shared_ptr<SceneSave> sceneSave;
 };

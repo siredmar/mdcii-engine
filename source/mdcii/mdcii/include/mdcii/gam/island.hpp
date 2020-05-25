@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "warehouse.hpp"
+
 struct IslandHouseData
 {
   uint16_t id;                 // tile gaphic ID, see haeuser.cod for referene
@@ -75,6 +77,12 @@ enum class Fertility : uint32_t
   WineAndCocoa = 0x11E1
 };
 
+enum class IslandOriginal : uint8_t
+{
+  Modified = 0,
+  Original = 1
+};
+
 struct Island5Data // Insel5
 {
   uint8_t inselnr;
@@ -99,7 +107,7 @@ struct Island5Data // Insel5
   uint16_t filenr;
   uint16_t sizenr;
   uint8_t klimanr;
-  uint8_t orginalflg;
+  IslandOriginal orginalFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
   uint8_t duerrproz;
   uint8_t rotier;
   uint32_t seeplayerflags;
@@ -112,11 +120,21 @@ class Island5
 public:
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   void setIslandHouse(std::shared_ptr<Chunk> c);
+  void setWarehouse2(std::shared_ptr<Chunk> c);
 
 private:
   std::string name;
   Island5Data island5;
-  std::shared_ptr<IslandHouse> islandHouse;
+  std::shared_ptr<IslandHouse> islandHouse; // INSELHAUS
+  // std::shared_ptr<Deer2> deer;                 // HIRSCH2
+  // std::shared_ptr<ProductionList2> prodlist2;  // PRODLIST2
+  // std::shared_ptr<Shipyard> shipyard;          // WERFT
+  // std::shared_ptr<Military> military;          // MILITAR
+  // std::shared_ptr<Settlers> settlers;          // SIEDLER
+  // std::shared_ptr<RawGrow2> rawGrow2;          // ROHWACHS2
+  // std::shared_ptr<City4> city4;                // STADT4
+  std::shared_ptr<Warehouse2> warehouse2; // KONTOR2
+  // std::shared_ptr<Market2>;                    // MARKT2
 };
 
 struct Island3Data // Insel3

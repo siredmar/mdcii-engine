@@ -26,13 +26,16 @@
 #include "sdlgui/button.h"
 #include "sdlgui/widget.h"
 
-#include "bildspeicher_pal8.hpp"
 #include "cod/cod_parser.hpp"
+
+#include "bildspeicher_pal8.hpp"
 #include "files.hpp"
 #include "fps.hpp"
 #include "kamera.hpp"
 #include "palette.hpp"
 #include "spielbildschirm.hpp"
+
+#include "gam/gam_parser.hpp"
 
 #include "menu/gamewindow.hpp"
 
@@ -50,6 +53,7 @@ GameWindow::GameWindow(
   , running(true)
 {
   std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
+  GamParser gam(gam_name, false);
   {
     auto& button1 = wdg<Button>("Exit", [this] {
       std::cout << "Leaving game" << std::endl;

@@ -28,8 +28,9 @@
 #include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
 
-#include "bsh_texture.hpp"
 #include "cod/cod_parser.hpp"
+
+#include "bsh_texture.hpp"
 #include "fps.hpp"
 #include "palette.hpp"
 #include "savegames.hpp"
@@ -192,7 +193,6 @@ void SinglePlayerWindow::LoadGame(const std::string& gam_name)
     std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
     exit(EXIT_FAILURE);
   }
-
   GameWindow gameWindow(renderer, pwindow, width, height, gam_name, fullscreen, haeuser);
   gameWindow.Handle();
   Handle();

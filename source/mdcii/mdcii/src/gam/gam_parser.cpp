@@ -46,7 +46,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
       std::cerr << e.what() << '\n';
     }
   }
-  // for (auto& c : chunks)
+  std::shared_ptr<Island5> currentIsland5;
   for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
     auto chunkName = std::string(chunks[chunkIndex]->chunk.name);
@@ -83,7 +83,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
     {
       // other chunks than parsed in peek mode
     }
-    // if (peek == false)
+    if (peek == false)
     {
       if (chunkName == "INSEL3")
       {
@@ -94,10 +94,16 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         std::cout << "chunkIndex: " << chunkIndex << std::endl;
         auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
-        // Next chunk after INSEL5 is INSELHAUS
-        i->setIslandHouse(chunks[++chunkIndex]);
-        std::cout << "chunkIndex: " << chunkIndex << std::endl;
+        currentIsland5 = i;
         islands5.push_back(i);
+      }
+      else if (chunkName == "INSELHAUS")
+      {
+        currentIsland5->setIslandHouse(chunks[chunkIndex]);
+      }
+      else if (chunkName == "KONTOR2")
+      {
+        currentIsland5->setWarehouse2(chunks[chunkIndex]);
       }
       else if (chunkName == "PRODLIST2")
       {
@@ -118,10 +124,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
       else if (chunkName == "MILITAR")
       {
         // more to come later
-      }
-      else if (chunkName == "KONTOR2")
-      {
-        kontor2 = std::make_shared<Kontor2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "MARKT2")
       {

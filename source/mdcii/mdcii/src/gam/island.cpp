@@ -44,6 +44,11 @@ void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
   islandHouse = std::make_shared<IslandHouse>(c->chunk.data, c->chunk.length, "INELHAUS");
 }
 
+void Island5::setWarehouse2(std::shared_ptr<Chunk> c)
+{
+  warehouse2 = std::make_shared<Warehouse2>(c->chunk.data, c->chunk.length, "KONTOR2");
+}
+
 Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
