@@ -97,11 +97,17 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "INSELHAUS")
       {
-        islands5.back()->setIslandHouse(chunks[chunkIndex]);
+        if (chunks[chunkIndex]->chunk.length > 0)
+        {
+          islands5.back()->setIslandHouse(chunks[chunkIndex]);
+        }
       }
       else if (chunkName == "KONTOR2")
       {
-        islands5.back()->setWarehouse2(chunks[chunkIndex]);
+        if (chunks[chunkIndex]->chunk.length > 0)
+        {
+          islands5.back()->setWarehouse2(chunks[chunkIndex]);
+        }
       }
       else if (chunkName == "PRODLIST2")
       {
