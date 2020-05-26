@@ -46,7 +46,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
       std::cerr << e.what() << '\n';
     }
   }
-  std::shared_ptr<Island5> currentIsland5;
   for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
     auto chunkName = std::string(chunks[chunkIndex]->chunk.name);
@@ -94,16 +93,15 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         std::cout << "chunkIndex: " << chunkIndex << std::endl;
         auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
-        currentIsland5 = i;
         islands5.push_back(i);
       }
       else if (chunkName == "INSELHAUS")
       {
-        currentIsland5->setIslandHouse(chunks[chunkIndex]);
+        islands5.back()->setIslandHouse(chunks[chunkIndex]);
       }
       else if (chunkName == "KONTOR2")
       {
-        currentIsland5->setWarehouse2(chunks[chunkIndex]);
+        islands5.back()->setWarehouse2(chunks[chunkIndex]);
       }
       else if (chunkName == "PRODLIST2")
       {
@@ -171,7 +169,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
         // others are unknown chunks
       }
     }
-    chunkIndex++;
   }
 
   std::cout << "overall chunks num: " << chunks.size() << std::endl;
