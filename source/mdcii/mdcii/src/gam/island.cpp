@@ -41,17 +41,17 @@ Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
 
 void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
 {
-  islandHouse = IslandHouse i(c->chunk.data, c->chunk.length, "INELHAUS");
+  islandHouse = IslandHouse(c->chunk.data, c->chunk.length, "INELHAUS");
 }
 
 void Island5::setWarehouse2(std::shared_ptr<Chunk> c)
 {
-  warehouse2 = Warehouse2 w(c->chunk.data, c->chunk.length, "KONTOR2");
+  warehouse2 = Warehouse2(c->chunk.data, c->chunk.length, "KONTOR2");
 }
 
 void Island5::setProductionList(std::shared_ptr<Chunk> c)
 {
-  productionList = ProductionList p(c->chunk.data, c->chunk.length, "PRODLIST2");
+  productionList = ProductionList(c->chunk.data, c->chunk.length, "PRODLIST2");
 }
 
 
