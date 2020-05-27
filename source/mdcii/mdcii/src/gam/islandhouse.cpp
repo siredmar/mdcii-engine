@@ -21,30 +21,14 @@
 #include "gam/chunk.hpp"
 #include "gam/island.hpp"
 
-Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
+IslandHouse::IslandHouse(uint8_t* data, uint32_t length, const char* name)
   : name(name)
 {
-  memcpy((char*)&island5, data, length);
-}
-
-void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
-{
-  islandHouse = IslandHouse(c->chunk.data, c->chunk.length, "INELHAUS");
-}
-
-void Island5::setWarehouse2(std::shared_ptr<Chunk> c)
-{
-  warehouse2 = Warehouse2(c->chunk.data, c->chunk.length, "KONTOR2");
-}
-
-void Island5::setProductionList(std::shared_ptr<Chunk> c)
-{
-  productionList = ProductionList(c->chunk.data, c->chunk.length, "PRODLIST2");
-}
-
-
-Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
-{
-  memcpy((char*)&island3, data, length);
+  size_t islandHouseSize = sizeof(IslandHouseData);
+  for (unsigned int i = 0; i < length / islandHouseSize; i += islandHouseSize)
+  {
+    IslandHouseData h;
+    memcpy((char*)&h, (data + i), islandHouseSize);
+    islandHouse.push_back(h);
+  }
 }

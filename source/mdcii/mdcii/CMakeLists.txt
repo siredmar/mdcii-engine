@@ -75,10 +75,11 @@ set(headers
     ${include_path}/cod/host_gad.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/island.hpp
+    ${include_path}/gam/islandhouse.hpp
     ${include_path}/gam/missions.hpp
-    ${include_path}/gam/warehouse.hpp
     ${include_path}/gam/productionlist.hpp
     ${include_path}/gam/scene.hpp
+    ${include_path}/gam/warehouse.hpp
     ${include_path}/gam/gam_parser.hpp
 )
 
@@ -111,10 +112,11 @@ set(sources
     ${source_path}/cod/host_gad.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/island.cpp
+    ${source_path}/gam/islandhouse.cpp
     ${source_path}/gam/missions.cpp
-    ${source_path}/gam/warehouse.cpp
     ${source_path}/gam/productionlist.cpp
     ${source_path}/gam/scene.cpp
+    ${source_path}/gam/warehouse.cpp
     ${source_path}/gam/gam_parser.cpp
 )
 
