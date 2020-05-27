@@ -16,24 +16,12 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <cstring>
-#include <ios>
-#include <iostream>
-#include <memory>
-#include <variant>
 
-#include "gam/warehouse.hpp"
+#include "gam/productionlist.hpp"
 
 
-Warehouse2::Warehouse2(uint8_t* data, uint32_t length, const std::string& name)
+ProductionList::ProductionList(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
-  int numWarehouses = length / sizeof(Warehouse2Data);
-  for (int i = 0; i < numWarehouses; i++)
-  {
-    Warehouse2Data w;
-    int warehouseLength = length / numWarehouses;
-    memset((char*)&w, 0, warehouseLength);
-    memcpy((char*)&w, data + (i * warehouseLength), warehouseLength);
-    warehouses.push_back(w);
-  }
+  memcpy((char*)&productionList, data, length);
 }

@@ -24,6 +24,7 @@
 #include "chunk.hpp"
 #include "island.hpp"
 #include "missions.hpp"
+#include "productionlist.hpp"
 #include "scene.hpp"
 #include "warehouse.hpp"
 
@@ -39,7 +40,6 @@ private:
   std::vector<std::shared_ptr<Island3>> islands3;
   std::shared_ptr<Mission2> mission2;
   std::shared_ptr<Mission4> mission4;
-  std::vector<std::shared_ptr<Warehouse2>> warehouses2;
   std::shared_ptr<SceneRanking> sceneRanking;
   std::shared_ptr<SceneSave> sceneSave;
 };
