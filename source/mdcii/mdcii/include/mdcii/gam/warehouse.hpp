@@ -49,6 +49,9 @@ struct Warehouse2Data
 class Warehouse2
 {
 public:
+  Warehouse2()
+  {
+  }
   explicit Warehouse2(uint8_t* data, uint32_t length, const std::string& name);
   std::vector<Warehouse2Data> warehouses;
 

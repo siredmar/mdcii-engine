@@ -20,6 +20,7 @@
 
 #include <inttypes.h>
 #include <string>
+#include <vector>
 
 enum class ProductionState : uint8_t
 {
@@ -41,33 +42,36 @@ enum class WarehouseCarrierFetch : uint8_t
 
 struct ProductionListData // PRODLIST2
 {
-  uint8_t inselnr;                      // Island number
-  uint8_t posx;                         // position on the island
-  uint8_t posy;                         // position on the island
-  uint8_t speed;                        // Welcher Speedzähler (MAXWACHSSPEEDKIND)
-  uint32_t speedcnt : 8;                // Wenn (Zeitzähler == Speedzähler) timer++ (MAXROHWACHSCNT)
-  uint32_t lager : 24;                  // Lagerbestand an Fertigprodukten
-  uint16_t timer;                       // Zeitzähler in Sekunden
-  uint16_t worklager;                   // Bestand an Betriebsstoffen (vorwiegend Holz)
-  uint32_t rohlager : 24;               // Lagerbestand an Rohstoffen
-  uint32_t rohhebe : 8;                 // Was wird derzeit produziert??
-  uint16_t productionCount;             // Wie oft wurde produziert ??
-  uint16_t timecnt;                     // Zähler für Produktionsstatistik!!
-  ProductionState aktivflg : 1;         // Produktionsstätte derzeit aktiv??
-  ConnectionToWarehouse marktflg : 1;   // Eine Verbindung mit dem Hauptquartier besteht!!
-  uint8_t animcnt : 4;                  // Aktuelle Animationsstufe (ACHTUNG: TISOFELD!!)
-  WarehouseCarrierFetch nomarktflg : 1; // Marktfahrer dürfen hier keine Waren abholen
-  uint8_t empty1 : 1;                   // Reserve ist immer gut
-  uint8_t norohstcnt : 4;               // Seit längerer Zeit kein Rohstoff erreichbar
-  uint8_t empty2;                       // Reserve ist immer gut
-  uint8_t empty3;                       // Reserve ist immer gut
+  uint8_t inselnr;          // Island number
+  uint8_t posx;             // position on the island
+  uint8_t posy;             // position on the island
+  uint8_t speed;            // Welcher Speedzähler (MAXWACHSSPEEDKIND)
+  uint32_t speedcnt : 8;    // Wenn (Zeitzähler == Speedzähler) timer++ (MAXROHWACHSCNT)
+  uint32_t lager : 24;      // Lagerbestand an Fertigprodukten
+  uint16_t timer;           // Zeitzähler in Sekunden
+  uint16_t worklager;       // Bestand an Betriebsstoffen (vorwiegend Holz)
+  uint32_t rohlager : 24;   // Lagerbestand an Rohstoffen
+  uint32_t rohhebe : 8;     // Was wird derzeit produziert??
+  uint16_t productionCount; // Wie oft wurde produziert ??
+  uint16_t timecnt;         // Zähler für Produktionsstatistik!!
+  uint8_t aktivflg : 1;     // Produktionsstätte derzeit aktiv??
+  uint8_t marktflg : 1;     // Eine Verbindung mit dem Hauptquartier besteht!!
+  uint8_t animcnt : 4;      // Aktuelle Animationsstufe (ACHTUNG: TISOFELD!!)
+  uint8_t nomarktflg : 1;   // Marktfahrer dürfen hier keine Waren abholen
+  uint8_t empty1 : 1;       // Reserve ist immer gut
+  uint8_t norohstcnt : 4;   // Seit längerer Zeit kein Rohstoff erreichbar
+  uint8_t empty2;           // Reserve ist immer gut
+  uint8_t empty3;           // Reserve ist immer gut
 };
 
 class ProductionList
 {
 public:
+  ProductionList()
+  {
+  }
   explicit ProductionList(uint8_t* data, uint32_t length, const std::string& name);
-  ProductionListData productionList;
+  std::vector<ProductionListData> productionList;
 
 private:
   std::string name;

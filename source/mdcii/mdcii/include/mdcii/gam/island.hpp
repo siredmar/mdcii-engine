@@ -41,6 +41,9 @@ struct IslandHouseData
 class IslandHouse
 {
 public:
+  IslandHouse()
+  {
+  }
   explicit IslandHouse(uint8_t* data, uint32_t length, const char* name);
 
 private:
@@ -119,6 +122,9 @@ struct Island5Data // Insel5
 class Island5
 {
 public:
+  Island5()
+  {
+  }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   void setIslandHouse(std::shared_ptr<Chunk> c);
   void setWarehouse2(std::shared_ptr<Chunk> c);
@@ -127,15 +133,15 @@ public:
 private:
   std::string name;
   Island5Data island5;
-  std::shared_ptr<IslandHouse> islandHouse; // INSELHAUS
+  IslandHouse islandHouse; // INSELHAUS
   // std::shared_ptr<Deer2> deer;                 // HIRSCH2
-  std::shared_ptr<ProductionList> productionList; // PRODLIST2
+  ProductionList productionList; // PRODLIST2
   // std::shared_ptr<Shipyard> shipyard;          // WERFT
   // std::shared_ptr<Military> military;          // MILITAR
   // std::shared_ptr<Settlers> settlers;          // SIEDLER
   // std::shared_ptr<RawGrow2> rawGrow2;          // ROHWACHS2
   // std::shared_ptr<City4> city4;                // STADT4
-  std::shared_ptr<Warehouse2> warehouse2; // KONTOR2
+  Warehouse2 warehouse2; // KONTOR2
   // std::shared_ptr<Market2>;                    // MARKT2
 };
 

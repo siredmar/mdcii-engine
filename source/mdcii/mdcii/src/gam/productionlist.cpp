@@ -23,5 +23,13 @@
 ProductionList::ProductionList(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
-  memcpy((char*)&productionList, data, length);
+  int numProdlist = length / sizeof(ProductionListData);
+  for (int i = 0; i < numProdlist; i++)
+  {
+    ProductionListData p;
+    int l = length / numProdlist;
+    memset((char*)&p, 0, l);
+    memcpy((char*)&p, data + (i * l), l);
+    productionList.push_back(p);
+  }
 }
