@@ -80,6 +80,7 @@ set(headers
     ${include_path}/gam/missions.hpp
     ${include_path}/gam/productionlist.hpp
     ${include_path}/gam/scene.hpp
+    ${include_path}/gam/shipyard.hpp
     ${include_path}/gam/warehouse.hpp
     ${include_path}/gam/gam_parser.hpp
 )
@@ -118,6 +119,7 @@ set(sources
     ${source_path}/gam/missions.cpp
     ${source_path}/gam/productionlist.cpp
     ${source_path}/gam/scene.cpp
+    ${source_path}/gam/shipyard.cpp
     ${source_path}/gam/warehouse.cpp
     ${source_path}/gam/gam_parser.cpp
 )

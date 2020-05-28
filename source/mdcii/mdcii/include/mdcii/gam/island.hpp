@@ -25,6 +25,7 @@
 #include "deer.hpp"
 #include "islandhouse.hpp"
 #include "productionlist.hpp"
+#include "shipyard.hpp"
 #include "warehouse.hpp"
 
 struct OreMountainData // Erzberg
@@ -105,6 +106,7 @@ public:
   void setWarehouse2(std::shared_ptr<Chunk> c);
   void setProductionList(std::shared_ptr<Chunk> c);
   void setDeer(std::shared_ptr<Chunk> c);
+  void setShipyard(std::shared_ptr<Chunk> c);
 
 private:
   std::string name;
@@ -112,11 +114,11 @@ private:
   IslandHouse islandHouse;       // INSELHAUS
   Deer deer;                     // HIRSCH2
   ProductionList productionList; // PRODLIST2
-  // std::shared_ptr<Shipyard> shipyard;          // WERFT
-  // std::shared_ptr<Military> military;          // MILITAR
-  // std::shared_ptr<Settlers> settlers;          // SIEDLER
-  // std::shared_ptr<RawGrow2> rawGrow2;          // ROHWACHS2
-  // std::shared_ptr<City4> city4;                // STADT4
+  Shipyard shipyard;             // WERFT
+  // Military military;             // MILITAR
+  // Settlers settlers;             // SIEDLER
+  // RawGrow rawGrow2;              // ROHWACHS2
+  // City4 city4;                   // STADT4
   Warehouse2 warehouse2; // KONTOR2
   // std::shared_ptr<Market2>;                    // MARKT2
 };

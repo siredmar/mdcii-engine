@@ -17,19 +17,19 @@
 
 #include <cstring>
 
-#include "gam/template.hpp"
+#include "gam/shipyard.hpp"
 
 
-Template::Template(uint8_t* data, uint32_t length, const std::string& name)
+Shipyard::Shipyard(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
-  int num = length / sizeof(TemplateData);
+  int num = length / sizeof(ShipyardData);
   for (int i = 0; i < num; i++)
   {
-    TemplateData entity;
+    ShipyardData entity;
     int l = length / num;
     memset((char*)&entity, 0, l);
     memcpy((char*)&entity, data + (i * l), l);
-    template.push_back(entity);
+    shipyard.push_back(entity);
   }
 }
