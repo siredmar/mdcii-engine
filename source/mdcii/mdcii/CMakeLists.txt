@@ -77,6 +77,7 @@ set(headers
     ${include_path}/gam/deer.hpp
     ${include_path}/gam/island.hpp
     ${include_path}/gam/islandhouse.hpp
+    ${include_path}/gam/military.hpp
     ${include_path}/gam/missions.hpp
     ${include_path}/gam/productionlist.hpp
     ${include_path}/gam/scene.hpp
@@ -116,6 +117,7 @@ set(sources
     ${source_path}/gam/deer.cpp
     ${source_path}/gam/island.cpp
     ${source_path}/gam/islandhouse.cpp
+    ${source_path}/gam/military.cpp
     ${source_path}/gam/missions.cpp
     ${source_path}/gam/productionlist.cpp
     ${source_path}/gam/scene.cpp

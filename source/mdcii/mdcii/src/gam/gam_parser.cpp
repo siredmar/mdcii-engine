@@ -121,15 +121,15 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         islands5.back()->setShipyard(chunks[chunkIndex]);
       }
+      else if (chunkName == "MILITAR")
+      {
+        islands5.back()->setMilitary(chunks[chunkIndex]);
+      }
       else if (chunkName == "ROHWACHS2")
       {
         // more to come later
       }
       else if (chunkName == "SIEDLER")
-      {
-        // more to come later
-      }
-      else if (chunkName == "MILITAR")
       {
         // more to come later
       }

@@ -24,6 +24,7 @@
 
 #include "deer.hpp"
 #include "islandhouse.hpp"
+#include "military.hpp"
 #include "productionlist.hpp"
 #include "shipyard.hpp"
 #include "warehouse.hpp"
@@ -107,6 +108,7 @@ public:
   void setProductionList(std::shared_ptr<Chunk> c);
   void setDeer(std::shared_ptr<Chunk> c);
   void setShipyard(std::shared_ptr<Chunk> c);
+  void setMilitary(std::shared_ptr<Chunk> c);
 
 private:
   std::string name;
@@ -115,7 +117,7 @@ private:
   Deer deer;                     // HIRSCH2
   ProductionList productionList; // PRODLIST2
   Shipyard shipyard;             // WERFT
-  // Military military;             // MILITAR
+  Military military;             // MILITAR
   // Settlers settlers;             // SIEDLER
   // RawGrow rawGrow2;              // ROHWACHS2
   // City4 city4;                   // STADT4
