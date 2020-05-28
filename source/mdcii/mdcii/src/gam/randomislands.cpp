@@ -15,29 +15,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _TEMPLATE_HPP
-#define _TEMPLATE_HPP
+#include <cstring>
 
-#include <inttypes.h>
-#include <string>
-#include <vector>
+#include "gam/template.hpp"
 
-struct TemplateData //
+
+Template::Template(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-};
-
-class Template
-{
-public:
-  Template()
-  {
-  }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
-
-private:
-  std::string name;
-};
-
-#endif // _TEMPLATE_HPP
+  memcpy((char*)&template, data, length);
+}

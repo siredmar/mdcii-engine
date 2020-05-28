@@ -15,29 +15,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _TEMPLATE_HPP
-#define _TEMPLATE_HPP
+#ifndef _DEER_HPP
+#define _DEER_HPP
 
 #include <inttypes.h>
 #include <string>
 #include <vector>
 
-struct TemplateData //
+struct DeerData // Hirsch2
 {
+  uint32_t inselnr : 8;
+  uint32_t posx : 8;
+  uint32_t posy : 8;
+  uint32_t timecnt;
 };
 
-class Template
+class Deer
 {
 public:
-  Template()
+  Deer()
   {
   }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
+  explicit Deer(uint8_t* data, uint32_t length, const std::string& name);
+  std::vector<DeerData> deers;
 
 private:
   std::string name;
 };
 
-#endif // _TEMPLATE_HPP
+#endif // _DEER_HPP

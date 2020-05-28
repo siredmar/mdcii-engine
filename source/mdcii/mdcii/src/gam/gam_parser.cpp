@@ -113,6 +113,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         islands5.back()->setProductionList(chunks[chunkIndex]);
       }
+      else if (chunkName == "HIRSCH2")
+      {
+        islands5.back()->setDeer(chunks[chunkIndex]);
+      }
       else if (chunkName == "ROHWACHS2")
       {
         // more to come later
@@ -134,10 +138,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
         // more to come later
       }
       else if (chunkName == "STADT3" || chunkName == "STADT4")
-      {
-        // more to come later
-      }
-      else if (chunkName == "HIRSCH2")
       {
         // more to come later
       }

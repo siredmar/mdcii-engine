@@ -74,6 +74,7 @@ set(headers
     ${include_path}/cod/haeuser.hpp
     ${include_path}/cod/host_gad.hpp
     ${include_path}/gam/chunk.hpp
+    ${include_path}/gam/deer.hpp
     ${include_path}/gam/island.hpp
     ${include_path}/gam/islandhouse.hpp
     ${include_path}/gam/missions.hpp
@@ -111,6 +112,7 @@ set(sources
     ${source_path}/cod/haeuser.cpp
     ${source_path}/cod/host_gad.cpp
     ${source_path}/gam/chunk.cpp
+    ${source_path}/gam/deer.cpp
     ${source_path}/gam/island.cpp
     ${source_path}/gam/islandhouse.cpp
     ${source_path}/gam/missions.cpp

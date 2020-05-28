@@ -15,29 +15,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _TEMPLATE_HPP
-#define _TEMPLATE_HPP
+#include <cstring>
 
-#include <inttypes.h>
-#include <string>
-#include <vector>
+#include "gam/deer.hpp"
 
-struct TemplateData //
+
+Deer::Deer(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-};
-
-class Template
-{
-public:
-  Template()
+  int num = length / sizeof(DeerData);
+  for (int i = 0; i < num; i++)
   {
+    DeerData entity;
+    int l = length / num;
+    memset((char*)&entity, 0, l);
+    memcpy((char*)&entity, data + (i * l), l);
+    deers.push_back(entity);
   }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
-
-private:
-  std::string name;
-};
-
-#endif // _TEMPLATE_HPP
+}
