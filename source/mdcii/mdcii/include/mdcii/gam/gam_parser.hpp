@@ -23,9 +23,11 @@
 
 #include "chunk.hpp"
 #include "island.hpp"
+#include "military.hpp"
 #include "missions.hpp"
 #include "productionlist.hpp"
 #include "scene.hpp"
+#include "shipyard.hpp"
 #include "warehouse.hpp"
 
 class GamParser
@@ -36,12 +38,14 @@ public:
 
 private:
   std::vector<std::shared_ptr<Chunk>> chunks;
-  std::vector<std::shared_ptr<Island5>> islands5;
-  std::vector<std::shared_ptr<Island3>> islands3;
-  std::shared_ptr<Mission2> mission2;
-  std::shared_ptr<Mission4> mission4;
-  std::shared_ptr<SceneRanking> sceneRanking;
-  std::shared_ptr<SceneSave> sceneSave;
+  std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
+  std::vector<std::shared_ptr<Island3>> islands3; // INSEL3
+  std::shared_ptr<Mission2> mission2;             // AUFTRAG2
+  std::shared_ptr<Mission4> mission4;             // AUFTRAG4
+  std::shared_ptr<SceneRanking> sceneRanking;     // SZENE_RANKING
+  std::shared_ptr<SceneSave> sceneSave;           // SZENE2
+  std::shared_ptr<Shipyard> shipyard;             // WERFT
+  std::shared_ptr<Military> military;             // MILITAR
 };
 
 #endif // _GAM_PARSER_HPP

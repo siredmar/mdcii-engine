@@ -47,17 +47,6 @@ void Island5::setDeer(std::shared_ptr<Chunk> c)
   deer = Deer(c->chunk.data, c->chunk.length, "HIRSCH2");
 }
 
-void Island5::setShipyard(std::shared_ptr<Chunk> c)
-{
-  shipyard = Shipyard(c->chunk.data, c->chunk.length, "WERFT");
-}
-
-void Island5::setMilitary(std::shared_ptr<Chunk> c)
-{
-  military = Military(c->chunk.data, c->chunk.length, "MILITAR");
-}
-
-
 Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {

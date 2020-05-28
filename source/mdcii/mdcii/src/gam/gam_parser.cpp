@@ -119,11 +119,11 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "WERFT")
       {
-        islands5.back()->setShipyard(chunks[chunkIndex]);
+        shipyard = std::make_shared<Shipyard>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "MILITAR")
       {
-        islands5.back()->setMilitary(chunks[chunkIndex]);
+        military = std::make_shared<Military>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "ROHWACHS2")
       {
