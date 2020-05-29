@@ -46,6 +46,8 @@ private:
   std::shared_ptr<SceneSave> sceneSave;           // SZENE2
   std::shared_ptr<Shipyard> shipyard;             // WERFT
   std::shared_ptr<Military> military;             // MILITAR
+  std::shared_ptr<ProductionList> productionList; // PRODLIST2
+  std::shared_ptr<Warehouse2> warehouse;          // KONTOR2
 };
 
 #endif // _GAM_PARSER_HPP

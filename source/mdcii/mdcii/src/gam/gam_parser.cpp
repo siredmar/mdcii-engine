@@ -91,7 +91,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "INSEL4" || chunkName == "INSEL5")
       {
-        std::cout << "chunkIndex: " << chunkIndex << std::endl;
         auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         islands5.push_back(i);
       }
@@ -102,20 +101,17 @@ GamParser::GamParser(const std::string& gam, bool peek)
           islands5.back()->setIslandHouse(chunks[chunkIndex]);
         }
       }
-      else if (chunkName == "KONTOR2")
-      {
-        if (chunks[chunkIndex]->chunk.length > 0)
-        {
-          islands5.back()->setWarehouse2(chunks[chunkIndex]);
-        }
-      }
-      else if (chunkName == "PRODLIST2")
-      {
-        islands5.back()->setProductionList(chunks[chunkIndex]);
-      }
       else if (chunkName == "HIRSCH2")
       {
         islands5.back()->setDeer(chunks[chunkIndex]);
+      }
+      else if (chunkName == "KONTOR2")
+      {
+        warehouse = std::make_shared<Warehouse2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "PRODLIST2")
+      {
+        productionList = std::make_shared<ProductionList>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "WERFT")
       {
@@ -198,6 +194,22 @@ GamParser::GamParser(const std::string& gam, bool peek)
   if (sceneSave)
   {
     std::cout << "scene number of islands: " << sceneSave->sceneSave.islandsCount << std::endl;
+  }
+  if (productionList)
+  {
+    std::cout << "prodlist size: " << productionList->productionList.size() << std::endl;
+  }
+  if (shipyard)
+  {
+    std::cout << "shipyards: " << shipyard->shipyard.size() << std::endl;
+  }
+  if (military)
+  {
+    std::cout << "military buildings: " << military->military.size() << std::endl;
+  }
+  if (warehouse)
+  {
+    std::cout << "warehouses: " << warehouse->warehouses.size() << std::endl;
   }
   f.close();
 }

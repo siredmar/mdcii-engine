@@ -25,7 +25,6 @@
 #include "deer.hpp"
 #include "islandhouse.hpp"
 #include "military.hpp"
-#include "productionlist.hpp"
 #include "shipyard.hpp"
 #include "warehouse.hpp"
 
@@ -104,20 +103,16 @@ public:
   }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   void setIslandHouse(std::shared_ptr<Chunk> c);
-  void setWarehouse2(std::shared_ptr<Chunk> c);
-  void setProductionList(std::shared_ptr<Chunk> c);
   void setDeer(std::shared_ptr<Chunk> c);
 
 private:
   std::string name;
   Island5Data island5;
-  IslandHouse islandHouse;       // INSELHAUS
-  Deer deer;                     // HIRSCH2
-  ProductionList productionList; // PRODLIST2
+  IslandHouse islandHouse; // INSELHAUS
+  Deer deer;               // HIRSCH2
   // Settlers settlers;             // SIEDLER
   // RawGrow rawGrow2;              // ROHWACHS2
   // City4 city4;                   // STADT4
-  Warehouse2 warehouse2; // KONTOR2
   // std::shared_ptr<Market2>;                    // MARKT2
 };
 

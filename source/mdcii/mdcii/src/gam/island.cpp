@@ -32,16 +32,6 @@ void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
   islandHouse = IslandHouse(c->chunk.data, c->chunk.length, "INELHAUS");
 }
 
-void Island5::setWarehouse2(std::shared_ptr<Chunk> c)
-{
-  warehouse2 = Warehouse2(c->chunk.data, c->chunk.length, "KONTOR2");
-}
-
-void Island5::setProductionList(std::shared_ptr<Chunk> c)
-{
-  productionList = ProductionList(c->chunk.data, c->chunk.length, "PRODLIST2");
-}
-
 void Island5::setDeer(std::shared_ptr<Chunk> c)
 {
   deer = Deer(c->chunk.data, c->chunk.length, "HIRSCH2");
