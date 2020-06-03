@@ -121,11 +121,11 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         military = std::make_shared<Military>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
-      else if (chunkName == "ROHWACHS2")
-      {
-        // more to come later
-      }
       else if (chunkName == "SIEDLER")
+      {
+        settlers = std::make_shared<Settlers>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "ROHWACHS2")
       {
         // more to come later
       }
@@ -210,6 +210,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
   if (warehouse)
   {
     std::cout << "warehouses: " << warehouse->warehouses.size() << std::endl;
+  }
+  if (settlers)
+  {
+    std::cout << "settlers: " << settlers->settlers.size() << std::endl;
   }
   f.close();
 }

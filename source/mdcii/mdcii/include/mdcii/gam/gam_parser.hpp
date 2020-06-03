@@ -27,6 +27,7 @@
 #include "missions.hpp"
 #include "productionlist.hpp"
 #include "scene.hpp"
+#include "settlers.hpp"
 #include "shipyard.hpp"
 #include "warehouse.hpp"
 
@@ -48,6 +49,7 @@ private:
   std::shared_ptr<Military> military;             // MILITAR
   std::shared_ptr<ProductionList> productionList; // PRODLIST2
   std::shared_ptr<Warehouse2> warehouse;          // KONTOR2
+  std::shared_ptr<Settlers> settlers;             // SIEDLER
 };
 
 #endif // _GAM_PARSER_HPP
