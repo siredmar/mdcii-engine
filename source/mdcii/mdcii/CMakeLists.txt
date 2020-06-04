@@ -74,12 +74,15 @@ set(headers
     ${include_path}/cod/haeuser.hpp
     ${include_path}/cod/host_gad.hpp
     ${include_path}/gam/chunk.hpp
+    ${include_path}/gam/city.hpp
     ${include_path}/gam/deer.hpp
     ${include_path}/gam/island.hpp
     ${include_path}/gam/islandhouse.hpp
+    ${include_path}/gam/marketplace.hpp
     ${include_path}/gam/military.hpp
     ${include_path}/gam/missions.hpp
     ${include_path}/gam/productionlist.hpp
+    ${include_path}/gam/rawgrowth.hpp
     ${include_path}/gam/scene.hpp
     ${include_path}/gam/settlers.hpp
     ${include_path}/gam/shipyard.hpp
@@ -115,12 +118,15 @@ set(sources
     ${source_path}/cod/haeuser.cpp
     ${source_path}/cod/host_gad.cpp
     ${source_path}/gam/chunk.cpp
+    ${source_path}/gam/city.cpp
     ${source_path}/gam/deer.cpp
     ${source_path}/gam/island.cpp
     ${source_path}/gam/islandhouse.cpp
+    ${source_path}/gam/marketplace.cpp
     ${source_path}/gam/military.cpp
     ${source_path}/gam/missions.cpp
     ${source_path}/gam/productionlist.cpp
+    ${source_path}/gam/rawgrowth.cpp
     ${source_path}/gam/scene.cpp
     ${source_path}/gam/settlers.cpp
     ${source_path}/gam/shipyard.cpp

@@ -22,10 +22,13 @@
 #include <string>
 
 #include "chunk.hpp"
+#include "city.hpp"
 #include "island.hpp"
+#include "marketplace.hpp"
 #include "military.hpp"
 #include "missions.hpp"
 #include "productionlist.hpp"
+#include "rawgrowth.hpp"
 #include "scene.hpp"
 #include "settlers.hpp"
 #include "shipyard.hpp"
@@ -50,6 +53,9 @@ private:
   std::shared_ptr<ProductionList> productionList; // PRODLIST2
   std::shared_ptr<Warehouse2> warehouse;          // KONTOR2
   std::shared_ptr<Settlers> settlers;             // SIEDLER
+  std::shared_ptr<MarketPlace> marketPlace;       // MARKT
+  std::shared_ptr<RawGrowth> rawGrowth;           // ROHWACHS2
+  std::shared_ptr<City4> city;                    // STADT4
 };
 
 #endif // _GAM_PARSER_HPP

@@ -125,17 +125,17 @@ GamParser::GamParser(const std::string& gam, bool peek)
       {
         settlers = std::make_shared<Settlers>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
-      else if (chunkName == "ROHWACHS2")
-      {
-        // more to come later
-      }
       else if (chunkName == "MARKT2")
       {
-        // more to come later
+        marketPlace = std::make_shared<MarketPlace>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "ROHWACHS2")
+      {
+        rawGrowth = std::make_shared<RawGrowth>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "STADT3" || chunkName == "STADT4")
       {
-        // more to come later
+        city = std::make_shared<City4>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "SHIP4")
       {
@@ -167,8 +167,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else
       {
-        // INSELHAUS is handeled by INSEL4 and INSEL5
-        // others are unknown chunks
+        // unknown chunk
       }
     }
   }
@@ -214,6 +213,18 @@ GamParser::GamParser(const std::string& gam, bool peek)
   if (settlers)
   {
     std::cout << "settlers: " << settlers->settlers.size() << std::endl;
+  }
+  if (marketPlace)
+  {
+    std::cout << "marketplace: " << marketPlace->marketPlace.size() << std::endl;
+  }
+  if (rawGrowth)
+  {
+    std::cout << "rawGrowth: " << rawGrowth->rawGrowth.size() << std::endl;
+  }
+  if (city)
+  {
+    std::cout << "city: " << city->city.size() << std::endl;
   }
   f.close();
 }
