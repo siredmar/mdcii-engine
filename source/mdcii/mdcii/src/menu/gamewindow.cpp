@@ -35,8 +35,6 @@
 #include "palette.hpp"
 #include "spielbildschirm.hpp"
 
-#include "gam/gam_parser.hpp"
-
 #include "menu/gamewindow.hpp"
 
 using namespace sdlgui;
@@ -51,9 +49,9 @@ GameWindow::GameWindow(
   , fullscreen(fullscreen)
   , haeuser(haeuser)
   , running(true)
+  , gam(std::make_shared<GamParser>(gam_name, false))
 {
   std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
-  GamParser gam(gam_name, false);
   {
     auto& button1 = wdg<Button>("Exit", [this] {
       std::cout << "Leaving game" << std::endl;
