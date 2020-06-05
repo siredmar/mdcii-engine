@@ -25,7 +25,8 @@ IslandHouse::IslandHouse(uint8_t* data, uint32_t length, const char* name)
   : name(name)
 {
   size_t islandHouseSize = sizeof(IslandHouseData);
-  for (unsigned int i = 0; i < length / islandHouseSize; i += islandHouseSize)
+  elements = length / islandHouseSize;
+  for (unsigned int i = 0; i < elements; i += islandHouseSize)
   {
     IslandHouseData h;
     memcpy((char*)&h, (data + i), islandHouseSize);

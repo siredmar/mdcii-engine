@@ -102,14 +102,14 @@ public:
   {
   }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
-  void setIslandHouse(std::shared_ptr<Chunk> c);
+  void addIslandHouse(std::shared_ptr<Chunk> c);
   void setDeer(std::shared_ptr<Chunk> c);
 
 private:
   std::string name;
   Island5Data island5;
-  IslandHouse islandHouse; // INSELHAUS
-  Deer deer;               // HIRSCH2
+  std::vector<IslandHouse> islandHouse; // INSELHAUS
+  Deer deer;                            // HIRSCH2
   // Settlers settlers;             // SIEDLER
   // RawGrow rawGrow2;              // ROHWACHS2
   // City4 city4;                   // STADT4

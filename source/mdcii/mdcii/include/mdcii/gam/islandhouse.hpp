@@ -46,6 +46,7 @@ public:
 private:
   std::string name;
   std::vector<IslandHouseData> islandHouse;
+  uint32_t elements;
 };
 
 #endif // _ISLANDHOUSE_HPP

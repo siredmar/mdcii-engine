@@ -27,9 +27,9 @@ Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
   memcpy((char*)&island5, data, length);
 }
 
-void Island5::setIslandHouse(std::shared_ptr<Chunk> c)
+void Island5::addIslandHouse(std::shared_ptr<Chunk> c)
 {
-  islandHouse = IslandHouse(c->chunk.data, c->chunk.length, "INELHAUS");
+  islandHouse.push_back(IslandHouse(c->chunk.data, c->chunk.length, "INELHAUS"));
 }
 
 void Island5::setDeer(std::shared_ptr<Chunk> c)

@@ -96,10 +96,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "INSELHAUS")
       {
-        if (chunks[chunkIndex]->chunk.length > 0)
-        {
-          islands5.back()->setIslandHouse(chunks[chunkIndex]);
-        }
+        islands5.back()->addIslandHouse(chunks[chunkIndex]);
       }
       else if (chunkName == "HIRSCH2")
       {
