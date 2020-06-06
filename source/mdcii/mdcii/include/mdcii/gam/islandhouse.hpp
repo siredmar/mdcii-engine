@@ -41,6 +41,11 @@ public:
   IslandHouse()
   {
   }
+  IslandHouse(const std::string& name)
+    : name(name)
+    , elements(0)
+  {
+  }
   explicit IslandHouse(uint8_t* data, uint32_t length, const char* name);
 
 private:

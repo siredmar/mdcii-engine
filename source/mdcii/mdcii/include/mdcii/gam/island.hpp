@@ -19,8 +19,11 @@
 #define _ISLAND_HPP
 
 #include <inttypes.h>
+#include <map>
 #include <string>
 #include <vector>
+
+#include "../files.hpp"
 
 #include "deer.hpp"
 #include "islandhouse.hpp"
@@ -57,10 +60,26 @@ enum class Fertility : uint32_t
   WineAndCocoa = 0x11E1
 };
 
-enum class IslandOriginal : uint8_t
+enum class IslandModified : uint8_t
 {
-  Modified = 0,
-  Original = 1
+  False = 0,
+  True = 1
+};
+
+enum class IslandSize : uint16_t
+{
+  Little = 0,
+  Middle = 1,
+  Median = 2,
+  Big = 3,
+  Large = 4
+};
+
+enum class IslandClimate : uint8_t
+{
+  North = 0,
+  South = 1,
+  Any = 2
 };
 
 struct Island5Data // Insel5
@@ -84,10 +103,10 @@ struct Island5Data // Insel5
   OreMountainData eisenberg[4];
   OreMountainData vulkanberg[4];
   Fertility fertility;
-  uint16_t filenr;
-  uint16_t sizenr;
-  uint8_t klimanr;
-  IslandOriginal orginalFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
+  uint16_t fileNumber;
+  IslandSize size;
+  IslandClimate climate;
+  IslandModified modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
   uint8_t duerrproz;
   uint8_t rotier;
   uint32_t seeplayerflags;
@@ -104,16 +123,30 @@ public:
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   void addIslandHouse(std::shared_ptr<Chunk> c);
   void setDeer(std::shared_ptr<Chunk> c);
+  void finalize();
+  std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
 
 private:
   std::string name;
+  Files* files;
+
   Island5Data island5;
-  std::vector<IslandHouse> islandHouse; // INSELHAUS
-  Deer deer;                            // HIRSCH2
-  // Settlers settlers;             // SIEDLER
-  // RawGrow rawGrow2;              // ROHWACHS2
-  // City4 city4;                   // STADT4
-  // std::shared_ptr<Market2>;                    // MARKT2
+  std::vector<IslandHouse> islandHouse;      // INSELHAUS
+  std::vector<IslandHouse> finalIslandHouse; // INSELHAUS
+  Deer deer;                                 // HIRSCH2
+
+  std::map<IslandSize, std::string> islandSizeMap = {
+      {IslandSize::Little, "lit"},
+      {IslandSize::Middle, "mit"},
+      {IslandSize::Median, "med"},
+      {IslandSize::Big, "big"},
+      {IslandSize::Large, "lar"},
+  };
+  std::map<IslandClimate, std::string> islandClimateMap = {
+      {IslandClimate::South, "sued"},
+      {IslandClimate::North, "nord"},
+      {IslandClimate::Any, "any"},
+  };
 };
 
 struct Island3Data // Insel3

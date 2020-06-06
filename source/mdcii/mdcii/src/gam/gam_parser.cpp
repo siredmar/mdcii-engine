@@ -33,19 +33,20 @@ GamParser::GamParser(const std::string& gam, bool peek)
   {
     throw("cannot find file");
   }
-  std::ifstream f;
-  f.open(path, std::ios_base::in | std::ios_base::binary);
-  while (!f.eof())
-  {
-    try
-    {
-      chunks.push_back(std::make_shared<Chunk>(f));
-    }
-    catch (const std::exception& e)
-    {
-      std::cerr << e.what() << '\n';
-    }
-  }
+  // std::ifstream f;
+  // f.open(path, std::ios_base::in | std::ios_base::binary);
+  // while (!f.eof())
+  // {
+  //   try
+  //   {
+  //     chunks.push_back(std::make_shared<Chunk>(f));
+  //   }
+  //   catch (const std::exception& e)
+  //   {
+  //     std::cerr << e.what() << '\n';
+  //   }
+  // }
+  chunks = Chunk::ReadChunks(path);
   for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
     auto chunkName = std::string(chunks[chunkIndex]->chunk.name);
@@ -168,6 +169,16 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
     }
   }
+  if (peek == false)
+  {
+    if (islands5.size())
+    {
+      for (auto i : islands5)
+      {
+        i->finalize();
+      }
+    }
+  }
 
   std::cout << "overall chunks num: " << chunks.size() << std::endl;
   if (peek == false)
@@ -223,7 +234,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
   {
     std::cout << "city: " << city->city.size() << std::endl;
   }
-  f.close();
 }
 
 int GamParser::getSceneRanking()
