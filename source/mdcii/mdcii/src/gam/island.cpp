@@ -31,7 +31,17 @@ Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
   , files(Files::instance())
 {
-  memcpy((char*)&island5, data, length);
+  memcpy((char*)&island, data, length);
+}
+
+void Island5::setIslandNumber(uint8_t number)
+{
+  island.islandNumber = number;
+}
+
+void Island5::setIslandFile(uint16_t fileNumber)
+{
+  island.fileNumber = fileNumber;
 }
 
 void Island5::addIslandHouse(std::shared_ptr<Chunk> c)
@@ -39,19 +49,33 @@ void Island5::addIslandHouse(std::shared_ptr<Chunk> c)
   islandHouse.push_back(IslandHouse(c->chunk.data, c->chunk.length, c->chunk.name.c_str()));
 }
 
+void Island5::addIslandHouse(IslandHouse i)
+{
+  islandHouse.push_back(i);
+}
+
 std::string Island5::islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate)
 {
-  return boost::str(boost::format("%s/%s%02d.scp") % Island5::islandClimateMap[climate] % Island5::islandSizeMap[size] % (int)islandNumber);
+  return boost::str(boost::format("%s/%s%02d.scp") % islandClimateMap[climate] % islandSizeMap[size] % (int)islandNumber);
+}
+
+IslandClimate Island5::randomIslandClimate()
+{
+  return static_cast<IslandClimate>(rand() % static_cast<int>(IslandClimate::Any));
 }
 
 void Island5::finalize()
 {
   // island is unmodified, load bottom islandHouse from island file
-  if (island5.modifiedFlag == IslandModified::False && islandHouse.size() <= 1)
+  if (island.modifiedFlag == IslandModified::False && islandHouse.size() <= 1)
   {
     // load the unmodified bottom layer from the island .scp file
-    auto islandFile = islandFileName(island5.size, island5.fileNumber, island5.climate);
+    auto islandFile = Island5::islandFileName(island.size, island.fileNumber, island.climate);
     auto path = files->find_path_for_file(islandFile);
+    if (path == "")
+    {
+      throw("cannot find file: " + path);
+    }
     std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
     if (chunks[1]->chunk.name == "INSELHAUS")
     {

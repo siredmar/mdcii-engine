@@ -84,7 +84,7 @@ enum class IslandClimate : uint8_t
 
 struct Island5Data // Insel5
 {
-  uint8_t inselnr;
+  uint8_t islandNumber;
   uint8_t felderx;
   uint8_t feldery;
   uint8_t strtduerrflg : 1;
@@ -114,6 +114,19 @@ struct Island5Data // Insel5
   uint32_t leer3;
 };
 
+static std::map<IslandSize, std::string> islandSizeMap = {
+    {IslandSize::Little, "lit"},
+    {IslandSize::Middle, "mit"},
+    {IslandSize::Median, "med"},
+    {IslandSize::Big, "big"},
+    {IslandSize::Large, "lar"},
+};
+static std::map<IslandClimate, std::string> islandClimateMap = {
+    {IslandClimate::South, "sued"},
+    {IslandClimate::North, "nord"},
+    {IslandClimate::Any, "any"},
+};
+
 class Island5
 {
 public:
@@ -121,32 +134,24 @@ public:
   {
   }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
+  void setIslandNumber(uint8_t number);
+  void setIslandFile(uint16_t fileNumber);
   void addIslandHouse(std::shared_ptr<Chunk> c);
+  void addIslandHouse(IslandHouse i);
   void setDeer(std::shared_ptr<Chunk> c);
   void finalize();
-  std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
+
+  static IslandClimate randomIslandClimate();
+  static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
 
 private:
   std::string name;
   Files* files;
 
-  Island5Data island5;
-  std::vector<IslandHouse> islandHouse;      // INSELHAUS
+  Island5Data island;
   std::vector<IslandHouse> finalIslandHouse; // INSELHAUS
   Deer deer;                                 // HIRSCH2
-
-  std::map<IslandSize, std::string> islandSizeMap = {
-      {IslandSize::Little, "lit"},
-      {IslandSize::Middle, "mit"},
-      {IslandSize::Median, "med"},
-      {IslandSize::Big, "big"},
-      {IslandSize::Large, "lar"},
-  };
-  std::map<IslandClimate, std::string> islandClimateMap = {
-      {IslandClimate::South, "sued"},
-      {IslandClimate::North, "nord"},
-      {IslandClimate::Any, "any"},
-  };
+  std::vector<IslandHouse> islandHouse;      // INSELHAUS
 };
 
 struct Island3Data // Insel3

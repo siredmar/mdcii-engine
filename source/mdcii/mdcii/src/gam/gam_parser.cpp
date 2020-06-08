@@ -22,30 +22,17 @@
 
 #include <iostream>
 
-#include "files.hpp"
 #include "gam/gam_parser.hpp"
 
 GamParser::GamParser(const std::string& gam, bool peek)
+  : files(Files::instance())
 {
-  auto files = Files::instance();
   auto path = files->find_path_for_file(gam);
   if (path == "")
   {
-    throw("cannot find file");
+    throw("cannot find file: " + gam);
   }
-  // std::ifstream f;
-  // f.open(path, std::ios_base::in | std::ios_base::binary);
-  // while (!f.eof())
-  // {
-  //   try
-  //   {
-  //     chunks.push_back(std::make_shared<Chunk>(f));
-  //   }
-  //   catch (const std::exception& e)
-  //   {
-  //     std::cerr << e.what() << '\n';
-  //   }
-  // }
+
   chunks = Chunk::ReadChunks(path);
   for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
@@ -169,8 +156,30 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
     }
   }
+
   if (peek == false)
   {
+    // generate random islands from scene
+    if (sceneSave)
+    {
+      for (int i = 0; i < sceneSave->sceneSave.islandsCount; i++)
+      {
+        RandomIsland island = sceneSave->sceneSave.islands[i];
+        std::shared_ptr<Island5> i5;
+        if (island.fileNumber != SceneSave::islandRandom)
+        {
+          i5 = std::make_shared<Island5>(sceneIslandbyFile(island.size, island.climate, island.fileNumber));
+        }
+        else
+        {
+          i5 = std::make_shared<Island5>(sceneRandomIsland(island.size, island.climate));
+        }
+        i5->setIslandNumber(island.islandNumber);
+        // Todo: make random raw growth rates, ores, ...
+        islands5.push_back(i5);
+      }
+    }
+
     if (islands5.size())
     {
       for (auto i : islands5)
@@ -234,6 +243,34 @@ GamParser::GamParser(const std::string& gam, bool peek)
   {
     std::cout << "city: " << city->city.size() << std::endl;
   }
+}
+
+Island5 GamParser::sceneRandomIsland(SizeType size)
+{
+  return sceneRandomIsland(size, ClimateType::Any);
+}
+
+Island5 GamParser::sceneRandomIsland(SizeType size, ClimateType climate)
+{
+  if (climate == ClimateType::Any)
+  {
+    climate = static_cast<ClimateType>(Island5::randomIslandClimate());
+  }
+  auto islands = files->grep_files(islandClimateMap[static_cast<IslandClimate>(climate)] + "/" + islandSizeMap[static_cast<IslandSize>(size)]);
+  int randomIndex = rand() % islands.size();
+  return sceneIslandbyFile(size, climate, randomIndex);
+}
+
+Island5 GamParser::sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber)
+{
+  auto islandFile = Island5::islandFileName(static_cast<IslandSize>(size), fileNumber, static_cast<IslandClimate>(climate));
+  auto path = files->find_path_for_file(islandFile);
+  std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
+  Island5 i(chunks[0]->chunk.data, chunks[0]->chunk.length, chunks[0]->chunk.name.c_str());
+  IslandHouse islandHouse(chunks[1]->chunk.data, chunks[1]->chunk.length, chunks[1]->chunk.name.c_str());
+  i.setIslandFile(fileNumber);
+  i.addIslandHouse(islandHouse);
+  return i;
 }
 
 int GamParser::getSceneRanking()

@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+#include "../files.hpp"
+
 #include "chunk.hpp"
 #include "city.hpp"
 #include "island.hpp"
@@ -40,7 +42,13 @@ public:
   explicit GamParser(const std::string& gam, bool peek);
   int getSceneRanking();
 
+  Island5 sceneRandomIsland(SizeType size);
+  Island5 sceneRandomIsland(SizeType size, ClimateType climate);
+  Island5 sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
+
+
 private:
+  Files* files;
   std::vector<std::shared_ptr<Chunk>> chunks;
   std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
   std::vector<std::shared_ptr<Island3>> islands3; // INSEL3

@@ -25,16 +25,16 @@ enum class ClimateType : uint8_t
 {
   North = 0,
   South = 1,
-  Random = 2
+  Any = 2
 };
 
 enum class SizeType : uint8_t
 {
-  Size0 = 0,
-  Size1 = 1,
-  Size2 = 2,
-  Size3 = 3,
-  Size4 = 4
+  Little = 0,
+  Middle = 1,
+  Median = 2,
+  Big = 3,
+  Large = 4
 };
 
 enum class NativeFlag : uint8_t
@@ -113,13 +113,13 @@ struct Position
 
 struct RandomIsland
 {
-  ClimateType climateType; // specifies the climate for "random" island generation
-  SizeType sizenr;         // specifies the size for "random" island generation
-  NativeFlag nativflg;     // unused?
-  uint8_t islandNumber;    // mixed incremented value with for random islands and the number field from ISLAND5 islands
-  uint16_t fileNr;         // 0xFF means this island shall be choosen randomly between all present island files with the given size
-  uint16_t empty;          // empty
-  Position pos;            // position in the world
+  ClimateType climate;  // specifies the climate for "random" island generation
+  SizeType size;        // specifies the size for "random" island generation
+  NativeFlag nativflg;  // unused?
+  uint8_t islandNumber; // mixed incremented value with for random islands and the number field from ISLAND5 islands
+  uint16_t fileNumber;  // 0xFF means this island shall be choosen randomly between all present island files with the given size
+  uint16_t empty;       // empty
+  Position pos;         // position in the world
 };
 
 struct SceneSaveData
@@ -145,6 +145,8 @@ class SceneSave
 public:
   explicit SceneSave(uint8_t* data, uint32_t length, const std::string& name);
   SceneSaveData sceneSave;
+
+  static const uint16_t islandRandom = 0xFFFF;
 
 private:
   std::string name;
