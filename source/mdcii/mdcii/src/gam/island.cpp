@@ -16,11 +16,13 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <cstring>
+#include <ctime>
 #include <fstream>
 #include <memory>
 #include <sstream>
 
 #include <boost/format.hpp>
+#include <boost/random.hpp>
 
 #include "gam/chunk.hpp"
 #include "gam/island.hpp"
@@ -61,7 +63,9 @@ std::string Island5::islandFileName(IslandSize size, uint8_t islandNumber, Islan
 
 IslandClimate Island5::randomIslandClimate()
 {
-  return static_cast<IslandClimate>(rand() % static_cast<int>(IslandClimate::Any));
+  std::time_t now = std::time(0);
+  boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
+  return static_cast<IslandClimate>(gen() % static_cast<uint32_t>(IslandClimate::Any));
 }
 
 void Island5::finalize()

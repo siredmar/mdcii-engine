@@ -177,7 +177,6 @@ void Cod_Parser::parse_file()
         result = regex_search(":\\s*(.*)", line);
         if (result.size() > 0)
         {
-
           std::vector<std::string> tokens = split_by_delimiter(result[1], ",");
           for (auto& e : tokens)
           {

@@ -41,7 +41,7 @@ public:
   IslandHouse()
   {
   }
-  IslandHouse(const std::string& name)
+  explicit IslandHouse(const std::string& name)
     : name(name)
     , elements(0)
   {

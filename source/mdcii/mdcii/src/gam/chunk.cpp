@@ -46,7 +46,7 @@ Chunk::Chunk(std::istream& f)
 {
   char n[CHUNK_NAME_SIZE];
   f.read(n, CHUNK_NAME_SIZE);
-  if (strlen(n) > 0)
+  if ((strnlen(n, CHUNK_NAME_SIZE) > 0) && (strnlen(n, CHUNK_NAME_SIZE) != CHUNK_NAME_SIZE))
   {
     chunk.name = std::string(n);
   }

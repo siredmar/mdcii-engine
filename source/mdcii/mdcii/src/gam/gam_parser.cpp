@@ -15,10 +15,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include <boost/random.hpp>
 
 #include <iostream>
 
@@ -257,7 +260,9 @@ Island5 GamParser::sceneRandomIsland(SizeType size, ClimateType climate)
     climate = static_cast<ClimateType>(Island5::randomIslandClimate());
   }
   auto islands = files->grep_files(islandClimateMap[static_cast<IslandClimate>(climate)] + "/" + islandSizeMap[static_cast<IslandSize>(size)]);
-  int randomIndex = rand() % islands.size();
+  std::time_t now = std::time(0);
+  boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
+  int randomIndex = gen() % islands.size();
   return sceneIslandbyFile(size, climate, randomIndex);
 }
 
