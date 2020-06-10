@@ -19,6 +19,8 @@
 #define _GAM_CHUNKS_HPP_
 
 #include <inttypes.h>
+#include <memory>
+#include <vector>
 
 struct ChunkData
 {
@@ -32,10 +34,8 @@ class Chunk
 public:
   explicit Chunk(std::istream& f);
   ~Chunk();
+  static std::vector<std::shared_ptr<Chunk>> ReadChunks(const std::string& path);
   ChunkData chunk;
-
-private:
-  const int chunkNameSize{16};
 };
 
 // /*========================================+

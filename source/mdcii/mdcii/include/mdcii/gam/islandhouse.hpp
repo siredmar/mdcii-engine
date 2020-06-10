@@ -15,29 +15,43 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _TEMPLATE_HPP
-#define _TEMPLATE_HPP
+#ifndef _ISLANDHOUSE_HPP
+#define _ISLANDHOUSE_HPP
 
 #include <inttypes.h>
 #include <string>
 #include <vector>
 
-struct TemplateData //
+struct IslandHouseData
 {
+  uint16_t id;                 // tile gaphic ID, see haeuser.cod for referene
+  uint8_t posx;                // position on island
+  uint8_t posy;                // position on island
+  uint32_t orientation : 2;    // orientation
+  uint32_t animationCount : 4; // animation step for tile
+  uint32_t islandNumber : 8;   // the island the field is part of
+  uint32_t cityNumber : 3;     // the city the field is part of
+  uint32_t randomNumber : 5;   // random number, what for?
+  uint32_t playerNumber : 4;   // the player that occupies this field
 };
 
-class Template
+class IslandHouse
 {
 public:
-  Template()
+  IslandHouse()
   {
   }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
+  explicit IslandHouse(const std::string& name)
+    : name(name)
+    , elements(0)
+  {
+  }
+  explicit IslandHouse(uint8_t* data, uint32_t length, const char* name);
 
 private:
   std::string name;
+  std::vector<IslandHouseData> islandHouse;
+  uint32_t elements;
 };
 
-#endif // _TEMPLATE_HPP
+#endif // _ISLANDHOUSE_HPP

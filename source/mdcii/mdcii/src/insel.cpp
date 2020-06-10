@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "insel.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
 #include "strukturen.hpp"
 #include <boost/format.hpp>
 #include <fstream>

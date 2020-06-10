@@ -36,6 +36,7 @@ public:
   std::string find_path_for_file(const std::string& file);
   std::vector<std::string> get_directory_tree(const std::string& path);
   std::vector<std::string> get_directories_files(const std::string& directory);
+  std::vector<std::string> grep_files(const std::string& search);
   std::string string_to_lower_case(const std::string& str);
   static std::string get_file_name(const std::string& file_path, bool with_extension = true);
 

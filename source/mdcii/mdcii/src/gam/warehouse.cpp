@@ -15,41 +15,25 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
-
+#include <cstring>
+#include <ios>
 #include <iostream>
 #include <memory>
+#include <variant>
 
-#include <SDL2/SDL.h>
-
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "cod/basegad_dat.hpp"
-#include "cod/cod_parser.hpp"
-#include "files.hpp"
+#include "gam/warehouse.hpp"
 
 
-using namespace sdlgui;
-
-class MainMenu : public Screen
+Warehouse2::Warehouse2(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Haeuser>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
-  void Handle();
-
-private:
-  SDL_Renderer* renderer;
-  std::shared_ptr<Haeuser> haeuser;
-  std::shared_ptr<Basegad> basegad;
-  int width;
-  int height;
-  bool fullscreen;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
-  Files* files;
-  bool quit;
-};
-#endif
+  int numWarehouses = length / sizeof(Warehouse2Data);
+  for (int i = 0; i < numWarehouses; i++)
+  {
+    Warehouse2Data w;
+    int warehouseLength = length / numWarehouses;
+    memset((char*)&w, 0, warehouseLength);
+    memcpy((char*)&w, data + (i * warehouseLength), warehouseLength);
+    warehouses.push_back(w);
+  }
+}

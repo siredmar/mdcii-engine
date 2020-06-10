@@ -23,5 +23,13 @@
 Template::Template(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
 {
-  memcpy((char*)&template, data, length);
+  int num = length / sizeof(TemplateData);
+  for (int i = 0; i < num; i++)
+  {
+    TemplateData entity;
+    int l = length / num;
+    memset((char*)&entity, 0, l);
+    memcpy((char*)&entity, data + (i * l), l);
+    template.push_back(entity);
+  }
 }

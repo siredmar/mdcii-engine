@@ -29,7 +29,7 @@
 
 #include <google/protobuf/util/json_util.h>
 
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
 
 Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode, bool debug)
   : path(cod_file_path)
@@ -177,7 +177,6 @@ void Cod_Parser::parse_file()
         result = regex_search(":\\s*(.*)", line);
         if (result.size() > 0)
         {
-
           std::vector<std::string> tokens = split_by_delimiter(result[1], ",");
           for (auto& e : tokens)
           {

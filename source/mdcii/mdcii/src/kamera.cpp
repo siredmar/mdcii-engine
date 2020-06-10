@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "kamera.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
 #include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};
@@ -529,18 +529,25 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
   }
 
   bs.setze_schriftfarbe(245, 0);
-  bs.zeichne_string(*zei, "aktuelle Position:", 10, 10);
+  bs.zeichne_string(*zei, "current position:", 10, 10);
   bs.zeichne_string(*zei, "(" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")", 10, 30);
   if (feld_unter_maus)
   {
     inselfeld_t inselfeld;
     welt.feld_an_pos(inselfeld, feld_unter_maus_x, feld_unter_maus_y);
-    bs.zeichne_string(*zei, "Bebauung unter Mauszeiger:", 10, 60);
+    bs.zeichne_string(*zei, "gfx tile under mouse cursor:", 10, 60);
     bs.zeichne_string(*zei, std::to_string(inselfeld.bebauung), 10, 80);
-    bs.zeichne_string(*zei, "Position und Insel unter Mauszeiger:", 10, 110);
+    bs.zeichne_string(*zei, "position and island under mouse cursor:", 10, 110);
     bs.zeichne_string(*zei,
-        "(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Insel "
+        "(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Island "
             + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
         10, 130);
+    int i = welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y);
+    if (i != -1)
+    {
+      bs.zeichne_string(*zei, "Position on island:", 10, 160);
+      bs.zeichne_string(*zei,
+          "(" + std::to_string(feld_unter_maus_x - welt.inseln[i]->xpos) + ", " + std::to_string(feld_unter_maus_y - welt.inseln[i]->ypos) + ")", 10, 180);
+    }
   }
 }

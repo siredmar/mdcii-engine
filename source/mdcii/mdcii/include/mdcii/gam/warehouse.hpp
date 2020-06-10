@@ -15,14 +15,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _KONTOR_HPP_
-#define _KONTOR_HPP_
+#ifndef _WAREHOUSE_HPP_
+#define _WAREHOUSE_HPP_
 
 #include <inttypes.h>
 #include <string>
 #include <vector>
 
-struct KontorWare
+struct KontorGood
 {
   uint32_t vkpreis : 10;
   uint32_t ekpreis : 10;
@@ -36,25 +36,28 @@ struct KontorWare
   uint32_t hausid : 16;
 };
 
-#define MAXKONTWARESAVE 50
-struct Kontor2Data
+#define MAX_WAREHOUSE_SAVE 50
+struct Warehouse2Data
 {
-  uint32_t inselnr : 8;
-  uint32_t posx : 8;
-  uint32_t posy : 8;
-  uint32_t stadtnr : 4;
-  KontorWare waren[MAXKONTWARESAVE]; //  ACHTUNG falls WARE_MAX > 50
+  uint32_t islandNumber : 8;            // island number + 1
+  uint32_t posx : 8;                    // position of warehouse on island
+  uint32_t posy : 8;                    // position of warehouse on island
+  uint32_t cityNumber : 4;              // number of city on this island
+  KontorGood goods[MAX_WAREHOUSE_SAVE]; //  Danger if MAX_WAREHOUSE_SAVE > 50
 };
 
-class Kontor2
+class Warehouse2
 {
 public:
-  explicit Kontor2(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<Kontor2Data> kontors;
+  Warehouse2()
+  {
+  }
+  explicit Warehouse2(uint8_t* data, uint32_t length, const std::string& name);
+  std::vector<Warehouse2Data> warehouses;
 
 private:
   std::string name;
 };
 
 
-#endif // _KONTOR_HPP_
+#endif // _WAREHOUSE_HPP_

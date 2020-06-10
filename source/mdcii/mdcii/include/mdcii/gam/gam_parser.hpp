@@ -21,11 +21,20 @@
 #include <memory>
 #include <string>
 
+#include "../files.hpp"
+
 #include "chunk.hpp"
+#include "city.hpp"
 #include "island.hpp"
-#include "kontor.hpp"
+#include "marketplace.hpp"
+#include "military.hpp"
 #include "missions.hpp"
+#include "productionlist.hpp"
+#include "rawgrowth.hpp"
 #include "scene.hpp"
+#include "settlers.hpp"
+#include "shipyard.hpp"
+#include "warehouse.hpp"
 
 class GamParser
 {
@@ -33,15 +42,28 @@ public:
   explicit GamParser(const std::string& gam, bool peek);
   int getSceneRanking();
 
+  Island5 sceneRandomIsland(SizeType size);
+  Island5 sceneRandomIsland(SizeType size, ClimateType climate);
+  Island5 sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
+
+
 private:
+  Files* files;
   std::vector<std::shared_ptr<Chunk>> chunks;
-  std::vector<std::shared_ptr<Island5>> islands5;
-  std::vector<std::shared_ptr<Island3>> islands3;
-  std::shared_ptr<Mission2> mission2;
-  std::shared_ptr<Mission4> mission4;
-  std::shared_ptr<Kontor2> kontor2;
-  std::shared_ptr<SceneRanking> sceneRanking;
-  std::shared_ptr<SceneSave> sceneSave;
+  std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
+  std::vector<std::shared_ptr<Island3>> islands3; // INSEL3
+  std::shared_ptr<Mission2> mission2;             // AUFTRAG2
+  std::shared_ptr<Mission4> mission4;             // AUFTRAG4
+  std::shared_ptr<SceneRanking> sceneRanking;     // SZENE_RANKING
+  std::shared_ptr<SceneSave> sceneSave;           // SZENE2
+  std::shared_ptr<Shipyard> shipyard;             // WERFT
+  std::shared_ptr<Military> military;             // MILITAR
+  std::shared_ptr<ProductionList> productionList; // PRODLIST2
+  std::shared_ptr<Warehouse2> warehouse;          // KONTOR2
+  std::shared_ptr<Settlers> settlers;             // SIEDLER
+  std::shared_ptr<MarketPlace> marketPlace;       // MARKT
+  std::shared_ptr<RawGrowth> rawGrowth;           // ROHWACHS2
+  std::shared_ptr<City4> city;                    // STADT4
 };
 
 #endif // _GAM_PARSER_HPP

@@ -15,54 +15,47 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include "files.hpp"
+#include <boost/random.hpp>
+
+#include <iostream>
+
 #include "gam/gam_parser.hpp"
 
 GamParser::GamParser(const std::string& gam, bool peek)
+  : files(Files::instance())
 {
-  auto files = Files::instance();
   auto path = files->find_path_for_file(gam);
   if (path == "")
   {
-    throw("cannot find file");
+    throw("cannot find file: " + gam);
   }
-  std::ifstream f;
-  f.open(path, std::ios_base::in | std::ios_base::binary);
-  while (!f.eof())
+
+  chunks = Chunk::ReadChunks(path);
+  for (unsigned int chunkIndex = 0; chunkIndex < chunks.size(); chunkIndex++)
   {
-    try
-    {
-      chunks.push_back(std::make_shared<Chunk>(f));
-    }
-    catch (const std::exception& e)
-    {
-      std::cerr << e.what() << '\n';
-    }
-  }
-  for (auto& c : chunks)
-  {
-    auto chunkName = std::string(c->chunk.name);
+    auto chunkName = std::string(chunks[chunkIndex]->chunk.name);
 
     if (chunkName == "AUFTRAG" || chunkName == "AUFTRAG2")
     {
-      mission2 = std::make_shared<Mission2>(c->chunk.data, c->chunk.length, chunkName);
+      mission2 = std::make_shared<Mission2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "AUFTRAG4")
     {
-      mission4 = std::make_shared<Mission4>(c->chunk.data, c->chunk.length, chunkName);
+      mission4 = std::make_shared<Mission4>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE")
     {
-      sceneSave = std::make_shared<SceneSave>(c->chunk.data, c->chunk.length, chunkName);
+      sceneSave = std::make_shared<SceneSave>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "SZENE_RANKING")
     {
-      sceneRanking = std::make_shared<SceneRanking>(c->chunk.data, c->chunk.length, chunkName);
+      sceneRanking = std::make_shared<SceneRanking>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
     }
     else if (chunkName == "RANDTAB")
     {
@@ -84,53 +77,53 @@ GamParser::GamParser(const std::string& gam, bool peek)
     {
       if (chunkName == "INSEL3")
       {
-        auto i = std::make_shared<Island3>(c->chunk.data, c->chunk.length, chunkName);
+        auto i = std::make_shared<Island3>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         islands3.push_back(i);
       }
       else if (chunkName == "INSEL4" || chunkName == "INSEL5")
       {
-        auto i = std::make_shared<Island5>(c->chunk.data, c->chunk.length, chunkName);
+        auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         islands5.push_back(i);
       }
       else if (chunkName == "INSELHAUS")
       {
-        // more to come later
-      }
-      else if (chunkName == "PRODLIST2")
-      {
-        // more to come later
-      }
-      else if (chunkName == "ROHWACHS2")
-      {
-        // more to come later
-      }
-      else if (chunkName == "SIEDLER")
-      {
-        // more to come later
-      }
-      else if (chunkName == "WERFT")
-      {
-        // more to come later
-      }
-      else if (chunkName == "MILITAR")
-      {
-        // more to come later
-      }
-      else if (chunkName == "KONTOR2")
-      {
-        kontor2 = std::make_shared<Kontor2>(c->chunk.data, c->chunk.length, chunkName);
-      }
-      else if (chunkName == "MARKT2")
-      {
-        // more to come later
-      }
-      else if (chunkName == "STADT3" || chunkName == "STADT4")
-      {
-        // more to come later
+        islands5.back()->addIslandHouse(chunks[chunkIndex]);
       }
       else if (chunkName == "HIRSCH2")
       {
-        // more to come later
+        islands5.back()->setDeer(chunks[chunkIndex]);
+      }
+      else if (chunkName == "KONTOR2")
+      {
+        warehouse = std::make_shared<Warehouse2>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "PRODLIST2")
+      {
+        productionList = std::make_shared<ProductionList>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "WERFT")
+      {
+        shipyard = std::make_shared<Shipyard>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "MILITAR")
+      {
+        military = std::make_shared<Military>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "SIEDLER")
+      {
+        settlers = std::make_shared<Settlers>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "MARKT2")
+      {
+        marketPlace = std::make_shared<MarketPlace>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "ROHWACHS2")
+      {
+        rawGrowth = std::make_shared<RawGrowth>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+      }
+      else if (chunkName == "STADT3" || chunkName == "STADT4")
+      {
+        city = std::make_shared<City4>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
       }
       else if (chunkName == "SHIP4")
       {
@@ -167,6 +160,38 @@ GamParser::GamParser(const std::string& gam, bool peek)
     }
   }
 
+  if (peek == false)
+  {
+    // generate random islands from scene
+    if (sceneSave)
+    {
+      for (int i = 0; i < sceneSave->sceneSave.islandsCount; i++)
+      {
+        RandomIsland island = sceneSave->sceneSave.islands[i];
+        std::shared_ptr<Island5> i5;
+        if (island.fileNumber != SceneSave::islandRandom)
+        {
+          i5 = std::make_shared<Island5>(sceneIslandbyFile(island.size, island.climate, island.fileNumber));
+        }
+        else
+        {
+          i5 = std::make_shared<Island5>(sceneRandomIsland(island.size, island.climate));
+        }
+        i5->setIslandNumber(island.islandNumber);
+        // Todo: make random raw growth rates, ores, ...
+        islands5.push_back(i5);
+      }
+    }
+
+    if (islands5.size())
+    {
+      for (auto i : islands5)
+      {
+        i->finalize();
+      }
+    }
+  }
+
   std::cout << "overall chunks num: " << chunks.size() << std::endl;
   if (peek == false)
   {
@@ -189,7 +214,68 @@ GamParser::GamParser(const std::string& gam, bool peek)
   {
     std::cout << "scene number of islands: " << sceneSave->sceneSave.islandsCount << std::endl;
   }
-  f.close();
+  if (productionList)
+  {
+    std::cout << "prodlist size: " << productionList->productionList.size() << std::endl;
+  }
+  if (shipyard)
+  {
+    std::cout << "shipyards: " << shipyard->shipyard.size() << std::endl;
+  }
+  if (military)
+  {
+    std::cout << "military buildings: " << military->military.size() << std::endl;
+  }
+  if (warehouse)
+  {
+    std::cout << "warehouses: " << warehouse->warehouses.size() << std::endl;
+  }
+  if (settlers)
+  {
+    std::cout << "settlers: " << settlers->settlers.size() << std::endl;
+  }
+  if (marketPlace)
+  {
+    std::cout << "marketplace: " << marketPlace->marketPlace.size() << std::endl;
+  }
+  if (rawGrowth)
+  {
+    std::cout << "rawGrowth: " << rawGrowth->rawGrowth.size() << std::endl;
+  }
+  if (city)
+  {
+    std::cout << "city: " << city->city.size() << std::endl;
+  }
+}
+
+Island5 GamParser::sceneRandomIsland(SizeType size)
+{
+  return sceneRandomIsland(size, ClimateType::Any);
+}
+
+Island5 GamParser::sceneRandomIsland(SizeType size, ClimateType climate)
+{
+  if (climate == ClimateType::Any)
+  {
+    climate = static_cast<ClimateType>(Island5::randomIslandClimate());
+  }
+  auto islands = files->grep_files(islandClimateMap[static_cast<IslandClimate>(climate)] + "/" + islandSizeMap[static_cast<IslandSize>(size)]);
+  std::time_t now = std::time(0);
+  boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
+  int randomIndex = gen() % islands.size();
+  return sceneIslandbyFile(size, climate, randomIndex);
+}
+
+Island5 GamParser::sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber)
+{
+  auto islandFile = Island5::islandFileName(static_cast<IslandSize>(size), fileNumber, static_cast<IslandClimate>(climate));
+  auto path = files->find_path_for_file(islandFile);
+  std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
+  Island5 i(chunks[0]->chunk.data, chunks[0]->chunk.length, chunks[0]->chunk.name.c_str());
+  IslandHouse islandHouse(chunks[1]->chunk.data, chunks[1]->chunk.length, chunks[1]->chunk.name.c_str());
+  i.setIslandFile(fileNumber);
+  i.addIslandHouse(islandHouse);
+  return i;
 }
 
 int GamParser::getSceneRanking()

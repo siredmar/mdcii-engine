@@ -21,7 +21,7 @@
 
 #include "animation.hpp"
 #include "block.hpp"
-#include "haeuser.hpp"
+#include "cod/haeuser.hpp"
 #include "insel.hpp"
 #include "strukturen.hpp"
 #include <fstream>

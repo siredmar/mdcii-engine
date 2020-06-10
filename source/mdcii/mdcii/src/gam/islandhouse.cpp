@@ -16,24 +16,20 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <cstring>
-#include <ios>
-#include <iostream>
 #include <memory>
-#include <variant>
 
-#include "gam/kontor.hpp"
+#include "gam/chunk.hpp"
+#include "gam/island.hpp"
 
-
-Kontor2::Kontor2(uint8_t* data, uint32_t length, const std::string& name)
+IslandHouse::IslandHouse(uint8_t* data, uint32_t length, const char* name)
   : name(name)
 {
-  Kontor2Data m;
-  int numKontors = length / sizeof(Kontor2Data);
-  for (int i = 0; i < numKontors; i++)
+  size_t islandHouseSize = sizeof(IslandHouseData);
+  elements = length / islandHouseSize;
+  for (unsigned int i = 0; i < length; i += islandHouseSize)
   {
-    int kontorLength = length / numKontors;
-    memset((char*)&m, 0, kontorLength);
-    memcpy((char*)&m, data + (i * kontorLength), kontorLength);
-    kontors.push_back(m);
+    IslandHouseData h;
+    memcpy((char*)&h, (data + i), islandHouseSize);
+    islandHouse.push_back(h);
   }
 }

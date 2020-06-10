@@ -26,8 +26,9 @@
 #include "sdlgui/button.h"
 #include "sdlgui/widget.h"
 
+#include "cod/cod_parser.hpp"
+
 #include "bildspeicher_pal8.hpp"
-#include "cod_parser.hpp"
 #include "files.hpp"
 #include "fps.hpp"
 #include "kamera.hpp"
@@ -48,6 +49,7 @@ GameWindow::GameWindow(
   , fullscreen(fullscreen)
   , haeuser(haeuser)
   , running(true)
+  , gam(std::make_shared<GamParser>(gam_name, false))
 {
   std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
   {

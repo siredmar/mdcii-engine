@@ -15,41 +15,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
+#include <cstring>
 
-#include <iostream>
-#include <memory>
-
-#include <SDL2/SDL.h>
-
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "cod/basegad_dat.hpp"
-#include "cod/cod_parser.hpp"
-#include "files.hpp"
+#include "gam/deer.hpp"
 
 
-using namespace sdlgui;
-
-class MainMenu : public Screen
+Deer::Deer(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Haeuser>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
-  void Handle();
-
-private:
-  SDL_Renderer* renderer;
-  std::shared_ptr<Haeuser> haeuser;
-  std::shared_ptr<Basegad> basegad;
-  int width;
-  int height;
-  bool fullscreen;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
-  Files* files;
-  bool quit;
-};
-#endif
+  int num = length / sizeof(DeerData);
+  for (int i = 0; i < num; i++)
+  {
+    DeerData entity;
+    int l = length / num;
+    memset((char*)&entity, 0, l);
+    memcpy((char*)&entity, data + (i * l), l);
+    deers.push_back(entity);
+  }
+}

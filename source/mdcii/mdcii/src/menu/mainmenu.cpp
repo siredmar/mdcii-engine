@@ -28,10 +28,10 @@
 #include "sdlgui/window.h"
 
 #include "bsh_texture.hpp"
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
 #include "fps.hpp"
-#include "haeuser.hpp"
 #include "palette.hpp"
 
 #include "menu/mainmenu.hpp"

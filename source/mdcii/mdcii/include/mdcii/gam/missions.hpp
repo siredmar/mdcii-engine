@@ -53,7 +53,7 @@ enum class BGruppWohn : int32_t
 struct CityMin
 {
   int32_t wohnanz;
-  BGruppWohn bgruppnr;
+  BGruppWohn citizenGroup;
   uint32_t bgruppwohn;
 };
 

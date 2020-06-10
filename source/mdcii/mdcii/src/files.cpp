@@ -87,6 +87,7 @@ std::string Files::find_path_for_file(const std::string& file)
       return t;
     }
   }
+  std::cout << "[ERR] cannot find file: " << file << std::endl;
   return "";
 }
 
@@ -132,6 +133,22 @@ std::vector<std::string> Files::get_directories_files(const std::string& directo
     }
   }
   return files;
+}
+
+std::vector<std::string> Files::grep_files(const std::string& search)
+{
+  std::vector<std::string> list;
+  std::string lcaseSearch = string_to_lower_case(search);
+  // Search for the file as substring in the lowercased directory tree
+  for (auto t : tree)
+  {
+    std::string tree_file = string_to_lower_case(t);
+    if (tree_file.find(lcaseSearch) != std::string::npos)
+    {
+      list.push_back(t);
+    }
+  }
+  return list;
 }
 
 std::string Files::get_file_name(const std::string& file_path, bool with_extension)

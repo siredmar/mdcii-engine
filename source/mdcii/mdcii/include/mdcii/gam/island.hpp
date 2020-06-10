@@ -19,7 +19,17 @@
 #define _ISLAND_HPP
 
 #include <inttypes.h>
+#include <map>
 #include <string>
+#include <vector>
+
+#include "../files.hpp"
+
+#include "deer.hpp"
+#include "islandhouse.hpp"
+#include "military.hpp"
+#include "shipyard.hpp"
+#include "warehouse.hpp"
 
 struct OreMountainData // Erzberg
 {
@@ -50,9 +60,31 @@ enum class Fertility : uint32_t
   WineAndCocoa = 0x11E1
 };
 
+enum class IslandModified : uint8_t
+{
+  False = 0,
+  True = 1
+};
+
+enum class IslandSize : uint16_t
+{
+  Little = 0,
+  Middle = 1,
+  Median = 2,
+  Big = 3,
+  Large = 4
+};
+
+enum class IslandClimate : uint8_t
+{
+  North = 0,
+  South = 1,
+  Any = 2
+};
+
 struct Island5Data // Insel5
 {
-  uint8_t inselnr;
+  uint8_t islandNumber;
   uint8_t felderx;
   uint8_t feldery;
   uint8_t strtduerrflg : 1;
@@ -71,10 +103,10 @@ struct Island5Data // Insel5
   OreMountainData eisenberg[4];
   OreMountainData vulkanberg[4];
   Fertility fertility;
-  uint16_t filenr;
-  uint16_t sizenr;
-  uint8_t klimanr;
-  uint8_t orginalflg;
+  uint16_t fileNumber;
+  IslandSize size;
+  IslandClimate climate;
+  IslandModified modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
   uint8_t duerrproz;
   uint8_t rotier;
   uint32_t seeplayerflags;
@@ -82,14 +114,44 @@ struct Island5Data // Insel5
   uint32_t leer3;
 };
 
+static std::map<IslandSize, std::string> islandSizeMap = {
+    {IslandSize::Little, "lit"},
+    {IslandSize::Middle, "mit"},
+    {IslandSize::Median, "med"},
+    {IslandSize::Big, "big"},
+    {IslandSize::Large, "lar"},
+};
+static std::map<IslandClimate, std::string> islandClimateMap = {
+    {IslandClimate::South, "sued"},
+    {IslandClimate::North, "nord"},
+    {IslandClimate::Any, "any"},
+};
+
 class Island5
 {
 public:
+  Island5()
+  {
+  }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
-  Island5Data island5;
+  void setIslandNumber(uint8_t number);
+  void setIslandFile(uint16_t fileNumber);
+  void addIslandHouse(std::shared_ptr<Chunk> c);
+  void addIslandHouse(IslandHouse i);
+  void setDeer(std::shared_ptr<Chunk> c);
+  void finalize();
+
+  static IslandClimate randomIslandClimate();
+  static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
 
 private:
   std::string name;
+  Files* files;
+
+  Island5Data island;
+  std::vector<IslandHouse> finalIslandHouse; // INSELHAUS
+  Deer deer;                                 // HIRSCH2
+  std::vector<IslandHouse> islandHouse;      // INSELHAUS
 };
 
 struct Island3Data // Insel3

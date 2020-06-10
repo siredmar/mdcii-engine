@@ -15,29 +15,42 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _TEMPLATE_HPP
-#define _TEMPLATE_HPP
+#ifndef _MARKETPLACE_HPP
+#define _MARKETPLACE_HPP
 
 #include <inttypes.h>
 #include <string>
 #include <vector>
 
-struct TemplateData //
+
+struct MarketPlaceGoods
 {
+  uint32_t goodConsumption; //  Letzter Verbrauch
+  uint32_t goodCoverRatio;  //  Deckungssatz der Bedürfnisse
+  uint32_t empty0;          //  empty
+  uint16_t houseId;         //  Hausnummer für Warentyp !!
+  uint8_t goodSupplyLevel;  //  Versorgungsgrad mit dieser Ware
+  uint8_t empty1;           //  empty
 };
 
-class Template
+struct MarketPlaceData // MARKT
+{
+  uint8_t islandNumber : 8;
+  uint8_t cityNumber : 4;     // Auf welcher Insel und Stadt??
+  MarketPlaceGoods goods[16]; // ACHTUNG: Falls MARKT_WAREMAX > 16
+};
+
+class MarketPlace
 {
 public:
-  Template()
+  MarketPlace()
   {
   }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
+  explicit MarketPlace(uint8_t* data, uint32_t length, const std::string& name);
+  std::vector<MarketPlaceData> marketPlace;
 
 private:
   std::string name;
 };
 
-#endif // _TEMPLATE_HPP
+#endif // _MARKETPLACE_HPP

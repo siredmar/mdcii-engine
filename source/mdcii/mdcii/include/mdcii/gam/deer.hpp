@@ -15,41 +15,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
+#ifndef _DEER_HPP
+#define _DEER_HPP
 
-#include <iostream>
-#include <memory>
+#include <inttypes.h>
+#include <string>
+#include <vector>
 
-#include <SDL2/SDL.h>
+struct DeerData // Hirsch2
+{
+  uint32_t inselnr : 8;
+  uint32_t posx : 8;
+  uint32_t posy : 8;
+  uint32_t timecnt;
+};
 
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "cod/basegad_dat.hpp"
-#include "cod/cod_parser.hpp"
-#include "files.hpp"
-
-
-using namespace sdlgui;
-
-class MainMenu : public Screen
+class Deer
 {
 public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Haeuser>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
-  void Handle();
+  Deer()
+  {
+  }
+  explicit Deer(uint8_t* data, uint32_t length, const std::string& name);
+  std::vector<DeerData> deers;
 
 private:
-  SDL_Renderer* renderer;
-  std::shared_ptr<Haeuser> haeuser;
-  std::shared_ptr<Basegad> basegad;
-  int width;
-  int height;
-  bool fullscreen;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
-  Files* files;
-  bool quit;
+  std::string name;
 };
-#endif
+
+#endif // _DEER_HPP

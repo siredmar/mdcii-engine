@@ -27,9 +27,10 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
-#include "cod_parser.hpp"
+#include "cod/cod_parser.hpp"
+#include "cod/haeuser.hpp"
 #include "files.hpp"
-#include "haeuser.hpp"
+#include "gam/gam_parser.hpp"
 
 using namespace sdlgui;
 
@@ -48,5 +49,6 @@ private:
   bool fullscreen;
   std::shared_ptr<Haeuser> haeuser;
   bool running;
+  std::shared_ptr<GamParser> gam;
 };
 #endif
