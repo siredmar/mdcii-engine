@@ -45,6 +45,14 @@ public:
   Island5 sceneRandomIsland(SizeType size);
   Island5 sceneRandomIsland(SizeType size, ClimateType climate);
   Island5 sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
+  uint8_t islands5Size()
+  {
+    return islands5.size();
+  }
+  std::shared_ptr<Island5> getIsland5(int index)
+  {
+    return islands5[index];
+  }
 
 
 private:

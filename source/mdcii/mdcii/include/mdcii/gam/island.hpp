@@ -85,8 +85,8 @@ enum class IslandClimate : uint8_t
 struct Island5Data // Insel5
 {
   uint8_t islandNumber;
-  uint8_t felderx;
-  uint8_t feldery;
+  uint8_t width;
+  uint8_t height;
   uint8_t strtduerrflg : 1;
   uint8_t nofixflg : 1;
   uint8_t vulkanflg : 1;
@@ -139,6 +139,10 @@ public:
   void addIslandHouse(std::shared_ptr<Chunk> c);
   void addIslandHouse(IslandHouse i);
   void setDeer(std::shared_ptr<Chunk> c);
+  Island5Data getIslandData()
+  {
+    return island;
+  }
   void finalize();
 
   static IslandClimate randomIslandClimate();
