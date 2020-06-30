@@ -78,6 +78,9 @@ set(headers
     ${include_path}/gam/city.hpp
     ${include_path}/gam/deer.hpp
     ${include_path}/gam/island.hpp
+    ${include_path}/gam/island3.hpp
+    ${include_path}/gam/island4.hpp
+    ${include_path}/gam/island5.hpp
     ${include_path}/gam/islandhouse.hpp
     ${include_path}/gam/marketplace.hpp
     ${include_path}/gam/military.hpp
@@ -122,7 +125,9 @@ set(sources
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/city.cpp
     ${source_path}/gam/deer.cpp
-    ${source_path}/gam/island.cpp
+    ${source_path}/gam/island3.cpp
+    ${source_path}/gam/island4.cpp
+    ${source_path}/gam/island5.cpp
     ${source_path}/gam/islandhouse.cpp
     ${source_path}/gam/marketplace.cpp
     ${source_path}/gam/military.cpp
