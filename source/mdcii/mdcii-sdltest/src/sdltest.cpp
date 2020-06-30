@@ -50,6 +50,23 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
-  Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["path"].as<std::string>());
+  try
+  {
+    Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["path"].as<std::string>());
+  }
+  catch (const std::exception& ex)
+  {
+    std::cout << ex.what() << std::endl;
+    exit(1);
+  }
+  catch (const std::string& ex)
+  {
+    std::cout << ex << std::endl;
+  }
+  catch (...)
+  {
+    std::cout << "unknown exception" << std::endl;
+  }
+
   return 0;
 }

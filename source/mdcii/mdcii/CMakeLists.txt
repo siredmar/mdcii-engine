@@ -66,6 +66,7 @@ set(headers
     ${include_path}/welt.hpp
     ${include_path}/zei_leser.hpp
     ${include_path}/zei_texture.hpp
+    ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
     ${include_path}/menu/gamewindow.hpp
@@ -110,6 +111,7 @@ set(sources
     ${source_path}/version.cpp
     ${source_path}/welt.cpp
     ${source_path}/zei_texture.cpp
+    ${source_path}/renderer/renderer.cpp
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp
     ${source_path}/menu/gamewindow.cpp

@@ -25,11 +25,41 @@
 
 #include "../files.hpp"
 
+#include "../cod/haeuser.hpp"
+
+#include "chunk.hpp"
 #include "deer.hpp"
 #include "islandhouse.hpp"
 #include "military.hpp"
 #include "shipyard.hpp"
 #include "warehouse.hpp"
+
+// ISLAND3 Data
+
+struct Island3Data // Insel3
+{
+  uint8_t inselnr;    // ID for this island (per game)
+  uint8_t breite;     // width
+  uint8_t hoehe;      // height
+  uint8_t a;          // TODO: unknown
+  uint16_t x_pos;     // position of island x
+  uint16_t y_pos;     // position of island y
+  uint16_t b;         // TODO: unknown
+  uint16_t c;         // TODO: unknown
+  uint8_t bytes1[28]; // TODO: unknown
+};
+
+class Island3
+{
+public:
+  explicit Island3(uint8_t* data, uint32_t length, const std::string& name);
+  Island3Data island3;
+
+private:
+  std::string name;
+};
+
+// ISLAND5 Data
 
 struct OreMountainData // Erzberg
 {
@@ -127,6 +157,12 @@ static std::map<IslandClimate, std::string> islandClimateMap = {
     {IslandClimate::Any, "any"},
 };
 
+struct TileGraphic
+{
+  int16_t index;
+  uint8_t groundHeight;
+};
+
 class Island5
 {
 public:
@@ -134,52 +170,39 @@ public:
   {
   }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
+  explicit Island5(const Island3& island3);
   void setIslandNumber(uint8_t number);
   void setIslandFile(uint16_t fileNumber);
   void addIslandHouse(std::shared_ptr<Chunk> c);
-  void addIslandHouse(IslandHouse i);
+  void addIslandHouse(std::shared_ptr<IslandHouse> i);
   void setDeer(std::shared_ptr<Chunk> c);
   Island5Data getIslandData()
   {
     return island;
   }
+
+  std::vector<std::shared_ptr<IslandHouse>> getIslandHouseData()
+  {
+    return finalIslandHouse;
+  }
+
   void finalize();
 
   static IslandClimate randomIslandClimate();
   static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
+  IslandHouseData TerrainTile(uint8_t x, uint8_t y);
+  TileGraphic GraphicIndexForTile(IslandHouseData& tile, uint32_t rotation);
 
 private:
   std::string name;
   Files* files;
 
   Island5Data island;
-  std::vector<IslandHouse> finalIslandHouse; // INSELHAUS
-  Deer deer;                                 // HIRSCH2
-  std::vector<IslandHouse> islandHouse;      // INSELHAUS
+  std::vector<std::shared_ptr<IslandHouse>> finalIslandHouse; // INSELHAUS
+  std::shared_ptr<IslandHouse> topLayer;
+  std::shared_ptr<IslandHouse> bottomLayer;
+  Deer deer;                                             // HIRSCH2
+  std::vector<std::shared_ptr<IslandHouse>> islandHouse; // INSELHAUS
 };
-
-struct Island3Data // Insel3
-{
-  uint8_t inselnr;    // ID for this island (per game)
-  uint8_t breite;     // width
-  uint8_t hoehe;      // height
-  uint8_t a;          // TODO: unknown
-  uint16_t x_pos;     // position of island x
-  uint16_t y_pos;     // position of island y
-  uint16_t b;         // TODO: unknown
-  uint16_t c;         // TODO: unknown
-  uint8_t bytes1[28]; // TODO: unknown
-};
-
-class Island3
-{
-public:
-  explicit Island3(uint8_t* data, uint32_t length, const std::string& name);
-  Island3Data island3;
-
-private:
-  std::string name;
-};
-
 
 #endif // _ISLAND_HPP

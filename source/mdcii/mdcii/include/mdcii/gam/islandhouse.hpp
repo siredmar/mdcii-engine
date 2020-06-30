@@ -18,8 +18,11 @@
 #ifndef _ISLANDHOUSE_HPP
 #define _ISLANDHOUSE_HPP
 
+#include <experimental/optional>
 #include <inttypes.h>
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 struct IslandHouseData
@@ -41,17 +44,22 @@ public:
   IslandHouse()
   {
   }
-  explicit IslandHouse(const std::string& name)
-    : name(name)
-    , elements(0)
-  {
-  }
-  explicit IslandHouse(uint8_t* data, uint32_t length, const char* name);
+  explicit IslandHouse(uint8_t* data, uint32_t length, const char* name, uint16_t width, uint16_t height);
+  explicit IslandHouse(const std::string& name, uint16_t width, uint16_t height);
+  void Finalize();
+  std::shared_ptr<IslandHouseData[]> GetIslandHouse();
+  IslandHouseData Get(uint16_t x, uint16_t y);
+  uint32_t Size();
 
 private:
   std::string name;
-  std::vector<IslandHouseData> islandHouse;
   uint32_t elements;
+  uint32_t rawElements;
+  uint16_t width;
+  uint16_t height;
+  std::shared_ptr<IslandHouseData[]> rawIslandHouse;
+  std::shared_ptr<IslandHouseData[]> islandHouse;
 };
+
 
 #endif // _ISLANDHOUSE_HPP

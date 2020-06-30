@@ -78,7 +78,8 @@ GamParser::GamParser(const std::string& gam, bool peek)
       if (chunkName == "INSEL3")
       {
         auto i = std::make_shared<Island3>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
-        islands3.push_back(i);
+        auto i5 = std::make_shared<Island5>(*i);
+        islands5.push_back(i5);
       }
       else if (chunkName == "INSEL4" || chunkName == "INSEL5")
       {
@@ -196,7 +197,6 @@ GamParser::GamParser(const std::string& gam, bool peek)
   if (peek == false)
   {
     std::cout << "islands5: " << islands5.size() << std::endl;
-    std::cout << "islands3: " << islands3.size() << std::endl;
   }
   if (mission2)
   {
@@ -262,7 +262,7 @@ Island5 GamParser::sceneRandomIsland(SizeType size, ClimateType climate)
   auto islands = files->grep_files(islandClimateMap[static_cast<IslandClimate>(climate)] + "/" + islandSizeMap[static_cast<IslandSize>(size)]);
   std::time_t now = std::time(0);
   boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
-  int randomIndex = gen() % islands.size();
+  int randomIndex = gen() % (islands.size() - 1);
   return sceneIslandbyFile(size, climate, randomIndex);
 }
 
@@ -270,9 +270,14 @@ Island5 GamParser::sceneIslandbyFile(SizeType size, ClimateType climate, uint16_
 {
   auto islandFile = Island5::islandFileName(static_cast<IslandSize>(size), fileNumber, static_cast<IslandClimate>(climate));
   auto path = files->find_path_for_file(islandFile);
+  if (path.empty())
+  {
+    throw("cannot find island file: " + islandFile);
+  }
   std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
   Island5 i(chunks[0]->chunk.data, chunks[0]->chunk.length, chunks[0]->chunk.name.c_str());
-  IslandHouse islandHouse(chunks[1]->chunk.data, chunks[1]->chunk.length, chunks[1]->chunk.name.c_str());
+  auto islandHouse = std::make_shared<IslandHouse>(
+      chunks[1]->chunk.data, chunks[1]->chunk.length, chunks[1]->chunk.name.c_str(), i.getIslandData().width, i.getIslandData().height);
   i.setIslandFile(fileNumber);
   i.addIslandHouse(islandHouse);
   return i;

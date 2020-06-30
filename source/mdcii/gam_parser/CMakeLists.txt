@@ -69,6 +69,7 @@ target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
     ${SDL2_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${META_PROJECT_NAME}::proto-cod
     ${META_PROJECT_NAME}::mdcii
     
     PUBLIC

@@ -59,7 +59,6 @@ private:
   Files* files;
   std::vector<std::shared_ptr<Chunk>> chunks;
   std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
-  std::vector<std::shared_ptr<Island3>> islands3; // INSEL3
   std::shared_ptr<Mission2> mission2;             // AUFTRAG2
   std::shared_ptr<Mission4> mission4;             // AUFTRAG4
   std::shared_ptr<SceneRanking> sceneRanking;     // SZENE_RANKING

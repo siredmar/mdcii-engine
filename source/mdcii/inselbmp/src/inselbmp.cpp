@@ -66,7 +66,7 @@ int main(int argc, char** argv)
   uint8_t width = insel.breite;
   uint8_t height = insel.hoehe;
 
-  Bsh_leser bsh_leser(files->instance()->find_path_for_file("gfx/stadtfld.bsh"));
+  Bsh_leser bsh_leser(files->instance()->find_path_for_file("/gfx/stadtfld.bsh"));
 
   Bildspeicher_pal8 bs((width + height) * XRASTER, (width + height) * YRASTER, 0);
 
@@ -75,6 +75,10 @@ int main(int argc, char** argv)
   {
     for (x = 0; x < width; x++)
     {
+      if (x == 10 && y == 10)
+      {
+        std::cout << "hit" << std::endl;
+      }
       feld_t feld;
       insel.grafik_bebauung(feld, x, y, 0);
       if (feld.index != -1)

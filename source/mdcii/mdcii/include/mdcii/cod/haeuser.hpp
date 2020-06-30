@@ -398,20 +398,20 @@ class Haeuser
 {
 public:
   explicit Haeuser(std::shared_ptr<Cod_Parser> cod);
-
+  static Haeuser* Instance();
   std::experimental::optional<Haus*> get_haus(int id);
   int get_haeuser_size();
   Haus* get_haeuser_by_index(int index);
 
 private:
+  std::shared_ptr<Cod_Parser> cod;
+  static Haeuser* _instance;
   void generate_haeuser();
-
   Haus generate_haus(const cod_pb::Object* obj);
 
   const int id_offset = 20000;
   std::map<int, Haus> haeuser;
   std::vector<Haus*> haeuser_vec;
-  std::shared_ptr<Cod_Parser> cod;
 
   std::map<std::string, ObjectKindType> ObjectKindMap = {{"WALD", ObjectKindType::WALD}, {"TOR", ObjectKindType::TOR}, {"RUINE", ObjectKindType::RUINE},
       {"HQ", ObjectKindType::HQ}, {"STRANDMUND", ObjectKindType::STRANDMUND}, {"STRANDHAUS", ObjectKindType::STRANDHAUS},

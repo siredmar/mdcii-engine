@@ -19,6 +19,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+#include "mdcii/cod/cod_parser.hpp"
+#include "mdcii/cod/haeuser.hpp"
 #include "mdcii/files.hpp"
 #include "mdcii/gam/gam_parser.hpp"
 
@@ -58,14 +60,24 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  Files::create_instance(vm["path"].as<std::string>());
-
+  auto files = Files::create_instance(vm["path"].as<std::string>());
+  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
+  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
   try
   {
     GamParser gamParser(vm["input"].as<std::string>(), false);
   }
-  catch (std::exception& ex)
+  catch (const std::exception& ex)
   {
     std::cout << ex.what() << std::endl;
+    exit(1);
+  }
+  catch (const std::string& ex)
+  {
+    std::cout << ex << std::endl;
+  }
+  catch (...)
+  {
+    std::cout << "unknown exception" << std::endl;
   }
 }
