@@ -81,7 +81,13 @@ GamParser::GamParser(const std::string& gam, bool peek)
         auto i5 = std::make_shared<Island5>(*i);
         islands5.push_back(i5);
       }
-      else if (chunkName == "INSEL4" || chunkName == "INSEL5")
+      else if (chunkName == "INSEL4")
+      {
+        auto i = std::make_shared<Island4>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        auto i5 = std::make_shared<Island5>(*i);
+        islands5.push_back(i5);
+      }
+      else if (chunkName == "INSEL5")
       {
         auto i = std::make_shared<Island5>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         islands5.push_back(i);

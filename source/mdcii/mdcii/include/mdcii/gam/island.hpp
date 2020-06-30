@@ -59,6 +59,7 @@ private:
   std::string name;
 };
 
+
 // ISLAND5 Data
 
 struct OreMountainData // Erzberg
@@ -111,6 +112,96 @@ enum class IslandClimate : uint8_t
   South = 1,
   Any = 2
 };
+static std::map<IslandSize, std::string> islandSizeMap = {
+    {IslandSize::Little, "lit"},
+    {IslandSize::Middle, "mit"},
+    {IslandSize::Median, "med"},
+    {IslandSize::Big, "big"},
+    {IslandSize::Large, "lar"},
+};
+static std::map<IslandClimate, std::string> islandClimateMap = {
+    {IslandClimate::South, "sued"},
+    {IslandClimate::North, "nord"},
+    {IslandClimate::Any, "any"},
+};
+
+struct TileGraphic
+{
+  int16_t index;
+  uint8_t groundHeight;
+};
+// ISLAND4 Data
+struct Island4Data // Insel5
+{
+  uint8_t fileNumber;
+  uint8_t width;
+  uint8_t height;
+  uint8_t strtduerrflg : 1;
+  uint8_t nofixflg : 1;
+  uint8_t vulkanflg : 1;
+  uint16_t posx;
+  uint16_t posy;
+  uint16_t hirschreviercnt;
+  uint16_t speedcnt;
+  uint8_t stadtplayernr[11];
+  uint8_t vulkancnt;
+  uint8_t schatzflg;
+  uint8_t rohstanz;
+  uint8_t eisencnt;
+  uint8_t playerflags;
+  OreMountainData eisenberg[4];
+  OreMountainData vulkanberg[4];
+  Fertility fertility;
+  uint16_t empty; // always 0xFFFF
+  IslandSize size;
+  IslandClimate climate;
+  IslandModified modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
+  uint8_t duerrproz;
+  uint8_t rotier;
+  uint32_t seeplayerflags;
+  uint32_t duerrcnt;
+  uint32_t leer3;
+};
+
+class Island4
+{
+public:
+  Island4()
+  {
+  }
+  explicit Island4(uint8_t* data, uint32_t length, const std::string& name);
+  void setIslandNumber(uint8_t number);
+  void setIslandFile(uint16_t fileNumber);
+  void addIslandHouse(std::shared_ptr<Chunk> c);
+  void addIslandHouse(std::shared_ptr<IslandHouse> i);
+  void setDeer(std::shared_ptr<Chunk> c);
+
+  std::vector<std::shared_ptr<IslandHouse>> getIslandHouseData()
+  {
+    return finalIslandHouse;
+  }
+
+  void finalize();
+
+  static IslandClimate randomIslandClimate();
+  static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
+  IslandHouseData TerrainTile(uint8_t x, uint8_t y);
+  TileGraphic GraphicIndexForTile(IslandHouseData& tile, uint32_t rotation);
+  Island4Data island;
+
+private:
+  std::string name;
+  Files* files;
+
+  std::vector<std::shared_ptr<IslandHouse>> finalIslandHouse; // INSELHAUS
+  std::shared_ptr<IslandHouse> topLayer;
+  std::shared_ptr<IslandHouse> bottomLayer;
+  Deer deer;                                             // HIRSCH2
+  std::vector<std::shared_ptr<IslandHouse>> islandHouse; // INSELHAUS
+};
+
+
+// ISLAND5
 
 struct Island5Data // Insel5
 {
@@ -144,25 +235,6 @@ struct Island5Data // Insel5
   uint32_t leer3;
 };
 
-static std::map<IslandSize, std::string> islandSizeMap = {
-    {IslandSize::Little, "lit"},
-    {IslandSize::Middle, "mit"},
-    {IslandSize::Median, "med"},
-    {IslandSize::Big, "big"},
-    {IslandSize::Large, "lar"},
-};
-static std::map<IslandClimate, std::string> islandClimateMap = {
-    {IslandClimate::South, "sued"},
-    {IslandClimate::North, "nord"},
-    {IslandClimate::Any, "any"},
-};
-
-struct TileGraphic
-{
-  int16_t index;
-  uint8_t groundHeight;
-};
-
 class Island5
 {
 public:
@@ -171,6 +243,7 @@ public:
   }
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   explicit Island5(const Island3& island3);
+  explicit Island5(const Island4& island4);
   void setIslandNumber(uint8_t number);
   void setIslandFile(uint16_t fileNumber);
   void addIslandHouse(std::shared_ptr<Chunk> c);
@@ -204,5 +277,6 @@ private:
   Deer deer;                                             // HIRSCH2
   std::vector<std::shared_ptr<IslandHouse>> islandHouse; // INSELHAUS
 };
+
 
 #endif // _ISLAND_HPP
