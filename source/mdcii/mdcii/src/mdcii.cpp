@@ -64,7 +64,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
 {
   auto files = Files::create_instance(files_path);
 
-  Version::Detect_game_version();
+  Version::DetectGameVersion();
   if (files->instance()->check_all_files(&files_to_check) == false)
   {
     std::cout << "[ERR] File check failed. Exiting." << std::endl;

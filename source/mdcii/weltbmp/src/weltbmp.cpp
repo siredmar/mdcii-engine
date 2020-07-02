@@ -55,7 +55,7 @@ int main(int argc, char** argv)
   f.open(argv[1], std::ios_base::in | std::ios_base::binary);
 
   auto files = Files::create_instance(".");
-  Version::Detect_game_version();
+  Version::DetectGameVersion();
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
   Welt welt = Welt(f, haeuser);

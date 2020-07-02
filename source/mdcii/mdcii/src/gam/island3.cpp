@@ -15,35 +15,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <iostream>
+#include <string>
 
-#include "bsh_leser.hpp"
-#include "files.hpp"
-#include "version.hpp"
+#include "gam/island.hpp"
 
-AnnoVersion Version::DetectGameVersion()
+Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
+  : name(name)
 {
-  auto files = Files::instance();
-  Bsh_leser bsh(files->instance()->find_path_for_file("sgfx/stadtfld.bsh"));
-  if (bsh.anzahl() == 5748)
-  {
-    return AnnoVersion::VANILLA;
-  }
-  else // sgfx.anzahl == 5964
-  {
-    return AnnoVersion::NINA;
-  }
-}
-
-std::string Version::GameVersionString()
-{
-  auto version = DetectGameVersion();
-  if (version == AnnoVersion::VANILLA)
-  {
-    return "vanilla";
-  }
-  else
-  {
-    return "NINA";
-  }
+  memcpy((char*)&island3, data, length);
 }

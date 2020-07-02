@@ -14,7 +14,7 @@ find_package(Boost
 find_package(SDL2)
 
 # Target name
-set(target gam_parser)
+set(target islandbmp)
 
 # Exit here if required dependencies are not met
 message(STATUS "Application ${target}")
@@ -22,7 +22,7 @@ message(STATUS "Application ${target}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(sources
-    ${source_path}/gam_parser.cpp
+    ${source_path}/islandbmp.cpp
 )
 
 #
@@ -69,10 +69,10 @@ target_link_libraries(${target}
     ${DEFAULT_LIBRARIES}
     ${SDL2_LIBRARIES}
     ${Boost_LIBRARIES}
-    ${META_PROJECT_NAME}::proto-cod
-    ${META_PROJECT_NAME}::mdcii
     
     PUBLIC
+    ${META_PROJECT_NAME}::mdcii
+    ${META_PROJECT_NAME}::proto-cod
 )
 
 #

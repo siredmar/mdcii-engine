@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include "../cache/cacheprotobuf.hpp"
+
 #include "cod.pb.h"
 
 class Cod_Parser
@@ -109,6 +111,7 @@ private:
   Cod_value_type check_type(const std::string& s);
 
   std::string path;
+  std::unique_ptr<CacheProtobuf<cod_pb::Objects>> cache;
   std::vector<std::string> cod_txt;
 
   cod_pb::Variables constants;

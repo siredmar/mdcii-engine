@@ -32,10 +32,15 @@ struct ChunkData
 class Chunk
 {
 public:
-  explicit Chunk(std::istream& f);
+  explicit Chunk(const char* buffer);
   ~Chunk();
+  uint32_t GetLength();
+  static std::vector<char> ReadFile(const std::string& filename);
   static std::vector<std::shared_ptr<Chunk>> ReadChunks(const std::string& path);
   ChunkData chunk;
+
+private:
+  uint32_t chunkLength;
 };
 
 // /*========================================+

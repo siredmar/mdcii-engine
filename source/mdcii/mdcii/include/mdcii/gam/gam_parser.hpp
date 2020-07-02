@@ -45,13 +45,20 @@ public:
   Island5 sceneRandomIsland(SizeType size);
   Island5 sceneRandomIsland(SizeType size, ClimateType climate);
   Island5 sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
+  uint8_t islands5Size()
+  {
+    return islands5.size();
+  }
+  std::shared_ptr<Island5> getIsland5(int index)
+  {
+    return islands5[index];
+  }
 
 
 private:
   Files* files;
   std::vector<std::shared_ptr<Chunk>> chunks;
   std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
-  std::vector<std::shared_ptr<Island3>> islands3; // INSEL3
   std::shared_ptr<Mission2> mission2;             // AUFTRAG2
   std::shared_ptr<Mission4> mission4;             // AUFTRAG4
   std::shared_ptr<SceneRanking> sceneRanking;     // SZENE_RANKING

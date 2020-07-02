@@ -26,11 +26,6 @@
 
 class Bildspeicher_pal8 : public Bildspeicher
 {
-  uint8_t dunkel[256];
-
-  void zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y);
-  void zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y);
-
 public:
   explicit Bildspeicher_pal8(uint32_t breite, uint32_t hoehe, uint32_t farbe = 0, uint8_t* puffer = NULL, uint32_t pufferbreite = 0);
   void zeichne_bsh_bild(Bsh_bild& bild, int x, int y);
@@ -38,6 +33,11 @@ public:
   void exportiere_pnm(const char* pfadname);
   void exportiere_bmp(const char* pfadname);
   void bild_loeschen();
+
+private:
+  uint8_t dunkel[256];
+  void zeichne_bsh_bild_ganz(Bsh_bild& bild, int x, int y);
+  void zeichne_bsh_bild_partiell(Bsh_bild& bild, int x, int y);
 };
 
 #endif

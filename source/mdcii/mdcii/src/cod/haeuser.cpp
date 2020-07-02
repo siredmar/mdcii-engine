@@ -21,10 +21,22 @@
 
 #include "cod/haeuser.hpp"
 
+Haeuser* Haeuser::_instance = 0;
+
 Haeuser::Haeuser(std::shared_ptr<Cod_Parser> cod)
   : cod(cod)
 {
+  _instance = this;
   generate_haeuser();
+}
+
+Haeuser* Haeuser::Instance()
+{
+  if (not _instance)
+  {
+    throw std::string("Haeuser not initialized yet!");
+  }
+  return _instance;
 }
 
 std::experimental::optional<Haus*> Haeuser::get_haus(int id)

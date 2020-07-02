@@ -13,7 +13,6 @@ find_package(Boost
     COMPONENTS  regex system iostreams filesystem 
 )
 
-
 # 
 # Library name and options
 # 
@@ -66,6 +65,8 @@ set(headers
     ${include_path}/welt.hpp
     ${include_path}/zei_leser.hpp
     ${include_path}/zei_texture.hpp
+    ${include_path}/cache/cacheprotobuf.hpp
+    ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
     ${include_path}/menu/gamewindow.hpp
@@ -77,6 +78,9 @@ set(headers
     ${include_path}/gam/city.hpp
     ${include_path}/gam/deer.hpp
     ${include_path}/gam/island.hpp
+    ${include_path}/gam/island3.hpp
+    ${include_path}/gam/island4.hpp
+    ${include_path}/gam/island5.hpp
     ${include_path}/gam/islandhouse.hpp
     ${include_path}/gam/marketplace.hpp
     ${include_path}/gam/military.hpp
@@ -110,6 +114,7 @@ set(sources
     ${source_path}/version.cpp
     ${source_path}/welt.cpp
     ${source_path}/zei_texture.cpp
+    ${source_path}/renderer/renderer.cpp
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp
     ${source_path}/menu/gamewindow.cpp
@@ -120,7 +125,9 @@ set(sources
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/city.cpp
     ${source_path}/gam/deer.cpp
-    ${source_path}/gam/island.cpp
+    ${source_path}/gam/island3.cpp
+    ${source_path}/gam/island4.cpp
+    ${source_path}/gam/island5.cpp
     ${source_path}/gam/islandhouse.cpp
     ${source_path}/gam/marketplace.cpp
     ${source_path}/gam/military.cpp
@@ -211,7 +218,6 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include/${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -228,13 +234,15 @@ target_include_directories(${target}
 
 target_link_libraries(${target}
     PRIVATE
-    ${META_PROJECT_NAME}::proto-cod
     ${META_PROJECT_NAME}::nanogui-sdl
     ${Boost_LIBRARIES}
     
     PUBLIC
     ${DEFAULT_LIBRARIES}
     ${SDL2_LIBRARY}
+    ${META_PROJECT_NAME}::PlatformFolders
+    ${META_PROJECT_NAME}::proto-cod
+    stdc++fs
     INTERFACE
 )
 

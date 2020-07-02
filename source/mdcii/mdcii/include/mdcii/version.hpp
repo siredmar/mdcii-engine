@@ -18,15 +18,18 @@
 #ifndef VERSION_HPP
 #define VERSION_HPP
 
-enum class Anno_version
+#include <string>
+
+enum class AnnoVersion
 {
   VANILLA = 0,
-  NINA = 1,
+  NINA = 1
 };
 
 class Version
 {
 public:
-  static Anno_version Detect_game_version();
+  static AnnoVersion DetectGameVersion();
+  static std::string GameVersionString();
 };
 #endif

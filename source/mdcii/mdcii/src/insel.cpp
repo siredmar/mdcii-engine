@@ -46,21 +46,20 @@ void Insel::insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8
     auto info = haeuser->get_haus(feld.bebauung);
     if (info)
     {
-      int u, v;
+      int width, height;
       if (feld.rot % 2 == 0)
       {
-        u = info.value()->Size.w;
-        v = info.value()->Size.h;
+        width = info.value()->Size.w;
+        height = info.value()->Size.h;
       }
       else
       {
-        u = info.value()->Size.h;
-        v = info.value()->Size.w;
+        height = info.value()->Size.h;
+        width = info.value()->Size.w;
       }
-
-      for (int y = 0; y < v && feld.y_pos + y < hoehe; y++)
+      for (int y = 0; y < height && feld.y_pos + y < hoehe; y++)
       {
-        for (int x = 0; x < u && feld.x_pos + x < breite; x++)
+        for (int x = 0; x < width && feld.x_pos + x < breite; x++)
         {
           b[(feld.y_pos + y) * breite + feld.x_pos + x] = feld;
           b[(feld.y_pos + y) * breite + feld.x_pos + x].x_pos = x;
@@ -142,6 +141,10 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
     {
       for (x = 0; x < this->breite; x++)
       {
+        if (x == 10 && y == 10)
+        {
+          std::cout << "hit";
+        }
         if (schicht2[y * this->breite + x].bebauung == 0xffff)
           schicht2[y * this->breite + x] = schicht1[y * this->breite + x];
       }
@@ -161,6 +164,7 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser)
   }
 }
 
+// unnused grafik_boden
 void Insel::grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, [[maybe_unused]] uint8_t r)
 {
   auto info = haeuser->get_haus(schicht2[y * breite + x].bebauung);
@@ -260,6 +264,7 @@ void Insel::grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r
   ziel.grundhoehe = grundhoehe;
 }
 
+// unused grafik_bebauung
 void Insel::grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
 {
   inselfeld_t feld;
