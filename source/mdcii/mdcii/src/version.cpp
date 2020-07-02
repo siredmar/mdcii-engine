@@ -15,23 +15,35 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "version.hpp"
-#include "bsh_leser.hpp"
-#include "files.hpp"
 #include <iostream>
 
-Anno_version Version::Detect_game_version()
+#include "bsh_leser.hpp"
+#include "files.hpp"
+#include "version.hpp"
+
+AnnoVersion Version::DetectGameVersion()
 {
   auto files = Files::instance();
   Bsh_leser bsh(files->instance()->find_path_for_file("sgfx/stadtfld.bsh"));
   if (bsh.anzahl() == 5748)
   {
-    std::cout << "[INFO] Vanilla Anno 1602 Installation erkannt" << std::endl;
-    return Anno_version::VANILLA;
+    return AnnoVersion::VANILLA;
   }
   else // sgfx.anzahl == 5964
   {
-    std::cout << "[INFO] NINA Anno 1602 Installation erkannt" << std::endl;
-    return Anno_version::NINA;
+    return AnnoVersion::NINA;
+  }
+}
+
+std::string Version::GameVersionString()
+{
+  auto version = DetectGameVersion();
+  if (version == AnnoVersion::VANILLA)
+  {
+    return "vanilla";
+  }
+  else
+  {
+    return "NINA";
   }
 }

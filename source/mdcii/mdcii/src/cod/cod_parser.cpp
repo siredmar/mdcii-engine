@@ -32,11 +32,14 @@
 
 #include "cod/cod_parser.hpp"
 
+#include "version.hpp"
+
 namespace fs = std::experimental::filesystem;
 
 Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode, bool debug)
   : path(cod_file_path)
-  , cache(std::make_unique<CacheProtobuf<cod_pb::Objects>>("mdcii/" + fs::path(cod_file_path).filename().string() + ".json"))
+  , cache(
+        std::make_unique<CacheProtobuf<cod_pb::Objects>>("mdcii/" + Version::GameVersionString() + "/" + fs::path(cod_file_path).filename().string() + ".json"))
 {
   if (cache->Exists())
   {

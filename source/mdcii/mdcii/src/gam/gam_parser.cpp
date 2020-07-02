@@ -33,7 +33,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
   auto path = files->find_path_for_file(gam);
   if (path == "")
   {
-    throw("cannot find file: " + gam);
+    throw("[EER] cannot find file: " + gam);
   }
 
   chunks = Chunk::ReadChunks(path);
@@ -278,7 +278,7 @@ Island5 GamParser::sceneIslandbyFile(SizeType size, ClimateType climate, uint16_
   auto path = files->find_path_for_file(islandFile);
   if (path.empty())
   {
-    throw("cannot find island file: " + islandFile);
+    throw("[EER] cannot find island file: " + islandFile);
   }
   std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
   Island5 i(chunks[0]->chunk.data, chunks[0]->chunk.length, chunks[0]->chunk.name.c_str());

@@ -27,6 +27,10 @@ Palette* Palette::_instance = 0;
 
 Palette* Palette::instance()
 {
+  if (not _instance)
+  {
+    throw("[ERR] Palette not initialized yet!");
+  }
   return _instance;
 }
 

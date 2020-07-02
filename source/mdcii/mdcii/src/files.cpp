@@ -31,6 +31,10 @@ Files* Files::_instance = 0;
 
 Files* Files::instance()
 {
+  if (not _instance)
+  {
+    throw("[EER] Files not initialized yet!");
+  }
   return _instance;
 }
 

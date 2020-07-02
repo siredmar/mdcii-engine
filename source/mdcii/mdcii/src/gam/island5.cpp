@@ -95,7 +95,7 @@ void Island5::finalize()
     auto path = files->find_path_for_file(islandFile);
     if (path == "")
     {
-      throw("cannot find file: " + path);
+      throw("[EER] cannot find file: " + path);
     }
     std::vector<std::shared_ptr<Chunk>> chunks = Chunk::ReadChunks(path);
     if (chunks[1]->chunk.name == "INSELHAUS")
