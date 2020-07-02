@@ -13,7 +13,6 @@ find_package(Boost
     COMPONENTS  regex system iostreams filesystem 
 )
 
-
 # 
 # Library name and options
 # 
@@ -66,6 +65,7 @@ set(headers
     ${include_path}/welt.hpp
     ${include_path}/zei_leser.hpp
     ${include_path}/zei_texture.hpp
+    ${include_path}/cache/cacheprotobuf.hpp
     ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
@@ -218,7 +218,6 @@ target_include_directories(${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include/${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -235,13 +234,15 @@ target_include_directories(${target}
 
 target_link_libraries(${target}
     PRIVATE
-    ${META_PROJECT_NAME}::proto-cod
     ${META_PROJECT_NAME}::nanogui-sdl
     ${Boost_LIBRARIES}
     
     PUBLIC
     ${DEFAULT_LIBRARIES}
     ${SDL2_LIBRARY}
+    ${META_PROJECT_NAME}::PlatformFolders
+    ${META_PROJECT_NAME}::proto-cod
+    stdc++fs
     INTERFACE
 )
 

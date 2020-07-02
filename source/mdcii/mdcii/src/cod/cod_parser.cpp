@@ -17,6 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <cstring>
+#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -31,14 +32,25 @@
 
 #include "cod/cod_parser.hpp"
 
+namespace fs = std::experimental::filesystem;
+
 Cod_Parser::Cod_Parser(const std::string& cod_file_path, bool decode, bool debug)
   : path(cod_file_path)
+  , cache(std::make_unique<CacheProtobuf<cod_pb::Objects>>("mdcii/" + fs::path(cod_file_path).filename().string() + ".json"))
 {
-  read_file(decode);
-  parse_file();
-  if (debug == true)
+  if (cache->Exists())
   {
-    debug_output();
+    objects = cache->Deserialize();
+  }
+  else
+  {
+    read_file(decode);
+    parse_file();
+    if (debug == true)
+    {
+      debug_output();
+    }
+    cache->Serialize(objects);
   }
 }
 
