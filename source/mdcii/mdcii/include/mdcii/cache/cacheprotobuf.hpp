@@ -35,7 +35,7 @@ template<typename T>
 class CacheProtobuf
 {
 public:
-  CacheProtobuf(const std::string& file)
+  explicit CacheProtobuf(const std::string& file)
     : dataPath(sago::getDataHome())
     , cacheFilePath(fs::path(dataPath.string() + "/" + file))
     , cacheFileDirectoryPath(cacheFilePath.parent_path())
@@ -54,6 +54,10 @@ public:
     options.always_print_primitive_fields = true;
     MessageToJsonString(data, &json_string, options);
     std::ofstream out(cacheFilePath.string());
+    if (!out.is_open())
+    {
+      throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
+    }
     out << json_string;
     out.close();
   }
@@ -64,6 +68,10 @@ public:
     std::string json_string;
     std::ifstream t(cacheFilePath.string());
     std::stringstream buffer;
+    if (!t.is_open())
+    {
+      throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
+    }
     buffer << t.rdbuf();
     json_string = buffer.str();
     t.close();
@@ -109,7 +117,6 @@ private:
     {
       return true;
     }
-    return false;
   }
 };
 

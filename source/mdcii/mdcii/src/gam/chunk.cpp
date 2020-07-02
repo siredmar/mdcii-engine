@@ -28,7 +28,10 @@ std::vector<char> Chunk::ReadFile(const std::string& filename)
   std::ifstream::pos_type pos = ifs.tellg();
 
   std::vector<char> result(pos);
-
+  if (!ifs.is_open())
+  {
+    throw("[EER] Failed to open file \"" + filename + "\"");
+  }
   ifs.seekg(0, std::ios::beg);
   ifs.read(&result[0], pos);
   ifs.close();
