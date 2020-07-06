@@ -123,6 +123,7 @@ set(headers
   ${include_path}/tabwidget.h
   ${include_path}/textbox.h
   ${include_path}/texturebutton.h
+  ${include_path}/texturetable.h
   ${include_path}/textureview.h
   ${include_path}/theme.h
   ${include_path}/toolbutton.h
@@ -159,6 +160,7 @@ set(sources
   ${source_path}/tabwidget.cpp
   ${source_path}/textbox.cpp
   ${source_path}/texturebutton.cpp
+  ${source_path}/texturetable.cpp
   ${source_path}/textureview.cpp
   ${source_path}/theme.cpp
   ${source_path}/vscrollpanel.cpp

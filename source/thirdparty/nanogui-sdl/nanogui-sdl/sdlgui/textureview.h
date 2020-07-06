@@ -28,9 +28,15 @@ class TextureView : public Widget
 public:
   TextureView(Widget* parent, SDL_Texture* texture);
 
-  SDL_Texture* texture() const { return mTexture; }
+  SDL_Texture* texture() const
+  {
+    return mTexture;
+  }
   /// Set the primary SDL_Texture
-  void setTexture(SDL_Texture* texture) { mTexture = texture; }
+  void setTexture(SDL_Texture* texture)
+  {
+    mTexture = texture;
+  }
 
   /// Compute the size needed to fully display the texture view
   virtual Vector2i preferredSize(SDL_Renderer* ctx) const override;

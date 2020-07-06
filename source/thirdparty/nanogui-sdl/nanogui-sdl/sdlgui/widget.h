@@ -33,6 +33,7 @@ class DropdownBox;
 class TextBox;
 class TextureButton;
 class TextureView;
+class TextureTable;
 
 /**
  * \class Widget widget.h sdl_gui/widget.h
@@ -51,49 +52,103 @@ public:
   Widget(Widget* parent);
 
   /// Return the parent widget
-  Widget* parent() { return mParent; }
+  Widget* parent()
+  {
+    return mParent;
+  }
   /// Return the parent widget
-  const Widget* parent() const { return mParent; }
+  const Widget* parent() const
+  {
+    return mParent;
+  }
   /// Set the parent widget
-  void setParent(Widget* parent) { mParent = parent; }
+  void setParent(Widget* parent)
+  {
+    mParent = parent;
+  }
 
   /// Return the used \ref Layout generator
-  Layout* layout() { return mLayout; }
+  Layout* layout()
+  {
+    return mLayout;
+  }
   /// Return the used \ref Layout generator
-  const Layout* layout() const { return mLayout.get(); }
+  const Layout* layout() const
+  {
+    return mLayout.get();
+  }
   /// Set the used \ref Layout generator
-  void setLayout(Layout* layout) { mLayout = layout; }
+  void setLayout(Layout* layout)
+  {
+    mLayout = layout;
+  }
 
   /// Return the \ref Theme used to draw this widget
-  Theme* theme() { return mTheme; }
+  Theme* theme()
+  {
+    return mTheme;
+  }
   /// Return the \ref Theme used to draw this widget
-  const Theme* theme() const { return mTheme.get(); }
+  const Theme* theme() const
+  {
+    return mTheme.get();
+  }
   /// Set the \ref Theme used to draw this widget
   virtual void setTheme(Theme* theme);
 
   /// Return the position relative to the parent widget
-  const Vector2i& position() const { return _pos; }
+  const Vector2i& position() const
+  {
+    return _pos;
+  }
   /// Set the position relative to the parent widget
-  void setPosition(const Vector2i& pos) { _pos = pos; }
-  void setPosition(int x, int y) { _pos = {x, y}; }
+  void setPosition(const Vector2i& pos)
+  {
+    _pos = pos;
+  }
+  void setPosition(int x, int y)
+  {
+    _pos = {x, y};
+  }
 
   /// Return the absolute position on screen
-  Vector2i absolutePosition() const { return mParent ? (mParent->absolutePosition() + _pos) : _pos; }
+  Vector2i absolutePosition() const
+  {
+    return mParent ? (mParent->absolutePosition() + _pos) : _pos;
+  }
 
   /// Return the size of the widget
-  const Vector2i& size() const { return mSize; }
+  const Vector2i& size() const
+  {
+    return mSize;
+  }
   /// set the size of the widget
-  void setSize(const Vector2i& size) { mSize = size; }
+  void setSize(const Vector2i& size)
+  {
+    mSize = size;
+  }
 
   /// Return the width of the widget
-  int width() const { return mSize.x; }
+  int width() const
+  {
+    return mSize.x;
+  }
   /// Set the width of the widget
-  void setWidth(int width) { mSize.x = width; }
+  void setWidth(int width)
+  {
+    mSize.x = width;
+  }
 
   /// Return the height of the widget
-  int height() const { return mSize.y; }
+  int height() const
+  {
+    return mSize.y;
+  }
   /// Set the height of the widget
-  void setHeight(int height) { mSize.y = height; }
+  void setHeight(int height)
+  {
+    mSize.y = height;
+  }
 
   /**
    * \brief Set the fixed size of this widget
@@ -104,17 +159,32 @@ public:
    * size; this is done with a call to \ref setSize or a call to \ref performLayout()
    * in the parent widget.
    */
-  void setFixedSize(const Vector2i& fixedSize) { mFixedSize = fixedSize; }
+  void setFixedSize(const Vector2i& fixedSize)
+  {
+    mFixedSize = fixedSize;
+  }
 
   /// Return the fixed size (see \ref setFixedSize())
-  const Vector2i& fixedSize() const { return mFixedSize; }
+  const Vector2i& fixedSize() const
+  {
+    return mFixedSize;
+  }
 
   // Return the fixed width (see \ref setFixedSize())
-  int fixedWidth() const { return mFixedSize.x; }
+  int fixedWidth() const
+  {
+    return mFixedSize.x;
+  }
   // Return the fixed height (see \ref setFixedSize())
-  int fixedHeight() const { return mFixedSize.y; }
+  int fixedHeight() const
+  {
+    return mFixedSize.y;
+  }
   /// Set the fixed width (see \ref setFixedSize())
-  void setFixedWidth(int width) { mFixedSize.x = width; }
+  void setFixedWidth(int width)
+  {
+    mFixedSize.x = width;
+  }
   Widget& withFixedWidth(int width)
   {
     setFixedWidth(width);
@@ -122,12 +192,21 @@ public:
   }
 
   /// Set the fixed height (see \ref setFixedSize())
-  void setFixedHeight(int height) { mFixedSize.y = height; }
+  void setFixedHeight(int height)
+  {
+    mFixedSize.y = height;
+  }
 
   /// Return whether or not the widget is currently visible (assuming all parents are visible)
-  bool visible() const { return mVisible; }
+  bool visible() const
+  {
+    return mVisible;
+  }
   /// Set whether or not the widget is currently visible (assuming all parents are visible)
-  void setVisible(bool visible) { mVisible = visible; }
+  void setVisible(bool visible)
+  {
+    mVisible = visible;
+  }
 
   /// Check if this widget is currently visible, taking parent widgets into account
   bool visibleRecursive() const
@@ -143,10 +222,16 @@ public:
   }
 
   /// Return the number of child widgets
-  int childCount() const { return (int)mChildren.size(); }
+  int childCount() const
+  {
+    return (int)mChildren.size();
+  }
 
   /// Return the list of child widgets of the current widget
-  const std::vector<Widget*>& children() const { return mChildren; }
+  const std::vector<Widget*>& children() const
+  {
+    return mChildren;
+  }
 
   /**
    * \brief Add a child widget to the current widget at
@@ -168,10 +253,16 @@ public:
   void removeChild(const Widget* widget);
 
   /// Retrieves the child at the specific position
-  const Widget* childAt(int index) const { return mChildren[index]; }
+  const Widget* childAt(int index) const
+  {
+    return mChildren[index];
+  }
 
   /// Retrieves the child at the specific position
-  Widget* childAt(int index) { return mChildren[index]; }
+  Widget* childAt(int index)
+  {
+    return mChildren[index];
+  }
 
   /// Returns the index of a specific child or -1 if not found
   int childIndex(Widget* widget) const;
@@ -194,36 +285,72 @@ public:
   Window* window();
 
   /// Associate this widget with an ID value (optional)
-  void setId(const std::string& id) { mId = id; }
+  void setId(const std::string& id)
+  {
+    mId = id;
+  }
   /// Return the ID value associated with this widget, if any
-  const std::string& id() const { return mId; }
+  const std::string& id() const
+  {
+    return mId;
+  }
 
   /// Return whether or not this widget is currently enabled
-  bool enabled() const { return mEnabled; }
+  bool enabled() const
+  {
+    return mEnabled;
+  }
   /// Set whether or not this widget is currently enabled
-  void setEnabled(bool enabled) { mEnabled = enabled; }
+  void setEnabled(bool enabled)
+  {
+    mEnabled = enabled;
+  }
 
   /// Return whether or not this widget is currently focused
-  bool focused() const { return mFocused; }
+  bool focused() const
+  {
+    return mFocused;
+  }
   /// Set whether or not this widget is currently focused
-  void setFocused(bool focused) { mFocused = focused; }
+  void setFocused(bool focused)
+  {
+    mFocused = focused;
+  }
   /// Request the focus to be moved to this widget
   void requestFocus();
 
-  const std::string& tooltip() const { return mTooltip; }
-  void setTooltip(const std::string& tooltip) { mTooltip = tooltip; }
+  const std::string& tooltip() const
+  {
+    return mTooltip;
+  }
+  void setTooltip(const std::string& tooltip)
+  {
+    mTooltip = tooltip;
+  }
 
   /// Return current font size. If not set the default of the current theme will be returned
   int fontSize() const;
   /// Set the font size of this widget
-  virtual void setFontSize(int fontSize) { mFontSize = fontSize; }
+  virtual void setFontSize(int fontSize)
+  {
+    mFontSize = fontSize;
+  }
   /// Return whether the font size is explicitly specified for this widget
-  bool hasFontSize() const { return mFontSize > 0; }
+  bool hasFontSize() const
+  {
+    return mFontSize > 0;
+  }
 
   /// Return a pointer to the cursor of the widget
-  Cursor cursor() const { return mCursor; }
+  Cursor cursor() const
+  {
+    return mCursor;
+  }
   /// Set the cursor of the widget
-  void setCursor(Cursor cursor) { mCursor = cursor; }
+  void setCursor(Cursor cursor)
+  {
+    mCursor = cursor;
+  }
 
   /// Check if the widget contains a certain position
   bool contains(const Vector2i& p) const
@@ -291,7 +418,10 @@ public:
   virtual PntRect getAbsoluteCliprect() const;
   virtual int getAbsoluteTop() const;
 
-  Widget& _and() { return *parent(); }
+  Widget& _and()
+  {
+    return *parent();
+  }
   Widget& withId(const std::string& id)
   {
     setId(id);
@@ -417,7 +547,11 @@ public:
   {
     return wdg<TextureView>(args...);
   }
-
+  template<typename... Args>
+  TextureTable& texturetable(const Args&... args)
+  {
+    return wdg<TextureTable>(args...);
+  }
 
   // protected:
   /// Free all resources used by the widget and any children
