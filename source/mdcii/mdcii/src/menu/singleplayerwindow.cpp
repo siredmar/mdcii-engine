@@ -20,10 +20,12 @@
 
 #include "SDL2/SDL.h"
 
+#include "sdlgui/button.h"
 #include "sdlgui/label.h"
 #include "sdlgui/layout.h"
 #include "sdlgui/messagedialog.h"
 #include "sdlgui/screen.h"
+#include "sdlgui/stackedwidget.h"
 #include "sdlgui/texturebutton.h"
 #include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
@@ -93,40 +95,110 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
     // table
     /// savegames
-    Savegames saveRaw("/savegame", ".gam");
-    auto saves = saveRaw.getSavegames();
+    // Savegames saveRaw("/savegame", ".gam");
+    // auto saves = saveRaw.getSavegames();
+    // for (unsigned int i = 0; i < saves.size(); i++)
+    // {
+    //   std::cout << "Savegame " << i << ": " << std::get<1>(saves[i]) << std::endl;
+    // }
+
+    // SCENARIOS
+    Savegames szenesRaw("/szenes", ".szs");
+    auto scenes = szenesRaw.getSavegames();
+
+    for (unsigned int i = 0; i < scenes.size(); i++)
+    {
+      std::cout << "Szenes " << i << ": " << std::get<1>(scenes[i]) << std::endl;
+    }
+    auto& scenariosTable = wdg<TextureTable>(Vector2i{tableGad->Pos.x + 20, tableGad->Pos.y + 13},
+        [&](const std::vector<std::tuple<std::string, std::string, int>>& elements) -> Widget* {
+          auto& table = wdg<Widget>();
+          // auto& background = wdg<Widget>().withFixedSize(Vector2i{tableGad->Size.w, tableGad->Size.h});
+          for (auto& entry : elements)
+          {
+            auto& tableEntry = table.widget();
+            auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
+            auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
+            auto& button = tableEntry.texturebutton(texture, [this, entry] {
+              std::cout << std::get<1>(entry) << " clicked" << std::endl;
+              savegame = std::get<0>(entry);
+              triggerStartGame = true;
+            });
+            button.setPosition(0, 0);
+            button.setSecondaryTexture(textureHover);
+            button.setTextureSwitchFlags(TextureButton::OnClick);
+
+            auto size = button.size();
+            tableEntry.setSize(size);
+            if (std::get<2>(entry) >= 0)
+            {
+              auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
+              star.setPosition(320, 0);
+            }
+            tableEntry.setVisible(false);
+          }
+          return &table;
+        },
+        scenes, 14, 4, 2);
+    scenariosTable.setPosition(tableGad->Pos.x + 20, tableGad->Pos.y + 13);
+    scenariosTable.setVisible(true);
+    scenariosTablePtr = &scenariosTable;
+
+    // SAVEGAMES
+    Savegames savesRaw("/savegame", ".gam");
+    auto saves = savesRaw.getSavegames();
+
     for (unsigned int i = 0; i < saves.size(); i++)
     {
-      std::cout << "Savegame " << i << ": " << std::get<1>(saves[i]) << std::endl;
+      std::cout << "Saves " << i << ": " << std::get<1>(scenes[i]) << std::endl;
     }
-    auto& savegameTable = ListTable(this, saves, tableGad->Pos.x + 20, tableGad->Pos.y + 13, 2);
-    savegameTable.setVisible(false);
+    auto& savegamesTable = wdg<TextureTable>(Vector2i{tableGad->Pos.x + 20, tableGad->Pos.y + 13},
+        [&](const std::vector<std::tuple<std::string, std::string, int>>& elements) -> Widget* {
+          auto& table = wdg<Widget>();
+          for (auto& entry : elements)
+          {
+            auto& tableEntry = table.widget();
+            auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
+            auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
+            auto& button = tableEntry.texturebutton(texture, [this, entry] {
+              std::cout << std::get<1>(entry) << " clicked" << std::endl;
+              savegame = std::get<0>(entry);
+              triggerStartGame = true;
+            });
+            button.setPosition(0, 0);
+            button.setSecondaryTexture(textureHover);
+            button.setTextureSwitchFlags(TextureButton::OnClick);
 
-    /// scenes
-    Savegames szenesRaw("/szenes", ".szs");
-    auto szenes = szenesRaw.getSavegames();
-
-    for (unsigned int i = 0; i < szenes.size(); i++)
-    {
-      std::cout << "Szenes " << i << ": " << std::get<1>(szenes[i]) << std::endl;
-    }
-    auto& szenesTable = ListTable(this, szenes, tableGad->Pos.x + 20, tableGad->Pos.y + 13, 2);
-    szenesTable.setVisible(true);
+            auto size = button.size();
+            tableEntry.setSize(size);
+            if (std::get<2>(entry) >= 0)
+            {
+              auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
+              star.setPosition(320, 0);
+            }
+            tableEntry.setVisible(false);
+          }
+          return &table;
+        },
+        saves, 14, 4, 2);
+    savegamesTable.setPosition(tableGad->Pos.x + 20, tableGad->Pos.y + 13);
+    savegamesTable.setVisible(false);
+    savegamesTablePtr = &savegamesTable;
 
     // buttons
-    auto& newGameButton = wdg<TextureButton>(newGameTexture, [this, &savegameTable, &szenesTable] {
+    auto& newGameButton = wdg<TextureButton>(newGameTexture, [this, &savegamesTable, &scenariosTable] {
       std::cout << "Singleplayer pressed" << std::endl;
-      savegameTable.setVisible(false);
-      szenesTable.setVisible(true);
+      savegamesTable.setVisible(false);
+      scenariosTable.setVisible(true);
     });
     newGameButton.setPosition(newGameButtonGad->Pos.x, newGameButtonGad->Pos.y);
     newGameButton.setSecondaryTexture(newGameTextureClicked);
     newGameButton.setTextureSwitchFlags(TextureButton::OnClick);
 
-    auto& loadGameButton = wdg<TextureButton>(loadGameTexture, [this, &savegameTable, &szenesTable] {
+    auto& loadGameButton = wdg<TextureButton>(loadGameTexture, [this, &savegamesTable, &scenariosTable] {
       std::cout << "Load Game pressed" << std::endl;
-      savegameTable.setVisible(true);
-      szenesTable.setVisible(false);
+      savegamesTable.setVisible(true);
+      scenariosTable.setVisible(false);
     });
     loadGameButton.setPosition(loadGameButtonGad->Pos.x, loadGameButtonGad->Pos.y);
     loadGameButton.setSecondaryTexture(loadGameTextureClicked);
@@ -151,40 +223,66 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   performLayout(mSDL_Renderer);
 }
 
-Widget& SinglePlayerWindow::ListTable(
-    [[maybe_unused]] Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, [[maybe_unused]] int verticalMargin)
-{
-  auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 1);
-  table.setPosition(x, y);
-  int index = 0;
-  for (auto& entry : list)
-  {
-    auto& tableEntry = table.widget();
-    auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
-    auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
-    auto& button = tableEntry.texturebutton(texture, [this, entry] {
-      std::cout << std::get<1>(entry) << " clicked" << std::endl;
-      savegame = std::get<0>(entry);
-      triggerStartGame = true;
-    });
-    auto size = button.size();
-    tableEntry.setSize(size);
-    if (std::get<2>(entry) >= 0)
-    {
-      auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
-      star.setPosition(320, 0);
-    }
-    button.setSecondaryTexture(textureHover);
-    button.setTextureSwitchFlags(TextureButton::OnClick);
-    index++;
-    // TODO: Add up and down handler buttons. Until this is done -> bail out at 10 entries
-    if (index >= 10)
-    {
-      break;
-    }
-  }
-  return table;
-}
+// Widget& SinglePlayerWindow::ListTable(
+//     [[maybe_unused]] Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, [[maybe_unused]] int verticalMargin)
+// {
+//   auto& table = this->widget().boxlayout(Orientation::Vertical, Alignment::Minimum, 0, 1);
+//   table.setPosition(x, y);
+//   int index = 0;
+//   for (auto& entry : list)
+//   {
+//     auto& tableEntry = table.widget();
+//     auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
+//     auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
+//     auto& button = tableEntry.texturebutton(texture, [this, entry] {
+//       std::cout << std::get<1>(entry) << " clicked" << std::endl;
+//       savegame = std::get<0>(entry);
+//       triggerStartGame = true;
+//     });
+//     auto size = button.size();
+//     tableEntry.setSize(size);
+//     if (std::get<2>(entry) >= 0)
+//     {
+//       auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
+//       star.setPosition(320, 0);
+//     }
+//     button.setSecondaryTexture(textureHover);
+//     button.setTextureSwitchFlags(TextureButton::OnClick);
+//     index++;
+//     // TODO: Add up and down handler buttons. Until this is done -> bail out at 10 entries
+//     if (index >= 14)
+//     {
+//       break;
+//     }
+//   }
+//   return table;
+// }
+
+// std::vector<Widget> SinglePlayerWindow::CreateTableElements(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list)
+// {
+//   scenariosList.clear();
+//   for (auto& entry : list)
+//   {
+//     auto tableEntry = Widget(parent);
+//     auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
+//     auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
+//     auto button = TextureButton(&tableEntry, texture, [this, entry] {
+//       std::cout << std::get<1>(entry) << " clicked" << std::endl;
+//       savegame = std::get<0>(entry);
+//       triggerStartGame = true;
+//     });
+//     // auto size = button.size();
+//     // tableEntry.setSize(size);
+//     // if (std::get<2>(entry) >= 0)
+//     // {
+//     //   auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
+//     //   star.setPosition(320, 0);
+//     // }
+//     // button.setSecondaryTexture(textureHover);
+//     // button.setTextureSwitchFlags(TextureButton::OnClick);
+//     scenariosList.push_back(tableEntry);
+//   }
+// }
 
 void SinglePlayerWindow::LoadGame(const std::string& gam_name)
 {
@@ -226,6 +324,8 @@ void SinglePlayerWindow::Handle()
     SDL_Event e;
     while (!quit)
     {
+      int x, y;
+      SDL_GetMouseState(&x, &y);
       while (SDL_PollEvent(&e) != 0)
       {
         switch (e.type)
@@ -246,8 +346,7 @@ void SinglePlayerWindow::Handle()
         }
         this->onEvent(e);
       }
-      int x, y;
-      SDL_GetMouseState(&x, &y);
+
 
       final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, final_surface);

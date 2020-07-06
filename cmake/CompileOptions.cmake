@@ -19,7 +19,7 @@ endif()
 
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "d"
-    CXX_STANDARD              11 # Not available before CMake 3.1; see below for manual command line argument addition
+    CXX_STANDARD              17 # Not available before CMake 3.1; see below for manual command line argument addition
     LINKER_LANGUAGE           "CXX"
     POSITION_INDEPENDENT_CODE ON
     CXX_VISIBILITY_PRESET     "hidden"
@@ -138,7 +138,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
             
             # Required for CMake < 3.1; should be removed if minimum required CMake version is raised.
             $<$<VERSION_LESS:${CMAKE_VERSION},3.1>:
-                -std=c++11
+                -std=c++17
             >
     )
 endif ()

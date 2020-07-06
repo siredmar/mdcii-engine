@@ -20,11 +20,13 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
 #include "sdlgui/imageview.h"
 #include "sdlgui/screen.h"
+#include "sdlgui/texturetable.h"
 #include "sdlgui/widget.h"
 #include "sdlgui/window.h"
 
@@ -45,8 +47,8 @@ public:
 
 private:
   void LoadGame(const std::string& gam_name);
-  Widget& ListTable(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, int verticalMargin);
-
+  // Widget& ListTable(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, int verticalMargin);
+  // std::vector<std::shared_ptr<Widget>> CreateTableElements(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list);
   SDL_Renderer* renderer;
   int width;
   int height;
@@ -60,5 +62,8 @@ private:
   std::string savegame;
   bool triggerStartGame;
   std::vector<SDL_Texture*> tableStars;
+  std::vector<Widget> scenariosList;
+  TextureTable* scenariosTablePtr;
+  TextureTable* savegamesTablePtr;
 };
 #endif
