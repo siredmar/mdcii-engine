@@ -47,8 +47,6 @@ public:
 
 private:
   void LoadGame(const std::string& gam_name);
-  // Widget& ListTable(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list, int x, int y, int verticalMargin);
-  // std::vector<std::shared_ptr<Widget>> CreateTableElements(Widget* parent, const std::vector<std::tuple<std::string, std::string, int>>& list);
   SDL_Renderer* renderer;
   int width;
   int height;
@@ -65,5 +63,6 @@ private:
   std::vector<Widget> scenariosList;
   TextureTable* scenariosTablePtr;
   TextureTable* savegamesTablePtr;
+  TextureTable* currentTablePtr;
 };
 #endif
