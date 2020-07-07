@@ -1,7 +1,7 @@
 /*
     sdlgui/TextureTable.cpp -- Table view with TextureButtons
 
-    The texture view widget was contributed by Armin Schlegel <armin.schlegel@gmx.de>
+    The TextureTable widget was contributed by Armin Schlegel <armin.schlegel@gmx.de>
 
     Based on NanoGUI by Wenzel Jakob <wenzel@inf.ethz.ch>.
     Adaptation for SDL by Dalerank <dalerankn8@gmail.com>
@@ -10,28 +10,28 @@
     BSD-style license that can be found in the LICENSE.txt file.
 */
 
-#include <sdlgui/theme.h>
-
 #include <sdlgui/texturetable.h>
-
-#include <iostream>
+#include <sdlgui/theme.h>
 
 NAMESPACE_BEGIN(sdlgui)
 
-TextureTable::TextureTable(Widget* parent, Vector2i pos, std::function<Widget*(const std::vector<std::tuple<std::string, std::string, int>>&)> factory,
-    const std::vector<std::tuple<std::string, std::string, int>>& data, unsigned int visibleElements, int scrollBy, int verticalMargin)
+TextureTable::TextureTable(Widget* parent, Vector2i pos, Vector2i size,
+    std::function<Widget*(const std::vector<std::tuple<std::string, std::string, int>>&)> factory,
+    const std::vector<std::tuple<std::string, std::string, int>>& data, unsigned int visibleElements, int scrollBy, int verticalMargin, bool mouseScroll)
   : Widget(parent)
   , pos(pos)
+  , size(size)
   , visibleElements(visibleElements)
   , scrollBy(scrollBy)
   , verticalMargin(verticalMargin)
+  , mouseScroll(mouseScroll)
   , visibleFrom(0)
   , visibleTo(visibleFrom + visibleElements)
   , visibleFromOld(visibleFrom)
-  , visibleToOld(visibleToOld)
+  , visibleToOld(visibleTo)
   , tableaddr(factory(data))
 {
-  tableaddr->setSize(preferredSize(NULL));
+  tableaddr->setSize(size);
   addChild(tableaddr);
   if (tableaddr->childCount() < visibleElements)
   {
@@ -42,13 +42,7 @@ TextureTable::TextureTable(Widget* parent, Vector2i pos, std::function<Widget*(c
 
 Vector2i TextureTable::preferredSize(SDL_Renderer* ctx) const
 {
-  int w = tableaddr->childAt(0)->size()[0];
-  int h = 0;
-  for (int i = 0; i < visibleElements; i++)
-  {
-    h += tableaddr->childAt(0)->size()[1];
-  }
-  return Vector2i(w, h);
+  return size;
 }
 
 bool TextureTable::mouseMotionEvent(const Vector2i& p, const Vector2i& rel, int button, int modifiers)
@@ -70,17 +64,20 @@ bool TextureTable::mouseMotionEvent(const Vector2i& p, const Vector2i& rel, int 
 
 bool TextureTable::scrollEvent(const Vector2i& p, const Vector2f& rel)
 {
-  if (rel.y < 0)
+  if (mouseScroll)
   {
-    scrollNegative();
-    setVisibleFlag = false;
-    return true;
-  }
-  else if (rel.y > 0)
-  {
-    scrollPositive();
-    setVisibleFlag = false;
-    return true;
+    if (rel.y < 0)
+    {
+      scrollNegative();
+      setVisibleFlag = false;
+      return true;
+    }
+    else if (rel.y > 0)
+    {
+      scrollPositive();
+      setVisibleFlag = false;
+      return true;
+    }
   }
   return Widget::scrollEvent(p, rel);
 }
@@ -98,8 +95,6 @@ void TextureTable::draw(SDL_Renderer* renderer)
     }
     visibleFromOld = visibleFrom;
     visibleToOld = visibleTo;
-    std::cout << "visibleFrom: " << visibleFrom << std::endl;
-    std::cout << "visibleTo: " << visibleTo << std::endl;
     for (int i = visibleFrom; i < visibleTo; i++)
     {
       Widget* w = tableaddr->childAt(i);
@@ -122,6 +117,11 @@ void TextureTable::setVisibleElements(int visible)
 void TextureTable::setScrollBy(int scroll)
 {
   scrollBy = scroll;
+}
+
+void TextureTable::setMouseScroll(bool state)
+{
+  mouseScroll = state;
 }
 
 void TextureTable::setVerticalMargin(int margin)
@@ -170,18 +170,6 @@ void TextureTable::scrollNegative()
   visibleFrom = visibleTo - visibleRange;
 }
 
-void TextureTable::addElement(Widget widget)
-{
-}
-
-void TextureTable::addElements(std::vector<Widget> widgets)
-{
-}
-
-void TextureTable::updateElements(std::vector<Widget> widgets)
-{
-}
-
 bool TextureTable::removeElement(unsigned int index)
 {
 
@@ -199,6 +187,22 @@ void TextureTable::clear()
   {
     tableaddr->removeChild(i);
   }
+}
+
+void TextureTable::setPosition(const Vector2i& pos)
+{
+  _pos = pos;
+}
+
+void TextureTable::setPosition(int x, int y)
+{
+  _pos = Vector2i{x, y};
+}
+
+void TextureTable::setVisible(bool visible)
+{
+  mVisible = visible;
+  tableaddr->setVisible(visible);
 }
 
 NAMESPACE_END(sdlgui)
