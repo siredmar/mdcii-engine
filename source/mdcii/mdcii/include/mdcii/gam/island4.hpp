@@ -19,21 +19,10 @@
 #define _ISLAND4_HPP
 
 #include <inttypes.h>
-#include <map>
 #include <string>
-#include <vector>
-
-#include "../files.hpp"
-
-#include "../cod/haeuser.hpp"
 
 #include "chunk.hpp"
-#include "deer.hpp"
 #include "island.hpp"
-#include "islandhouse.hpp"
-#include "military.hpp"
-#include "shipyard.hpp"
-#include "warehouse.hpp"
 
 struct Island4Data
 {
@@ -74,34 +63,10 @@ public:
   {
   }
   explicit Island4(uint8_t* data, uint32_t length, const std::string& name);
-  void setIslandNumber(uint8_t number);
-  void setIslandFile(uint16_t fileNumber);
-  void addIslandHouse(std::shared_ptr<Chunk> c);
-  void addIslandHouse(std::shared_ptr<IslandHouse> i);
-  void setDeer(std::shared_ptr<Chunk> c);
-
-  std::vector<std::shared_ptr<IslandHouse>> getIslandHouseData()
-  {
-    return finalIslandHouse;
-  }
-
-  void finalize();
-
-  static IslandClimate randomIslandClimate();
-  static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
-  IslandHouseData TerrainTile(uint8_t x, uint8_t y);
-  TileGraphic GraphicIndexForTile(IslandHouseData& tile, uint32_t rotation);
   Island4Data island;
 
 private:
   std::string name;
-  Files* files;
-
-  std::vector<std::shared_ptr<IslandHouse>> finalIslandHouse; // INSELHAUS
-  std::shared_ptr<IslandHouse> topLayer;
-  std::shared_ptr<IslandHouse> bottomLayer;
-  Deer deer;                                             // HIRSCH2
-  std::vector<std::shared_ptr<IslandHouse>> islandHouse; // INSELHAUS
 };
 
 #endif // _ISLAND4_HPP
