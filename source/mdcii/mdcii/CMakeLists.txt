@@ -92,6 +92,7 @@ set(headers
     ${include_path}/gam/shipyard.hpp
     ${include_path}/gam/warehouse.hpp
     ${include_path}/gam/gam_parser.hpp
+    ${include_path}/world/world.hpp
 )
 
 set(sources
@@ -139,6 +140,7 @@ set(sources
     ${source_path}/gam/shipyard.cpp
     ${source_path}/gam/warehouse.cpp
     ${source_path}/gam/gam_parser.cpp
+    ${source_path}/world/world.cpp
 )
 
 # Group source files

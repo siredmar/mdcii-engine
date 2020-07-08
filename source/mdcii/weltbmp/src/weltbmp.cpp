@@ -29,6 +29,7 @@
 #include "mdcii/cod/cod_parser.hpp"
 #include "mdcii/files.hpp"
 #include "mdcii/insel.hpp"
+#include "mdcii/palette.hpp"
 #include "mdcii/version.hpp"
 #include "mdcii/welt.hpp"
 
@@ -58,6 +59,7 @@ int main(int argc, char** argv)
   Version::DetectGameVersion();
   std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
   std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
   Welt welt = Welt(f, haeuser);
 
   f.close();

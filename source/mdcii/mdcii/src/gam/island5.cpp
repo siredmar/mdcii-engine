@@ -101,7 +101,7 @@ void Island5::finalize()
     if (chunks[1]->chunk.name == "INSELHAUS")
     {
       auto i = std::make_shared<IslandHouse>(chunks[1]->chunk.data, chunks[1]->chunk.length, chunks[1]->chunk.name.c_str(), island.width, island.height);
-      islandHouse.push_back(i);
+      islandHouse.insert(islandHouse.begin(), i);
     }
     if (islandHouse.size() == 2)
     {
@@ -145,10 +145,10 @@ void Island5::setDeer(std::shared_ptr<Chunk> c)
 IslandHouseData Island5::TerrainTile(uint8_t x, uint8_t y)
 {
   // Check if top layer has something for the given position, fallback to bottom layer
-  auto h = finalIslandHouse[1]->Get(x, y);
+  auto h = topLayer->Get(x, y);
   if (h.id == 0xFFFF)
   {
-    h = finalIslandHouse[0]->Get(x, y);
+    h = bottomLayer->Get(x, y);
   }
 
   uint8_t xp = h.posx;
@@ -158,10 +158,10 @@ IslandHouseData Island5::TerrainTile(uint8_t x, uint8_t y)
     return h;
   }
 
-  h = finalIslandHouse[1]->Get(x - xp, y - yp);
+  h = topLayer->Get(x - xp, y - yp);
   if (h.id == 0xFFFF)
   {
-    h = finalIslandHouse[0]->Get(x - xp, y - yp);
+    h = bottomLayer->Get(x - xp, y - yp);
   }
   h.posx = xp;
   h.posy = yp;
