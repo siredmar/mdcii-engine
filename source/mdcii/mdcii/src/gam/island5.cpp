@@ -31,7 +31,7 @@
 
 Island5::Island5(uint8_t* data, uint32_t length, const std::string& name)
   : name(name)
-  , files(Files::instance())
+  , files(Files::Instance())
 {
   memcpy((char*)&island, data, length);
 }
@@ -41,8 +41,8 @@ Island5::Island5(const Island3& island3)
   island.islandNumber = island3.island3.inselnr;
   island.posx = island3.island3.x_pos;
   island.posy = island3.island3.y_pos;
-  island.width = island3.island3.breite;
-  island.height = island3.island3.hoehe;
+  island.width = island3.island3.width;
+  island.height = island3.island3.height;
 }
 
 Island5::Island5(const Island4& island4)
@@ -53,46 +53,46 @@ Island5::Island5(const Island4& island4)
   island.islandNumber = 0;
 }
 
-void Island5::setIslandNumber(uint8_t number)
+void Island5::SetIslandNumber(uint8_t number)
 {
   island.islandNumber = number;
 }
 
-void Island5::setIslandFile(uint16_t fileNumber)
+void Island5::SetIslandFile(uint16_t fileNumber)
 {
   island.fileNumber = fileNumber;
 }
 
-void Island5::addIslandHouse(std::shared_ptr<Chunk> c)
+void Island5::AddIslandHouse(std::shared_ptr<Chunk> c)
 {
   islandHouse.push_back(std::make_shared<IslandHouse>(c->chunk.data, c->chunk.length, c->chunk.name.c_str(), island.width, island.height));
 }
 
-void Island5::addIslandHouse(std::shared_ptr<IslandHouse> i)
+void Island5::AddIslandHouse(std::shared_ptr<IslandHouse> i)
 {
   islandHouse.push_back(i);
 }
 
-std::string Island5::islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate)
+std::string Island5::IslandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate)
 {
   return boost::str(boost::format("%s/%s%02d.scp") % islandClimateMap[climate] % islandSizeMap[size] % (int)islandNumber);
 }
 
-IslandClimate Island5::randomIslandClimate()
+IslandClimate Island5::RandomIslandClimate()
 {
   std::time_t now = std::time(0);
   boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
   return static_cast<IslandClimate>(gen() % static_cast<uint32_t>(IslandClimate::Any));
 }
 
-void Island5::finalize()
+void Island5::Finalize()
 {
   // island is unmodified, load bottom islandHouse from island file
   if (island.modifiedFlag == IslandModified::False && islandHouse.size() <= 1)
   {
     // load the unmodified bottom layer from the island .scp file
-    auto islandFile = Island5::islandFileName(island.size, island.fileNumber, island.climate);
-    auto path = files->find_path_for_file(islandFile);
+    auto islandFile = Island5::IslandFileName(island.size, island.fileNumber, island.climate);
+    auto path = files->FindPathForFile(islandFile);
     if (path == "")
     {
       throw("[EER] cannot find file: " + path);
@@ -137,7 +137,7 @@ void Island5::finalize()
   topLayer = finalIslandHouse[1];
 }
 
-void Island5::setDeer(std::shared_ptr<Chunk> c)
+void Island5::SetDeer(std::shared_ptr<Chunk> c)
 {
   deer = Deer(c->chunk.data, c->chunk.length, "HIRSCH2");
 }
@@ -171,7 +171,7 @@ IslandHouseData Island5::TerrainTile(uint8_t x, uint8_t y)
 
 TileGraphic Island5::GraphicIndexForTile(IslandHouseData& tile, uint32_t rotation)
 {
-  auto haeuser = Haeuser::Instance();
+  auto buildings = Buildings::Instance();
   TileGraphic target;
   if (tile.id == 0xFFFF)
   {
@@ -179,7 +179,7 @@ TileGraphic Island5::GraphicIndexForTile(IslandHouseData& tile, uint32_t rotatio
     target.groundHeight = 0;
     return target;
   }
-  auto info = haeuser->get_haus(tile.id);
+  auto info = buildings->GetHouse(tile.id);
 
   if (!info || info.value()->Gfx == -1)
   {

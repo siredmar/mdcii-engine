@@ -18,54 +18,54 @@
 
 #include "kamera.hpp"
 #include "cod/haeuser.hpp"
-#include "files.hpp"
+#include "files/files.hpp"
 #include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
 const int Kamera::grundhoehe[3] = {5, 10, 20};
 
-Kamera::Kamera(std::shared_ptr<Haeuser> haeuser)
-  : haeuser(haeuser)
+Kamera::Kamera()
 {
+  buildings = Buildings::Instance();
   xpos = Welt::KARTENBREITE / 2;
   ypos = Welt::KARTENHOEHE / 2;
   drehung = 0;
   vergroesserung = 1;
-  auto files = Files::instance();
-  effekte_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/effekte.bsh"));
-  effekte_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/effekte.bsh"));
-  effekte_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/effekte.bsh"));
+  auto files = Files::Instance();
+  effekte_bsh[0] = new BshReader(files->Instance()->FindPathForFile("sgfx/effekte.bsh"));
+  effekte_bsh[1] = new BshReader(files->Instance()->FindPathForFile("mgfx/effekte.bsh"));
+  effekte_bsh[2] = new BshReader(files->Instance()->FindPathForFile("gfx/effekte.bsh"));
 
-  // maeher_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/maeher.bsh"));
-  // maeher_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/maeher.bsh"));
-  // maeher_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/maeher.bsh"));
+  // maeher_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/maeher.bsh"));
+  // maeher_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/maeher.bsh"));
+  // maeher_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/maeher.bsh"));
 
-  // numbers_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/numbers.bsh"));
-  // numbers_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/numbers.bsh"));
-  // numbers_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/numbers.bsh"));
+  // numbers_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/numbers.bsh"));
+  // numbers_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/numbers.bsh"));
+  // numbers_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/numbers.bsh"));
 
-  ship_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/ship.bsh"));
-  ship_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/ship.bsh"));
-  ship_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/ship.bsh"));
+  ship_bsh[0] = new BshReader(files->Instance()->FindPathForFile("sgfx/ship.bsh"));
+  ship_bsh[1] = new BshReader(files->Instance()->FindPathForFile("mgfx/ship.bsh"));
+  ship_bsh[2] = new BshReader(files->Instance()->FindPathForFile("gfx/ship.bsh"));
 
-  soldat_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/soldat.bsh"));
-  soldat_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/soldat.bsh"));
-  soldat_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/soldat.bsh"));
+  soldat_bsh[0] = new BshReader(files->Instance()->FindPathForFile("sgfx/soldat.bsh"));
+  soldat_bsh[1] = new BshReader(files->Instance()->FindPathForFile("mgfx/soldat.bsh"));
+  soldat_bsh[2] = new BshReader(files->Instance()->FindPathForFile("gfx/soldat.bsh"));
 
-  stadtfld_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/stadtfld.bsh"));
-  stadtfld_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/stadtfld.bsh"));
-  stadtfld_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/stadtfld.bsh"));
+  stadtfld_bsh[0] = new BshReader(files->Instance()->FindPathForFile("sgfx/stadtfld.bsh"));
+  stadtfld_bsh[1] = new BshReader(files->Instance()->FindPathForFile("mgfx/stadtfld.bsh"));
+  stadtfld_bsh[2] = new BshReader(files->Instance()->FindPathForFile("gfx/stadtfld.bsh"));
 
-  // tiere_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/tiere.bsh"));
-  // tiere_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/tiere.bsh"));
-  // tiere_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/tiere.bsh"));
+  // tiere_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/tiere.bsh"));
+  // tiere_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/tiere.bsh"));
+  // tiere_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/tiere.bsh"));
 
-  // traeger_bsh[0] = new Bsh_leser(files->instance()->find_path_for_file("sgfx/traeger.bsh"));
-  // traeger_bsh[1] = new Bsh_leser(files->instance()->find_path_for_file("mgfx/traeger.bsh"));
-  // traeger_bsh[2] = new Bsh_leser(files->instance()->find_path_for_file("gfx/traeger.bsh"));
+  // traeger_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/traeger.bsh"));
+  // traeger_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/traeger.bsh"));
+  // traeger_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/traeger.bsh"));
 
-  zei = std::make_shared<Zei_leser>(files->instance()->find_path_for_file("toolgfx/zei16g.zei"));
+  zei = std::make_shared<ZeiReader>(files->Instance()->FindPathForFile("toolgfx/zei16g.zei"));
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)
@@ -233,36 +233,36 @@ void Kamera::rechts_drehen()
   drehung = (drehung + 1) % 4;
 }
 
-void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y)
+void Kamera::auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y)
 {
   int x = karte_x - xpos;
   int y = karte_y - ypos;
   switch (drehung)
   {
     case 0:
-      bildschirm_x = bs.breite / 2 + (x - y - 1) * x_raster[vergroesserung];
-      bildschirm_y = bs.hoehe / 2 + (x + y) * y_raster[vergroesserung];
+      bildschirm_x = fb.width / 2 + (x - y - 1) * x_raster[vergroesserung];
+      bildschirm_y = fb.height / 2 + (x + y) * y_raster[vergroesserung];
       break;
     case 1: // TODO: Fälle 1-3 überprüfen
-      bildschirm_x = bs.breite / 2 + (-x - y - 1) * x_raster[vergroesserung];
-      bildschirm_y = bs.hoehe / 2 + (x + -y) * y_raster[vergroesserung];
+      bildschirm_x = fb.width / 2 + (-x - y - 1) * x_raster[vergroesserung];
+      bildschirm_y = fb.height / 2 + (x + -y) * y_raster[vergroesserung];
       break;
     case 2:
-      bildschirm_x = bs.breite / 2 - (x - y - 1) * x_raster[vergroesserung];
-      bildschirm_y = bs.hoehe / 2 - (x + y) * y_raster[vergroesserung];
+      bildschirm_x = fb.width / 2 - (x - y - 1) * x_raster[vergroesserung];
+      bildschirm_y = fb.height / 2 - (x + y) * y_raster[vergroesserung];
       break;
     case 3:
-      bildschirm_x = bs.breite / 2 - (-x - y - 1) * x_raster[vergroesserung];
-      bildschirm_y = bs.hoehe / 2 - (x + -y) * y_raster[vergroesserung];
+      bildschirm_x = fb.width / 2 - (-x - y - 1) * x_raster[vergroesserung];
+      bildschirm_y = fb.height / 2 - (x + -y) * y_raster[vergroesserung];
       break;
     default:
       break;
   }
 }
 
-void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z)
+void Kamera::auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z)
 {
-  auf_bildschirm(bs, karte_x, karte_y, bildschirm_x, bildschirm_y);
+  auf_bildschirm(fb, karte_x, karte_y, bildschirm_x, bildschirm_y);
   int x = karte_x - xpos;
   int y = karte_y - ypos;
   switch (drehung)
@@ -286,30 +286,30 @@ void Kamera::auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int kart
   bildschirm_z *= 256;
 }
 
-void Kamera::auf_bildschirm_256(Bildspeicher& bs, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z)
+void Kamera::auf_bildschirm_256(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z)
 {
   int x = karte_x - 256 * xpos;
   int y = karte_y - 256 * ypos;
   switch (drehung)
   {
     case 0:
-      bildschirm_x = bs.breite / 2 + (x - y - 256) * x_raster[vergroesserung] / 256;
-      bildschirm_y = bs.hoehe / 2 + (x + y) * y_raster[vergroesserung] / 256;
+      bildschirm_x = fb.width / 2 + (x - y - 256) * x_raster[vergroesserung] / 256;
+      bildschirm_y = fb.height / 2 + (x + y) * y_raster[vergroesserung] / 256;
       bildschirm_z = x + y;
       break;
     case 1: // TODO: Fälle 1-3 überprüfen
-      bildschirm_x = bs.breite / 2 + (-x - y - 256) * x_raster[vergroesserung] / 256;
-      bildschirm_y = bs.hoehe / 2 + (x + -y) * y_raster[vergroesserung] / 256;
+      bildschirm_x = fb.width / 2 + (-x - y - 256) * x_raster[vergroesserung] / 256;
+      bildschirm_y = fb.height / 2 + (x + -y) * y_raster[vergroesserung] / 256;
       bildschirm_z = x - y;
       break;
     case 2:
-      bildschirm_x = bs.breite / 2 - (x - y - 256) * x_raster[vergroesserung] / 256;
-      bildschirm_y = bs.hoehe / 2 - (x + y) * y_raster[vergroesserung] / 256;
+      bildschirm_x = fb.width / 2 - (x - y - 256) * x_raster[vergroesserung] / 256;
+      bildschirm_y = fb.height / 2 - (x + y) * y_raster[vergroesserung] / 256;
       bildschirm_z = -(x + y);
       break;
     case 3:
-      bildschirm_x = bs.breite / 2 - (-x - y - 256) * x_raster[vergroesserung] / 256;
-      bildschirm_y = bs.hoehe / 2 - (x + -y) * y_raster[vergroesserung] / 256;
+      bildschirm_x = fb.width / 2 - (-x - y - 256) * x_raster[vergroesserung] / 256;
+      bildschirm_y = fb.height / 2 - (x + -y) * y_raster[vergroesserung] / 256;
       bildschirm_z = -(x - y);
       break;
     default:
@@ -318,10 +318,10 @@ void Kamera::auf_bildschirm_256(Bildspeicher& bs, int karte_x, int karte_y, int 
   bildschirm_y -= karte_z * grundhoehe[vergroesserung] / 256;
 }
 
-void Kamera::auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y)
+void Kamera::auf_karte(Framebuffer& fb, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y)
 {
-  int temp1 = (bildschirm_x - (int)bs.breite / 2) / x_raster[vergroesserung];
-  int temp2 = (bildschirm_y - (int)bs.hoehe / 2) / y_raster[vergroesserung];
+  int temp1 = (bildschirm_x - (int)fb.width / 2) / x_raster[vergroesserung];
+  int temp2 = (bildschirm_y - (int)fb.height / 2) / y_raster[vergroesserung];
   int temp3 = (temp2 - temp1 + 1) / 2;
   switch (drehung)
   {
@@ -349,7 +349,7 @@ void Kamera::auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int
 
 struct bild_mit_pos_t
 {
-  Bsh_bild* bild;
+  BshImage* image;
   int bs_x;
   int bs_y;
   int bs_z;
@@ -359,17 +359,17 @@ struct bild_mit_pos_t
 };
 
 
-void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
+void Kamera::zeichne_bild(Framebuffer& fb, Welt& welt, int maus_x, int maus_y)
 {
   bool feld_unter_maus = false;
   int feld_unter_maus_x, feld_unter_maus_y;
 
   int karte_x, karte_y;
-  auf_karte(bs, -x_raster[vergroesserung], -2 * y_raster[vergroesserung], karte_x, karte_y);
+  auf_karte(fb, -x_raster[vergroesserung], -2 * y_raster[vergroesserung], karte_x, karte_y);
   int bildschirm_x, bildschirm_y;
-  auf_bildschirm(bs, karte_x, karte_y, bildschirm_x, bildschirm_y);
-  int felder_horizontal = bs.breite / x_raster[vergroesserung] / 2 + 2;
-  int felder_vertikal = bs.hoehe / y_raster[vergroesserung] / 2 + 8;
+  auf_bildschirm(fb, karte_x, karte_y, bildschirm_x, bildschirm_y);
+  int felder_horizontal = fb.width / x_raster[vergroesserung] / 2 + 2;
+  int felder_vertikal = fb.height / y_raster[vergroesserung] / 2 + 8;
 
   int ausdehnung = (felder_horizontal + felder_vertikal) / 2;
 
@@ -381,12 +381,12 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       inselfeld_t inselfeld;
       welt.feld_an_pos(inselfeld, x, y);
       feld_t feld;
-      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, haeuser);
+      Insel::grafik_bebauung_inselfeld(feld, inselfeld, drehung, buildings);
       if (feld.index != -1)
       {
         int bs_x, bs_y, bs_z;
-        auf_bildschirm(bs, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
-        bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->gib_bsh_bild(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
+        auf_bildschirm(fb, x, y, feld.grundhoehe, bs_x, bs_y, bs_z);
+        bild_mit_pos_t bild_mit_pos = {&stadtfld_bsh[vergroesserung]->GetBshImage(feld.index), bs_x, bs_y + y_raster[vergroesserung], bs_z, x, y, true};
         felder.push_back(bild_mit_pos);
       }
     }
@@ -397,8 +397,8 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
   {
     Animation& animation = map_elem.second;
     int bs_x, bs_y, bs_z;
-    auf_bildschirm_256(bs, animation.x, animation.y, animation.z, bs_x, bs_y, bs_z);
-    bild_mit_pos_t bild_mit_pos = {&effekte_bsh[vergroesserung]->gib_bsh_bild(animation.start_index + animation.ani), bs_x, bs_y, bs_z + animation.bs_z_versatz,
+    auf_bildschirm_256(fb, animation.x, animation.y, animation.z, bs_x, bs_y, bs_z);
+    bild_mit_pos_t bild_mit_pos = {&effekte_bsh[vergroesserung]->GetBshImage(animation.start_index + animation.ani), bs_x, bs_y, bs_z + animation.bs_z_versatz,
         map_elem.first.first, map_elem.first.second, false};
     felder.push_back(bild_mit_pos);
   }
@@ -430,21 +430,21 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
         index = 0;
     }
     int bs_x, bs_y, bs_z;
-    auf_bildschirm(bs, schiff.x_pos, schiff.y_pos, 0, bs_x, bs_y, bs_z);
+    auf_bildschirm(fb, schiff.x_pos, schiff.y_pos, 0, bs_x, bs_y, bs_z);
     // zeichne Bugwellen
     if ((schiff.kurs_ziel & 0xff) != 0) // Bedeutet dies wirklich, dass das Schiff fährt?
     {
-      Bsh_bild& wellen = ship_bsh[vergroesserung]->gib_bsh_bild(12 * schiff.richtung + 96);
+      BshImage& wellen = ship_bsh[vergroesserung]->GetBshImage(12 * schiff.richtung + 96);
       felder.push_back({&wellen, bs_x, bs_y + y_raster[vergroesserung] * 2, bs_z + 512, schiff.x_pos, schiff.y_pos, false});
     }
     // zeichne Schiff
-    Bsh_bild& bsh = ship_bsh[vergroesserung]->gib_bsh_bild(index + schiff.richtung);
+    BshImage& bsh = ship_bsh[vergroesserung]->GetBshImage(index + schiff.richtung);
     felder.push_back({&bsh, bs_x, bs_y + y_raster[vergroesserung], bs_z + 512, schiff.x_pos, schiff.y_pos, false});
     // zeichne Flagge
     if (schiff.spieler != 4)
     {
       uint8_t nummer = (schiff.spieler < 4) ? welt.spielerfarbe(schiff.spieler) : schiff.spieler;
-      Bsh_bild& flagge = ship_bsh[vergroesserung]->gib_bsh_bild(192 + nummer * 8);
+      BshImage& flagge = ship_bsh[vergroesserung]->GetBshImage(192 + nummer * 8);
       felder.push_back({&flagge, bs_x, bs_y + y_raster[vergroesserung], bs_z + 512, schiff.x_pos, schiff.y_pos, false});
     }
   }
@@ -508,9 +508,9 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
       default:
         index = 0;
     }
-    Bsh_bild& bsh = soldat_bsh[vergroesserung]->gib_bsh_bild(index + soldat.richtung * 8);
+    BshImage& bsh = soldat_bsh[vergroesserung]->GetBshImage(index + soldat.richtung * 8);
     int bs_x, bs_y, bs_z;
-    auf_bildschirm_256(bs, soldat.x_pos_2 * 128, soldat.y_pos_2 * 128, 256, bs_x, bs_y, bs_z);
+    auf_bildschirm_256(fb, soldat.x_pos_2 * 128, soldat.y_pos_2 * 128, 256, bs_x, bs_y, bs_z);
     felder.push_back({&bsh, bs_x, bs_y + y_raster[vergroesserung], bs_z + 256, soldat.x_pos_2 / 2, soldat.y_pos_2 / 2, false});
   }
 
@@ -519,7 +519,7 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
   for (bild_mit_pos_t& feld : felder)
   {
     bool schnitt;
-    bs.zeichne_bsh_bild_sp_oz(*feld.bild, feld.bs_x, feld.bs_y, maus_x, maus_y, schnitt);
+    fb.zeichne_bsh_bild_sp_oz(*feld.image, feld.bs_x, feld.bs_y, maus_x, maus_y, schnitt);
     if (schnitt && feld.sp)
     {
       feld_unter_maus_x = feld.x;
@@ -528,25 +528,25 @@ void Kamera::zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y)
     }
   }
 
-  bs.setze_schriftfarbe(245, 0);
-  bs.zeichne_string(*zei, "current position:", 10, 10);
-  bs.zeichne_string(*zei, "(" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")", 10, 30);
+  fb.SetFontColor(245, 0);
+  fb.DrawString(*zei, "current position:", 10, 10);
+  fb.DrawString(*zei, "(" + std::to_string(xpos) + ", " + std::to_string(ypos) + ")", 10, 30);
   if (feld_unter_maus)
   {
     inselfeld_t inselfeld;
     welt.feld_an_pos(inselfeld, feld_unter_maus_x, feld_unter_maus_y);
-    bs.zeichne_string(*zei, "gfx tile under mouse cursor:", 10, 60);
-    bs.zeichne_string(*zei, std::to_string(inselfeld.bebauung), 10, 80);
-    bs.zeichne_string(*zei, "position and island under mouse cursor:", 10, 110);
-    bs.zeichne_string(*zei,
+    fb.DrawString(*zei, "gfx tile under mouse cursor:", 10, 60);
+    fb.DrawString(*zei, std::to_string(inselfeld.bebauung), 10, 80);
+    fb.DrawString(*zei, "position and island under mouse cursor:", 10, 110);
+    fb.DrawString(*zei,
         "(" + std::to_string(feld_unter_maus_x) + ", " + std::to_string(feld_unter_maus_y) + ")  Island "
             + std::to_string(welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y)),
         10, 130);
     int i = welt.inselnummer_an_pos(feld_unter_maus_x, feld_unter_maus_y);
     if (i != -1)
     {
-      bs.zeichne_string(*zei, "Position on island:", 10, 160);
-      bs.zeichne_string(*zei,
+      fb.DrawString(*zei, "Position on island:", 10, 160);
+      fb.DrawString(*zei,
           "(" + std::to_string(feld_unter_maus_x - welt.inseln[i]->xpos) + ", " + std::to_string(feld_unter_maus_y - welt.inseln[i]->ypos) + ")", 10, 180);
     }
   }

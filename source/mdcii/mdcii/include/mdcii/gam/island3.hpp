@@ -23,9 +23,9 @@
 #include <string>
 #include <vector>
 
-#include "../files.hpp"
+#include "files/files.hpp"
 
-#include "../cod/haeuser.hpp"
+#include "cod/haeuser.hpp"
 
 #include "chunk.hpp"
 #include "deer.hpp"
@@ -38,8 +38,8 @@
 struct Island3Data // Insel3
 {
   uint8_t inselnr;    // ID for this island (per game)
-  uint8_t breite;     // width
-  uint8_t hoehe;      // height
+  uint8_t width;      // width
+  uint8_t height;     // height
   uint8_t a;          // TODO: unknown
   uint16_t x_pos;     // position of island x
   uint16_t y_pos;     // position of island y

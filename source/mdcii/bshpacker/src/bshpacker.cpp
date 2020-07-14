@@ -20,7 +20,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-#include "mdcii/bsh_schreiber.hpp"
+#include "mdcii/bsh/bshwriter.hpp"
 
 namespace po = boost::program_options;
 
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  Bsh_schreiber bsh(color, extra, signature == "ZEI");
+  BshWriter bsh(color, extra, signature == "ZEI");
   if (bpp == 24)
   {
     for (int i = 0; i < number; i++)
@@ -105,10 +105,10 @@ int main(int argc, char** argv)
     for (int i = 0; i < number; i++)
     {
       if (file_format == "pnm")
-        bsh.pgm_anhaengen((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
+        bsh.AttachPGM((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
       // else if (file_format == "bmp")
       //   bsh.bmp_anhaengen((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }
   }
-  bsh.datei_schreiben(output_name.c_str());
+  bsh.WriteFile(output_name.c_str());
 }

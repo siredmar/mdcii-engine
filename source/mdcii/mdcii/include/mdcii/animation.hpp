@@ -21,7 +21,9 @@
 
 struct Animation
 {
-  int x, y, z;
+  int x;
+  int y;
+  int z;
   int ani;
   int start_index;
   int schritte;

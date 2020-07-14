@@ -2,9 +2,9 @@
 
 #include <boost/program_options.hpp>
 
-#include "../../cod_parser.hpp"
-#include "../../files.hpp"
-#include "../../haeuser.hpp"
+#include "../cod_parser.hpp"
+#include "../files/files.hpp"
+#include "../haeuser.hpp"
 
 namespace po = boost::program_options;
 
@@ -26,14 +26,14 @@ int main(int argc, char** argv)
     std::cout << desc << std::endl;
     exit(EXIT_SUCCESS);
   }
-  // auto files = Files::create_instance(".", false);
-  // if (files->instance()->check_file(cod_path) == true)
+  // auto files = Files::CreateInstance(".", false);
+  // if (files->Instance()->CheckFile(cod_path) == true)
   {
     std::shared_ptr<Cod_Parser> cod = std::make_shared<Cod_Parser>(cod_path, decrypt, true);
-    Haeuser haeuser(cod);
+    Haeuser buildings(cod);
     for (int i = 0; i < 2500; i++)
     {
-      auto h = haeuser.get_haus(i);
+      auto h = buildings.GetHouse(i);
       if (h)
       {
         // std::cout << h.value()->Id-20000 << "," << h.value()->Gfx << std::endl;

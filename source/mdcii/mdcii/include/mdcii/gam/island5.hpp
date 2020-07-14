@@ -23,9 +23,9 @@
 #include <string>
 #include <vector>
 
-#include "../files.hpp"
+#include "files/files.hpp"
 
-#include "../cod/haeuser.hpp"
+#include "cod/haeuser.hpp"
 
 #include "chunk.hpp"
 #include "deer.hpp"
@@ -76,25 +76,25 @@ public:
   explicit Island5(uint8_t* data, uint32_t length, const std::string& name);
   explicit Island5(const Island3& island3);
   explicit Island5(const Island4& island4);
-  void setIslandNumber(uint8_t number);
-  void setIslandFile(uint16_t fileNumber);
-  void addIslandHouse(std::shared_ptr<Chunk> c);
-  void addIslandHouse(std::shared_ptr<IslandHouse> i);
-  void setDeer(std::shared_ptr<Chunk> c);
-  Island5Data getIslandData()
+  void SetIslandNumber(uint8_t number);
+  void SetIslandFile(uint16_t fileNumber);
+  void AddIslandHouse(std::shared_ptr<Chunk> c);
+  void AddIslandHouse(std::shared_ptr<IslandHouse> i);
+  void SetDeer(std::shared_ptr<Chunk> c);
+  Island5Data GetIslandData()
   {
     return island;
   }
 
-  std::vector<std::shared_ptr<IslandHouse>> getIslandHouseData()
+  std::vector<std::shared_ptr<IslandHouse>> GetIslandHouseData()
   {
     return finalIslandHouse;
   }
 
-  void finalize();
+  void Finalize();
 
-  static IslandClimate randomIslandClimate();
-  static std::string islandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
+  static IslandClimate RandomIslandClimate();
+  static std::string IslandFileName(IslandSize size, uint8_t islandNumber, IslandClimate climate);
   IslandHouseData TerrainTile(uint8_t x, uint8_t y);
   TileGraphic GraphicIndexForTile(IslandHouseData& tile, uint32_t rotation);
 

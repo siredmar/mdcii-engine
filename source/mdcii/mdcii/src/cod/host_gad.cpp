@@ -21,13 +21,13 @@
 #include "cod/host_gad.hpp"
 
 
-Hostgad::Hostgad(std::shared_ptr<Cod_Parser> cod)
+Hostgad::Hostgad(std::shared_ptr<CodParser> cod)
   : cod(cod)
 {
-  generate_gadgets();
+  GenerateGadgets();
 }
 
-std::experimental::optional<HostGadGadget*> Hostgad::get_gadget(int id)
+std::experimental::optional<HostGadGadget*> Hostgad::GetGadget(int id)
 {
   if (gadgets.find(id) == gadgets.end())
   {
@@ -38,16 +38,16 @@ std::experimental::optional<HostGadGadget*> Hostgad::get_gadget(int id)
     return &gadgets[id];
   }
 }
-int Hostgad::get_gadgets_size()
+int Hostgad::GetGadgetsSize()
 {
-  return gadgets_vec.size();
+  return gadgetsVector.size();
 }
-HostGadGadget* Hostgad::get_gadgets_by_index(int index)
+HostGadGadget* Hostgad::GetGadgetByIndex(int index)
 {
-  return gadgets_vec[index];
+  return gadgetsVector[index];
 }
 
-void Hostgad::generate_gadgets()
+void Hostgad::GenerateGadgets()
 {
   for (int o = 0; o < cod->objects.object_size(); o++)
   {
@@ -56,15 +56,15 @@ void Hostgad::generate_gadgets()
     {
       for (int i = 0; i < obj.objects_size(); i++)
       {
-        auto gadget = generate_gadget(&obj.objects(i));
+        auto gadget = GenerateGadget(&obj.objects(i));
         gadgets[gadget.Id] = gadget;
-        gadgets_vec.push_back(&gadgets[gadget.Id]);
+        gadgetsVector.push_back(&gadgets[gadget.Id]);
       }
     }
   }
 }
 
-HostGadGadget Hostgad::generate_gadget(const cod_pb::Object* obj)
+HostGadGadget Hostgad::GenerateGadget(const cod_pb::Object* obj)
 {
   HostGadGadget h;
   if (obj->has_variables() == true)
@@ -80,7 +80,7 @@ HostGadGadget Hostgad::generate_gadget(const cod_pb::Object* obj)
         }
         else
         {
-          h.Id = var.value_int() - id_offset;
+          h.Id = var.value_int() - idOffset;
         }
       }
       // Ignore Blocknr for now
@@ -94,7 +94,7 @@ HostGadGadget Hostgad::generate_gadget(const cod_pb::Object* obj)
       }
       else if (var.name() == "Kind")
       {
-        h.Kind = KindMap[var.value_string()];
+        h.Kind = kindMap[var.value_string()];
       }
       else if (var.name() == "Noselflg")
       {

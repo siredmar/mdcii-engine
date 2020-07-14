@@ -4,7 +4,7 @@
 
 #include "mdcii/cod/cod_parser.hpp"
 #include "mdcii/cod/haeuser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
 
 namespace po = boost::program_options;
 
@@ -26,5 +26,5 @@ int main(int argc, char** argv)
     std::cout << desc << std::endl;
     exit(EXIT_SUCCESS);
   }
-  Cod_Parser cod(cod_path, decrypt, true);
+  CodParser cod(cod_path, decrypt, true);
 }

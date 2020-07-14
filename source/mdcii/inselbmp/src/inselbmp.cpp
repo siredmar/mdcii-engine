@@ -23,13 +23,13 @@
 #include <fstream>
 #include <string>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bsh_leser.hpp"
+#include "mdcii/bsh/bshreader.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 #include "mdcii/insel.hpp"
-#include "mdcii/palette.hpp"
-#include "mdcii/version.hpp"
+#include "mdcii/version/version.hpp"
 
 
 #define XRASTER 32
@@ -56,19 +56,19 @@ int main(int argc, char** argv)
 
   f.close();
 
-  auto files = Files::create_instance(std::string(argv[3]));
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  auto files = Files::CreateInstance(std::string(argv[3]));
+  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
   Version::DetectGameVersion();
 
-  Insel insel = Insel(&inselX, &inselhaus, haeuser);
-  uint8_t width = insel.breite;
-  uint8_t height = insel.hoehe;
+  Insel insel = Insel(&inselX, &inselhaus, buildings);
+  uint8_t width = insel.width;
+  uint8_t height = insel.height;
 
-  Bsh_leser bsh_leser(files->instance()->find_path_for_file("/gfx/stadtfld.bsh"));
+  BshReader bsh_leser(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
 
-  Bildspeicher_pal8 bs((width + height) * XRASTER, (width + height) * YRASTER, 0);
+  FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
 
   int x, y;
   for (y = 0; y < height; y++)
@@ -83,11 +83,11 @@ int main(int argc, char** argv)
       insel.grafik_bebauung(feld, x, y, 0);
       if (feld.index != -1)
       {
-        Bsh_bild& bsh = bsh_leser.gib_bsh_bild(feld.index);
-        bs.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
+        BshImage& bsh = bsh_leser.GetBshImage(feld.index);
+        fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
       }
     }
   }
 
-  bs.exportiere_bmp(argv[2]);
+  fb.ExportBMP(argv[2]);
 }

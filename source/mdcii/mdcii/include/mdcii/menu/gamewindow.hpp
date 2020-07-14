@@ -29,8 +29,14 @@
 
 #include "cod/cod_parser.hpp"
 #include "cod/haeuser.hpp"
-#include "files.hpp"
+#include "files/files.hpp"
+#include "framebuffer/framebuffer_pal8.hpp"
+#include "framebuffer/palette.hpp"
 #include "gam/gam_parser.hpp"
+#include "kamera.hpp"
+#include "spielbildschirm.hpp"
+
+#include "menu/fps.hpp"
 
 using namespace sdlgui;
 
@@ -38,16 +44,16 @@ class GameWindow : public Screen
 {
 public:
   GameWindow(
-      SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen, std::shared_ptr<Haeuser> haeuser);
+      SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen, std::shared_ptr<Buildings> buildings);
   void Handle();
 
 private:
   SDL_Renderer* renderer;
   int width;
   int height;
-  std::string gam_name;
+  std::string gamName;
   bool fullscreen;
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
   bool running;
   std::shared_ptr<GamParser> gam;
 };

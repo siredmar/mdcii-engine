@@ -21,13 +21,13 @@
 
 #include <SDL2/SDL.h>
 
-#include "files.hpp"
+#include "files/files.hpp"
 #include "welt.hpp"
 
-Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
-  : haeuser(haeuser)
-  , ani(0)
+Welt::Welt(std::istream& f)
+  : ani(0)
 {
+  buildings = Buildings::Instance();
   while (!f.eof())
   {
     try
@@ -46,39 +46,39 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
     {
       if ((strcmp((*(i + 1))->kennung, inselhaus_kennung) == 0) && (strcmp((*(i + 2))->kennung, inselhaus_kennung) == 0))
       {
-        inseln.push_back(new Insel(*i, *(i + 2), haeuser));
+        inseln.push_back(new Insel(*i, *(i + 2), buildings));
         i = i + 2;
       }
       else
       {
-        inseln.push_back(new Insel(*i, *(i + 1), haeuser));
+        inseln.push_back(new Insel(*i, *(i + 1), buildings));
         ++i;
       }
     }
     else if (strcmp((*i)->kennung, Kontor::kennung) == 0)
     {
-      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Kontor); j++)
-        kontore.push_back((Kontor&)(*i)->daten[j * sizeof(Kontor)]);
+      for (unsigned int j = 0; j < (*i)->length / sizeof(Kontor); j++)
+        kontore.push_back((Kontor&)(*i)->data[j * sizeof(Kontor)]);
     }
     else if (strcmp((*i)->kennung, Ship::kennung) == 0)
     {
-      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Ship); j++)
-        schiffe.push_back((Ship&)(*i)->daten[j * sizeof(Ship)]);
+      for (unsigned int j = 0; j < (*i)->length / sizeof(Ship); j++)
+        schiffe.push_back((Ship&)(*i)->data[j * sizeof(Ship)]);
     }
     else if (strcmp((*i)->kennung, Soldat::kennung) == 0)
     {
-      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Soldat); j++)
-        soldaten.push_back((Soldat&)(*i)->daten[j * sizeof(Soldat)]);
+      for (unsigned int j = 0; j < (*i)->length / sizeof(Soldat); j++)
+        soldaten.push_back((Soldat&)(*i)->data[j * sizeof(Soldat)]);
     }
     else if (strcmp((*i)->kennung, Prodlist::kennung) == 0)
     {
-      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Prodlist); j++)
-        prodlist.push_back((Prodlist&)(*i)->daten[j * sizeof(Prodlist)]);
+      for (unsigned int j = 0; j < (*i)->length / sizeof(Prodlist); j++)
+        prodlist.push_back((Prodlist&)(*i)->data[j * sizeof(Prodlist)]);
     }
     else if (strcmp((*i)->kennung, Player::kennung) == 0)
     {
-      for (unsigned int j = 0; j < (*i)->laenge / sizeof(Player); j++)
-        spieler.push_back((Player&)(*i)->daten[j * sizeof(Player)]);
+      for (unsigned int j = 0; j < (*i)->length / sizeof(Player); j++)
+        spieler.push_back((Player&)(*i)->data[j * sizeof(Player)]);
     }
     ++i;
   }
@@ -95,24 +95,24 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
         int y = prod.y_pos + inseln[prod.inselnummer]->ypos;
         inselfeld_t inselfeld;
         feld_an_pos(inselfeld, x, y);
-        auto info = haeuser->get_haus(inselfeld.bebauung);
+        auto info = buildings->GetHouse(inselfeld.bebauung);
         if (info)
         {
           int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
           int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
-          if (info.value()->HAUS_PRODTYP.Kind == ProdtypKindType::HANDWERK)
+          if (info.value()->HouseProductionType.Kind == ProdtypKindType::HANDWERK)
           {
-            int versatz = (info.value()->Size.w + info.value()->Size.h) / 2;
-            versatz += (versatz & 1) * 2;
+            int offset = (info.value()->Size.w + info.value()->Size.h) / 2;
+            offset += (offset & 1) * 2;
             if (!((prod.modus & 1) != 0)) // Betrieb ist geschlossen
             {
               animationen[std::pair<int, int>(x, y)]
-                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 350, 32, (max_x + max_y) * 128, true};
+                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + offset * 205, 0, 350, 32, (max_x + max_y) * 128, true};
             }
             if ((prod.ani & 0x0f) == 0x0f) // Betrieb hat Rohstoffmangel
             {
               animationen[std::pair<int, int>(x, y)]
-                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 382, 32, (max_x + max_y) * 128, true};
+                  = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + offset * 205, 0, 382, 32, (max_x + max_y) * 128, true};
             }
           }
         }
@@ -127,31 +127,31 @@ Welt::Welt(std::istream& f, std::shared_ptr<Haeuser> haeuser)
   // Initialisiere Animationen über Bergen
   for (Insel*& insel : inseln)
   {
-    for (int i = 0; i < reinterpret_cast<Insel5*>(insel->inselX->daten)->erzvorkommen; i++)
+    for (int i = 0; i < reinterpret_cast<Insel5*>(insel->inselX->data)->erzvorkommen; i++)
     {
-      const Erzvorkommen& erz = reinterpret_cast<Insel5*>(insel->inselX->daten)->erze[i];
+      const Erzvorkommen& erz = reinterpret_cast<Insel5*>(insel->inselX->data)->erze[i];
       int x = erz.x_pos + insel->xpos;
       int y = erz.y_pos + insel->ypos;
       inselfeld_t inselfeld;
       feld_an_pos(inselfeld, x, y);
-      auto info = haeuser->get_haus(inselfeld.bebauung);
+      auto info = buildings->GetHouse(inselfeld.bebauung);
       if (info)
       {
         int max_x = (((inselfeld.rot & 1) == 0) ? info.value()->Size.w : info.value()->Size.h) - 1;
         int max_y = (((inselfeld.rot & 1) == 0) ? info.value()->Size.h : info.value()->Size.w) - 1;
         if (info.value()->Kind == ObjectKindType::FELS)
         {
-          int versatz = (info.value()->Size.h + info.value()->Size.w) / 2;
-          versatz += (versatz & 1) * 2 + 3;
+          int offset = (info.value()->Size.h + info.value()->Size.w) / 2;
+          offset += (offset & 1) * 2 + 3;
           if (erz.typ == 2) // Eisen
           {
             animationen[std::pair<int, int>(x, y)]
-                = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 556, 32, (max_x + max_y) * 128, true};
+                = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + offset * 205, 0, 556, 32, (max_x + max_y) * 128, true};
           }
           if (erz.typ == 3) // Gold
           {
             animationen[std::pair<int, int>(x, y)]
-                = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + versatz * 205, 0, 588, 32, (max_x + max_y) * 128, true};
+                = {x * 256 + max_x * 128, y * 256 + max_y * 128, 256 + offset * 205, 0, 588, 32, (max_x + max_y) * 128, true};
           }
         }
       }
@@ -163,7 +163,7 @@ int Welt::inselnummer_an_pos(uint16_t x, uint16_t y)
 {
   for (unsigned int i = 0; i < inseln.size(); i++)
   {
-    if ((x >= inseln[i]->xpos) && (y >= inseln[i]->ypos) && (x < inseln[i]->xpos + inseln[i]->breite) && (y < inseln[i]->ypos + inseln[i]->hoehe))
+    if ((x >= inseln[i]->xpos) && (y >= inseln[i]->ypos) && (x < inseln[i]->xpos + inseln[i]->width) && (y < inseln[i]->ypos + inseln[i]->height))
       return i;
   }
   return -1;
@@ -173,7 +173,7 @@ Insel* Welt::insel_an_pos(uint16_t x, uint16_t y)
 {
   for (Insel* insel : inseln)
   {
-    if ((x >= insel->xpos) && (y >= insel->ypos) && (x < insel->xpos + insel->breite) && (y < insel->ypos + insel->hoehe))
+    if ((x >= insel->xpos) && (y >= insel->ypos) && (x < insel->xpos + insel->width) && (y < insel->ypos + insel->height))
       return insel;
   }
   return NULL;
@@ -184,7 +184,7 @@ void Welt::simulationsschritt()
   uint32_t now = SDL_GetTicks();
   static uint32_t old = 0;
   int tickdiff = static_cast<int>(now - old);
-  auto water = haeuser->get_haus(1201);
+  auto water = buildings->GetHouse(1201);
   if (water)
   {
     if (tickdiff >= water.value()->AnimTime)
@@ -234,7 +234,7 @@ void Welt::feld_an_pos(inselfeld_t& feld, int x, int y)
   {
     memset(&feld, 0, sizeof(inselfeld_t));
     feld.bebauung = 1201;
-    auto info = haeuser->get_haus(feld.bebauung);
+    auto info = buildings->GetHouse(feld.bebauung);
     if (info)
     {
       feld.ani = (0x80000000 + y + x * 3 + ani) % info.value()->AnimAnz;
@@ -266,5 +266,5 @@ Ship* Welt::schiff_an_pos(uint16_t x, uint16_t y)
 
 uint8_t Welt::spielerfarbe(uint8_t spieler)
 {
-  return this->spieler[spieler].farbe;
+  return this->spieler[spieler].color;
 }

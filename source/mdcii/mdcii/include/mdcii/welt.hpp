@@ -33,7 +33,7 @@
 class Welt
 {
 public:
-  explicit Welt(std::istream&, std::shared_ptr<Haeuser> haeuser);
+  explicit Welt(std::istream&);
   enum
   {
     KARTENBREITE = 500
@@ -62,8 +62,8 @@ public:
   uint8_t spielerfarbe(uint8_t spieler);
 
 private:
-  std::shared_ptr<Haeuser> haeuser;
   int ani;
+  std::shared_ptr<Buildings> buildings;
 };
 
 #endif

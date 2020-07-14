@@ -359,7 +359,7 @@ namespace math
     {
         return (a + tolerance >= b) && (a - tolerance <= b);
     }
-};
+}
 
 template <class T>
 class Vector2

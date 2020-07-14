@@ -26,66 +26,57 @@
 #include "sdlgui/button.h"
 #include "sdlgui/widget.h"
 
-#include "cod/cod_parser.hpp"
-
-#include "bildspeicher_pal8.hpp"
-#include "files.hpp"
-#include "fps.hpp"
-#include "kamera.hpp"
-#include "palette.hpp"
-#include "spielbildschirm.hpp"
-
 #include "menu/gamewindow.hpp"
 
 using namespace sdlgui;
 
 GameWindow::GameWindow(
-    SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, const std::string& gam_name, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
-  : Screen(pwindow, Vector2i(rwidth, rheight), "Game")
+    SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen, std::shared_ptr<Buildings> buildings)
+  : Screen(pwindow, Vector2i(width, height), "Game")
   , renderer(renderer)
-  , width(rwidth)
-  , height(rheight)
-  , gam_name(gam_name)
+  , width(width)
+  , height(height)
+  , gamName(gamName)
   , fullscreen(fullscreen)
-  , haeuser(haeuser)
+  , buildings(buildings)
   , running(true)
-  , gam(std::make_shared<GamParser>(gam_name, false))
+  , gam(std::make_shared<GamParser>(gamName, false))
 {
-  std::cout << "Haeuser: " << haeuser->get_haeuser_size() << std::endl;
+  std::cout << "Haeuser: " << buildings->GetBuildingsSize() << std::endl;
   {
     auto& button1 = wdg<Button>("Exit", [this] {
       std::cout << "Leaving game" << std::endl;
       this->running = false;
     });
     button1.setSize(sdlgui::Vector2i{100, 20});
-    button1.setPosition(rwidth - 50, rheight - 30);
+    button1.setPosition(width - 50, height - 30);
   }
 
-  performLayout(mSDL_Renderer);
+  performLayout(renderer);
 }
 
 void GameWindow::Handle()
 {
-  auto palette = Palette::instance();
+  auto palette = Palette::Instance();
 
   auto s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
-  SDL_SetPaletteColors(s8->format->palette, palette->getSDLColors(), 0, palette->size());
+  SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
 
   std::ifstream f;
-  f.open(gam_name, std::ios_base::in | std::ios_base::binary);
+  f.open(gamName, std::ios_base::in | std::ios_base::binary);
 
-  Welt welt = Welt(f, haeuser);
+  Welt welt = Welt(f);
 
   f.close();
-  Bildspeicher_pal8 bs(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
+  FramebufferPal8 fb(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
 
-  Spielbildschirm spielbildschirm(bs, haeuser);
+  Spielbildschirm spielbildschirm(fb);
   spielbildschirm.zeichne_bild(welt, 0, 0);
 
   try
   {
-    auto final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-    auto texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+    auto finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    auto texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     this->drawAll();
@@ -155,15 +146,15 @@ void GameWindow::Handle()
 
       welt.simulationsschritt();
       spielbildschirm.zeichne_bild(welt, x, y);
-      final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-      texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-      SDL_FreeSurface(final_surface);
+      finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+      texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
+      SDL_FreeSurface(finalSurface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       this->drawAll();
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(texture);
-      fps.next();
+      fps.Next();
     }
   }
   catch (const std::runtime_error& e)

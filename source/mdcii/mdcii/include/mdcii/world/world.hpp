@@ -1,9 +1,9 @@
 #ifndef __WORLD_HPP_
 #define __WORLD_HPP_
 
-#include "../gam/gam_parser.hpp"
-#include "../gam/island.hpp"
-#include "../gam/islandhouse.hpp"
+#include "gam/gam_parser.hpp"
+#include "gam/island.hpp"
+#include "gam/islandhouse.hpp"
 
 class World
 {

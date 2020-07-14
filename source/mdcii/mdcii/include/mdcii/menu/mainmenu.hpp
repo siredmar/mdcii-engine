@@ -27,22 +27,26 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
+#include "bsh/bshtexture.hpp"
 #include "cod/basegad_dat.hpp"
 #include "cod/cod_parser.hpp"
-#include "files.hpp"
+#include "cod/haeuser.hpp"
+#include "files/files.hpp"
+#include "framebuffer/palette.hpp"
 
+#include "menu/fps.hpp"
 
 using namespace sdlgui;
 
 class MainMenu : public Screen
 {
 public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Haeuser>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen);
+  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Buildings>, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen);
   void Handle();
 
 private:
   SDL_Renderer* renderer;
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
   std::shared_ptr<Basegad> basegad;
   int width;
   int height;

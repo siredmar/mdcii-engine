@@ -21,12 +21,12 @@
 Block::Block(std::istream& f)
 {
   f.read(this->kennung, sizeof(this->kennung));
-  f.read((char*)&this->laenge, sizeof(this->laenge));
-  this->daten = new uint8_t[this->laenge];
-  f.read((char*)this->daten, this->laenge);
+  f.read((char*)&this->length, sizeof(this->length));
+  this->data = new uint8_t[this->length];
+  f.read((char*)this->data, this->length);
 }
 
 Block::~Block()
 {
-  delete[] daten;
+  delete[] data;
 }

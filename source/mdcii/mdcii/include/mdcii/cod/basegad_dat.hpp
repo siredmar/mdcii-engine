@@ -54,22 +54,22 @@ struct BaseGadGadget
 class Basegad
 {
 public:
-  explicit Basegad(std::shared_ptr<Cod_Parser> cod);
-  std::experimental::optional<BaseGadGadget*> get_gadget(int id);
-  int get_gadgets_size();
-  BaseGadGadget* get_gadgets_by_index(int index);
+  explicit Basegad(std::shared_ptr<CodParser> cod);
+  std::experimental::optional<BaseGadGadget*> GetGadget(int id);
+  int GetGadgetsSize();
+  BaseGadGadget* GetGadgetsByIndex(int index);
 
 private:
-  void generate_gadgets();
-  BaseGadGadget generate_gadget(const cod_pb::Object* obj);
+  void GenerateGadgets();
+  BaseGadGadget GenerateGadget(const cod_pb::Object* obj);
 
 private:
-  const int id_offset = 30000;
+  const int idOffset = 30000;
   std::map<int, BaseGadGadget> gadgets;
-  std::vector<BaseGadGadget*> gadgets_vec;
-  std::shared_ptr<Cod_Parser> cod;
+  std::vector<BaseGadGadget*> gadgetsVector;
+  std::shared_ptr<CodParser> cod;
 
-  std::map<std::string, BaseGadKindType> KindMap = {{"GAD_GFX", BaseGadKindType::GAD_GFX}};
+  std::map<std::string, BaseGadKindType> kindMap = {{"GAD_GFX", BaseGadKindType::GAD_GFX}};
 };
 
 #endif //_BASEGAD_DAT_H_

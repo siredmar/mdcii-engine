@@ -20,11 +20,11 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bildspeicher_rgb24.hpp"
-#include "mdcii/bsh_leser.hpp"
-#include "mdcii/files.hpp"
-#include "mdcii/palette.hpp"
+#include "mdcii/bsh/bshreader.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/framebuffer_rgb24.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 
 namespace po = boost::program_options;
 
@@ -83,38 +83,38 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  auto files = Files::create_instance(vm["path"].as<std::string>());
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  auto files = Files::CreateInstance(vm["path"].as<std::string>());
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
 
-  Bsh_leser bsh(input_name);
+  BshReader bsh(input_name);
   if (bpp == 24)
   {
-    for (uint32_t i = 0; i < bsh.anzahl(); i++)
+    for (uint32_t i = 0; i < bsh.Count(); i++)
     {
-      Bsh_bild& bild = bsh.gib_bsh_bild(i);
-      Bildspeicher_rgb24 bs(bild.breite, bild.hoehe, color);
-      bs.bild_loeschen();
-      bs.zeichne_bsh_bild(bild, 0, 0);
+      BshImage& image = bsh.GetBshImage(i);
+      FramebufferRgb24 fb(image.width, image.height, color);
+      fb.Clear();
+      fb.DrawBshImage(image, 0, 0);
 
       if (file_format == "pnm")
-        bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
+        fb.ExportPNM((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
       else if (file_format == "bmp")
-        bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }
   }
   else if (bpp == 8)
   {
-    for (uint32_t i = 0; i < bsh.anzahl(); i++)
+    for (uint32_t i = 0; i < bsh.Count(); i++)
     {
-      Bsh_bild& bild = bsh.gib_bsh_bild(i);
-      Bildspeicher_pal8 bs(bild.breite, bild.hoehe, color);
-      bs.bild_loeschen();
-      bs.zeichne_bsh_bild(bild, 0, 0);
+      BshImage& image = bsh.GetBshImage(i);
+      FramebufferPal8 fb(image.width, image.height, color);
+      fb.Clear();
+      fb.DrawBshImage(image, 0, 0);
 
       if (file_format == "pnm")
-        bs.exportiere_pnm((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
+        fb.ExportPNM((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
       else if (file_format == "bmp")
-        bs.exportiere_bmp((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
     }
   }
 }

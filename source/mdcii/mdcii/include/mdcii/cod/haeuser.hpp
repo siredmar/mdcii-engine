@@ -316,7 +316,7 @@ enum class RauchfignrType
   FAHNETURM1
 };
 
-struct Haus
+struct Building
 {
   int Id = -1;
   int Gfx = -1;
@@ -383,7 +383,7 @@ struct Haus
     RauchfignrType Rauchfignr = RauchfignrType::UNSET;
     std::vector<int> Maxware = {};
     std::vector<int> Kosten = {};
-  } HAUS_PRODTYP;
+  } HouseProductionType;
   struct
   {
     int Money = -1;
@@ -391,27 +391,28 @@ struct Haus
     int Holz = -1;
     int Ziegel = -1;
     int Kanon = -1;
-  } HAUS_BAUKOST;
+  } HouseBuildCosts;
 };
 
-class Haeuser
+class Buildings
 {
 public:
-  explicit Haeuser(std::shared_ptr<Cod_Parser> cod);
-  static Haeuser* Instance();
-  std::experimental::optional<Haus*> get_haus(int id);
-  int get_haeuser_size();
-  Haus* get_haeuser_by_index(int index);
+  explicit Buildings(std::shared_ptr<CodParser> cod);
+  static std::shared_ptr<Buildings> Instance();
+  std::experimental::optional<Building*> GetHouse(int id);
+  int GetBuildingsSize();
+  Building* GetBuildingByIndex(int index);
 
 private:
-  std::shared_ptr<Cod_Parser> cod;
-  static Haeuser* _instance;
-  void generate_haeuser();
-  Haus generate_haus(const cod_pb::Object* obj);
+  std::shared_ptr<CodParser> cod;
+  static std::shared_ptr<Buildings> _instance;
+  static Buildings* _instanceRawPtr;
+  void GenerateBuildings();
+  Building GenerateBuilding(const cod_pb::Object* obj);
 
-  const int id_offset = 20000;
-  std::map<int, Haus> haeuser;
-  std::vector<Haus*> haeuser_vec;
+  const int idOffset = 20000;
+  std::map<int, Building> buildings;
+  std::vector<Building*> buildingsVector;
 
   std::map<std::string, ObjectKindType> ObjectKindMap = {{"WALD", ObjectKindType::WALD}, {"TOR", ObjectKindType::TOR}, {"RUINE", ObjectKindType::RUINE},
       {"HQ", ObjectKindType::HQ}, {"STRANDMUND", ObjectKindType::STRANDMUND}, {"STRANDHAUS", ObjectKindType::STRANDHAUS},

@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-#include "../files.hpp"
+#include "../files/files.hpp"
 
 #include "chunk.hpp"
 #include "city.hpp"
@@ -40,16 +40,16 @@ class GamParser
 {
 public:
   explicit GamParser(const std::string& gam, bool peek);
-  int getSceneRanking();
+  int GetSceneRanking();
 
-  Island5 sceneRandomIsland(SizeType size);
-  Island5 sceneRandomIsland(SizeType size, ClimateType climate);
-  Island5 sceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
-  uint8_t islands5Size()
+  Island5 SceneRandomIsland(SizeType size);
+  Island5 SceneRandomIsland(SizeType size, ClimateType climate);
+  Island5 SceneIslandbyFile(SizeType size, ClimateType climate, uint16_t fileNumber);
+  uint8_t Islands5Size()
   {
     return islands5.size();
   }
-  std::shared_ptr<Island5> getIsland5(int index)
+  std::shared_ptr<Island5> GetIsland5(int index)
   {
     return islands5[index];
   }
