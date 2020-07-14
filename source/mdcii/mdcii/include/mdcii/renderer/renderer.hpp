@@ -8,22 +8,22 @@
 #include <experimental/optional>
 #include <utility>
 
-#include "../bildspeicher_pal8.hpp"
-#include "../cod/haeuser.hpp"
-#include "../gam/island.hpp"
-#include "../gam/islandhouse.hpp"
-#include "../palette.hpp"
+#include "cod/haeuser.hpp"
+#include "framebuffer/framebuffer_pal8.hpp"
+#include "framebuffer/palette.hpp"
+#include "gam/island.hpp"
+#include "gam/islandhouse.hpp"
 
 class Renderer
 {
 public:
-  Renderer(const int width, const int height, std::shared_ptr<Haeuser> haeuser)
-    : palette(Palette::instance())
+  Renderer(const int width, const int height, std::shared_ptr<Buildings> buildings)
+    : palette(Palette::Instance())
     , target(SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0))
-    , bs(std::make_shared<Bildspeicher_pal8>(width, height, 0, static_cast<uint8_t*>(target->pixels), (uint32_t)target->pitch))
-    , haeuser(haeuser)
+    , fb(std::make_shared<FramebufferPal8>(width, height, 0, static_cast<uint8_t*>(target->pixels), (uint32_t)target->pitch))
+    , buildings(buildings)
   {
-    SDL_SetPaletteColors(target->format->palette, palette->getSDLColors(), 0, palette->size());
+    SDL_SetPaletteColors(target->format->palette, palette->GetSDLColors(), 0, palette->size());
   }
 
   void RenderIsland(Island5 i);
@@ -32,26 +32,26 @@ public:
 private:
   Palette* palette;
   SDL_Surface* target;
-  std::shared_ptr<Bildspeicher_pal8> bs;
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<FramebufferPal8> fb;
+  std::shared_ptr<Buildings> buildings;
 
 
   // std::experimental::optional<IslandHouseData> TerrainTile(uint8_t x, uint8_t y, IslandHouse islandHouseLayer);
 
-  // void grafik_bebauung_inselfeld(feld_t& ziel, IslandHouseData& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser)
+  // void grafik_bebauung_inselfeld(feld_t& target, IslandHouseData& feld, uint8_t r, std::shared_ptr<Haeuser> buildings)
   // {
   //   if (feld.bebauung == 0xffff)
   //   {
-  //     ziel.index = -1;
-  //     ziel.grundhoehe = 0;
+  //     target.index = -1;
+  //     target.grundhoehe = 0;
   //     return;
   //   }
-  //   auto info = haeuser->get_haus(feld.bebauung);
+  //   auto info = buildings->GetHouse(feld.bebauung);
 
   //   if (!info || info.value()->Gfx == -1)
   //   {
-  //     ziel.index = -1;
-  //     ziel.grundhoehe = 0;
+  //     target.index = -1;
+  //     target.grundhoehe = 0;
   //     return;
   //   }
   //   int grafik = info.value()->Gfx;
@@ -85,20 +85,20 @@ private:
   //       break;
   //   }
   //   index += info.value()->Size.h * info.value()->Size.w * richtungen * (feld.ani % ani_schritte);
-  //   ziel.index = index;
+  //   target.index = index;
   //   int grundhoehe = 0;
   //   if (info.value()->Posoffs == 20)
   //   {
   //     grundhoehe = 1;
   //   }
-  //   ziel.grundhoehe = grundhoehe;
+  //   target.grundhoehe = grundhoehe;
   // }
 
-  // void Insel::grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r)
+  // void Insel::grafik_bebauung(feld_t& target, uint8_t x, uint8_t y, uint8_t r)
   // {
   //   inselfeld_t feld;
   //   inselfeld_bebauung(feld, x, y);
-  //   grafik_bebauung_inselfeld(ziel, feld, r, haeuser);
+  //   grafik_bebauung_inselfeld(target, feld, r, buildings);
   // }
 };
 

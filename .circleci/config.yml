@@ -19,6 +19,11 @@ jobs:
             cd build
             cmake  ..
             cmake --build . --config Release
+      - run:
+          name: Run unit tests
+          command: |
+            cd build
+            ./cacheprotobuf-test
       - persist_to_workspace:
           root: .
           paths: build

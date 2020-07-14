@@ -42,34 +42,26 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(headers
     ${include_path}/mdcii.hpp
     ${include_path}/animation.hpp
-    ${include_path}/bildspeicher.hpp
-    ${include_path}/bildspeicher_pal8.hpp
-    ${include_path}/bildspeicher_rgb24.hpp
-    ${include_path}/bildspeicher_trans_pal8.hpp
-    ${include_path}/block.hpp
-    ${include_path}/bsh_leser.hpp
-    ${include_path}/bsh_schreiber.hpp
-    ${include_path}/bsh_texture.hpp
-    ${include_path}/files.hpp
-    ${include_path}/fps.hpp
-    ${include_path}/files_to_check.hpp
-    ${include_path}/generischer_bsh_leser.hpp
-    ${include_path}/insel.hpp
-    ${include_path}/kamera.hpp
-    ${include_path}/karte.hpp
-    ${include_path}/palette.hpp
-    ${include_path}/savegames.hpp
-    ${include_path}/spielbildschirm.hpp
-    ${include_path}/strukturen.hpp
-    ${include_path}/version.hpp
-    ${include_path}/welt.hpp
-    ${include_path}/zei_leser.hpp
-    ${include_path}/zei_texture.hpp
+    ${include_path}/framebuffer/framebuffer.hpp
+    ${include_path}/framebuffer/framebuffer_pal8.hpp
+    ${include_path}/framebuffer/framebuffer_rgb24.hpp
+    ${include_path}/framebuffer/framebuffer_trans_pal8.hpp
+    ${include_path}/framebuffer/palette.hpp
+    ${include_path}/bsh/genericbshreader.hpp
+    ${include_path}/bsh/bshreader.hpp
+    ${include_path}/bsh/bshwriter.hpp
+    ${include_path}/bsh/bshtexture.hpp
+    ${include_path}/bsh/zeireader.hpp
+    ${include_path}/bsh/zeitexture.hpp
+    ${include_path}/files/files.hpp
+    ${include_path}/files/filestocheck.hpp
+    ${include_path}/savegames/savegames.hpp
     ${include_path}/cache/cacheprotobuf.hpp
     ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
     ${include_path}/menu/gamewindow.hpp
+    ${include_path}/menu/fps.hpp
     ${include_path}/cod/cod_parser.hpp
     ${include_path}/cod/basegad_dat.hpp
     ${include_path}/cod/haeuser.hpp
@@ -93,28 +85,28 @@ set(headers
     ${include_path}/gam/warehouse.hpp
     ${include_path}/gam/gam_parser.hpp
     ${include_path}/world/world.hpp
+    ${include_path}/version/version.hpp
+    ${include_path}/block.hpp
+    ${include_path}/insel.hpp
+    ${include_path}/kamera.hpp
+    ${include_path}/karte.hpp
+    ${include_path}/spielbildschirm.hpp
+    ${include_path}/strukturen.hpp
+    ${include_path}/welt.hpp
 )
 
 set(sources
     ${source_path}/mdcii.cpp
-    ${source_path}/bildspeicher.cpp
-    ${source_path}/bildspeicher_pal8.cpp
-    ${source_path}/bildspeicher_rgb24.cpp
-    ${source_path}/bildspeicher_trans_pal8.cpp
-    ${source_path}/block.cpp
-    ${source_path}/bsh_schreiber.cpp
-    ${source_path}/bsh_texture.cpp
-    ${source_path}/files.cpp
-    ${source_path}/insel.cpp
-    ${source_path}/kamera.cpp
-    ${source_path}/karte.cpp
-    ${source_path}/palette.cpp
-    ${source_path}/savegames.cpp
-    ${source_path}/spielbildschirm.cpp
-    ${source_path}/strukturen.cpp
-    ${source_path}/version.cpp
-    ${source_path}/welt.cpp
-    ${source_path}/zei_texture.cpp
+    ${source_path}/framebuffer/framebuffer.cpp
+    ${source_path}/framebuffer/framebuffer_pal8.cpp
+    ${source_path}/framebuffer/framebuffer_rgb24.cpp
+    ${source_path}/framebuffer/framebuffer_trans_pal8.cpp
+    ${source_path}/framebuffer/palette.cpp
+    ${source_path}/files/files.cpp
+    ${source_path}/bsh/bshwriter.cpp
+    ${source_path}/bsh/bshtexture.cpp
+    ${source_path}/bsh/zeitexture.cpp
+    ${source_path}/savegames/savegames.cpp
     ${source_path}/renderer/renderer.cpp
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp
@@ -140,7 +132,15 @@ set(sources
     ${source_path}/gam/shipyard.cpp
     ${source_path}/gam/warehouse.cpp
     ${source_path}/gam/gam_parser.cpp
+    ${source_path}/version/version.cpp
     ${source_path}/world/world.cpp
+    ${source_path}/block.cpp
+    ${source_path}/insel.cpp
+    ${source_path}/kamera.cpp
+    ${source_path}/karte.cpp
+    ${source_path}/spielbildschirm.cpp
+    ${source_path}/strukturen.cpp
+    ${source_path}/welt.cpp
 )
 
 # Group source files
@@ -216,16 +216,18 @@ set_target_properties(${target}
 
 target_include_directories(${target}
     PRIVATE
-    ${PROJECT_BINARY_DIR}/source/include
+    ${PROJECT_BINARY_DIR}/source/include/${target}
     ${CMAKE_CURRENT_SOURCE_DIR}/include/${target}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/${target}
+    ${CMAKE_CURRENT_BINARY_DIR}/include/${target}
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
 
     INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include/>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/mdcii>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include/mdcii>
     $<INSTALL_INTERFACE:include>
 )
 

@@ -18,22 +18,21 @@
 
 #include "spielbildschirm.hpp"
 
-Spielbildschirm::Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser)
-  : bs(bs)
-  , karte(bs.breite - 182, 0, 182, 156)
-  , haeuser(haeuser)
+Spielbildschirm::Spielbildschirm(Framebuffer& fb)
+  : fb(fb)
+  , karte(fb.width - 182, 0, 182, 156)
 {
-  kamera = new Kamera(haeuser);
+  buildings = Buildings::Instance();
+  kamera = std::make_shared<Kamera>();
 }
 
 Spielbildschirm::~Spielbildschirm()
 {
-  delete kamera;
 }
 
 void Spielbildschirm::zeichne_bild(Welt& welt, int maus_x, int maus_y)
 {
-  kamera->zeichne_bild(bs, welt, maus_x, maus_y);
-  karte.zeichne_bild(bs, welt);
-  karte.zeichne_kameraposition(bs, *kamera);
+  kamera->zeichne_bild(fb, welt, maus_x, maus_y);
+  karte.zeichne_bild(fb, welt);
+  karte.zeichne_kameraposition(fb, *kamera);
 }

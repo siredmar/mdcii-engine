@@ -25,13 +25,13 @@
 
 #include <boost/program_options.hpp>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bsh_leser.hpp"
+#include "mdcii/bsh/bshreader.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 #include "mdcii/gam/gam_parser.hpp"
 #include "mdcii/insel.hpp"
-#include "mdcii/palette.hpp"
 
 namespace po = boost::program_options;
 
@@ -63,19 +63,19 @@ int main(int argc, char* argv[])
     exit(EXIT_SUCCESS);
   }
 
-  auto files = Files::create_instance(vm["path"].as<std::string>());
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  Bsh_leser bshReader(files->instance()->find_path_for_file("/gfx/stadtfld.bsh"));
+  auto files = Files::CreateInstance(vm["path"].as<std::string>());
+  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  (void)Buildings(buildingsCod);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  BshReader bshReader(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
 
   GamParser gam(vm["island"].as<std::string>(), false);
 
   int selectedIsland = -1;
-  if (gam.islands5Size() > 1)
+  if (gam.Islands5Size() > 1)
   {
-    std::cout << "Islands: " << static_cast<int>(gam.islands5Size()) << std::endl;
-    while (selectedIsland > static_cast<int>(gam.islands5Size() - 1) || selectedIsland == -1)
+    std::cout << "Islands: " << static_cast<int>(gam.Islands5Size()) << std::endl;
+    while (selectedIsland > static_cast<int>(gam.Islands5Size() - 1) || selectedIsland == -1)
     {
       std::cout << "Select island to export: " << std::endl;
       std::cin >> selectedIsland;
@@ -86,11 +86,11 @@ int main(int argc, char* argv[])
     selectedIsland = 0;
   }
 
-  auto island = gam.getIsland5(selectedIsland);
-  uint8_t width = island->getIslandData().width;
-  uint8_t height = island->getIslandData().height;
+  auto island = gam.GetIsland5(selectedIsland);
+  uint8_t width = island->GetIslandData().width;
+  uint8_t height = island->GetIslandData().height;
 
-  Bildspeicher_pal8 bs((width + height) * XRASTER, (width + height) * YRASTER, 0);
+  FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
 
   int x, y;
   for (y = 0; y < height; y++)
@@ -101,11 +101,11 @@ int main(int argc, char* argv[])
       auto gfx = island->GraphicIndexForTile(tile, 0);
       if (gfx.index != -1)
       {
-        Bsh_bild& bsh = bshReader.gib_bsh_bild(gfx.index);
-        bs.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
+        BshImage& bsh = bshReader.GetBshImage(gfx.index);
+        fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
       }
     }
   }
-  bs.exportiere_bmp(vm["output"].as<std::string>().c_str());
+  fb.ExportBMP(vm["output"].as<std::string>().c_str());
   return 0;
 }

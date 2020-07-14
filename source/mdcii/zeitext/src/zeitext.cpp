@@ -20,11 +20,11 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bildspeicher_rgb24.hpp"
-#include "mdcii/files.hpp"
-#include "mdcii/palette.hpp"
-#include "mdcii/zei_leser.hpp"
+#include "mdcii/bsh/zeireader.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/framebuffer_rgb24.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 
 namespace po = boost::program_options;
 
@@ -87,43 +87,43 @@ int main(int argc, char** argv)
     cout << "Gültige Werte für --format sind bmp und pnm" << endl;
     exit(EXIT_FAILURE);
   }
-  auto files = Files::create_instance(path);
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
+  auto files = Files::CreateInstance(path);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
 
-  Zei_leser zei(input_name);
-  vector<Zei_zeichen*> zeichen;
-  unsigned int breite = 0;
-  unsigned int hoehe = 0;
+  ZeiReader zei(input_name);
+  vector<ZeiCharacter*> character;
+  unsigned int width = 0;
+  unsigned int height = 0;
   for (int c : text)
   {
-    Zei_zeichen& z = zei.gib_bsh_bild(c - ' ');
-    zeichen.push_back(&z);
-    breite += z.breite;
-    if (z.hoehe > hoehe)
-      hoehe = z.hoehe;
+    ZeiCharacter& z = zei.GetBshImage(c - ' ');
+    character.push_back(&z);
+    width += z.width;
+    if (z.height > height)
+      height = z.height;
   }
   if (bpp == 24)
   {
-    Bildspeicher_rgb24 bs(breite, hoehe, color);
-    bs.setze_schriftfarbe(255, 0);
-    bs.bild_loeschen();
-    bs.zeichne_string(zei, text, 0, 0);
+    FramebufferRgb24 fb(width, height, color);
+    fb.SetFontColor(255, 0);
+    fb.Clear();
+    fb.DrawString(zei, text, 0, 0);
 
     if (file_format == "pnm")
-      bs.exportiere_pnm((output + ".ppm").c_str());
+      fb.ExportPNM((output + ".ppm").c_str());
     else if (file_format == "bmp")
-      bs.exportiere_bmp((output + ".bmp").c_str());
+      fb.ExportBMP((output + ".bmp").c_str());
   }
   else if (bpp == 8)
   {
-    Bildspeicher_pal8 bs(breite, hoehe, color);
-    bs.setze_schriftfarbe(255, 0);
-    bs.bild_loeschen();
-    bs.zeichne_string(zei, text, 0, 0);
+    FramebufferPal8 fb(width, height, color);
+    fb.SetFontColor(255, 0);
+    fb.Clear();
+    fb.DrawString(zei, text, 0, 0);
 
     if (file_format == "pnm")
-      bs.exportiere_pnm((output + ".pgm").c_str());
+      fb.ExportPNM((output + ".pgm").c_str());
     else if (file_format == "bmp")
-      bs.exportiere_bmp((output + ".bmp").c_str());
+      fb.ExportBMP((output + ".bmp").c_str());
   }
 }

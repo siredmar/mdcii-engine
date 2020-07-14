@@ -30,28 +30,34 @@
 #include "sdlgui/widget.h"
 #include "sdlgui/window.h"
 
+#include "bsh/bshtexture.hpp"
+#include "bsh/zeireader.hpp"
+#include "bsh/zeitexture.hpp"
 #include "cod/basegad_dat.hpp"
+#include "cod/cod_parser.hpp"
 #include "cod/haeuser.hpp"
 #include "cod/host_gad.hpp"
-#include "files.hpp"
-#include "zei_leser.hpp"
-#include "zei_texture.hpp"
+#include "files/files.hpp"
+#include "framebuffer/palette.hpp"
+#include "savegames/savegames.hpp"
+
+#include "menu/fps.hpp"
 
 using namespace sdlgui;
 
 class SinglePlayerWindow : public Screen
 {
 public:
-  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, std::shared_ptr<Haeuser> haeuser);
+  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen, std::shared_ptr<Buildings> buildings);
   void Handle();
 
 private:
-  void LoadGame(const std::string& gam_name);
+  void LoadGame(const std::string& gamName);
   SDL_Renderer* renderer;
   int width;
   int height;
   bool fullscreen;
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
   SDL_Window* pwindow;
   Files* files;
   std::shared_ptr<Hostgad> hostgad;

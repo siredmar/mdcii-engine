@@ -72,6 +72,7 @@ enum class IslandClimate : uint8_t
   South = 1,
   Any = 2
 };
+
 static std::map<IslandSize, std::string> islandSizeMap = {
     {IslandSize::Little, "lit"},
     {IslandSize::Middle, "mit"},

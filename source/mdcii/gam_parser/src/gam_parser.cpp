@@ -21,7 +21,7 @@
 
 #include "mdcii/cod/cod_parser.hpp"
 #include "mdcii/cod/haeuser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
 #include "mdcii/gam/gam_parser.hpp"
 
 namespace po = boost::program_options;
@@ -60,9 +60,9 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  auto files = Files::create_instance(vm["path"].as<std::string>());
-  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
+  auto files = Files::CreateInstance(vm["path"].as<std::string>());
+  auto buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  auto buildings = std::make_shared<Buildings>(buildingsCod);
   try
   {
     GamParser gamParser(vm["input"].as<std::string>(), false);

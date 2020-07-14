@@ -24,23 +24,21 @@
 
 #include <SDL2/SDL.h>
 
-#include "bildspeicher_pal8.hpp"
 #include "cod/cod_parser.hpp"
-#include "files.hpp"
-#include "files_to_check.hpp"
-#include "fps.hpp"
+#include "files/files.hpp"
+#include "files/filestocheck.hpp"
+#include "framebuffer/framebuffer_pal8.hpp"
+#include "framebuffer/palette.hpp"
 #include "gam/gam_parser.hpp"
 #include "kamera.hpp"
 #include "mdcii.hpp"
-#include "palette.hpp"
-#include "spielbildschirm.hpp"
-#include "version.hpp"
-
 #include "menu/mainmenu.hpp"
+#include "spielbildschirm.hpp"
+#include "version/version.hpp"
 
 namespace po = boost::program_options;
 
-Uint32 Mdcii::timer_callback(Uint32 interval, [[maybe_unused]] void* param)
+Uint32 Mdcii::TimerCallback(Uint32 interval, [[maybe_unused]] void* param)
 {
   SDL_Event event;
   SDL_UserEvent userevent;
@@ -62,10 +60,10 @@ Uint32 Mdcii::timer_callback(Uint32 interval, [[maybe_unused]] void* param)
 
 Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::string& files_path)
 {
-  auto files = Files::create_instance(files_path);
+  auto files = Files::CreateInstance(files_path);
 
   Version::DetectGameVersion();
-  if (files->instance()->check_all_files(&files_to_check) == false)
+  if (files->Instance()->CheckAllFiles(&FilesToCheck) == false)
   {
     std::cout << "[ERR] File check failed. Exiting." << std::endl;
     exit(EXIT_FAILURE);
@@ -97,12 +95,12 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  auto haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  auto haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  auto basegad_dat = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("base.gad"), false, false);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  auto buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  auto buildings = std::make_shared<Buildings>(buildingsCod);
+  auto basegad_dat = std::make_shared<CodParser>(files->Instance()->FindPathForFile("base.gad"), false, false);
   auto basegad = std::make_shared<Basegad>(basegad_dat);
 
-  MainMenu mainMenu(renderer, haeuser, basegad, window, screen_width, screen_height, fullscreen);
+  MainMenu mainMenu(renderer, buildings, basegad, window, screen_width, screen_height, fullscreen);
   mainMenu.Handle();
 }

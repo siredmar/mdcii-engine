@@ -24,13 +24,13 @@
 #include <fstream>
 #include <iostream>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bsh_leser.hpp"
+#include "mdcii/bsh/bshreader.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 #include "mdcii/insel.hpp"
-#include "mdcii/palette.hpp"
-#include "mdcii/version.hpp"
+#include "mdcii/version/version.hpp"
 #include "mdcii/welt.hpp"
 
 #include <boost/foreach.hpp>
@@ -55,17 +55,17 @@ int main(int argc, char** argv)
   std::ifstream f;
   f.open(argv[1], std::ios_base::in | std::ios_base::binary);
 
-  auto files = Files::create_instance(".");
+  auto files = Files::CreateInstance(".");
   Version::DetectGameVersion();
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  Welt welt = Welt(f, haeuser);
+  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  Welt welt = Welt(f);
 
   f.close();
-  Bsh_leser bsh_leser(files->instance()->find_path_for_file("mgfx/stadtfld.bsh"));
+  BshReader bsh_leser(files->Instance()->FindPathForFile("mgfx/stadtfld.bsh"));
 
-  Bildspeicher_pal8 bs((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);
+  FramebufferPal8 fb((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);
 
   for (int y = 0; y < Welt::KARTENHOEHE; y++)
   {
@@ -77,23 +77,23 @@ int main(int argc, char** argv)
         insel->grafik_bebauung(feld, x - insel->xpos, y - insel->ypos, 0);
       else
       {
-        feld.index = haeuser->get_haus(1201).value()->Gfx + (y + x * 3) % 12;
+        feld.index = buildings->GetHouse(1201).value()->Gfx + (y + x * 3) % 12;
         feld.grundhoehe = 0;
       }
       /*feld_t feld2;
       insel->grafik_boden(&feld2, x, y, 0);*/
       if (feld.index != -1)
       {
-        Bsh_bild& bsh = bsh_leser.gib_bsh_bild(feld.index);
-        uint16_t x_auf_karte = x /*- insel->breite / 2*/;
-        uint16_t y_auf_karte = y /*- insel->hoehe / 2*/;
-        bs.zeichne_bsh_bild_oz(
+        BshImage& bsh = bsh_leser.GetBshImage(feld.index);
+        uint16_t x_auf_karte = x /*- insel->width / 2*/;
+        uint16_t y_auf_karte = y /*- insel->height / 2*/;
+        fb.zeichne_bsh_bild_oz(
             bsh, (x_auf_karte - y_auf_karte + Welt::KARTENHOEHE) * XRASTER, (x_auf_karte + y_auf_karte) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
       }
       /*else
-        std::cout << insel->schicht2[y * insel->breite + x].bebauung << " ";*/
+        std::cout << insel->schicht2[y * insel->width + x].bebauung << " ";*/
     }
   }
 
-  bs.exportiere_bmp(argv[2]);
+  fb.ExportBMP(argv[2]);
 }

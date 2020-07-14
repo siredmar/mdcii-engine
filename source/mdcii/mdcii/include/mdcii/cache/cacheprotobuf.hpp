@@ -23,23 +23,31 @@
 #include <string>
 #include <unistd.h>
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include <google/protobuf/util/json_util.h>
 
 #include "sago/platform_folders.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 template<typename T>
 class CacheProtobuf
 {
 public:
-  explicit CacheProtobuf(const std::string& file)
+  explicit CacheProtobuf(const std::string& file, bool clearOnCreate = false)
     : dataPath(sago::getDataHome())
     , cacheFilePath(fs::path(dataPath.string() + "/" + file))
     , cacheFileDirectoryPath(cacheFilePath.parent_path())
   {
+    if (clearOnCreate)
+    {
+      if (DirectoryExists())
+      {
+        DeleteDirectory();
+      }
+    }
+
     if (not CreateCacheFileDirectory())
     {
       throw("[EER] Cannot create cache file directroy: " + cacheFileDirectoryPath.string());
@@ -48,24 +56,24 @@ public:
 
   void Serialize(const T& data)
   {
-    std::string json_string;
+    std::string jsonString;
     google::protobuf::util::JsonPrintOptions options;
     options.add_whitespace = true;
     options.always_print_primitive_fields = true;
-    MessageToJsonString(data, &json_string, options);
+    MessageToJsonString(data, &jsonString, options);
     std::ofstream out(cacheFilePath.string());
     if (!out.is_open())
     {
       throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
     }
-    out << json_string;
+    out << jsonString;
     out.close();
   }
 
   T Deserialize()
   {
     T data;
-    std::string json_string;
+    std::string jsonString;
     std::ifstream t(cacheFilePath.string());
     std::stringstream buffer;
     if (!t.is_open())
@@ -73,12 +81,12 @@ public:
       throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
     }
     buffer << t.rdbuf();
-    json_string = buffer.str();
+    jsonString = buffer.str();
     t.close();
 
     google::protobuf::util::JsonParseOptions options;
     options.ignore_unknown_fields = false;
-    JsonStringToMessage(json_string, &data, options);
+    JsonStringToMessage(jsonString, &data, options);
     return data;
   }
 
@@ -92,14 +100,20 @@ private:
   fs::path cacheFilePath;
   fs::path cacheFileDirectoryPath;
 
-  bool DirecotryExists()
+  bool DeleteDirectory()
+  {
+    return fs::remove_all(cacheFileDirectoryPath);
+  }
+
+
+  bool DirectoryExists()
   {
     return fs::exists(cacheFileDirectoryPath);
   }
 
   bool CreateCacheFileDirectory()
   {
-    if (not DirecotryExists())
+    if (not DirectoryExists())
     {
       bool ret;
       try

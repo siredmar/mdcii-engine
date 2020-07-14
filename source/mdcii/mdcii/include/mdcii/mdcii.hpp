@@ -6,7 +6,7 @@ public:
   explicit Mdcii(int screen_width, int screen_height, bool fullscreen, const std::string& files_path);
 
 private:
-  static Uint32 timer_callback(Uint32 interval, void* param);
+  static Uint32 TimerCallback(Uint32 interval, void* param);
 };
 
 #endif

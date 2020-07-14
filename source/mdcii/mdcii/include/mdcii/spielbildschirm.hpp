@@ -19,26 +19,28 @@
 #ifndef SPIELBILDSCHIRM_HPP
 #define SPIELBILDSCHIRM_HPP
 
-#include "bildspeicher.hpp"
+#include <memory>
+
+#include "framebuffer/framebuffer.hpp"
 #include "kamera.hpp"
 #include "karte.hpp"
-#include "version.hpp"
+#include "version/version.hpp"
 #include "welt.hpp"
 
 class Spielbildschirm
 {
 public:
-  explicit Spielbildschirm(Bildspeicher& bs, std::shared_ptr<Haeuser> haeuser);
+  explicit Spielbildschirm(Framebuffer& fb);
   ~Spielbildschirm();
   void zeichne_bild(Welt& welt, int maus_x, int maus_y);
 
-  Kamera* kamera; // vorübergehend public
+  std::shared_ptr<Kamera> kamera; // vorübergehend public
 
 private:
   Spielbildschirm() = default;
-  Bildspeicher& bs;
+  Framebuffer& fb;
   Karte karte;
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
 };
 
 #endif

@@ -43,8 +43,8 @@ struct Ware // 20 bytes
 struct Insel3
 {
   uint8_t inselnummer; ///< Identifikationsnummer für diese Insel (pro Spiel)
-  uint8_t breite;      ///< Breite der Insel in Feldern
-  uint8_t hoehe;       ///< Höhe der Insel in Feldern
+  uint8_t width;       ///< Breite der Insel in Feldern
+  uint8_t height;      ///< Höhe der Insel in Feldern
   uint8_t a;           //
   uint16_t x_pos;      ///< X-Position der Insel auf der Karte
   uint16_t y_pos;      ///< Y-Position der Insel auf der Karte
@@ -67,8 +67,8 @@ struct Erzvorkommen // 8 bytes
 struct Insel5
 {
   uint8_t inselnummer;   ///< Identifikationsnummer für diese Insel (pro Spiel)
-  uint8_t breite;        ///< Breite der Insel in Feldern
-  uint8_t hoehe;         ///< Höhe der Insel in Feldern
+  uint8_t width;         ///< Breite der Insel in Feldern
+  uint8_t height;        ///< Höhe der Insel in Feldern
   uint8_t a;             //
   uint16_t x_pos;        ///< X-Position der Insel auf der Karte
   uint16_t y_pos;        ///< Y-Position der Insel auf der Karte
@@ -256,7 +256,7 @@ struct Player // 1072 bytes
   uint8_t b;                    //
   uint8_t spieler;              ///< Spielernummer? (0 bis 3)
   uint8_t c;                    //
-  uint8_t farbe;                ///< Spielerfarbe? (0 bis 3)
+  uint8_t color;                ///< Spielerfarbe? (0 bis 3)
   uint8_t unbekannt1[8];        //
   uint16_t gegner_besiegt;      ///< Anzahl besiegter Gegner (jeweils +1500 Punkte)
   uint16_t triumphboegen;       ///< Anzahl bereits gebauter Triumphbögen

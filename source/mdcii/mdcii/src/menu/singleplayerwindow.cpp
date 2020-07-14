@@ -28,70 +28,63 @@
 #include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
 
-#include "cod/cod_parser.hpp"
-
-#include "bsh_texture.hpp"
-#include "fps.hpp"
-#include "palette.hpp"
-#include "savegames.hpp"
-#include "zei_texture.hpp"
-
 #include "menu/gamewindow.hpp"
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
-SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int rwidth, int rheight, bool fullscreen, std::shared_ptr<Haeuser> haeuser)
-  : Screen(pwindow, Vector2i(rwidth, rheight), "Game", false, true)
+SinglePlayerWindow::SinglePlayerWindow(
+    SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen, std::shared_ptr<Buildings> buildings)
+  : Screen(pwindow, Vector2i(width, height), "Game", false, true)
   , renderer(renderer)
-  , width(rwidth)
-  , height(rheight)
+  , width(width)
+  , height(height)
   , fullscreen(fullscreen)
-  , haeuser(haeuser)
+  , buildings(buildings)
   , pwindow(pwindow)
-  , files(Files::instance())
-  , hostgad(std::make_shared<Hostgad>(std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("host.gad"), false, false)))
+  , files(Files::Instance())
+  , hostgad(std::make_shared<Hostgad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("host.gad"), false, false)))
   , quit(false)
   , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
   , savegame("")
   , triggerStartGame(false)
 {
-  std::cout << "host.gad: " << hostgad->get_gadgets_size() << std::endl;
-  Bsh_leser bsh_leser(files->instance()->find_path_for_file("toolgfx/start.bsh"));
+  std::cout << "host.gad: " << hostgad->GetGadgetsSize() << std::endl;
+  BshReader bsh_leser(files->Instance()->FindPathForFile("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
-  SDL_Texture* background = converter.Convert(&bsh_leser.gib_bsh_bild(0));
+  SDL_Texture* background = converter.Convert(&bsh_leser.GetBshImage(0));
 
-  auto tableGad = hostgad->get_gadgets_by_index(1);
-  SDL_Texture* tableTexture = converter.Convert(&bsh_leser.gib_bsh_bild(tableGad->Gfxnr));
+  auto tableGad = hostgad->GetGadgetByIndex(1);
+  SDL_Texture* tableTexture = converter.Convert(&bsh_leser.GetBshImage(tableGad->Gfxnr));
 
   for (int i = 0; i < 5; i++)
   {
-    tableStars.push_back(converter.Convert(&bsh_leser.gib_bsh_bild(21 + i)));
+    tableStars.push_back(converter.Convert(&bsh_leser.GetBshImage(21 + i)));
   }
 
-  auto newGameButtonGad = hostgad->get_gadgets_by_index(2);
-  SDL_Texture* newGameTexture = converter.Convert(&bsh_leser.gib_bsh_bild(newGameButtonGad->Gfxnr));
-  SDL_Texture* newGameTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(newGameButtonGad->Gfxnr + newGameButtonGad->Pressoff));
+  auto newGameButtonGad = hostgad->GetGadgetByIndex(2);
+  SDL_Texture* newGameTexture = converter.Convert(&bsh_leser.GetBshImage(newGameButtonGad->Gfxnr));
+  SDL_Texture* newGameTextureClicked = converter.Convert(&bsh_leser.GetBshImage(newGameButtonGad->Gfxnr + newGameButtonGad->Pressoff));
 
-  auto loadGameButtonGad = hostgad->get_gadgets_by_index(3);
-  SDL_Texture* loadGameTexture = converter.Convert(&bsh_leser.gib_bsh_bild(loadGameButtonGad->Gfxnr));
-  SDL_Texture* loadGameTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(loadGameButtonGad->Gfxnr + loadGameButtonGad->Pressoff));
+  auto loadGameButtonGad = hostgad->GetGadgetByIndex(3);
+  SDL_Texture* loadGameTexture = converter.Convert(&bsh_leser.GetBshImage(loadGameButtonGad->Gfxnr));
+  SDL_Texture* loadGameTextureClicked = converter.Convert(&bsh_leser.GetBshImage(loadGameButtonGad->Gfxnr + loadGameButtonGad->Pressoff));
 
-  auto continueGameButtonGad = hostgad->get_gadgets_by_index(4);
-  SDL_Texture* continueTexture = converter.Convert(&bsh_leser.gib_bsh_bild(continueGameButtonGad->Gfxnr));
-  SDL_Texture* continueTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(continueGameButtonGad->Gfxnr + continueGameButtonGad->Pressoff));
+  auto continueGameButtonGad = hostgad->GetGadgetByIndex(4);
+  SDL_Texture* continueTexture = converter.Convert(&bsh_leser.GetBshImage(continueGameButtonGad->Gfxnr));
+  SDL_Texture* continueTextureClicked = converter.Convert(&bsh_leser.GetBshImage(continueGameButtonGad->Gfxnr + continueGameButtonGad->Pressoff));
 
-  auto mainMenuButtonGad = hostgad->get_gadgets_by_index(5);
-  SDL_Texture* mainMenuTexture = converter.Convert(&bsh_leser.gib_bsh_bild(mainMenuButtonGad->Gfxnr));
-  SDL_Texture* mainMenuTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(mainMenuButtonGad->Gfxnr + mainMenuButtonGad->Pressoff));
+  auto mainMenuButtonGad = hostgad->GetGadgetByIndex(5);
+  SDL_Texture* mainMenuTexture = converter.Convert(&bsh_leser.GetBshImage(mainMenuButtonGad->Gfxnr));
+  SDL_Texture* mainMenuTextureClicked = converter.Convert(&bsh_leser.GetBshImage(mainMenuButtonGad->Gfxnr + mainMenuButtonGad->Pressoff));
 
-  auto scrollUpButtonGad = hostgad->get_gadgets_by_index(6);
-  SDL_Texture* scrollUpTexture = converter.Convert(&bsh_leser.gib_bsh_bild(scrollUpButtonGad->Gfxnr));
-  SDL_Texture* scrollUpTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(scrollUpButtonGad->Gfxnr + scrollUpButtonGad->Pressoff));
+  auto scrollUpButtonGad = hostgad->GetGadgetByIndex(6);
+  SDL_Texture* scrollUpTexture = converter.Convert(&bsh_leser.GetBshImage(scrollUpButtonGad->Gfxnr));
+  SDL_Texture* scrollUpTextureClicked = converter.Convert(&bsh_leser.GetBshImage(scrollUpButtonGad->Gfxnr + scrollUpButtonGad->Pressoff));
 
-  auto scrollDownButtonGad = hostgad->get_gadgets_by_index(7);
-  SDL_Texture* scrollDownTexture = converter.Convert(&bsh_leser.gib_bsh_bild(scrollDownButtonGad->Gfxnr));
-  SDL_Texture* scrollDownTextureClicked = converter.Convert(&bsh_leser.gib_bsh_bild(scrollDownButtonGad->Gfxnr + scrollDownButtonGad->Pressoff));
+  auto scrollDownButtonGad = hostgad->GetGadgetByIndex(7);
+  SDL_Texture* scrollDownTexture = converter.Convert(&bsh_leser.GetBshImage(scrollDownButtonGad->Gfxnr));
+  SDL_Texture* scrollDownTextureClicked = converter.Convert(&bsh_leser.GetBshImage(scrollDownButtonGad->Gfxnr + scrollDownButtonGad->Pressoff));
 
   {
     // BACKGROUND
@@ -114,7 +107,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
     // SCENARIOS
     Savegames szenesRaw("/szenes", ".szs");
-    auto scenes = szenesRaw.getSavegames();
+    auto scenes = szenesRaw.GetSavegames();
 
     for (unsigned int i = 0; i < scenes.size(); i++)
     {
@@ -156,7 +149,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
     // SAVEGAMES
     Savegames savesRaw("/savegame", ".gam");
-    auto saves = savesRaw.getSavegames();
+    auto saves = savesRaw.GetSavegames();
 
     for (unsigned int i = 0; i < saves.size(); i++)
     {
@@ -216,7 +209,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
     auto& continueGameButton = wdg<TextureButton>(continueTexture, [this] {
       std::cout << "Continue Game pressed" << std::endl;
-      LoadGame(Files::instance()->find_path_for_file("lastgame.gam"));
+      LoadGame(Files::Instance()->FindPathForFile("lastgame.gam"));
     });
     continueGameButton.setPosition(continueGameButtonGad->Pos.x, continueGameButtonGad->Pos.y);
     continueGameButton.setSecondaryTexture(continueTextureClicked);
@@ -231,17 +224,17 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     mainMenuButton.setTextureSwitchFlags(TextureButton::OnClick);
   }
 
-  performLayout(mSDL_Renderer);
+  performLayout(renderer);
 }
 
-void SinglePlayerWindow::LoadGame(const std::string& gam_name)
+void SinglePlayerWindow::LoadGame(const std::string& gamName)
 {
-  if (files->instance()->check_file(gam_name) == false)
+  if (files->Instance()->CheckFile(gamName) == false)
   {
-    std::cout << "[ERR] Could not load savegame: " << gam_name << std::endl;
+    std::cout << "[ERR] Could not load savegame: " << gamName << std::endl;
     exit(EXIT_FAILURE);
   }
-  GameWindow gameWindow(renderer, pwindow, width, height, gam_name, fullscreen, haeuser);
+  GameWindow gameWindow(renderer, pwindow, width, height, gamName, fullscreen, buildings);
   gameWindow.Handle();
   Handle();
 }
@@ -249,19 +242,19 @@ void SinglePlayerWindow::LoadGame(const std::string& gam_name)
 // todo: add signal/slot for exiting window
 void SinglePlayerWindow::Handle()
 {
-  auto palette = Palette::instance();
+  auto palette = Palette::Instance();
 
-  auto transparentColor = palette->getColor(palette->getTransparentColor());
+  auto transparentColor = palette->GetColor(palette->GetTransparentColor());
   std::cout << "[INFO] Transparent color: " << (int)transparentColor.getRed() << ", " << (int)transparentColor.getGreen() << ", "
             << (int)transparentColor.getBlue() << std::endl;
 
   auto s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
-  SDL_SetPaletteColors(s8->format->palette, palette->getSDLColors(), 0, palette->size());
+  SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
 
   try
   {
-    auto final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-    auto texture = SDL_CreateTextureFromSurface(renderer, final_surface);
+    auto finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    auto texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     this->drawAll();
@@ -296,9 +289,9 @@ void SinglePlayerWindow::Handle()
         this->onEvent(e);
       }
 
-      final_surface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-      texture = SDL_CreateTextureFromSurface(renderer, final_surface);
-      SDL_FreeSurface(final_surface);
+      finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+      texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
+      SDL_FreeSurface(finalSurface);
       SDL_RenderClear(renderer);
       SDL_RenderCopy(renderer, texture, NULL, NULL);
       SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -310,7 +303,7 @@ void SinglePlayerWindow::Handle()
       this->drawAll();
       SDL_RenderPresent(renderer);
       SDL_DestroyTexture(texture);
-      fps.next();
+      fps.Next();
     }
   }
   catch (const std::runtime_error& e)

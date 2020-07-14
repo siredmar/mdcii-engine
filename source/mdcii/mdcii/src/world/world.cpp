@@ -11,10 +11,10 @@ World::World(GamParser gamParser)
 
 std::experimental::optional<std::shared_ptr<Island5>> World::IslandOnPosition(uint16_t x, uint16_t y)
 {
-  for (int i = 0; i < gamParser.islands5Size(); i++)
+  for (int i = 0; i < gamParser.Islands5Size(); i++)
   {
-    auto island = gamParser.getIsland5(i);
-    auto islandData = island->getIslandData();
+    auto island = gamParser.GetIsland5(i);
+    auto islandData = island->GetIslandData();
     if ((x >= islandData.posx) && (y >= islandData.posy) && (x < islandData.posx + islandData.width) && (y < islandData.posy + islandData.height))
     {
       return island;
@@ -28,7 +28,7 @@ int World::IslandNumberOnPosition(uint16_t x, uint16_t y)
   auto i = IslandOnPosition(x, y);
   if (i)
   {
-    return i.value()->getIslandData().islandNumber;
+    return i.value()->GetIslandData().islandNumber;
   }
   return -1;
 }
@@ -46,7 +46,7 @@ IslandHouseData World::TileOnPosition(uint16_t x, uint16_t y)
     // {
     //   memset(&feld, 0, sizeof(inselfeld_t));
     //   feld.bebauung = 1201;
-    //   auto info = haeuser->get_haus(feld.bebauung);
+    //   auto info = buildings->GetHouse(feld.bebauung);
     //   if (info)
     //   {
     //     feld.ani = (0x80000000 + y + x * 3 + ani) % info.value()->AnimAnz;

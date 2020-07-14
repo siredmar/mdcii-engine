@@ -28,67 +28,67 @@
 
 #include "cod.pb.h"
 
-class Cod_Parser
+class CodParser
 {
 public:
-  explicit Cod_Parser(const std::string& cod_file_path, bool decode, bool debug);
-  explicit Cod_Parser(const std::string& file_as_string);
+  explicit CodParser(const std::string& codFilePath, bool decode, bool debug);
+  explicit CodParser(const std::string& fileAsString);
 
-  void debug_output();
+  void DebugOutput();
   cod_pb::Objects objects;
 
 private:
   // Input/Output related functions
-  bool read_file_as_string(const std::string& buffer);
-  bool read_file(bool decode);
-  void parse_file();
-  void json();
+  bool ReadFileAsString(const std::string& buffer);
+  bool ReadFile(bool decode);
+  void ParseFile();
+  void Json();
 
   // Object related functions
-  cod_pb::Object* create_object(bool number_object, int spaces, bool add_to_stack);
-  cod_pb::Object* create_or_reuse_object(const std::string& name, bool number_object, int spaces, bool add_to_stack);
-  std::experimental::optional<cod_pb::Object*> get_object(const std::string& name);
-  std::experimental::optional<cod_pb::Object*> get_object(int id);
-  std::experimental::optional<cod_pb::Object*> get_sub_object(cod_pb::Object* obj, const std::string& name);
-  cod_pb::Object* objfill_prefill(cod_pb::Object* obj);
-  void reset_objfill_prefill();
+  cod_pb::Object* CreateObject(bool numberObject, int spaces, bool addToStack);
+  cod_pb::Object* CreateOrReuseObject(const std::string& name, bool numberObject, int spaces, bool addToStack);
+  std::experimental::optional<cod_pb::Object*> GetObject(const std::string& name);
+  std::experimental::optional<cod_pb::Object*> GetObject(int id);
+  std::experimental::optional<cod_pb::Object*> GetSubObject(cod_pb::Object* obj, const std::string& name);
+  cod_pb::Object* ObjfillPrefill(cod_pb::Object* obj);
+  void ResetObjfillPrefill();
 
   // Constants related functions
-  int constant_exists(const std::string& key);
-  cod_pb::Variable get_value(const std::string& key, const std::string& value, bool is_math, cod_pb::Variables variables);
+  int ConstantExists(const std::string& key);
+  cod_pb::Variable GetValue(const std::string& key, const std::string& value, bool isMath, cod_pb::Variables variables);
 
   // Variables related functions
-  int exists_in_current_object(const std::string& variable_name);
-  cod_pb::Variable* create_or_reuse_variable(const std::string& name);
-  cod_pb::Variable get_variable(const std::string& key);
-  std::experimental::optional<cod_pb::Variable*> get_variable(cod_pb::Object* obj, const std::string& name);
-  int calculate_operation(int old_value, const std::string& operation, int op);
+  int ExistsInCurrentObject(const std::string& variableName);
+  cod_pb::Variable* CreateOrReuseVariable(const std::string& name);
+  cod_pb::Variable GetVariable(const std::string& key);
+  std::experimental::optional<cod_pb::Variable*> GetVariable(cod_pb::Object* obj, const std::string& name);
+  int CalculateOperation(int oldValue, const std::string& operation, int op);
 
   // Object stack related functions
-  bool top_is_number_object();
-  void add_object_to_stack(cod_pb::Object* o, bool number_object, int spaces);
-  void object_finished();
+  bool TopIsNumberObject();
+  void AddToStack(cod_pb::Object* o, bool numberObject, int spaces);
+  void ObjectFinished();
 
   // String handling functions
-  std::vector<std::string> regex_match(const std::string& regex, const std::string& str);
-  std::vector<std::string> regex_search(const std::string& regex, const std::string& str);
-  std::string tabs_to_spaces(const std::string& str);
-  int count_front_spaces(const std::string& str);
-  std::string trim_spaces_leading_trailing(const std::string& s);
-  bool is_empty(const std::string& str);
-  bool is_substring(const std::string& str, const std::string& substr);
-  std::vector<std::string> split_by_delimiter(const std::string& str, const std::string& delim);
-  std::string trim_comment_from_line(const std::string& str);
-  bool begins_with(const std::string& str, const std::string& begin);
+  std::vector<std::string> RegexMatch(const std::string& regex, const std::string& str);
+  std::vector<std::string> RegexSearch(const std::string& regex, const std::string& str);
+  std::string TabsToSpaces(const std::string& str);
+  int CountFrontSpaces(const std::string& str);
+  std::string TrimSpacesLeadingTrailing(const std::string& s);
+  bool IsEmpty(const std::string& str);
+  bool IsSubstring(const std::string& str, const std::string& substr);
+  std::vector<std::string> SplitByDelimiter(const std::string& str, const std::string& delim);
+  std::string TrimCommentFromLine(const std::string& str);
+  bool BeginsWith(const std::string& str, const std::string& begin);
 
   struct ObjectType
   {
     cod_pb::Object* object;
-    bool number_object = {false};
+    bool numberObject = {false};
     int spaces = -1;
   };
 
-  std::stack<ObjectType> object_stack;
+  std::stack<ObjectType> objectStack;
 
   struct ObjFillRangeType
   {
@@ -99,27 +99,27 @@ private:
     bool filling = false;
   };
 
-  ObjFillRangeType ObjFill_range;
+  ObjFillRangeType objFillRange;
 
-  enum class Cod_value_type
+  enum class CodValueType
   {
     INT = 0,
     FLOAT,
     STRING
   };
 
-  Cod_value_type check_type(const std::string& s);
+  CodValueType CheckType(const std::string& s);
 
   std::string path;
   std::unique_ptr<CacheProtobuf<cod_pb::Objects>> cache;
-  std::vector<std::string> cod_txt;
+  std::vector<std::string> codTxt;
 
   cod_pb::Variables constants;
 
-  std::map<std::string, cod_pb::Object*> object_map;
-  std::map<std::string, int> variable_map;
-  std::map<int, cod_pb::Object*> object_id_map;
-  cod_pb::Object* current_object = nullptr;
+  std::map<std::string, cod_pb::Object*> objectMap;
+  std::map<std::string, int> variableMap;
+  std::map<int, cod_pb::Object*> objectIdMap;
+  cod_pb::Object* currentObject = nullptr;
   std::vector<std::string> unparsedLines;
 };
 #endif

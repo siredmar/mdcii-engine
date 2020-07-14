@@ -18,7 +18,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-#include "mdcii/palette.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 
 namespace po = boost::program_options;
 
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  auto palette = Palette::create_instance(input_name);
+  auto palette = Palette::CreateInstance(input_name);
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
   {
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     rect.y = y;
     rect.w = 40;
     rect.h = 40;
-    SDL_SetRenderDrawColor(renderer, palette->getColor(i).getRed(), palette->getColor(i).getGreen(), palette->getColor(i).getBlue(), 0);
+    SDL_SetRenderDrawColor(renderer, palette->GetColor(i).getRed(), palette->GetColor(i).getGreen(), palette->GetColor(i).getBlue(), 0);
     SDL_RenderFillRect(renderer, &rect);
   }
   SDL_RenderPresent(renderer);

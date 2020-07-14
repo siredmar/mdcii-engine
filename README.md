@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/siredmar/mdcii-engine) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fc67621b20584c138f7d069b7d37ef06)](https://www.codacy.com/manual/armin.schlegel/mdcii-engine?utm_source=github.com&utm_medium=referral&utm_content=siredmar/mdcii-engine&utm_campaign=Badge_Grade) [![CodeFactor](https://www.codefactor.io/repository/github/siredmar/mdcii-engine/badge)](https://www.codefactor.io/repository/github/siredmar/mdcii-engine)
 
-The main goal of this project is to provid an independent reimplementation of the game engine for Anno 1602/1602 AD under a free license.
+The main goal of this project is to provide an independent reimplementation of the game engine for Anno 1602/1602 AD under a free license.
 
 Currently this project contains several helper tools:
 
@@ -18,6 +18,13 @@ Currently this project contains several helper tools:
 -   `zeitext`
 
 The most complex program is [`mdcii-sdltest`](docs/doc/mdcii-sdltest.md) that can load savegames and scenario files and animate the buildings.
+
+## Requirements
+
+-   g++-8 or greater
+-   SDL2
+-   boost
+-   protobuf
 
 ## Media
 

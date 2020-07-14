@@ -26,13 +26,13 @@
 
 #include <boost/program_options.hpp>
 
-#include "mdcii/bildspeicher_pal8.hpp"
-#include "mdcii/bsh_leser.hpp"
+#include "mdcii/bsh/bshreader.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/files.hpp"
+#include "mdcii/files/files.hpp"
+#include "mdcii/framebuffer/framebuffer_pal8.hpp"
+#include "mdcii/framebuffer/palette.hpp"
 #include "mdcii/gam/island.hpp"
-#include "mdcii/palette.hpp"
-#include "mdcii/version.hpp"
+#include "mdcii/version/version.hpp"
 #include "mdcii/world/world.hpp"
 
 #include <boost/foreach.hpp>
@@ -64,18 +64,18 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
 
-  auto files = Files::create_instance(vm["path"].as<std::string>());
-  std::shared_ptr<Cod_Parser> haeuser_cod = std::make_shared<Cod_Parser>(files->instance()->find_path_for_file("haeuser.cod"), true, false);
-  std::shared_ptr<Haeuser> haeuser = std::make_shared<Haeuser>(haeuser_cod);
-  Palette::create_instance(files->instance()->find_path_for_file("stadtfld.col"));
-  Bsh_leser bshReader(files->instance()->find_path_for_file("/gfx/stadtfld.bsh"));
+  auto files = Files::CreateInstance(vm["path"].as<std::string>());
+  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  BshReader bshReader(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
 
   GamParser gam(vm["input"].as<std::string>(), false);
   World world(gam);
-  Bildspeicher_pal8 bs((World::Width + World::Height) * XRASTER, (World::Width + World::Height) * YRASTER, 0);
+  FramebufferPal8 fb((World::Width + World::Height) * XRASTER, (World::Width + World::Height) * YRASTER, 0);
 
   TileGraphic water;
-  water.index = haeuser->get_haus(1201).value()->Gfx;
+  water.index = buildings->GetHouse(1201).value()->Gfx;
   water.groundHeight = 0;
 
   for (int y = 0; y < World::Height; y++)
@@ -87,17 +87,17 @@ int main(int argc, char** argv)
       gfx.index += (y + x * 3) % 12;
       if (island)
       {
-        auto tile = island.value()->TerrainTile(x - island.value()->getIslandData().posx, y - island.value()->getIslandData().posy);
+        auto tile = island.value()->TerrainTile(x - island.value()->GetIslandData().posx, y - island.value()->GetIslandData().posy);
         gfx = island.value()->GraphicIndexForTile(tile, 0);
         if (gfx.index == -1)
         {
           gfx = water;
         }
       }
-      Bsh_bild& bsh = bshReader.gib_bsh_bild(gfx.index);
-      bs.zeichne_bsh_bild_oz(bsh, (x - y + World::Height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
+      BshImage& bsh = bshReader.GetBshImage(gfx.index);
+      fb.zeichne_bsh_bild_oz(bsh, (x - y + World::Height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
     }
   }
 
-  bs.exportiere_bmp(vm["output"].as<std::string>().c_str());
+  fb.ExportBMP(vm["output"].as<std::string>().c_str());
 }

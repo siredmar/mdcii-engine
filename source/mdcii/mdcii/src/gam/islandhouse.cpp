@@ -55,7 +55,7 @@ IslandHouse::IslandHouse(const std::string& name, uint16_t width, uint16_t heigh
 void IslandHouse::Finalize()
 {
   islandHouse = std::shared_ptr<IslandHouseData[]>(new IslandHouseData[elements]);
-  auto haeuser = Haeuser::Instance();
+  auto buildings = Buildings::Instance();
   {
     int y = 0;
     int x = 0;
@@ -79,7 +79,7 @@ void IslandHouse::Finalize()
     if (tile.posx >= width || tile.posy >= height)
       continue;
 
-    auto info = haeuser->get_haus(tile.id);
+    auto info = buildings->GetHouse(tile.id);
     if (info)
     {
       int elementWidth = 0;

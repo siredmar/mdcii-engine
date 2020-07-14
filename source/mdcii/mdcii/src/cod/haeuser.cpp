@@ -1,6 +1,6 @@
 
 // This file is part of the MDCII Game Engine.
-// Copyright (C) 2019  Armin Schlegel
+// Copyright (C) 2020  Armin Schlegel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,50 +18,52 @@
 
 #include <experimental/optional>
 #include <map>
+#include <memory>
 
 #include "cod/haeuser.hpp"
 
-Haeuser* Haeuser::_instance = 0;
+Buildings* Buildings::_instanceRawPtr = 0;
 
-Haeuser::Haeuser(std::shared_ptr<Cod_Parser> cod)
+Buildings::Buildings(std::shared_ptr<CodParser> cod)
   : cod(cod)
 {
-  _instance = this;
-  generate_haeuser();
+  GenerateBuildings();
+  _instanceRawPtr = this;
 }
 
-Haeuser* Haeuser::Instance()
+std::shared_ptr<Buildings> Buildings::Instance()
 {
-  if (not _instance)
+  if (not _instanceRawPtr)
   {
-    throw std::string("Haeuser not initialized yet!");
+    throw std::string("[Err] Haeuser not initialized yet!");
   }
+  static std::shared_ptr<Buildings> _instance = std::make_shared<Buildings>(*_instanceRawPtr);
   return _instance;
 }
 
-std::experimental::optional<Haus*> Haeuser::get_haus(int id)
+std::experimental::optional<Building*> Buildings::GetHouse(int id)
 {
-  if (haeuser.find(id) == haeuser.end())
+  if (buildings.find(id) == buildings.end())
   {
     return {};
   }
   else
   {
-    return &haeuser[id];
+    return &buildings[id];
   }
 }
 
-int Haeuser::get_haeuser_size()
+int Buildings::GetBuildingsSize()
 {
-  return haeuser_vec.size();
+  return buildingsVector.size();
 }
 
-Haus* Haeuser::get_haeuser_by_index(int index)
+Building* Buildings::GetBuildingByIndex(int index)
 {
-  return haeuser_vec[index];
+  return buildingsVector[index];
 }
 
-void Haeuser::generate_haeuser()
+void Buildings::GenerateBuildings()
 {
   for (int o = 0; o < cod->objects.object_size(); o++)
   {
@@ -70,17 +72,17 @@ void Haeuser::generate_haeuser()
     {
       for (int i = 0; i < obj.objects_size(); i++)
       {
-        auto haus = generate_haus(&obj.objects(i));
-        haeuser[haus.Id] = haus;
-        haeuser_vec.push_back(&haeuser[haus.Id]);
+        auto haus = GenerateBuilding(&obj.objects(i));
+        buildings[haus.Id] = haus;
+        buildingsVector.push_back(&buildings[haus.Id]);
       }
     }
   }
 }
 
-Haus Haeuser::generate_haus(const cod_pb::Object* obj)
+Building Buildings::GenerateBuilding(const cod_pb::Object* obj)
 {
-  Haus h;
+  Building h;
   if (obj->has_variables() == true)
   {
     for (int i = 0; i < obj->variables().variable_size(); i++)
@@ -94,7 +96,7 @@ Haus Haeuser::generate_haus(const cod_pb::Object* obj)
         }
         else
         {
-          h.Id = var.value_int() - id_offset;
+          h.Id = var.value_int() - idOffset;
         }
       }
       else if (var.name() == "Gfx")
@@ -230,160 +232,160 @@ Haus Haeuser::generate_haus(const cod_pb::Object* obj)
   {
     for (int o = 0; o < obj->objects_size(); o++)
     {
-      auto nested_obj = obj->objects(o);
-      if (nested_obj.name() == "HAUS_PRODTYP")
+      auto nestedObj = obj->objects(o);
+      if (nestedObj.name() == "HAUS_PRODTYP")
       {
-        for (int i = 0; i < nested_obj.variables().variable_size(); i++)
+        for (int i = 0; i < nestedObj.variables().variable_size(); i++)
         {
-          auto var = nested_obj.variables().variable(i);
+          auto var = nestedObj.variables().variable(i);
           if (var.name() == "Kind")
           {
-            h.HAUS_PRODTYP.Kind = ProdtypKindMap[var.value_string()];
+            h.HouseProductionType.Kind = ProdtypKindMap[var.value_string()];
           }
           else if (var.name() == "Ware")
           {
-            h.HAUS_PRODTYP.Ware = WareMap[var.value_string()];
+            h.HouseProductionType.Ware = WareMap[var.value_string()];
           }
           else if (var.name() == "Workstoff")
           {
-            h.HAUS_PRODTYP.Workstoff = WorkstoffMap[var.value_string()];
+            h.HouseProductionType.Workstoff = WorkstoffMap[var.value_string()];
           }
           else if (var.name() == "Erzbergnr")
           {
-            h.HAUS_PRODTYP.Erzbergnr = ErzbergnrMap[var.value_string()];
+            h.HouseProductionType.Erzbergnr = ErzbergnrMap[var.value_string()];
           }
           else if (var.name() == "Rohstoff")
           {
-            h.HAUS_PRODTYP.Rohstoff = RohstoffMap[var.value_string()];
+            h.HouseProductionType.Rohstoff = RohstoffMap[var.value_string()];
           }
           else if (var.name() == "MAXPRODCNT")
           {
-            h.HAUS_PRODTYP.Maxprodcnt = MaxprodcntMap[var.value_string()];
+            h.HouseProductionType.Maxprodcnt = MaxprodcntMap[var.value_string()];
           }
           else if (var.name() == "Bauinfra")
           {
-            h.HAUS_PRODTYP.Bauinfra = BauinfraMap[var.value_string()];
+            h.HouseProductionType.Bauinfra = BauinfraMap[var.value_string()];
           }
           else if (var.name() == "Figurnr")
           {
-            h.HAUS_PRODTYP.Figurnr = FigurnrMap[var.value_string()];
+            h.HouseProductionType.Figurnr = FigurnrMap[var.value_string()];
           }
           else if (var.name() == "Rauchfignr")
           {
-            h.HAUS_PRODTYP.Rauchfignr = RauchfignrMap[var.value_string()];
+            h.HouseProductionType.Rauchfignr = RauchfignrMap[var.value_string()];
           }
           else if (var.name() == "Maxware")
           {
             for (int v = 0; v < var.value_array().value_size(); v++)
             {
-              h.HAUS_PRODTYP.Maxware.push_back(var.value_array().value(v).value_int());
+              h.HouseProductionType.Maxware.push_back(var.value_array().value(v).value_int());
             }
           }
           else if (var.name() == "Kosten")
           {
             for (int v = 0; v < var.value_array().value_size(); v++)
             {
-              h.HAUS_PRODTYP.Kosten.push_back(var.value_array().value(v).value_int());
+              h.HouseProductionType.Kosten.push_back(var.value_array().value(v).value_int());
             }
           }
           else if (var.name() == "BGruppe")
           {
-            h.HAUS_PRODTYP.BGruppe = var.value_int();
+            h.HouseProductionType.BGruppe = var.value_int();
           }
           else if (var.name() == "LagAniFlg")
           {
-            h.HAUS_PRODTYP.LagAniFlg = var.value_int();
+            h.HouseProductionType.LagAniFlg = var.value_int();
           }
           else if (var.name() == "NoMoreWork")
           {
-            h.HAUS_PRODTYP.NoMoreWork = var.value_int();
+            h.HouseProductionType.NoMoreWork = var.value_int();
           }
           else if (var.name() == "Workmenge")
           {
-            h.HAUS_PRODTYP.Workmenge = var.value_int();
+            h.HouseProductionType.Workmenge = var.value_int();
           }
           else if (var.name() == "Doerrflg")
           {
-            h.HAUS_PRODTYP.Doerrflg = var.value_int();
+            h.HouseProductionType.Doerrflg = var.value_int();
           }
           else if (var.name() == "Anicontflg")
           {
-            h.HAUS_PRODTYP.Anicontflg = var.value_int();
+            h.HouseProductionType.Anicontflg = var.value_int();
           }
           else if (var.name() == "MakLagFlg")
           {
-            h.HAUS_PRODTYP.MakLagFlg = var.value_int();
+            h.HouseProductionType.MakLagFlg = var.value_int();
           }
           else if (var.name() == "Nativflg")
           {
-            h.HAUS_PRODTYP.Nativflg = var.value_int();
+            h.HouseProductionType.Nativflg = var.value_int();
           }
           else if (var.name() == "NoLagVoll")
           {
-            h.HAUS_PRODTYP.NoLagVoll = var.value_int();
+            h.HouseProductionType.NoLagVoll = var.value_int();
           }
           else if (var.name() == "Radius")
           {
-            h.HAUS_PRODTYP.Radius = var.value_int();
+            h.HouseProductionType.Radius = var.value_int();
           }
           else if (var.name() == "Rohmenge")
           {
-            h.HAUS_PRODTYP.Rohmenge = var.value_int();
+            h.HouseProductionType.Rohmenge = var.value_int();
           }
           else if (var.name() == "Prodmenge")
           {
-            h.HAUS_PRODTYP.Prodmenge = var.value_int();
+            h.HouseProductionType.Prodmenge = var.value_int();
           }
           else if (var.name() == "Randwachs")
           {
-            h.HAUS_PRODTYP.Randwachs = var.value_int();
+            h.HouseProductionType.Randwachs = var.value_int();
           }
           else if (var.name() == "Maxlager")
           {
-            h.HAUS_PRODTYP.Maxlager = var.value_int();
+            h.HouseProductionType.Maxlager = var.value_int();
           }
           else if (var.name() == "Maxnorohst")
           {
-            h.HAUS_PRODTYP.Maxnorohst = var.value_int();
+            h.HouseProductionType.Maxnorohst = var.value_int();
           }
           else if (var.name() == "Arbeiter")
           {
-            h.HAUS_PRODTYP.Arbeiter = var.value_int();
+            h.HouseProductionType.Arbeiter = var.value_int();
           }
           else if (var.name() == "Figuranz")
           {
-            h.HAUS_PRODTYP.Figuranz = var.value_int();
+            h.HouseProductionType.Figuranz = var.value_int();
           }
           else if (var.name() == "Interval")
           {
-            h.HAUS_PRODTYP.Interval = var.value_int();
+            h.HouseProductionType.Interval = var.value_int();
           }
         }
       }
-      else if (nested_obj.name() == "HAUS_BAUKOST")
+      else if (nestedObj.name() == "HAUS_BAUKOST")
       {
-        for (int i = 0; i < nested_obj.variables().variable_size(); i++)
+        for (int i = 0; i < nestedObj.variables().variable_size(); i++)
         {
-          auto var = nested_obj.variables().variable(i);
+          auto var = nestedObj.variables().variable(i);
           if (var.name() == "Money")
           {
-            h.HAUS_BAUKOST.Money = var.value_int();
+            h.HouseBuildCosts.Money = var.value_int();
           }
           else if (var.name() == "Werkzeug")
           {
-            h.HAUS_BAUKOST.Werkzeug = var.value_int();
+            h.HouseBuildCosts.Werkzeug = var.value_int();
           }
           else if (var.name() == "Holz")
           {
-            h.HAUS_BAUKOST.Holz = var.value_int();
+            h.HouseBuildCosts.Holz = var.value_int();
           }
           else if (var.name() == "Ziegel")
           {
-            h.HAUS_BAUKOST.Ziegel = var.value_int();
+            h.HouseBuildCosts.Ziegel = var.value_int();
           }
           else if (var.name() == "Kanon")
           {
-            h.HAUS_BAUKOST.Kanon = var.value_int();
+            h.HouseBuildCosts.Kanon = var.value_int();
           }
         }
       }

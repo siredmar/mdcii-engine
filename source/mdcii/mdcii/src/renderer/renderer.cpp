@@ -2,18 +2,18 @@
 
 void Renderer::RenderIsland(Island5 i)
 {
-  auto islandHouseLayers = i.getIslandHouseData();
+  auto islandHouseLayers = i.GetIslandHouseData();
   auto islandHouse = islandHouseLayers[0]->GetIslandHouse();
   // for (auto tile : islandHouse)
   // {
-  //   auto element = haeuser->get_haus(tile.id);
+  //   auto element = buildings->GetHouse(tile.id);
   //   if (element)
   //   {
   //     // int x = tile.posx;
   //     // int y = tile.posy;
-  //     // Bsh_bild& bsh = bshReader.gib_bsh_bild(element.value()->Gfx);
+  //     // BshImage& bsh = bshReader.GetBshImage(element.value()->Gfx);
   //     // int elevation = element.value()->Posoffs;
-  //     // bs.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - elevation);
+  //     // fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - elevation);
   //   }
   // }
 }
@@ -32,7 +32,7 @@ void Renderer::RenderIsland(std::shared_ptr<Island5> i)
 //     uint8_t yp = h.value().posy;
 //     if ((yp > y) || (xp > x))
 //     {
-//       // TODO "ziel" auf einen sinnvollen Wert setzen
+//       // TODO "target" auf einen sinnvollen Wert setzen
 //       return {};
 //     }
 //     auto r = islandHouseLayer.GetMap(std::make_pair(y - yp, x - xp));

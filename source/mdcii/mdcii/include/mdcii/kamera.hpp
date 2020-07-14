@@ -22,8 +22,8 @@
 #include <inttypes.h>
 #include <memory>
 
-#include "bildspeicher.hpp"
-#include "bsh_leser.hpp"
+#include "bsh/bshreader.hpp"
+#include "framebuffer/framebuffer.hpp"
 #include "welt.hpp"
 
 /* GFX/ MGFX/ Sgfx/  EFFEKTE.BSH MAEHER.BSH NUMBERS.BSH SHIP.BSH SOLDAT.BSH STADTFLD.BSH TIERE.BSH TRAEGER.BSH */
@@ -31,7 +31,7 @@
 class Kamera
 {
 public:
-  explicit Kamera(std::shared_ptr<Haeuser> haeuser);
+  explicit Kamera();
   void gehe_zu(uint16_t x, uint16_t y);
   void nach_rechts();
   void nach_links();
@@ -43,15 +43,15 @@ public:
   void rechts_drehen();
   void links_drehen();
 
-  void auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y);
-  void auf_bildschirm(Bildspeicher& bs, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
-  void auf_bildschirm_256(Bildspeicher& bs, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
-  void auf_karte(Bildspeicher& bs, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y);
+  void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y);
+  void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
+  void auf_bildschirm_256(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
+  void auf_karte(Framebuffer& fb, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y);
 
-  void zeichne_bild(Bildspeicher& bs, Welt& welt, int maus_x, int maus_y);
+  void zeichne_bild(Framebuffer& fb, Welt& welt, int maus_x, int maus_y);
 
 private:
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
   uint16_t xpos, ypos;
   uint8_t drehung, vergroesserung;
 
@@ -59,15 +59,15 @@ private:
   static const int y_raster[3];
   static const int grundhoehe[3];
 
-  Bsh_leser* effekte_bsh[3];
-  Bsh_leser* maeher_bsh[3];
-  Bsh_leser* numbers_bsh[3];
-  Bsh_leser* ship_bsh[3];
-  Bsh_leser* soldat_bsh[3];
-  Bsh_leser* stadtfld_bsh[3];
-  Bsh_leser* tiere_bsh[3];
-  Bsh_leser* traeger_bsh[3];
-  std::shared_ptr<Zei_leser> zei;
+  BshReader* effekte_bsh[3];
+  BshReader* maeher_bsh[3];
+  BshReader* numbers_bsh[3];
+  BshReader* ship_bsh[3];
+  BshReader* soldat_bsh[3];
+  BshReader* stadtfld_bsh[3];
+  BshReader* tiere_bsh[3];
+  BshReader* traeger_bsh[3];
+  std::shared_ptr<ZeiReader> zei;
 };
 
 #endif

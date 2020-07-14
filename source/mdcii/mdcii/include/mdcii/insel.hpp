@@ -50,23 +50,23 @@ typedef struct
 class Insel
 {
 public:
-  explicit Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Haeuser> haeuser);
-  uint8_t breite;
-  uint8_t hoehe;
+  explicit Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Buildings> buildings);
+  uint8_t width;
+  uint8_t height;
   uint16_t xpos;
   uint16_t ypos;
-  void insel_rastern(inselfeld_t* a, uint32_t laenge, inselfeld_t* b, uint8_t breite, uint8_t hoehe);
-  std::string basisname(uint8_t breite, uint8_t num, uint8_t sued);
+  void insel_rastern(inselfeld_t* a, uint32_t length, inselfeld_t* b, uint8_t width, uint8_t height);
+  std::string basisname(uint8_t width, uint8_t num, uint8_t sued);
   Block* inselX;
-  void grafik_boden(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r);
-  void grafik_bebauung(feld_t& ziel, uint8_t x, uint8_t y, uint8_t r);
-  void inselfeld_bebauung(inselfeld_t& ziel, uint8_t x, uint8_t y);
-  static void grafik_bebauung_inselfeld(feld_t& ziel, inselfeld_t& feld, uint8_t r, std::shared_ptr<Haeuser> haeuser);
+  void grafik_boden(feld_t& target, uint8_t x, uint8_t y, uint8_t r);
+  void grafik_bebauung(feld_t& target, uint8_t x, uint8_t y, uint8_t r);
+  void inselfeld_bebauung(inselfeld_t& target, uint8_t x, uint8_t y);
+  static void grafik_bebauung_inselfeld(feld_t& target, inselfeld_t& feld, uint8_t r, std::shared_ptr<Buildings> buildings);
   void bewege_wasser();
   void animiere_gebaeude(uint8_t x, uint8_t y);
 
 private:
-  std::shared_ptr<Haeuser> haeuser;
+  std::shared_ptr<Buildings> buildings;
   inselfeld_t* schicht1;
   inselfeld_t* schicht2;
 };

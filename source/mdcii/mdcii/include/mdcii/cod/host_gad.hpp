@@ -63,23 +63,23 @@ struct HostGadGadget
 class Hostgad
 {
 public:
-  explicit Hostgad(std::shared_ptr<Cod_Parser> cod);
-  std::experimental::optional<HostGadGadget*> get_gadget(int id);
-  int get_gadgets_size();
-  HostGadGadget* get_gadgets_by_index(int index);
+  explicit Hostgad(std::shared_ptr<CodParser> cod);
+  std::experimental::optional<HostGadGadget*> GetGadget(int id);
+  int GetGadgetsSize();
+  HostGadGadget* GetGadgetByIndex(int index);
 
 private:
-  void generate_gadgets();
+  void GenerateGadgets();
 
-  HostGadGadget generate_gadget(const cod_pb::Object* obj);
+  HostGadGadget GenerateGadget(const cod_pb::Object* obj);
 
 private:
-  const int id_offset = 0;
+  const int idOffset = 0;
   std::map<int, HostGadGadget> gadgets;
-  std::vector<HostGadGadget*> gadgets_vec;
-  std::shared_ptr<Cod_Parser> cod;
+  std::vector<HostGadGadget*> gadgetsVector;
+  std::shared_ptr<CodParser> cod;
 
-  std::map<std::string, HostGadKindType> KindMap = {{"GAD_GFX", HostGadKindType::GAD_GFX}, {"GAD_TEXTL", HostGadKindType::GAD_TEXTL}};
+  std::map<std::string, HostGadKindType> kindMap = {{"GAD_GFX", HostGadKindType::GAD_GFX}, {"GAD_TEXTL", HostGadKindType::GAD_TEXTL}};
 };
 
 #endif //_HOST_GAD_H_
