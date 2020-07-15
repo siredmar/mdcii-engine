@@ -25,7 +25,7 @@
 
 #include "files/files.hpp"
 
-#include "cod/haeuser.hpp"
+#include "cod/buildings.hpp"
 
 #include "chunk.hpp"
 #include "deer.hpp"

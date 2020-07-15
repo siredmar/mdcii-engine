@@ -29,8 +29,8 @@
 
 #include "bsh/bshtexture.hpp"
 #include "cod/basegad_dat.hpp"
+#include "cod/buildings.hpp"
 #include "cod/cod_parser.hpp"
-#include "cod/haeuser.hpp"
 #include "files/files.hpp"
 #include "framebuffer/palette.hpp"
 

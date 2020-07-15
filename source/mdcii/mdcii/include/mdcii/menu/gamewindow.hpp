@@ -27,8 +27,8 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
+#include "cod/buildings.hpp"
 #include "cod/cod_parser.hpp"
-#include "cod/haeuser.hpp"
 #include "files/files.hpp"
 #include "framebuffer/framebuffer_pal8.hpp"
 #include "framebuffer/palette.hpp"

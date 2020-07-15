@@ -19,8 +19,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+#include "mdcii/cod/buildings.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/cod/haeuser.hpp"
 #include "mdcii/files/files.hpp"
 #include "mdcii/gam/gam_parser.hpp"
 

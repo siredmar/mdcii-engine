@@ -20,7 +20,7 @@
 #include <map>
 #include <memory>
 
-#include "cod/haeuser.hpp"
+#include "cod/buildings.hpp"
 
 Buildings* Buildings::_instanceRawPtr = 0;
 
