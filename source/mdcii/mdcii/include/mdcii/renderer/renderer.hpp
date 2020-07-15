@@ -17,11 +17,11 @@
 class Renderer
 {
 public:
-  Renderer(const int width, const int height, std::shared_ptr<Buildings> buildings)
+  Renderer(const int width, const int height)
     : palette(Palette::Instance())
     , target(SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0))
     , fb(std::make_shared<FramebufferPal8>(width, height, 0, static_cast<uint8_t*>(target->pixels), (uint32_t)target->pitch))
-    , buildings(buildings)
+    , buildings(Buildings::Instance())
   {
     SDL_SetPaletteColors(target->format->palette, palette->GetSDLColors(), 0, palette->size());
   }

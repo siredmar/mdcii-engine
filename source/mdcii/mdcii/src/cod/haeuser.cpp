@@ -24,11 +24,19 @@
 
 Buildings* Buildings::_instanceRawPtr = 0;
 
+void Buildings::CreateInstance(const std::shared_ptr<CodParser> cod)
+{
+  static CGuard g;
+  if (!_instanceRawPtr)
+  {
+    _instanceRawPtr = new Buildings(cod);
+  }
+}
+
 Buildings::Buildings(std::shared_ptr<CodParser> cod)
   : cod(cod)
 {
   GenerateBuildings();
-  _instanceRawPtr = this;
 }
 
 std::shared_ptr<Buildings> Buildings::Instance()

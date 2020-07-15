@@ -32,14 +32,13 @@
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
-SinglePlayerWindow::SinglePlayerWindow(
-    SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen, std::shared_ptr<Buildings> buildings)
+SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
   : Screen(pwindow, Vector2i(width, height), "Game", false, true)
   , renderer(renderer)
   , width(width)
   , height(height)
   , fullscreen(fullscreen)
-  , buildings(buildings)
+  , buildings(Buildings::Instance())
   , pwindow(pwindow)
   , files(Files::Instance())
   , hostgad(std::make_shared<Hostgad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("host.gad"), false, false)))
@@ -234,7 +233,7 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
     std::cout << "[ERR] Could not load savegame: " << gamName << std::endl;
     exit(EXIT_FAILURE);
   }
-  GameWindow gameWindow(renderer, pwindow, width, height, gamName, fullscreen, buildings);
+  GameWindow gameWindow(renderer, pwindow, width, height, gamName, fullscreen);
   gameWindow.Handle();
   Handle();
 }

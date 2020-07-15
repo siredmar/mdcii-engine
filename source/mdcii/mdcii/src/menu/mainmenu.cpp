@@ -31,11 +31,10 @@
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
-MainMenu::MainMenu(
-    SDL_Renderer* renderer, std::shared_ptr<Buildings> buildings, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen)
+MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen)
   : Screen(pwindow, Vector2i(width, height), "Game", false, true)
   , renderer(renderer)
-  , buildings(buildings)
+  , buildings(Buildings::Instance())
   , basegad(basegad)
   , width(width)
   , height(height)
@@ -136,7 +135,7 @@ void MainMenu::Handle()
 
     Fps fps;
 
-    SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen, buildings);
+    SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen);
     SDL_Event e;
     while (!quit)
     {

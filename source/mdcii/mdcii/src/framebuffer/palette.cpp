@@ -34,12 +34,12 @@ Palette* Palette::Instance()
   return _instance;
 }
 
-Palette* Palette::CreateInstance(const std::string& palette_file_path)
+Palette* Palette::CreateInstance(const std::string& paletteFilePath)
 {
   static CGuard g;
   if (!_instance)
   {
-    _instance = new Palette(palette_file_path);
+    _instance = new Palette(paletteFilePath);
     _instance->transparentColor = _instance->FindTransparentColorIndex();
     _instance->c = (SDL_Color*)malloc(_instance->size() * sizeof(SDL_Color));
     for (int i = 0; i < _instance->size(); i++)
@@ -57,9 +57,9 @@ Palette::~Palette()
   free(_instance->c);
 }
 
-void Palette::Init(const std::string& palette_file_path)
+Palette::Palette(const std::string& paletteFilePath)
 {
-  path = palette_file_path;
+  path = paletteFilePath;
   std::ifstream input(path, std::ios::binary);
   std::vector<uint8_t> buffer(std::istreambuf_iterator<char>(input), {});
   // 20 is the chunk definition int bytes to jump over

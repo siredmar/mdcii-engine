@@ -65,8 +65,7 @@ int main(int argc, char** argv)
   }
 
   auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
-  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
   Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
   BshReader bshReader(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
 
@@ -75,7 +74,7 @@ int main(int argc, char** argv)
   FramebufferPal8 fb((World::Width + World::Height) * XRASTER, (World::Width + World::Height) * YRASTER, 0);
 
   TileGraphic water;
-  water.index = buildings->GetHouse(1201).value()->Gfx;
+  water.index = Buildings::Instance()->GetHouse(1201).value()->Gfx;
   water.groundHeight = 0;
 
   for (int y = 0; y < World::Height; y++)

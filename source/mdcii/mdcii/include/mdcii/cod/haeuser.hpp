@@ -397,22 +397,37 @@ struct Building
 class Buildings
 {
 public:
-  explicit Buildings(std::shared_ptr<CodParser> cod);
+  static void CreateInstance(const std::shared_ptr<CodParser> cod);
   static std::shared_ptr<Buildings> Instance();
   std::experimental::optional<Building*> GetHouse(int id);
   int GetBuildingsSize();
   Building* GetBuildingByIndex(int index);
 
 private:
-  std::shared_ptr<CodParser> cod;
-  static std::shared_ptr<Buildings> _instance;
-  static Buildings* _instanceRawPtr;
+  explicit Buildings(const std::shared_ptr<CodParser> cod);
   void GenerateBuildings();
   Building GenerateBuilding(const cod_pb::Object* obj);
+
+  const std::shared_ptr<CodParser> cod;
+  static std::shared_ptr<Buildings> _instance;
+  static Buildings* _instanceRawPtr;
 
   const int idOffset = 20000;
   std::map<int, Building> buildings;
   std::vector<Building*> buildingsVector;
+
+  class CGuard
+  {
+  public:
+    ~CGuard()
+    {
+      if (NULL != Buildings::_instanceRawPtr)
+      {
+        delete Buildings::_instanceRawPtr;
+        Buildings::_instanceRawPtr = NULL;
+      }
+    }
+  };
 
   std::map<std::string, ObjectKindType> ObjectKindMap = {{"WALD", ObjectKindType::WALD}, {"TOR", ObjectKindType::TOR}, {"RUINE", ObjectKindType::RUINE},
       {"HQ", ObjectKindType::HQ}, {"STRANDMUND", ObjectKindType::STRANDMUND}, {"STRANDHAUS", ObjectKindType::STRANDHAUS},
