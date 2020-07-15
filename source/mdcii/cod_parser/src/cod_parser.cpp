@@ -2,8 +2,8 @@
 
 #include <boost/program_options.hpp>
 
+#include "mdcii/cod/buildings.hpp"
 #include "mdcii/cod/cod_parser.hpp"
-#include "mdcii/cod/haeuser.hpp"
 #include "mdcii/files/files.hpp"
 
 namespace po = boost::program_options;

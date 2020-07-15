@@ -2,9 +2,9 @@
 
 #include <boost/program_options.hpp>
 
+#include "../buildings.hpp"
 #include "../cod_parser.hpp"
 #include "../files/files.hpp"
-#include "../haeuser.hpp"
 
 namespace po = boost::program_options;
 

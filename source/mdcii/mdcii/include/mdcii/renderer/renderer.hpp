@@ -8,7 +8,7 @@
 #include <experimental/optional>
 #include <utility>
 
-#include "cod/haeuser.hpp"
+#include "cod/buildings.hpp"
 #include "framebuffer/framebuffer_pal8.hpp"
 #include "framebuffer/palette.hpp"
 #include "gam/island.hpp"
