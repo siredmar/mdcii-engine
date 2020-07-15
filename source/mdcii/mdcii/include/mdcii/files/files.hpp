@@ -28,8 +28,6 @@ class Files
 public:
   static Files* CreateInstance(const std::string& path);
   static Files* Instance();
-  void Init();
-  void Init(const std::string& path);
 
   bool CheckFile(const std::string& filename);
   bool CheckAllFiles(std::vector<std::string>* files);
@@ -42,15 +40,12 @@ public:
 
 private:
   static Files* _instance;
-  ~Files()
-  {
-  }
   explicit Files(const std::string& path)
   {
-    Init(path);
+    tree = GetDirectoryTree(path);
   }
 
-  Files(const Files&);
+  Files(const Files&) = delete;
 
 
   std::vector<std::string> tree;

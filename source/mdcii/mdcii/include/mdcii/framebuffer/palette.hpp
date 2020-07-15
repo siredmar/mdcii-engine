@@ -82,10 +82,7 @@ private:
   static Palette* _instance;
   ~Palette();
   Palette() = delete;
-  explicit Palette(const std::string& palette_file_path)
-  {
-    Init(palette_file_path);
-  }
+  explicit Palette(const std::string& palette_file_path);
 
   Palette(const Palette&);
 

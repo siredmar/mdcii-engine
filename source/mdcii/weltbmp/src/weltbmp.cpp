@@ -57,8 +57,7 @@ int main(int argc, char** argv)
 
   auto files = Files::CreateInstance(".");
   Version::DetectGameVersion();
-  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
-  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
   Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
   Welt welt = Welt(f);
 
@@ -77,7 +76,7 @@ int main(int argc, char** argv)
         insel->grafik_bebauung(feld, x - insel->xpos, y - insel->ypos, 0);
       else
       {
-        feld.index = buildings->GetHouse(1201).value()->Gfx + (y + x * 3) % 12;
+        feld.index = Buildings::Instance()->GetHouse(1201).value()->Gfx + (y + x * 3) % 12;
         feld.grundhoehe = 0;
       }
       /*feld_t feld2;

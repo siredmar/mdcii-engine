@@ -30,15 +30,14 @@
 
 using namespace sdlgui;
 
-GameWindow::GameWindow(
-    SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen, std::shared_ptr<Buildings> buildings)
+GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen)
   : Screen(pwindow, Vector2i(width, height), "Game")
   , renderer(renderer)
   , width(width)
   , height(height)
   , gamName(gamName)
   , fullscreen(fullscreen)
-  , buildings(buildings)
+  , buildings(Buildings::Instance())
   , running(true)
   , gam(std::make_shared<GamParser>(gamName, false))
 {

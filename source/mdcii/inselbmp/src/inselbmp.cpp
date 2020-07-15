@@ -57,12 +57,11 @@ int main(int argc, char** argv)
   f.close();
 
   auto files = Files::CreateInstance(std::string(argv[3]));
-  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
-  std::shared_ptr<Buildings> buildings = std::make_shared<Buildings>(buildingsCod);
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
   Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
   Version::DetectGameVersion();
 
-  Insel insel = Insel(&inselX, &inselhaus, buildings);
+  Insel insel = Insel(&inselX, &inselhaus, Buildings::Instance());
   uint8_t width = insel.width;
   uint8_t height = insel.height;
 

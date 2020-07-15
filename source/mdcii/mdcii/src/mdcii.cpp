@@ -96,11 +96,9 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
   Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
-  auto buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
-  auto buildings = std::make_shared<Buildings>(buildingsCod);
-  auto basegad_dat = std::make_shared<CodParser>(files->Instance()->FindPathForFile("base.gad"), false, false);
-  auto basegad = std::make_shared<Basegad>(basegad_dat);
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
+  auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("base.gad"), false, false));
 
-  MainMenu mainMenu(renderer, buildings, basegad, window, screen_width, screen_height, fullscreen);
+  MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
   mainMenu.Handle();
 }

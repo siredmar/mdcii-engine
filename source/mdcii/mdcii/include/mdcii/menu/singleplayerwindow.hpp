@@ -48,7 +48,7 @@ using namespace sdlgui;
 class SinglePlayerWindow : public Screen
 {
 public:
-  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen, std::shared_ptr<Buildings> buildings);
+  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
   void Handle();
 
 private:

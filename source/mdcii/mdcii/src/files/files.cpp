@@ -48,17 +48,6 @@ Files* Files::CreateInstance(const std::string& path)
   return _instance;
 }
 
-void Files::Init()
-{
-  // Defaults to current location
-  Init(".");
-}
-
-void Files::Init(const std::string& path)
-{
-  tree = GetDirectoryTree(path);
-}
-
 bool Files::CheckAllFiles(std::vector<std::string>* files)
 {
   bool failed = false;

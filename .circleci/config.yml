@@ -17,8 +17,8 @@ jobs:
           name: Setup cmake and build artifacts
           command: |
             cd build
-            cmake  ..
-            cmake --build . --config Release
+            cmake -DCMAKE_BUILD_TYPE=Release ..
+            make -j16
       - run:
           name: Run unit tests
           command: |
