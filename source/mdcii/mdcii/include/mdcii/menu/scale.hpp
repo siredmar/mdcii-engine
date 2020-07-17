@@ -15,47 +15,50 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
-
-#include <iostream>
-#include <memory>
+// Based on nanogui-sdl by Dalerank <dalerankn8@gmail.com>
+#ifndef _SCALE_HPP_
+#define _SCALE_HPP_
 
 #include <SDL2/SDL.h>
 
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "bsh/bshtexture.hpp"
-#include "cod/basegad_dat.hpp"
-#include "cod/buildings.hpp"
-#include "cod/cod_parser.hpp"
-#include "files/files.hpp"
-#include "framebuffer/palette.hpp"
-
-#include "menu/fps.hpp"
-#include "menu/scale.hpp"
-
-using namespace sdlgui;
-
-class MainMenu : public Screen
+class Scale
 {
 public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen);
-  void Handle();
+  struct ScreenSize
+  {
+    ScreenSize(uint32_t width, uint32_t height)
+      : width(width)
+      , height(height)
+    {
+    }
+    uint32_t width;
+    uint32_t height;
+  };
+
+  static Scale* CreateInstance(SDL_Window* window);
+  static Scale* Instance();
+  ScreenSize GetScreenSize();
+  void SetScreenSize(ScreenSize newSize);
+  void SetFullscreen(bool enabled);
+  void ToggleFullscreen();
 
 private:
-  SDL_Renderer* renderer;
-  std::shared_ptr<Buildings> buildings;
-  std::shared_ptr<Basegad> basegad;
-  int width;
-  int height;
   bool fullscreen;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
-  Files* files;
-  bool quit;
-  Scale* scale;
+  SDL_Window* window;
+  static Scale* _instance;
+  Scale(SDL_Window* window);
+  class CGuard
+  {
+  public:
+    ~CGuard()
+    {
+      if (NULL != Scale::_instance)
+      {
+        delete Scale::_instance;
+        Scale::_instance = NULL;
+      }
+    }
+  };
 };
-#endif
+
+#endif // _SCALE_HPP_

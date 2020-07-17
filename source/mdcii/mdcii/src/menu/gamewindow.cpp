@@ -40,6 +40,7 @@ GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, i
   , buildings(Buildings::Instance())
   , running(true)
   , gam(std::make_shared<GamParser>(gamName, false))
+  , scale(Scale::Instance())
 {
   std::cout << "Haeuser: " << buildings->GetBuildingsSize() << std::endl;
   {
@@ -116,6 +117,11 @@ void GameWindow::Handle()
             if (e.key.keysym.sym == SDLK_y)
             {
               spielbildschirm.kamera->links_drehen();
+            }
+            if (e.key.keysym.sym == SDLK_F11)
+            {
+              fullscreen = !fullscreen;
+              scale->ToggleFullscreen();
             }
             break;
           default:

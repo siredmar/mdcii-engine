@@ -33,6 +33,7 @@
 #include "kamera.hpp"
 #include "mdcii.hpp"
 #include "menu/mainmenu.hpp"
+#include "menu/scale.hpp"
 #include "spielbildschirm.hpp"
 #include "version/version.hpp"
 
@@ -83,8 +84,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_Window* window = SDL_CreateWindow("mdcii-sdltest", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height,
-      (fullscreen ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
-
+      (fullscreen ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   if (window == NULL)
   {
     // In the event that the window could not be made...
@@ -92,6 +92,8 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
     SDL_Quit();
   }
 
+  SDL_SetWindowMinimumSize(window, 1024, 768);
+  Scale::CreateInstance(window);
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 

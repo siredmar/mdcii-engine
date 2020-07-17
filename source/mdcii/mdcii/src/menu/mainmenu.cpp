@@ -43,12 +43,16 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
   , pwindow(pwindow)
   , files(Files::Instance())
   , quit(false)
+  , scale(Scale::Instance())
 {
   std::cout << "Basegad: " << basegad->GetGadgetsSize() << std::endl;
   BshReader bsh_leser(files->Instance()->FindPathForFile("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
-  SDL_Texture* background = converter.Convert(&bsh_leser.GetBshImage(0));
+  int scaleLeftBorder = (scale->GetScreenSize().width - bsh_leser.GetBshImage(0).width) / 2;
+  int scaleUpperBorder = (scale->GetScreenSize().height - bsh_leser.GetBshImage(0).height) / 2;
+
+  SDL_Texture* backgroundTexture = converter.Convert(&bsh_leser.GetBshImage(0));
 
   auto shipGad = basegad->GetGadgetsByIndex(1);
   SDL_Texture* shipTexture = converter.Convert(&bsh_leser.GetBshImage(shipGad->Gfxnr));
@@ -74,30 +78,32 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
   SDL_Texture* exitTextureClicked = converter.Convert(&bsh_leser.GetBshImage(exitButtonGad->Gfxnr + exitButtonGad->Pressoff));
 
   {
-    wdg<TextureView>(background);
+    auto& background = wdg<TextureView>(backgroundTexture);
+    background.setPosition(scaleLeftBorder, scaleUpperBorder);
+
     auto& ship = wdg<TextureView>(shipTexture);
-    ship.setPosition(shipGad->Pos.x, shipGad->Pos.y);
+    ship.setPosition(scaleLeftBorder + shipGad->Pos.x, scaleUpperBorder + shipGad->Pos.y);
 
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
       triggerSinglePlayer = true;
     });
-    singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
+    singlePlayerButton.setPosition(scaleLeftBorder + singlePlayerButtonGad->Pos.x, scaleUpperBorder + singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
     singlePlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     auto& multiPlayerButton = wdg<TextureButton>(multiPlayerTexture, [this] { std::cout << "Multiplayer pressed" << std::endl; });
-    multiPlayerButton.setPosition(multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y);
+    multiPlayerButton.setPosition(scaleLeftBorder + multiPlayerButtonGad->Pos.x, scaleUpperBorder + multiPlayerButtonGad->Pos.y);
     multiPlayerButton.setSecondaryTexture(multiPlayerTextureClicked);
     multiPlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     auto& creditsButton = wdg<TextureButton>(creditsTexture, [this] { std::cout << "credits pressed" << std::endl; });
-    creditsButton.setPosition(creditsButtonGad->Pos.x, creditsButtonGad->Pos.y);
+    creditsButton.setPosition(scaleLeftBorder + creditsButtonGad->Pos.x, scaleUpperBorder + creditsButtonGad->Pos.y);
     creditsButton.setSecondaryTexture(creditsTextureClicked);
     creditsButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     auto& introButton = wdg<TextureButton>(introTexture, [this] { std::cout << "intro pressed" << std::endl; });
-    introButton.setPosition(introButtonGad->Pos.x, introButtonGad->Pos.y);
+    introButton.setPosition(scaleLeftBorder + introButtonGad->Pos.x, scaleUpperBorder + introButtonGad->Pos.y);
     introButton.setSecondaryTexture(introTextureClicked);
     introButton.setTextureSwitchFlags(TextureButton::OnClick);
 
@@ -105,7 +111,7 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
       std::cout << "exit pressed" << std::endl;
       quit = true;
     });
-    exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
+    exitButton.setPosition(scaleLeftBorder + exitButtonGad->Pos.x, scaleUpperBorder + exitButtonGad->Pos.y);
     exitButton.setSecondaryTexture(exitTextureClicked);
     exitButton.setTextureSwitchFlags(TextureButton::OnClick);
   }
@@ -152,6 +158,11 @@ void MainMenu::Handle()
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
               quit = true;
+            }
+            else if (e.key.keysym.sym == SDLK_F11)
+            {
+              fullscreen = !fullscreen;
+              scale->ToggleFullscreen();
             }
             break;
           default:
