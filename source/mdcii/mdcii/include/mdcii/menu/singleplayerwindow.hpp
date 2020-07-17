@@ -42,6 +42,7 @@
 #include "savegames/savegames.hpp"
 
 #include "menu/fps.hpp"
+#include "menu/scale.hpp"
 
 using namespace sdlgui;
 
@@ -57,6 +58,7 @@ private:
   int width;
   int height;
   bool fullscreen;
+  Scale* scale;
   std::shared_ptr<Buildings> buildings;
   SDL_Window* pwindow;
   Files* files;

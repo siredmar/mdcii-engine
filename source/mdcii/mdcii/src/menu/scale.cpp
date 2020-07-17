@@ -15,47 +15,54 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef MAINMENU_H_
-#define MAINMENU_H_
-
-#include <iostream>
-#include <memory>
-
-#include <SDL2/SDL.h>
-
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "bsh/bshtexture.hpp"
-#include "cod/basegad_dat.hpp"
-#include "cod/buildings.hpp"
-#include "cod/cod_parser.hpp"
-#include "files/files.hpp"
-#include "framebuffer/palette.hpp"
-
-#include "menu/fps.hpp"
 #include "menu/scale.hpp"
 
-using namespace sdlgui;
+Scale* Scale::_instance = 0;
 
-class MainMenu : public Screen
+Scale* Scale::CreateInstance(SDL_Window* window)
 {
-public:
-  MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen);
-  void Handle();
+  static CGuard g;
+  if (not _instance)
+  {
+    _instance = new Scale(window);
+  }
+  return _instance;
+}
 
-private:
-  SDL_Renderer* renderer;
-  std::shared_ptr<Buildings> buildings;
-  std::shared_ptr<Basegad> basegad;
+Scale* Scale::Instance()
+{
+  if (not _instance)
+  {
+    throw("[EER] Scale not initialized yet!");
+  }
+  return _instance;
+}
+
+Scale::ScreenSize Scale::GetScreenSize()
+{
   int width;
   int height;
-  bool fullscreen;
-  bool triggerSinglePlayer;
-  SDL_Window* pwindow;
-  Files* files;
-  bool quit;
-  Scale* scale;
-};
-#endif
+  SDL_GetWindowSize(window, &width, &height);
+  return ScreenSize(width, height);
+}
+
+void Scale::SetScreenSize(Scale::ScreenSize newSize)
+{
+  SDL_SetWindowSize(window, newSize.width, newSize.height);
+}
+
+void Scale::SetFullscreen(bool enabled)
+{
+  SDL_SetWindowFullscreen(window, static_cast<int>(enabled));
+}
+
+void Scale::ToggleFullscreen()
+{
+  fullscreen = !fullscreen;
+  SDL_SetWindowFullscreen(window, static_cast<int>(fullscreen));
+}
+
+Scale::Scale(SDL_Window* window)
+  : window(window)
+{
+}

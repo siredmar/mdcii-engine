@@ -29,6 +29,7 @@
 #include "sdlgui/window.h"
 
 #include "menu/gamewindow.hpp"
+#include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
 
 using namespace sdlgui;
@@ -46,12 +47,16 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
   , savegame("")
   , triggerStartGame(false)
+  , scale(Scale::Instance())
 {
   std::cout << "host.gad: " << hostgad->GetGadgetsSize() << std::endl;
   BshReader bsh_leser(files->Instance()->FindPathForFile("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
-  SDL_Texture* background = converter.Convert(&bsh_leser.GetBshImage(0));
+  int scaleLeftBorder = (scale->GetScreenSize().width - bsh_leser.GetBshImage(0).width) / 2;
+  int scaleUpperBorder = (scale->GetScreenSize().height - bsh_leser.GetBshImage(0).height) / 2;
+
+  SDL_Texture* backgroundTexture = converter.Convert(&bsh_leser.GetBshImage(0));
 
   auto tableGad = hostgad->GetGadgetByIndex(1);
   SDL_Texture* tableTexture = converter.Convert(&bsh_leser.GetBshImage(tableGad->Gfxnr));
@@ -87,22 +92,23 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
   {
     // BACKGROUND
-    wdg<TextureView>(background);
+    auto& background = wdg<TextureView>(backgroundTexture);
+    background.setPosition(scaleLeftBorder, scaleUpperBorder);
 
     // BUTTONS
     auto& scrollUpButton = wdg<TextureButton>(scrollUpTexture, [this] { currentTablePtr->scrollPositive(); });
-    scrollUpButton.setPosition(scrollUpButtonGad->Pos.x, scrollUpButtonGad->Pos.y);
+    scrollUpButton.setPosition(scaleLeftBorder + scrollUpButtonGad->Pos.x, scaleUpperBorder + scrollUpButtonGad->Pos.y);
     scrollUpButton.setSecondaryTexture(scrollUpTextureClicked);
     scrollUpButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     auto& scrollDownButton = wdg<TextureButton>(scrollDownTexture, [this] { currentTablePtr->scrollNegative(); });
-    scrollDownButton.setPosition(scrollDownButtonGad->Pos.x, scrollDownButtonGad->Pos.y);
+    scrollDownButton.setPosition(scaleLeftBorder + scrollDownButtonGad->Pos.x, scaleUpperBorder + scrollDownButtonGad->Pos.y);
     scrollDownButton.setSecondaryTexture(scrollDownTextureClicked);
     scrollDownButton.setTextureSwitchFlags(TextureButton::OnClick);
 
     // TABLES
     auto& tableFrame = wdg<TextureView>(tableTexture);
-    tableFrame.setPosition(tableGad->Pos.x, tableGad->Pos.y);
+    tableFrame.setPosition(scaleLeftBorder + tableGad->Pos.x, scaleUpperBorder + tableGad->Pos.y);
 
     // SCENARIOS
     Savegames szenesRaw("/szenes", ".szs");
@@ -141,7 +147,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
           return &table;
         },
         scenes, 14, 14, true);
-    scenariosTable.setPosition(tableGad->Pos.x + 20, tableGad->Pos.y + 13);
+    scenariosTable.setPosition(scaleLeftBorder + tableGad->Pos.x + 20, scaleUpperBorder + tableGad->Pos.y + 13);
     scenariosTable.setVisible(true);
     scenariosTablePtr = &scenariosTable;
     currentTablePtr = scenariosTablePtr;
@@ -177,7 +183,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
           return &table;
         },
         saves, 14, 14, true);
-    savegamesTable.setPosition(tableGad->Pos.x + 20, tableGad->Pos.y + 13);
+    savegamesTable.setPosition(scaleLeftBorder + tableGad->Pos.x + 20, scaleUpperBorder + tableGad->Pos.y + 13);
     savegamesTable.setVisible(false);
     savegamesTablePtr = &savegamesTable;
 
@@ -190,7 +196,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
       scrollUpButton.setVisible(scenariosTablePtr->childAt(0)->childCount() < 14 ? false : true);
       scrollDownButton.setVisible(scenariosTablePtr->childAt(0)->childCount() < 14 ? false : true);
     });
-    newGameButton.setPosition(newGameButtonGad->Pos.x, newGameButtonGad->Pos.y);
+    newGameButton.setPosition(scaleLeftBorder + newGameButtonGad->Pos.x, scaleUpperBorder + newGameButtonGad->Pos.y);
     newGameButton.setSecondaryTexture(newGameTextureClicked);
     newGameButton.setTextureSwitchFlags(TextureButton::OnClick);
 
@@ -202,7 +208,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
       scrollUpButton.setVisible(savegamesTablePtr->childAt(0)->childCount() < 14 ? false : true);
       scrollDownButton.setVisible(savegamesTablePtr->childAt(0)->childCount() < 14 ? false : true);
     });
-    loadGameButton.setPosition(loadGameButtonGad->Pos.x, loadGameButtonGad->Pos.y);
+    loadGameButton.setPosition(scaleLeftBorder + loadGameButtonGad->Pos.x, scaleUpperBorder + loadGameButtonGad->Pos.y);
     loadGameButton.setSecondaryTexture(loadGameTextureClicked);
     loadGameButton.setTextureSwitchFlags(TextureButton::OnClick);
 
@@ -210,7 +216,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
       std::cout << "Continue Game pressed" << std::endl;
       LoadGame(Files::Instance()->FindPathForFile("lastgame.gam"));
     });
-    continueGameButton.setPosition(continueGameButtonGad->Pos.x, continueGameButtonGad->Pos.y);
+    continueGameButton.setPosition(scaleLeftBorder + continueGameButtonGad->Pos.x, scaleUpperBorder + continueGameButtonGad->Pos.y);
     continueGameButton.setSecondaryTexture(continueTextureClicked);
     continueGameButton.setTextureSwitchFlags(TextureButton::OnClick);
 
@@ -218,7 +224,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
       std::cout << "Main Menu pressed" << std::endl;
       quit = true;
     });
-    mainMenuButton.setPosition(mainMenuButtonGad->Pos.x, mainMenuButtonGad->Pos.y);
+    mainMenuButton.setPosition(scaleLeftBorder + mainMenuButtonGad->Pos.x, scaleUpperBorder + mainMenuButtonGad->Pos.y);
     mainMenuButton.setSecondaryTexture(mainMenuTextureClicked);
     mainMenuButton.setTextureSwitchFlags(TextureButton::OnClick);
   }
@@ -280,6 +286,11 @@ void SinglePlayerWindow::Handle()
             if (e.key.keysym.sym == SDLK_ESCAPE)
             {
               quit = true;
+            }
+            else if (e.key.keysym.sym == SDLK_F11)
+            {
+              fullscreen = !fullscreen;
+              scale->ToggleFullscreen();
             }
             break;
           default:

@@ -37,6 +37,7 @@
 #include "spielbildschirm.hpp"
 
 #include "menu/fps.hpp"
+#include "menu/scale.hpp"
 
 using namespace sdlgui;
 
@@ -52,6 +53,7 @@ private:
   int height;
   std::string gamName;
   bool fullscreen;
+  Scale* scale;
   std::shared_ptr<Buildings> buildings;
   bool running;
   std::shared_ptr<GamParser> gam;
