@@ -15,17 +15,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include <ctime>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <random>
 #include <string>
-
-#include <boost/random.hpp>
 
 #include <iostream>
 
 #include "gam/gam_parser.hpp"
+
+std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
 GamParser::GamParser(const std::string& gam, bool peek)
   : files(Files::Instance())
@@ -185,6 +186,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
           i5 = std::make_shared<Island5>(SceneRandomIsland(island.size, island.climate));
         }
         i5->SetIslandNumber(island.islandNumber);
+        i5->SetPosition(island.pos.x, island.pos.y);
         // Todo: make random raw growth rates, ores, ...
         islands5.push_back(i5);
       }
@@ -192,7 +194,7 @@ GamParser::GamParser(const std::string& gam, bool peek)
 
     if (islands5.size())
     {
-      for (auto i : islands5)
+      for (auto& i : islands5)
       {
         i->Finalize();
       }
@@ -266,9 +268,8 @@ Island5 GamParser::SceneRandomIsland(SizeType size, ClimateType climate)
     climate = static_cast<ClimateType>(Island5::RandomIslandClimate());
   }
   auto islands = files->GrepFiles(islandClimateMap[static_cast<IslandClimate>(climate)] + "/" + islandSizeMap[static_cast<IslandSize>(size)]);
-  std::time_t now = std::time(0);
-  boost::random::mt19937 gen{static_cast<std::uint32_t>(now)};
-  int randomIndex = gen() % (islands.size() - 1);
+  std::uniform_int_distribution<int> uid{0, 1000};
+  int randomIndex = uid(dre) % (islands.size() - 1);
   return SceneIslandbyFile(size, climate, randomIndex);
 }
 

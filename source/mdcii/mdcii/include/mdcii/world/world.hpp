@@ -10,7 +10,7 @@ class World
 public:
   explicit World(GamParser gamParser);
   std::experimental::optional<std::shared_ptr<Island5>> IslandOnPosition(uint16_t x, uint16_t y);
-  int IslandNumberOnPosition(uint16_t x, uint16_t y);
+  bool IslandNumberOnPosition(uint8_t number, uint16_t x, uint16_t y);
   IslandHouseData TileOnPosition(uint16_t x, uint16_t y);
   enum
   {

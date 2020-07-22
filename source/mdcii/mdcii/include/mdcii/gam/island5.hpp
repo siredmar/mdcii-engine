@@ -77,6 +77,7 @@ public:
   explicit Island5(const Island3& island3);
   explicit Island5(const Island4& island4);
   void SetIslandNumber(uint8_t number);
+  void SetPosition(uint16_t x, uint16_t y);
   void SetIslandFile(uint16_t fileNumber);
   void AddIslandHouse(std::shared_ptr<Chunk> c);
   void AddIslandHouse(std::shared_ptr<IslandHouse> i);
