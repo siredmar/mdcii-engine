@@ -58,6 +58,12 @@ void Island5::SetIslandNumber(uint8_t number)
   island.islandNumber = number;
 }
 
+void Island5::SetPosition(uint16_t x, uint16_t y)
+{
+  island.posx = x;
+  island.posy = y;
+}
+
 void Island5::SetIslandFile(uint16_t fileNumber)
 {
   island.fileNumber = fileNumber;

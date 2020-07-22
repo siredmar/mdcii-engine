@@ -23,14 +23,17 @@ std::experimental::optional<std::shared_ptr<Island5>> World::IslandOnPosition(ui
   return {};
 }
 
-int World::IslandNumberOnPosition(uint16_t x, uint16_t y)
+bool World::IslandNumberOnPosition(uint8_t number, uint16_t x, uint16_t y)
 {
   auto i = IslandOnPosition(x, y);
   if (i)
   {
-    return i.value()->GetIslandData().islandNumber;
+    if (i.value()->GetIslandData().islandNumber == number)
+    {
+      return true;
+    }
   }
-  return -1;
+  return false;
 }
 
 IslandHouseData World::TileOnPosition(uint16_t x, uint16_t y)
