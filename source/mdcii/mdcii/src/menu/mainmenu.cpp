@@ -80,42 +80,61 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
   {
     auto& background = wdg<TextureView>(backgroundTexture);
     background.setPosition(scaleLeftBorder, scaleUpperBorder);
+    widgets.push_back(std::make_tuple(&background, 0, 0));
 
     auto& ship = wdg<TextureView>(shipTexture);
-    ship.setPosition(scaleLeftBorder + shipGad->Pos.x, scaleUpperBorder + shipGad->Pos.y);
+    ship.setPosition(shipGad->Pos.x, shipGad->Pos.y);
+    widgets.push_back(std::make_tuple(&ship, shipGad->Pos.x, shipGad->Pos.y));
 
     auto& singlePlayerButton = wdg<TextureButton>(singlePlayerTexture, [this] {
       std::cout << "Singleplayer pressed" << std::endl;
       triggerSinglePlayer = true;
     });
-    singlePlayerButton.setPosition(scaleLeftBorder + singlePlayerButtonGad->Pos.x, scaleUpperBorder + singlePlayerButtonGad->Pos.y);
+    singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
     singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
     singlePlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&singlePlayerButton, singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y));
 
     auto& multiPlayerButton = wdg<TextureButton>(multiPlayerTexture, [this] { std::cout << "Multiplayer pressed" << std::endl; });
-    multiPlayerButton.setPosition(scaleLeftBorder + multiPlayerButtonGad->Pos.x, scaleUpperBorder + multiPlayerButtonGad->Pos.y);
+    multiPlayerButton.setPosition(multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y);
     multiPlayerButton.setSecondaryTexture(multiPlayerTextureClicked);
     multiPlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&multiPlayerButton, multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y));
 
     auto& creditsButton = wdg<TextureButton>(creditsTexture, [this] { std::cout << "credits pressed" << std::endl; });
-    creditsButton.setPosition(scaleLeftBorder + creditsButtonGad->Pos.x, scaleUpperBorder + creditsButtonGad->Pos.y);
+    creditsButton.setPosition(creditsButtonGad->Pos.x, creditsButtonGad->Pos.y);
     creditsButton.setSecondaryTexture(creditsTextureClicked);
     creditsButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&creditsButton, creditsButtonGad->Pos.x, creditsButtonGad->Pos.y));
 
     auto& introButton = wdg<TextureButton>(introTexture, [this] { std::cout << "intro pressed" << std::endl; });
-    introButton.setPosition(scaleLeftBorder + introButtonGad->Pos.x, scaleUpperBorder + introButtonGad->Pos.y);
+    introButton.setPosition(introButtonGad->Pos.x, introButtonGad->Pos.y);
     introButton.setSecondaryTexture(introTextureClicked);
     introButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&introButton, introButtonGad->Pos.x, introButtonGad->Pos.y));
 
     auto& exitButton = wdg<TextureButton>(exitTexture, [this] {
       std::cout << "exit pressed" << std::endl;
       quit = true;
     });
-    exitButton.setPosition(scaleLeftBorder + exitButtonGad->Pos.x, scaleUpperBorder + exitButtonGad->Pos.y);
+    exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
     exitButton.setSecondaryTexture(exitTextureClicked);
     exitButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&exitButton, exitButtonGad->Pos.x, exitButtonGad->Pos.y));
   }
   performLayout(renderer);
+  Redraw();
+}
+
+void MainMenu::Redraw()
+{
+  for (auto& w : widgets)
+  {
+    auto widget = std::get<0>(w);
+    int scaleLeftBorder = (scale->GetScreenSize().width - 1024) / 2;
+    int scaleUpperBorder = (scale->GetScreenSize().height - 768) / 2;
+    widget->setPosition(Vector2i{std::get<1>(w) + scaleLeftBorder, std::get<2>(w) + scaleUpperBorder});
+  }
 }
 
 // todo: add signal/slot for exiting window
@@ -165,11 +184,18 @@ void MainMenu::Handle()
               scale->ToggleFullscreen();
             }
             break;
+          case SDL_WINDOWEVENT:
+            if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+              scale->SetScreenSize(scale->GetScreenSize());
+            }
+            break;
           default:
             break;
         }
         this->onEvent(e);
       }
+      Redraw();
       int x, y;
       SDL_GetMouseState(&x, &y);
 

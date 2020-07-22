@@ -57,5 +57,6 @@ private:
   std::shared_ptr<Buildings> buildings;
   bool running;
   std::shared_ptr<GamParser> gam;
+  SDL_Surface* s8;
 };
 #endif

@@ -54,6 +54,7 @@ public:
 
 private:
   void LoadGame(const std::string& gamName);
+  void Redraw();
   SDL_Renderer* renderer;
   int width;
   int height;
@@ -72,5 +73,6 @@ private:
   TextureTable* scenariosTablePtr;
   TextureTable* savegamesTablePtr;
   TextureTable* currentTablePtr;
+  std::vector<std::tuple<Widget*, int, int>> widgets;
 };
 #endif

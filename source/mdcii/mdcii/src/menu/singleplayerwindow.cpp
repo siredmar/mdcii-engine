@@ -94,21 +94,25 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     // BACKGROUND
     auto& background = wdg<TextureView>(backgroundTexture);
     background.setPosition(scaleLeftBorder, scaleUpperBorder);
+    widgets.push_back(std::make_tuple(&background, 0, 0));
 
     // BUTTONS
     auto& scrollUpButton = wdg<TextureButton>(scrollUpTexture, [this] { currentTablePtr->scrollPositive(); });
     scrollUpButton.setPosition(scaleLeftBorder + scrollUpButtonGad->Pos.x, scaleUpperBorder + scrollUpButtonGad->Pos.y);
     scrollUpButton.setSecondaryTexture(scrollUpTextureClicked);
     scrollUpButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&scrollUpButton, scrollUpButtonGad->Pos.x, scrollUpButtonGad->Pos.y));
 
     auto& scrollDownButton = wdg<TextureButton>(scrollDownTexture, [this] { currentTablePtr->scrollNegative(); });
     scrollDownButton.setPosition(scaleLeftBorder + scrollDownButtonGad->Pos.x, scaleUpperBorder + scrollDownButtonGad->Pos.y);
     scrollDownButton.setSecondaryTexture(scrollDownTextureClicked);
     scrollDownButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&scrollDownButton, scrollDownButtonGad->Pos.x, scrollDownButtonGad->Pos.y));
 
     // TABLES
     auto& tableFrame = wdg<TextureView>(tableTexture);
     tableFrame.setPosition(scaleLeftBorder + tableGad->Pos.x, scaleUpperBorder + tableGad->Pos.y);
+    widgets.push_back(std::make_tuple(&tableFrame, tableGad->Pos.x, tableGad->Pos.y));
 
     // SCENARIOS
     Savegames szenesRaw("/szenes", ".szs");
@@ -151,6 +155,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     scenariosTable.setVisible(true);
     scenariosTablePtr = &scenariosTable;
     currentTablePtr = scenariosTablePtr;
+    widgets.push_back(std::make_tuple(&scenariosTable, tableGad->Pos.x + 20, tableGad->Pos.y + 13));
 
     // SAVEGAMES
     Savegames savesRaw("/savegame", ".gam");
@@ -186,6 +191,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     savegamesTable.setPosition(scaleLeftBorder + tableGad->Pos.x + 20, scaleUpperBorder + tableGad->Pos.y + 13);
     savegamesTable.setVisible(false);
     savegamesTablePtr = &savegamesTable;
+    widgets.push_back(std::make_tuple(&savegamesTable, tableGad->Pos.x + 20, tableGad->Pos.y + 13));
 
     // BUTTONS 2nd
     auto& newGameButton = wdg<TextureButton>(newGameTexture, [&] {
@@ -199,6 +205,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     newGameButton.setPosition(scaleLeftBorder + newGameButtonGad->Pos.x, scaleUpperBorder + newGameButtonGad->Pos.y);
     newGameButton.setSecondaryTexture(newGameTextureClicked);
     newGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&newGameButton, newGameButtonGad->Pos.x, newGameButtonGad->Pos.y));
 
     auto& loadGameButton = wdg<TextureButton>(loadGameTexture, [&] {
       std::cout << "Load Game pressed" << std::endl;
@@ -211,6 +218,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     loadGameButton.setPosition(scaleLeftBorder + loadGameButtonGad->Pos.x, scaleUpperBorder + loadGameButtonGad->Pos.y);
     loadGameButton.setSecondaryTexture(loadGameTextureClicked);
     loadGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&loadGameButton, loadGameButtonGad->Pos.x, loadGameButtonGad->Pos.y));
 
     auto& continueGameButton = wdg<TextureButton>(continueTexture, [this] {
       std::cout << "Continue Game pressed" << std::endl;
@@ -219,6 +227,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     continueGameButton.setPosition(scaleLeftBorder + continueGameButtonGad->Pos.x, scaleUpperBorder + continueGameButtonGad->Pos.y);
     continueGameButton.setSecondaryTexture(continueTextureClicked);
     continueGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&continueGameButton, continueGameButtonGad->Pos.x, continueGameButtonGad->Pos.y));
 
     auto& mainMenuButton = wdg<TextureButton>(mainMenuTexture, [this] {
       std::cout << "Main Menu pressed" << std::endl;
@@ -227,9 +236,11 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     mainMenuButton.setPosition(scaleLeftBorder + mainMenuButtonGad->Pos.x, scaleUpperBorder + mainMenuButtonGad->Pos.y);
     mainMenuButton.setSecondaryTexture(mainMenuTextureClicked);
     mainMenuButton.setTextureSwitchFlags(TextureButton::OnClick);
+    widgets.push_back(std::make_tuple(&mainMenuButton, mainMenuButtonGad->Pos.x, mainMenuButtonGad->Pos.y));
   }
 
   performLayout(renderer);
+  Redraw();
 }
 
 void SinglePlayerWindow::LoadGame(const std::string& gamName)
@@ -242,6 +253,17 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
   GameWindow gameWindow(renderer, pwindow, width, height, gamName, fullscreen);
   gameWindow.Handle();
   Handle();
+}
+
+void SinglePlayerWindow::Redraw()
+{
+  for (auto& w : widgets)
+  {
+    auto widget = std::get<0>(w);
+    int scaleLeftBorder = (scale->GetScreenSize().width - 1024) / 2;
+    int scaleUpperBorder = (scale->GetScreenSize().height - 768) / 2;
+    widget->setPosition(Vector2i{std::get<1>(w) + scaleLeftBorder, std::get<2>(w) + scaleUpperBorder});
+  }
 }
 
 // todo: add signal/slot for exiting window
@@ -293,11 +315,18 @@ void SinglePlayerWindow::Handle()
               scale->ToggleFullscreen();
             }
             break;
+          case SDL_WINDOWEVENT:
+            if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+              scale->SetScreenSize(scale->GetScreenSize());
+            }
+            break;
           default:
             break;
         }
         this->onEvent(e);
       }
+      Redraw();
 
       finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, finalSurface);

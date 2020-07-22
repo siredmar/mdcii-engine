@@ -59,7 +59,7 @@ void GameWindow::Handle()
 {
   auto palette = Palette::Instance();
 
-  auto s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
+  s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
   SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
 
   std::ifstream f;
@@ -123,6 +123,13 @@ void GameWindow::Handle()
               fullscreen = !fullscreen;
               scale->ToggleFullscreen();
             }
+            break;
+          case SDL_WINDOWEVENT:
+            // if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+            // {
+            //   std::cout << "resize" << std::endl;
+            //   scale->SetScreenSize(scale->GetScreenSize());
+            // }
             break;
           default:
             break;

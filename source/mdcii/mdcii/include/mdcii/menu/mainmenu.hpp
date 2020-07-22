@@ -44,6 +44,7 @@ class MainMenu : public Screen
 public:
   MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen);
   void Handle();
+  void Redraw();
 
 private:
   SDL_Renderer* renderer;
@@ -57,5 +58,6 @@ private:
   Files* files;
   bool quit;
   Scale* scale;
+  std::vector<std::tuple<Widget*, int, int>> widgets;
 };
 #endif
