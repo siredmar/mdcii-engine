@@ -38,6 +38,8 @@ public:
   static Scale* CreateInstance(SDL_Window* window);
   static Scale* Instance();
   ScreenSize GetScreenSize();
+  int GetScreenWidth();
+  int GetScreenHeight();
   void SetScreenSize(ScreenSize newSize);
   void SetFullscreen(bool enabled);
   void ToggleFullscreen();
