@@ -30,11 +30,11 @@
 
 using namespace sdlgui;
 
-GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen)
-  : Screen(pwindow, Vector2i(width, height), "Game")
+GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen)
+  : Screen(pwindow, Vector2i(Scale::Instance()->GetScreenWidth(), Scale::Instance()->GetScreenHeight()), "Game")
   , renderer(renderer)
-  , width(width)
-  , height(height)
+  , width(Scale::Instance()->GetScreenWidth())
+  , height(Scale::Instance()->GetScreenHeight())
   , gamName(gamName)
   , fullscreen(fullscreen)
   , buildings(Buildings::Instance())

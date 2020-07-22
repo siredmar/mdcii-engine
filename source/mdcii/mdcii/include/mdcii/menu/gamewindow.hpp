@@ -44,7 +44,7 @@ using namespace sdlgui;
 class GameWindow : public Screen
 {
 public:
-  GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, const std::string& gamName, bool fullscreen);
+  GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
   void Handle();
 
 private:

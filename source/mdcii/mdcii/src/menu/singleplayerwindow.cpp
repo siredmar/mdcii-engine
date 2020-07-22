@@ -250,7 +250,7 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
     std::cout << "[ERR] Could not load savegame: " << gamName << std::endl;
     exit(EXIT_FAILURE);
   }
-  GameWindow gameWindow(renderer, pwindow, width, height, gamName, fullscreen);
+  GameWindow gameWindow(renderer, pwindow, gamName, fullscreen);
   gameWindow.Handle();
   Handle();
 }
