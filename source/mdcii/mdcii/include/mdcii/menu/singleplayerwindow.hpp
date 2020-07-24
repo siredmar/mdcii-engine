@@ -43,10 +43,11 @@
 
 #include "menu/fps.hpp"
 #include "menu/scale.hpp"
+#include "menu/screenbase.hpp"
 
 using namespace sdlgui;
 
-class SinglePlayerWindow : public Screen
+class SinglePlayerWindow : public Screen, public ScreenBase
 {
 public:
   SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
@@ -54,7 +55,6 @@ public:
 
 private:
   void LoadGame(const std::string& gamName);
-  void Redraw();
   SDL_Renderer* renderer;
   int width;
   int height;
@@ -73,6 +73,6 @@ private:
   TextureTable* scenariosTablePtr;
   TextureTable* savegamesTablePtr;
   TextureTable* currentTablePtr;
-  std::vector<std::tuple<Widget*, int, int>> widgets;
+  std::vector<std::tuple<sdlgui::Widget*, int, int>> widgets;
 };
 #endif

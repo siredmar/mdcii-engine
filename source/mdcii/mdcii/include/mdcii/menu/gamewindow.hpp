@@ -38,10 +38,11 @@
 
 #include "menu/fps.hpp"
 #include "menu/scale.hpp"
+#include "menu/screenbase.hpp"
 
 using namespace sdlgui;
 
-class GameWindow : public Screen
+class GameWindow : public Screen, public ScreenBase
 {
 public:
   GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
@@ -58,5 +59,6 @@ private:
   bool running;
   std::shared_ptr<GamParser> gam;
   SDL_Surface* s8;
+  std::vector<std::tuple<sdlgui::Widget*, int, int>> widgets;
 };
 #endif

@@ -15,29 +15,27 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _SCREENBASE_HPP_
-#define _SCREENBASE_HPP_
+#include "menu/screenbase.hpp"
 
-#include <memory>
-#include <tuple>
-#include <vector>
+using namespace sdlgui;
 
-#include "sdlgui/widget.h"
-
-#include "menu/scale.hpp"
-
-class ScreenBase
+ScreenBase::ScreenBase()
+  : scale(Scale::Instance())
 {
-public:
-  ScreenBase();
-  void Redraw();
-  virtual void Handle();
+}
 
-protected:
-  std::shared_ptr<Scale> scale;
+void ScreenBase::Redraw()
+{
+  for (auto& w : widgets)
+  {
+    auto widget = std::get<0>(w);
+    int scaleLeftBorder = (scale->GetScreenSize().width - 1024) / 2;
+    int scaleUpperBorder = (scale->GetScreenSize().height - 768) / 2;
+    widget->setPosition(Vector2i{std::get<1>(w) + scaleLeftBorder, std::get<2>(w) + scaleUpperBorder});
+  }
+}
 
-private:
-  std::vector<std::tuple<sdlgui::Widget*, int, int>> widgets;
-};
-
-#endif // _SCREENBASE_HPP_
+void ScreenBase::Handle()
+{
+  // implemented in inherited instances
+}

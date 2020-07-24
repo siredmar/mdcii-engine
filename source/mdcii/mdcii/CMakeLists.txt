@@ -114,6 +114,7 @@ set(sources
     ${source_path}/menu/singleplayerwindow.cpp
     ${source_path}/menu/gamewindow.cpp
     ${source_path}/menu/scale.cpp
+    ${source_path}/menu/screenbase.cpp
     ${source_path}/cod/cod_parser.cpp
     ${source_path}/cod/basegad_dat.cpp
     ${source_path}/cod/buildings.cpp
