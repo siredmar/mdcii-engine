@@ -38,6 +38,7 @@ std::experimental::optional<HostGadGadget*> Hostgad::GetGadget(int id)
     return &gadgets[id];
   }
 }
+
 int Hostgad::GetGadgetsSize()
 {
   return gadgetsVector.size();

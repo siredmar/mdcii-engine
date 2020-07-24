@@ -255,17 +255,6 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
   Handle();
 }
 
-void SinglePlayerWindow::Redraw()
-{
-  for (auto& w : widgets)
-  {
-    auto widget = std::get<0>(w);
-    int scaleLeftBorder = (scale->GetScreenSize().width - 1024) / 2;
-    int scaleUpperBorder = (scale->GetScreenSize().height - 768) / 2;
-    widget->setPosition(Vector2i{std::get<1>(w) + scaleLeftBorder, std::get<2>(w) + scaleUpperBorder});
-  }
-}
-
 // todo: add signal/slot for exiting window
 void SinglePlayerWindow::Handle()
 {

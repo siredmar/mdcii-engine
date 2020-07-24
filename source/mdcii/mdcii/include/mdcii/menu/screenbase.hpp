@@ -15,50 +15,29 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef GAMEWINDOW_H_
-#define GAMEWINDOW_H_
+#ifndef _SCREENBASE_HPP_
+#define _SCREENBASE_HPP_
 
-#include <iostream>
 #include <memory>
+#include <tuple>
+#include <vector>
 
-#include <SDL2/SDL.h>
+#include "sdlgui/widget.h"
 
-#include "sdlgui/imageview.h"
-#include "sdlgui/screen.h"
-#include "sdlgui/window.h"
-
-#include "cod/buildings.hpp"
-#include "cod/cod_parser.hpp"
-#include "files/files.hpp"
-#include "framebuffer/framebuffer_pal8.hpp"
-#include "framebuffer/palette.hpp"
-#include "gam/gam_parser.hpp"
-#include "kamera.hpp"
-#include "spielbildschirm.hpp"
-
-#include "menu/fps.hpp"
 #include "menu/scale.hpp"
-#include "menu/screenbase.hpp"
 
-using namespace sdlgui;
-
-class GameWindow : public Screen, public ScreenBase
+class ScreenBase
 {
 public:
-  GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
-  void Handle();
+  ScreenBase();
+  void Redraw();
+  virtual void Handle();
+
+protected:
+  std::shared_ptr<Scale> scale;
 
 private:
-  SDL_Renderer* renderer;
-  int width;
-  int height;
-  std::string gamName;
-  bool fullscreen;
-  Scale* scale;
-  std::shared_ptr<Buildings> buildings;
-  bool running;
-  std::shared_ptr<GamParser> gam;
-  SDL_Surface* s8;
   std::vector<std::tuple<sdlgui::Widget*, int, int>> widgets;
 };
-#endif
+
+#endif // _SCREENBASE_HPP_

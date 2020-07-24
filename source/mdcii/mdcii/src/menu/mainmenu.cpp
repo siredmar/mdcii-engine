@@ -126,17 +126,6 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
   Redraw();
 }
 
-void MainMenu::Redraw()
-{
-  for (auto& w : widgets)
-  {
-    auto widget = std::get<0>(w);
-    int scaleLeftBorder = (scale->GetScreenSize().width - 1024) / 2;
-    int scaleUpperBorder = (scale->GetScreenSize().height - 768) / 2;
-    widget->setPosition(Vector2i{std::get<1>(w) + scaleLeftBorder, std::get<2>(w) + scaleUpperBorder});
-  }
-}
-
 // todo: add signal/slot for exiting window
 void MainMenu::Handle()
 {
