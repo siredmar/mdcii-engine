@@ -36,15 +36,16 @@
 
 #include "menu/fps.hpp"
 #include "menu/scale.hpp"
+#include "menu/screenbase.hpp"
 
 using namespace sdlgui;
 
-class MainMenu : public Screen
+class MainMenu : public Screen, public : ScreenBase
 {
 public:
   MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen);
   void Handle();
-  void Redraw();
+  // void RepositionWidgets();
 
 private:
   SDL_Renderer* renderer;
@@ -58,6 +59,6 @@ private:
   Files* files;
   bool quit;
   Scale* scale;
-  std::vector<std::tuple<Widget*, int, int>> widgets;
+  // std::vector<std::tuple<Widget*, int, int>> widgets;
 };
 #endif

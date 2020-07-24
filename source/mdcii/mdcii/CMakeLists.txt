@@ -63,6 +63,7 @@ set(headers
     ${include_path}/menu/gamewindow.hpp
     ${include_path}/menu/fps.hpp
     ${include_path}/menu/scale.hpp
+    ${include_path}/menu/screenbase.hpp
     ${include_path}/cod/cod_parser.hpp
     ${include_path}/cod/basegad_dat.hpp
     ${include_path}/cod/buildings.hpp
