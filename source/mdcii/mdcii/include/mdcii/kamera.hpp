@@ -32,6 +32,7 @@ class Kamera
 {
 public:
   explicit Kamera();
+
   void gehe_zu(uint16_t x, uint16_t y);
   void nach_rechts();
   void nach_links();
@@ -59,14 +60,14 @@ private:
   static const int y_raster[3];
   static const int grundhoehe[3];
 
-  BshReader* effekte_bsh[3];
-  BshReader* maeher_bsh[3];
-  BshReader* numbers_bsh[3];
-  BshReader* ship_bsh[3];
-  BshReader* soldat_bsh[3];
-  BshReader* stadtfld_bsh[3];
-  BshReader* tiere_bsh[3];
-  BshReader* traeger_bsh[3];
+  std::shared_ptr<BshReader> effekte_bsh[3];
+  std::shared_ptr<BshReader> maeher_bsh[3];
+  std::shared_ptr<BshReader> numbers_bsh[3];
+  std::shared_ptr<BshReader> ship_bsh[3];
+  std::shared_ptr<BshReader> soldat_bsh[3];
+  std::shared_ptr<BshReader> stadtfld_bsh[3];
+  std::shared_ptr<BshReader> tiere_bsh[3];
+  std::shared_ptr<BshReader> traeger_bsh[3];
   std::shared_ptr<ZeiReader> zei;
 };
 

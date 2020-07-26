@@ -62,6 +62,11 @@ int Scale::GetScreenHeight()
   return height;
 }
 
+void Scale::Update()
+{
+  SetScreenSize(GetScreenSize());
+}
+
 void Scale::SetScreenSize(Scale::ScreenSize newSize)
 {
   SDL_SetWindowSize(window, newSize.width, newSize.height);

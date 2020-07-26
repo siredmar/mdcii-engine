@@ -50,28 +50,58 @@ GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::s
     });
     button1.setSize(sdlgui::Vector2i{100, 20});
     button1.setPosition(width - 50, height - 30);
+    controlWidgets.push_back(std::make_tuple(&button1, -50, -30));
   }
-
   performLayout(renderer);
+  RedrawControlWidgets();
 }
 
-void GameWindow::Handle()
+void GameWindow::CreateSpielbildschirm(uint32_t width, uint32_t height)
 {
+  // if (spielbildschirm && this->width == width && this->height == height)
+  // {
+  //   return;
+  // }
+
+  if (s8 != NULL)
+  {
+    free(s8);
+  }
   auto palette = Palette::Instance();
 
   s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
   SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
+  fb = std::make_shared<FramebufferPal8>(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
+  spielbildschirm = std::make_shared<Spielbildschirm>(*fb);
+}
+
+void GameWindow::RedrawControlWidgets()
+{
+  for (auto& w : controlWidgets)
+  {
+    auto widget = std::get<0>(w);
+    int scaleRightBorder = scale->GetScreenWidth();
+    int scaleUpperBorder = scale->GetScreenHeight();
+    widget->setPosition(Vector2i{scaleRightBorder + std::get<1>(w), scaleUpperBorder + std::get<2>(w)});
+  }
+}
+
+void GameWindow::Handle()
+{
+  // auto palette = Palette::Instance();
+
+  // s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
+  // SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
 
   std::ifstream f;
   f.open(gamName, std::ios_base::in | std::ios_base::binary);
-
   Welt welt = Welt(f);
-
   f.close();
-  FramebufferPal8 fb(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
+  // FramebufferPal8 fb(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
 
-  Spielbildschirm spielbildschirm(fb);
-  spielbildschirm.zeichne_bild(welt, 0, 0);
+  // Spielbildschirm spielbildschirm(fb);
+  CreateSpielbildschirm(Scale::Instance()->GetScreenWidth(), Scale::Instance()->GetScreenHeight());
+  spielbildschirm->zeichne_bild(welt, 0, 0);
 
   try
   {
@@ -100,23 +130,23 @@ void GameWindow::Handle()
           case SDL_KEYDOWN:
             if (e.key.keysym.sym == SDLK_F2)
             {
-              spielbildschirm.kamera->setze_vergroesserung(0);
+              spielbildschirm->kamera->setze_vergroesserung(0);
             }
             if (e.key.keysym.sym == SDLK_F3)
             {
-              spielbildschirm.kamera->setze_vergroesserung(1);
+              spielbildschirm->kamera->setze_vergroesserung(1);
             }
             if (e.key.keysym.sym == SDLK_F4)
             {
-              spielbildschirm.kamera->setze_vergroesserung(2);
+              spielbildschirm->kamera->setze_vergroesserung(2);
             }
             if (e.key.keysym.sym == SDLK_x)
             {
-              spielbildschirm.kamera->rechts_drehen();
+              spielbildschirm->kamera->rechts_drehen();
             }
             if (e.key.keysym.sym == SDLK_y)
             {
-              spielbildschirm.kamera->links_drehen();
+              spielbildschirm->kamera->links_drehen();
             }
             if (e.key.keysym.sym == SDLK_F11)
             {
@@ -125,39 +155,41 @@ void GameWindow::Handle()
             }
             break;
           case SDL_WINDOWEVENT:
-            // if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-            // {
-            //   std::cout << "resize" << std::endl;
-            //   scale->SetScreenSize(scale->GetScreenSize());
-            // }
+            if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+            {
+              scale->Update();
+              CreateSpielbildschirm(Scale::Instance()->GetScreenWidth(), Scale::Instance()->GetScreenHeight());
+              continue;
+            }
             break;
           default:
             break;
         }
         this->onEvent(e);
       }
+      RedrawControlWidgets();
       int x, y;
       SDL_GetMouseState(&x, &y);
 
       if (keystate[SDL_SCANCODE_LEFT] || (fullscreen && x == 0))
       {
-        spielbildschirm.kamera->nach_links();
+        spielbildschirm->kamera->nach_links();
       }
       if (keystate[SDL_SCANCODE_RIGHT] || (fullscreen && x == width - 1))
       {
-        spielbildschirm.kamera->nach_rechts();
+        spielbildschirm->kamera->nach_rechts();
       }
       if (keystate[SDL_SCANCODE_UP] || (fullscreen && y == 0))
       {
-        spielbildschirm.kamera->nach_oben();
+        spielbildschirm->kamera->nach_oben();
       }
       if (keystate[SDL_SCANCODE_DOWN] || (fullscreen && y == height - 1))
       {
-        spielbildschirm.kamera->nach_unten();
+        spielbildschirm->kamera->nach_unten();
       }
 
       welt.simulationsschritt();
-      spielbildschirm.zeichne_bild(welt, x, y);
+      spielbildschirm->zeichne_bild(welt, x, y);
       finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
       texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
       SDL_FreeSurface(finalSurface);

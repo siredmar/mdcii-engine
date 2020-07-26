@@ -20,6 +20,22 @@
 
 Framebuffer::Framebuffer(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength)
 {
+  Init(width, height, format, color, buffer, bufferLength);
+
+  // initialisiere die Indextabelle, in der an Positionen 1 und 7 die Schrift- bzw. Schattenfarbe erwartet wird
+  for (int i = 0; i < 256; i++)
+  {
+    fontColorTable[i] = i;
+  }
+}
+
+Framebuffer::~Framebuffer()
+{
+  Uninit();
+}
+
+void Framebuffer::Init(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength)
+{
   this->width = width;
   this->height = height;
   this->format = format;
@@ -35,17 +51,18 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height, uint32_t format, uint3
     this->buffer = buffer;
     freeBuffer = 0;
   }
-  // memset
-
-  // initialisiere die Indextabelle, in der an Positionen 1 und 7 die Schrift- bzw. Schattenfarbe erwartet wird
-  for (int i = 0; i < 256; i++)
-    fontColorTable[i] = i;
 }
 
-Framebuffer::~Framebuffer()
+void Framebuffer::Uninit()
 {
   if (freeBuffer)
     delete[] buffer;
+}
+
+void Framebuffer::Resize(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength)
+{
+  Uninit();
+  Init(width, height, format, color, buffer, bufferLength);
 }
 
 void Framebuffer::DrawBshImage([[maybe_unused]] BshImage& image, [[maybe_unused]] int x, [[maybe_unused]] int y)

@@ -33,6 +33,10 @@ public:
 
   explicit Framebuffer(uint32_t width, uint32_t height, uint32_t format = 1, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
   virtual ~Framebuffer();
+  void Init(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
+  void Uninit();
+  void Resize(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
+
   virtual void DrawBshImage(BshImage& image, int x, int y);
   void zeichne_bsh_bild_oz(BshImage& image, int x, int y);
   virtual void zeichne_bsh_bild_sp(BshImage& image, int x, int y, int sx, int sy, bool& schnitt);
