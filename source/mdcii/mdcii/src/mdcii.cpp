@@ -24,13 +24,14 @@
 
 #include <SDL2/SDL.h>
 
+#include "camera/bshresources.hpp"
+#include "camera/camera.hpp"
 #include "cod/cod_parser.hpp"
 #include "files/files.hpp"
 #include "files/filestocheck.hpp"
 #include "framebuffer/framebuffer_pal8.hpp"
 #include "framebuffer/palette.hpp"
 #include "gam/gam_parser.hpp"
-#include "kamera.hpp"
 #include "mdcii.hpp"
 #include "menu/mainmenu.hpp"
 #include "menu/scale.hpp"
@@ -100,6 +101,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
   Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
   auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("base.gad"), false, false));
+  BshResources::CreateInstance();
 
   MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
   mainMenu.Handle();

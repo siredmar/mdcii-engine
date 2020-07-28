@@ -30,7 +30,7 @@ public:
   static Files* Instance();
 
   bool CheckFile(const std::string& filename);
-  bool CheckAllFiles(std::vector<std::string>* files);
+  bool CheckAllFiles(std::vector<std::pair<std::string, std::string>>* files);
   std::string FindPathForFile(const std::string& file);
   std::vector<std::string> GetDirectoryTree(const std::string& path);
   std::vector<std::string> GetDirectoryFiles(const std::string& directory);
