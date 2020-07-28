@@ -84,7 +84,7 @@ int main(int argc, char** argv)
   }
 
   auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
 
   BshReader bsh(input_name);
   if (bpp == 24)

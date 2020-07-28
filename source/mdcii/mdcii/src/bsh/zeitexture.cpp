@@ -28,7 +28,7 @@ StringToSDLTextureConverter::StringToSDLTextureConverter(SDL_Renderer* renderer,
   : renderer(renderer)
   , font(font)
   , files(Files::Instance())
-  , zei(std::make_shared<ZeiReader>(files->Instance()->FindPathForFile(font)))
+  , zei(std::make_shared<ZeiReader>(files->FindPathForFile(font)))
 {
 }
 

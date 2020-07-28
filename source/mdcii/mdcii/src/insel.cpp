@@ -120,8 +120,8 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Buildings> buildin
       std::ifstream f;
       auto files = Files::Instance();
       std::string karte = this->basisname(this->width, ((Insel5*)inselX->data)->basis, ((Insel5*)inselX->data)->sued).c_str();
-      karte = files->Instance()->FindPathForFile(karte);
-      if (files->Instance()->CheckFile(karte) == false)
+      karte = files->FindPathForFile(karte);
+      if (files->CheckFile(karte) == false)
       {
         std::cout << "[ERR] Island not found: " << karte << std::endl;
         exit(EXIT_FAILURE);
@@ -142,10 +142,6 @@ Insel::Insel(Block* inselX, Block* inselhaus, std::shared_ptr<Buildings> buildin
     {
       for (x = 0; x < this->width; x++)
       {
-        if (x == 10 && y == 10)
-        {
-          std::cout << "hit";
-        }
         if (schicht2[y * this->width + x].bebauung == 0xffff)
           schicht2[y * this->width + x] = schicht1[y * this->width + x];
       }

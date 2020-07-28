@@ -46,7 +46,7 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
   , scale(Scale::Instance())
 {
   std::cout << "Basegad: " << basegad->GetGadgetsSize() << std::endl;
-  BshReader bsh_leser(files->Instance()->FindPathForFile("toolgfx/start.bsh"));
+  BshReader bsh_leser(files->FindPathForFile("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
   int scaleLeftBorder = (scale->GetScreenSize().width - bsh_leser.GetBshImage(0).width) / 2;

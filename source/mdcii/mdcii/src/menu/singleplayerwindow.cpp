@@ -42,7 +42,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , buildings(Buildings::Instance())
   , pwindow(pwindow)
   , files(Files::Instance())
-  , hostgad(std::make_shared<Hostgad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("host.gad"), false, false)))
+  , hostgad(std::make_shared<Hostgad>(std::make_shared<CodParser>(files->FindPathForFile("host.gad"), false, false)))
   , quit(false)
   , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
   , savegame("")
@@ -50,7 +50,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
   , scale(Scale::Instance())
 {
   std::cout << "host.gad: " << hostgad->GetGadgetsSize() << std::endl;
-  BshReader bsh_leser(files->Instance()->FindPathForFile("toolgfx/start.bsh"));
+  BshReader bsh_leser(files->FindPathForFile("toolgfx/start.bsh"));
   BshImageToSDLTextureConverter converter(renderer);
 
   int scaleLeftBorder = (scale->GetScreenSize().width - bsh_leser.GetBshImage(0).width) / 2;
@@ -245,7 +245,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
 void SinglePlayerWindow::LoadGame(const std::string& gamName)
 {
-  if (files->Instance()->CheckFile(gamName) == false)
+  if (files->CheckFile(gamName) == false)
   {
     std::cout << "[ERR] Could not load savegame: " << gamName << std::endl;
     exit(EXIT_FAILURE);

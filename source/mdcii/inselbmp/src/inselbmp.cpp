@@ -57,15 +57,15 @@ int main(int argc, char** argv)
   f.close();
 
   auto files = Files::CreateInstance(std::string(argv[3]));
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
   Version::DetectGameVersion();
 
   Insel insel = Insel(&inselX, &inselhaus, Buildings::Instance());
   uint8_t width = insel.width;
   uint8_t height = insel.height;
 
-  BshReader bsh_leser(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
+  BshReader bsh_leser(files->FindPathForFile("/gfx/stadtfld.bsh"));
 
   FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
 
@@ -74,10 +74,6 @@ int main(int argc, char** argv)
   {
     for (x = 0; x < width; x++)
     {
-      if (x == 10 && y == 10)
-      {
-        std::cout << "hit" << std::endl;
-      }
       feld_t feld;
       insel.grafik_bebauung(feld, x, y, 0);
       if (feld.index != -1)

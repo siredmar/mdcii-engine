@@ -32,7 +32,7 @@ Savegames::Savegames(const std::string& basepath, const std::string& fileEnding)
       if (s.find("lastgame.gam") == std::string::npos)
       {
         GamParser p(s, true);
-        std::string gameName = files->Instance()->GetFilename(s, false);
+        std::string gameName = files->GetFilename(s, false);
         savegames.push_back(std::tuple<std::string, std::string, int>(s, gameName, p.GetSceneRanking()));
       }
     }
