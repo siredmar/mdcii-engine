@@ -56,6 +56,7 @@ void Framebuffer::Init(uint32_t width, uint32_t height, uint32_t format, uint32_
 void Framebuffer::Uninit()
 {
   if (freeBuffer)
+    //  deepcode ignore CppDoubleFree: Used by deconstructor and Resize method
     delete[] buffer;
 }
 
