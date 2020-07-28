@@ -30,6 +30,8 @@ struct RawGrowthData // ROHWACHS2
   uint8_t speed;          // Which speed counter (MAXWACHSSPEEDKIND)
   uint8_t speedcnt;       // If (Timecnt != SpeedCnt) currentfield->animationCount++ (MAXROHWACHSCNT)
   uint8_t animationCount; // current animation index
+  uint8_t empty1;
+  uint8_t empty2;
 };
 
 class RawGrowth

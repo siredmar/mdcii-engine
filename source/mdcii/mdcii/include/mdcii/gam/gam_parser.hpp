@@ -58,19 +58,19 @@ public:
 private:
   Files* files;
   std::vector<std::shared_ptr<Chunk>> chunks;
-  std::vector<std::shared_ptr<Island5>> islands5; // INSEL5
-  std::shared_ptr<Mission2> mission2;             // AUFTRAG2
-  std::shared_ptr<Mission4> mission4;             // AUFTRAG4
-  std::shared_ptr<SceneRanking> sceneRanking;     // SZENE_RANKING
-  std::shared_ptr<SceneSave> sceneSave;           // SZENE2
-  std::shared_ptr<Shipyard> shipyard;             // WERFT
-  std::shared_ptr<Military> military;             // MILITAR
-  std::shared_ptr<ProductionList> productionList; // PRODLIST2
-  std::shared_ptr<Warehouse2> warehouse;          // KONTOR2
-  std::shared_ptr<Settlers> settlers;             // SIEDLER
-  std::shared_ptr<MarketPlace> marketPlace;       // MARKT
-  std::shared_ptr<RawGrowth> rawGrowth;           // ROHWACHS2
-  std::shared_ptr<City4> city;                    // STADT4
+  std::vector<std::shared_ptr<Island5>> islands5;    // INSEL5
+  std::shared_ptr<Mission2> mission2;                // AUFTRAG2
+  std::shared_ptr<Mission4> mission4;                // AUFTRAG4
+  std::shared_ptr<SceneRanking> sceneRanking;        // SZENE_RANKING
+  std::shared_ptr<SceneSave> sceneSave;              // SZENE2
+  std::shared_ptr<Shipyard> shipyard;                // WERFT
+  std::shared_ptr<Military> military;                // MILITAR
+  std::shared_ptr<ProductionList> productionList;    // PRODLIST2
+  std::shared_ptr<Warehouse2> warehouse;             // KONTOR2
+  std::shared_ptr<Settlers> settlers;                // SIEDLER
+  std::shared_ptr<MarketPlace> marketPlace;          // MARKT
+  std::vector<std::shared_ptr<RawGrowth>> rawGrowth; // ROHWACHS2
+  std::shared_ptr<City4> city;                       // STADT4
 };
 
 #endif // _GAM_PARSER_HPP

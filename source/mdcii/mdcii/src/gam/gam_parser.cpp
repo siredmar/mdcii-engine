@@ -127,7 +127,8 @@ GamParser::GamParser(const std::string& gam, bool peek)
       }
       else if (chunkName == "ROHWACHS2")
       {
-        rawGrowth = std::make_shared<RawGrowth>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        auto r = std::make_shared<RawGrowth>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        rawGrowth.push_back(r);
       }
       else if (chunkName == "STADT3" || chunkName == "STADT4")
       {
@@ -246,9 +247,9 @@ GamParser::GamParser(const std::string& gam, bool peek)
   {
     std::cout << "marketplace: " << marketPlace->marketPlace.size() << std::endl;
   }
-  if (rawGrowth)
+  if (rawGrowth.size())
   {
-    std::cout << "rawGrowth: " << rawGrowth->rawGrowth.size() << std::endl;
+    std::cout << "rawGrowth: " << rawGrowth.size() << std::endl;
   }
   if (city)
   {
