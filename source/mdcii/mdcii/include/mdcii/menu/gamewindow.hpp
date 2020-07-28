@@ -27,13 +27,13 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/window.h"
 
+#include "camera/camera.hpp"
 #include "cod/buildings.hpp"
 #include "cod/cod_parser.hpp"
 #include "files/files.hpp"
 #include "framebuffer/framebuffer_pal8.hpp"
 #include "framebuffer/palette.hpp"
 #include "gam/gam_parser.hpp"
-#include "kamera.hpp"
 #include "spielbildschirm.hpp"
 
 #include "menu/fps.hpp"

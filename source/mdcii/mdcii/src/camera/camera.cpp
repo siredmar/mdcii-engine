@@ -1,5 +1,6 @@
 
 // This file is part of the MDCII Game Engine.
+// Copyright (C) 2020  Armin Schlegel
 // Copyright (C) 2015  Benedikt Freisen
 //
 // This program is free software; you can redistribute it and/or
@@ -16,10 +17,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "kamera.hpp"
+#include <string>
+
+#include "camera/bshresources.hpp"
+#include "camera/camera.hpp"
 #include "cod/buildings.hpp"
 #include "files/files.hpp"
-#include <string>
 
 const int Kamera::x_raster[3] = {8, 16, 32};
 const int Kamera::y_raster[3] = {4, 8, 16};
@@ -32,40 +35,40 @@ Kamera::Kamera()
   ypos = Welt::KARTENHOEHE / 2;
   drehung = 0;
   vergroesserung = 1;
-  auto files = Files::Instance();
-  effekte_bsh[0] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("sgfx/effekte.bsh"));
-  effekte_bsh[1] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("mgfx/effekte.bsh"));
-  effekte_bsh[2] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("gfx/effekte.bsh"));
+  auto bshResources = BshResources::Instance();
+  effekte_bsh[0] = bshResources->GetBshReader("sgfx/effekte.bsh");
+  effekte_bsh[1] = bshResources->GetBshReader("mgfx/effekte.bsh");
+  effekte_bsh[2] = bshResources->GetBshReader("gfx/effekte.bsh");
 
-  // maeher_bsh[0] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("sgfx/maeher.bsh"));
-  // maeher_bsh[1] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("mgfx/maeher.bsh"));
-  // maeher_bsh[2] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("gfx/maeher.bsh"));
+  ship_bsh[0] = bshResources->GetBshReader("sgfx/ship.bsh");
+  ship_bsh[1] = bshResources->GetBshReader("mgfx/ship.bsh");
+  ship_bsh[2] = bshResources->GetBshReader("gfx/ship.bsh");
 
-  // numbers_bsh[0] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("sgfx/numbers.bsh"));
-  // numbers_bsh[1] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("mgfx/numbers.bsh"));
-  // numbers_bsh[2] = std::make_shared<BshReader>(files->Instance()->find_path_for_file("gfx/numbers.bsh"));
+  soldat_bsh[0] = bshResources->GetBshReader("sgfx/soldat.bsh");
+  soldat_bsh[1] = bshResources->GetBshReader("mgfx/soldat.bsh");
+  soldat_bsh[2] = bshResources->GetBshReader("gfx/soldat.bsh");
 
-  ship_bsh[0] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("sgfx/ship.bsh"));
-  ship_bsh[1] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("mgfx/ship.bsh"));
-  ship_bsh[2] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("gfx/ship.bsh"));
+  stadtfld_bsh[0] = bshResources->GetBshReader("sgfx/stadtfld.bsh");
+  stadtfld_bsh[1] = bshResources->GetBshReader("mgfx/stadtfld.bsh");
+  stadtfld_bsh[2] = bshResources->GetBshReader("gfx/stadtfld.bsh");
 
-  soldat_bsh[0] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("sgfx/soldat.bsh"));
-  soldat_bsh[1] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("mgfx/soldat.bsh"));
-  soldat_bsh[2] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("gfx/soldat.bsh"));
+  // numbers_bsh[0] = bshResources->GetBshReader("sgfx/numbers.bsh");
+  // numbers_bsh[1] = bshResources->GetBshReader("mgfx/numbers.bsh");
+  // numbers_bsh[2] = bshResources->GetBshReader("gfx/numbers.bsh");
 
-  stadtfld_bsh[0] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("sgfx/stadtfld.bsh"));
-  stadtfld_bsh[1] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("mgfx/stadtfld.bsh"));
-  stadtfld_bsh[2] = std::make_shared<BshReader>(files->Instance()->FindPathForFile("gfx/stadtfld.bsh"));
+  // tiere_bsh[0] = bshResources->GetBshReader("sgfx/tiere.bsh");
+  // tiere_bsh[1] = bshResources->GetBshReader("mgfx/tiere.bsh");
+  // tiere_bsh[2] = bshResources->GetBshReader("gfx/tiere.bsh");
 
-  // tiere_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/tiere.bsh"));
-  // tiere_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/tiere.bsh"));
-  // tiere_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/tiere.bsh"));
+  // traeger_bsh[0] = bshResources->GetBshReader("sgfx/traeger.bsh");
+  // traeger_bsh[1] = bshResources->GetBshReader("mgfx/traeger.bsh");
+  // traeger_bsh[2] = bshResources->GetBshReader("gfx/traeger.bsh");
 
-  // traeger_bsh[0] = new BshReader(files->Instance()->find_path_for_file("sgfx/traeger.bsh"));
-  // traeger_bsh[1] = new BshReader(files->Instance()->find_path_for_file("mgfx/traeger.bsh"));
-  // traeger_bsh[2] = new BshReader(files->Instance()->find_path_for_file("gfx/traeger.bsh"));
+  // maeher_bsh[0] = bshResources->GetBshReader("sgfx/maeher.bsh");
+  // maeher_bsh[1] = bshResources->GetBshReader("mgfx/maeher.bsh");
+  // maeher_bsh[2] = bshResources->GetBshReader("gfx/maeher.bsh");
 
-  zei = std::make_shared<ZeiReader>(files->Instance()->FindPathForFile("toolgfx/zei16g.zei"));
+  zei = bshResources->GetZeiReader("toolgfx/zei16g.zei");
 }
 
 void Kamera::gehe_zu(uint16_t x, uint16_t y)

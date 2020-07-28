@@ -48,16 +48,16 @@ Files* Files::CreateInstance(const std::string& path)
   return _instance;
 }
 
-bool Files::CheckAllFiles(std::vector<std::string>* files)
+bool Files::CheckAllFiles(std::vector<std::pair<std::string, std::string>>* files)
 {
   bool failed = false;
   for (auto const& f : *files)
   {
-    std::cout << "[INFO] Checking for file: " << f << std::endl;
-    if (CheckFile(FindPathForFile(f)) == false)
+    std::cout << "[INFO] Checking for file: " << std::get<0>(f) << std::endl;
+    if (CheckFile(FindPathForFile(std::get<0>(f))) == false)
     {
       failed = true;
-      std::cout << "[ERR] File not found: " << f << std::endl;
+      std::cout << "[ERR] File not found: " << std::get<0>(f) << std::endl;
     }
   }
   if (failed == true)

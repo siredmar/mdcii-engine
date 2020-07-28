@@ -21,8 +21,8 @@
 
 #include <memory>
 
+#include "camera/camera.hpp"
 #include "framebuffer/framebuffer.hpp"
-#include "kamera.hpp"
 #include "karte.hpp"
 #include "version/version.hpp"
 #include "welt.hpp"

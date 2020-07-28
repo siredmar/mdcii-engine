@@ -19,8 +19,8 @@
 #ifndef KARTE_HPP
 #define KARTE_HPP
 
+#include "camera/camera.hpp"
 #include "framebuffer/framebuffer.hpp"
-#include "kamera.hpp"
 #include "welt.hpp"
 #include <inttypes.h>
 

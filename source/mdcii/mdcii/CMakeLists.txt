@@ -89,7 +89,8 @@ set(headers
     ${include_path}/version/version.hpp
     ${include_path}/block.hpp
     ${include_path}/insel.hpp
-    ${include_path}/kamera.hpp
+    ${include_path}/camera/camera.hpp
+    ${include_path}/camera/bshresources.hpp
     ${include_path}/karte.hpp
     ${include_path}/spielbildschirm.hpp
     ${include_path}/strukturen.hpp
@@ -138,7 +139,8 @@ set(sources
     ${source_path}/world/world.cpp
     ${source_path}/block.cpp
     ${source_path}/insel.cpp
-    ${source_path}/kamera.cpp
+    ${source_path}/camera/camera.cpp
+    ${source_path}/camera/bshresources.cpp
     ${source_path}/karte.cpp
     ${source_path}/spielbildschirm.cpp
     ${source_path}/strukturen.cpp
