@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     exit(EXIT_SUCCESS);
   }
   // auto files = Files::CreateInstance(".", false);
-  // if (files->Instance()->CheckFile(cod_path) == true)
+  // if (files->CheckFile(cod_path) == true)
   {
     std::shared_ptr<Cod_Parser> cod = std::make_shared<Cod_Parser>(cod_path, decrypt, true);
     Haeuser buildings(cod);

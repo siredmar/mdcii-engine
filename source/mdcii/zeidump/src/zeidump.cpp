@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
   auto files = Files::CreateInstance(path);
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
 
   ZeiReader zei(input_name);
   unsigned int zeimaxbreite = 0;

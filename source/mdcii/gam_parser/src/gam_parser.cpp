@@ -61,7 +61,7 @@ int main(int argc, char** argv)
   }
 
   auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
   try
   {
     GamParser gamParser(vm["input"].as<std::string>(), false);

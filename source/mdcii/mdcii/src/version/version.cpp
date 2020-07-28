@@ -24,7 +24,7 @@
 AnnoVersion Version::DetectGameVersion()
 {
   auto files = Files::Instance();
-  BshReader bsh(files->Instance()->FindPathForFile("sgfx/stadtfld.bsh"));
+  BshReader bsh(files->FindPathForFile("sgfx/stadtfld.bsh"));
   if (bsh.Count() == 5748)
   {
     return AnnoVersion::VANILLA;

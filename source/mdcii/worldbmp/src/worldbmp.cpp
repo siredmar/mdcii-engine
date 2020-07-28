@@ -65,9 +65,9 @@ int main(int argc, char** argv)
   }
 
   auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
-  BshReader bshReader(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+  BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
 
   GamParser gam(vm["input"].as<std::string>(), false);
   World world(gam);

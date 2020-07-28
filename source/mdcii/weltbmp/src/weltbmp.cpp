@@ -57,12 +57,12 @@ int main(int argc, char** argv)
 
   auto files = Files::CreateInstance(".");
   Version::DetectGameVersion();
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
   Welt welt = Welt(f);
 
   f.close();
-  BshReader bsh_leser(files->Instance()->FindPathForFile("mgfx/stadtfld.bsh"));
+  BshReader bsh_leser(files->FindPathForFile("mgfx/stadtfld.bsh"));
 
   FramebufferPal8 fb((Welt::KARTENBREITE + Welt::KARTENHOEHE) * XRASTER, (Welt::KARTENBREITE + Welt::KARTENHOEHE) * YRASTER, 0);
 

@@ -64,10 +64,10 @@ int main(int argc, char* argv[])
   }
 
   auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false);
+  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false);
   Buildings::CreateInstance(buildingsCod);
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
-  BshReader bshReader(files->Instance()->FindPathForFile("/gfx/stadtfld.bsh"));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+  BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
 
   GamParser gam(vm["island"].as<std::string>(), false);
 

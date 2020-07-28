@@ -65,7 +65,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   auto files = Files::CreateInstance(files_path);
 
   Version::DetectGameVersion();
-  if (files->Instance()->CheckAllFiles(&FilesToCheck) == false)
+  if (files->CheckAllFiles(&FilesToCheck) == false)
   {
     std::cout << "[ERR] File check failed. Exiting." << std::endl;
     exit(EXIT_FAILURE);
@@ -98,9 +98,9 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
   // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-  Palette::CreateInstance(files->Instance()->FindPathForFile("stadtfld.col"));
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->Instance()->FindPathForFile("haeuser.cod"), true, false));
-  auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->Instance()->FindPathForFile("base.gad"), false, false));
+  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+  auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->FindPathForFile("base.gad"), false, false));
   BshResources::CreateInstance();
 
   MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
