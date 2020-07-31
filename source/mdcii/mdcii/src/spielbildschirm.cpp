@@ -19,11 +19,11 @@
 #include "spielbildschirm.hpp"
 
 Spielbildschirm::Spielbildschirm(Framebuffer& fb)
-  : fb(fb)
-  , karte(fb.width - 182, 0, 182, 156)
+    : fb(fb)
+    , karte(fb.width - 182, 0, 182, 156)
 {
-  buildings = Buildings::Instance();
-  kamera = std::make_shared<Kamera>();
+    buildings = Buildings::Instance();
+    kamera = std::make_shared<Kamera>();
 }
 
 Spielbildschirm::~Spielbildschirm()
@@ -32,7 +32,7 @@ Spielbildschirm::~Spielbildschirm()
 
 void Spielbildschirm::zeichne_bild(Welt& welt, int maus_x, int maus_y)
 {
-  kamera->zeichne_bild(fb, welt, maus_x, maus_y);
-  karte.zeichne_bild(fb, welt);
-  karte.zeichne_kameraposition(fb, *kamera);
+    kamera->zeichne_bild(fb, welt, maus_x, maus_y);
+    karte.zeichne_bild(fb, welt);
+    karte.zeichne_kameraposition(fb, *kamera);
 }

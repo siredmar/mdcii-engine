@@ -29,15 +29,15 @@ struct TemplateData //
 class Template
 {
 public:
-  Template()
-  {
-  }
-  explicit Template(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<TemplateData> template;
-  TemplateData template;
+    Template()
+    {
+    }
+    explicit Template(uint8_t* data, uint32_t length, const std::string& name);
+    std::vector<TemplateData> template;
+    TemplateData template;
 
 private:
-  std::string name;
+    std::string name;
 };
 
 #endif // _TEMPLATE_HPP

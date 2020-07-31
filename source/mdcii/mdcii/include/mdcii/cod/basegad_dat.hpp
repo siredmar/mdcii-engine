@@ -23,53 +23,52 @@
 
 #include "cod_parser.hpp"
 
-
 enum class BaseGadKindType
 {
-  UNSET = 0,
-  GAD_GFX
+    UNSET = 0,
+    GAD_GFX
 };
 
 struct BaseGadGadget
 {
-  int Id = -1;
-  int Blocknr = -1;
-  int Gfxnr = -1;
-  BaseGadKindType Kind = BaseGadKindType::UNSET;
-  int Noselflg = -1;
-  int Pressoff = -1;
-  struct
-  {
-    int x;
-    int y;
-  } Pos;
+    int Id = -1;
+    int Blocknr = -1;
+    int Gfxnr = -1;
+    BaseGadKindType Kind = BaseGadKindType::UNSET;
+    int Noselflg = -1;
+    int Pressoff = -1;
+    struct
+    {
+        int x;
+        int y;
+    } Pos;
 
-  struct
-  {
-    int h;
-    int w;
-  } Size;
+    struct
+    {
+        int h;
+        int w;
+    } Size;
 };
 
 class Basegad
 {
 public:
-  explicit Basegad(std::shared_ptr<CodParser> cod);
-  std::experimental::optional<BaseGadGadget*> GetGadget(int id);
-  int GetGadgetsSize();
-  BaseGadGadget* GetGadgetsByIndex(int index);
+    explicit Basegad(std::shared_ptr<CodParser> cod);
+    std::experimental::optional<BaseGadGadget*> GetGadget(int id);
+    int GetGadgetsSize();
+    BaseGadGadget* GetGadgetsByIndex(int index);
 
 private:
-  void GenerateGadgets();
-  BaseGadGadget GenerateGadget(const cod_pb::Object* obj);
+    void GenerateGadgets();
+    BaseGadGadget GenerateGadget(const cod_pb::Object* obj);
 
 private:
-  const int idOffset = 30000;
-  std::map<int, BaseGadGadget> gadgets;
-  std::vector<BaseGadGadget*> gadgetsVector;
-  std::shared_ptr<CodParser> cod;
+    const int idOffset = 30000;
+    std::map<int, BaseGadGadget> gadgets;
+    std::vector<BaseGadGadget*> gadgetsVector;
+    std::shared_ptr<CodParser> cod;
 
-  std::map<std::string, BaseGadKindType> kindMap = {{"GAD_GFX", BaseGadKindType::GAD_GFX}};
+    std::map<std::string, BaseGadKindType> kindMap = { { "GAD_GFX", BaseGadKindType::GAD_GFX } };
 };
 
 #endif //_BASEGAD_DAT_H_

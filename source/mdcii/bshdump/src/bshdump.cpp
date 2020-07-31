@@ -31,13 +31,13 @@ namespace po = boost::program_options;
 int main(int argc, char** argv)
 {
 
-  std::string input_name;
-  std::string file_format;
-  std::string prefix;
-  int color;
-  int bpp;
+    std::string input_name;
+    std::string file_format;
+    std::string prefix;
+    int color;
+    int bpp;
 
-  // clang-format off
+    // clang-format off
   po::options_description desc("Zulässige Optionen");
   desc.add_options()
     ("input,i", po::value<std::string>(&input_name), "Eingabedatei (*.bsh)")
@@ -48,73 +48,73 @@ int main(int argc, char** argv)
     ("path,l", po::value<std::string>()->default_value("."), "Pfad zur ANNO1602-Installation")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
-  // clang-format on
+    // clang-format on
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    std::cout << desc << std::endl;
-    exit(EXIT_SUCCESS);
-  }
-
-  if (vm.count("input") != 1)
-  {
-    std::cout << "Keine Eingabedatei angegeben" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (bpp != 8 && bpp != 24)
-  {
-    std::cout << "Ungültige Angabe für die Anzahl an Bits pro Pixel" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (file_format != "bmp" && file_format != "pnm")
-  {
-    std::cout << "Gültige Werte für --format sind bmp und pnm" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-  if (vm.count("path") != 1)
-  {
-    std::cout << "Keine Anno1602 Installation angegeben" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
-
-  BshReader bsh(input_name);
-  if (bpp == 24)
-  {
-    for (uint32_t i = 0; i < bsh.Count(); i++)
+    if (vm.count("help"))
     {
-      BshImage& image = bsh.GetBshImage(i);
-      FramebufferRgb24 fb(image.width, image.height, color);
-      fb.Clear();
-      fb.DrawBshImage(image, 0, 0);
-
-      if (file_format == "pnm")
-        fb.ExportPNM((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
-      else if (file_format == "bmp")
-        fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
     }
-  }
-  else if (bpp == 8)
-  {
-    for (uint32_t i = 0; i < bsh.Count(); i++)
+
+    if (vm.count("input") != 1)
     {
-      BshImage& image = bsh.GetBshImage(i);
-      FramebufferPal8 fb(image.width, image.height, color);
-      fb.Clear();
-      fb.DrawBshImage(image, 0, 0);
-
-      if (file_format == "pnm")
-        fb.ExportPNM((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
-      else if (file_format == "bmp")
-        fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        std::cout << "Keine Eingabedatei angegeben" << std::endl;
+        exit(EXIT_FAILURE);
     }
-  }
+
+    if (bpp != 8 && bpp != 24)
+    {
+        std::cout << "Ungültige Angabe für die Anzahl an Bits pro Pixel" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (file_format != "bmp" && file_format != "pnm")
+    {
+        std::cout << "Gültige Werte für --format sind bmp und pnm" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    if (vm.count("path") != 1)
+    {
+        std::cout << "Keine Anno1602 Installation angegeben" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto files = Files::CreateInstance(vm["path"].as<std::string>());
+    Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+
+    BshReader bsh(input_name);
+    if (bpp == 24)
+    {
+        for (uint32_t i = 0; i < bsh.Count(); i++)
+        {
+            BshImage& image = bsh.GetBshImage(i);
+            FramebufferRgb24 fb(image.width, image.height, color);
+            fb.Clear();
+            fb.DrawBshImage(image, 0, 0);
+
+            if (file_format == "pnm")
+                fb.ExportPNM((prefix + boost::str(boost::format("%04d.ppm") % i)).c_str());
+            else if (file_format == "bmp")
+                fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        }
+    }
+    else if (bpp == 8)
+    {
+        for (uint32_t i = 0; i < bsh.Count(); i++)
+        {
+            BshImage& image = bsh.GetBshImage(i);
+            FramebufferPal8 fb(image.width, image.height, color);
+            fb.Clear();
+            fb.DrawBshImage(image, 0, 0);
+
+            if (file_format == "pnm")
+                fb.ExportPNM((prefix + boost::str(boost::format("%04d.pgm") % i)).c_str());
+            else if (file_format == "bmp")
+                fb.ExportBMP((prefix + boost::str(boost::format("%04d.bmp") % i)).c_str());
+        }
+    }
 }

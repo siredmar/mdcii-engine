@@ -19,17 +19,16 @@
 
 #include "gam/shipyard.hpp"
 
-
 Shipyard::Shipyard(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int num = length / sizeof(ShipyardData);
-  for (int i = 0; i < num; i++)
-  {
-    ShipyardData entity;
-    int l = length / num;
-    memset((char*)&entity, 0, l);
-    memcpy((char*)&entity, data + (i * l), l);
-    shipyard.push_back(entity);
-  }
+    int num = length / sizeof(ShipyardData);
+    for (int i = 0; i < num; i++)
+    {
+        ShipyardData entity;
+        int l = length / num;
+        memset((char*)&entity, 0, l);
+        memcpy((char*)&entity, data + (i * l), l);
+        shipyard.push_back(entity);
+    }
 }

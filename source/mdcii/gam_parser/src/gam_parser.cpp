@@ -28,55 +28,55 @@ namespace po = boost::program_options;
 
 int main(int argc, char** argv)
 {
-  std::string input_name;
+    std::string input_name;
 
-  // clang-format off
+    // clang-format off
   po::options_description desc("Options");
   desc.add_options()
     ("input,i", po::value<std::string>(&input_name), "Input file (*.bsh, *.szs, *.szm)")
     ("path,p", po::value<std::string>()->default_value("."), "Installation path to 1602 AD")
     ("help,h", "Print this help")
   ;
-  // clang-format on
+    // clang-format on
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    std::cout << desc << std::endl;
-    exit(EXIT_SUCCESS);
-  }
+    if (vm.count("help"))
+    {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
 
-  if (vm.count("input") != 1)
-  {
-    std::cout << "No valid input file given." << std::endl;
-    exit(EXIT_FAILURE);
-  }
-  if (vm.count("path") != 1)
-  {
-    std::cout << "No valid installation path for 1602 AD given." << std::endl;
-    exit(EXIT_FAILURE);
-  }
+    if (vm.count("input") != 1)
+    {
+        std::cout << "No valid input file given." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    if (vm.count("path") != 1)
+    {
+        std::cout << "No valid installation path for 1602 AD given." << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-  auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
-  try
-  {
-    GamParser gamParser(vm["input"].as<std::string>(), false);
-  }
-  catch (const std::exception& ex)
-  {
-    std::cout << ex.what() << std::endl;
-    exit(1);
-  }
-  catch (const std::string& ex)
-  {
-    std::cout << ex << std::endl;
-  }
-  catch (...)
-  {
-    std::cout << "unknown exception" << std::endl;
-  }
+    auto files = Files::CreateInstance(vm["path"].as<std::string>());
+    Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+    try
+    {
+        GamParser gamParser(vm["input"].as<std::string>(), false);
+    }
+    catch (const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        exit(1);
+    }
+    catch (const std::string& ex)
+    {
+        std::cout << ex << std::endl;
+    }
+    catch (...)
+    {
+        std::cout << "unknown exception" << std::endl;
+    }
 }

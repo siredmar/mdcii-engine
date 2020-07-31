@@ -46,57 +46,57 @@ namespace po = boost::program_options;
 
 int main(int argc, char** argv)
 {
-  // clang-format off
+    // clang-format off
   po::options_description desc("Valid options");
   desc.add_options()
     ("input,i", po::value<std::string>(), "input file (.gam, .szs, .szm)")
     ("output,o", po::value<std::string>(), "output file (.bmp)")
     ("path,p", po::value<std::string>()->default_value("."), "1602 AD installation path")
     ("help,h", "Print this help");
-  // clang-format on
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    // clang-format on
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    std::cout << desc << std::endl;
-    exit(EXIT_SUCCESS);
-  }
-
-  auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
-  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
-  BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
-
-  GamParser gam(vm["input"].as<std::string>(), false);
-  World world(gam);
-  FramebufferPal8 fb((World::Width + World::Height) * XRASTER, (World::Width + World::Height) * YRASTER, 0);
-
-  TileGraphic water;
-  water.index = Buildings::Instance()->GetHouse(1201).value()->Gfx;
-  water.groundHeight = 0;
-
-  for (int y = 0; y < World::Height; y++)
-  {
-    for (int x = 0; x < World::Width; x++)
+    if (vm.count("help"))
     {
-      auto island = world.IslandOnPosition(x, y);
-      TileGraphic gfx = water;
-      gfx.index += (y + x * 3) % 12;
-      if (island)
-      {
-        auto tile = island.value()->TerrainTile(x - island.value()->GetIslandData().posx, y - island.value()->GetIslandData().posy);
-        gfx = island.value()->GraphicIndexForTile(tile, 0);
-        if (gfx.index == -1)
-        {
-          gfx = water;
-        }
-      }
-      BshImage& bsh = bshReader.GetBshImage(gfx.index);
-      fb.zeichne_bsh_bild_oz(bsh, (x - y + World::Height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
     }
-  }
 
-  fb.ExportBMP(vm["output"].as<std::string>().c_str());
+    auto files = Files::CreateInstance(vm["path"].as<std::string>());
+    Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+    Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+    BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
+
+    GamParser gam(vm["input"].as<std::string>(), false);
+    World world(gam);
+    FramebufferPal8 fb((World::Width + World::Height) * XRASTER, (World::Width + World::Height) * YRASTER, 0);
+
+    TileGraphic water;
+    water.index = Buildings::Instance()->GetHouse(1201).value()->Gfx;
+    water.groundHeight = 0;
+
+    for (int y = 0; y < World::Height; y++)
+    {
+        for (int x = 0; x < World::Width; x++)
+        {
+            auto island = world.IslandOnPosition(x, y);
+            TileGraphic gfx = water;
+            gfx.index += (y + x * 3) % 12;
+            if (island)
+            {
+                auto tile = island.value()->TerrainTile(x - island.value()->GetIslandData().posx, y - island.value()->GetIslandData().posy);
+                gfx = island.value()->GraphicIndexForTile(tile, 0);
+                if (gfx.index == -1)
+                {
+                    gfx = water;
+                }
+            }
+            BshImage& bsh = bshReader.GetBshImage(gfx.index);
+            fb.zeichne_bsh_bild_oz(bsh, (x - y + World::Height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
+        }
+    }
+
+    fb.ExportBMP(vm["output"].as<std::string>().c_str());
 }

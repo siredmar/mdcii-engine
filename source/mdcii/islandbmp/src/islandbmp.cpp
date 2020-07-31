@@ -45,67 +45,67 @@ namespace po = boost::program_options;
 */
 int main(int argc, char* argv[])
 {
-  // clang-format off
+    // clang-format off
   po::options_description desc("Valid options");
   desc.add_options()
     ("island,i", po::value<std::string>(), "input file (.scp)")
     ("output,o", po::value<std::string>(), "output file (.bmp)")
     ("path,p", po::value<std::string>()->default_value("."), "1602 AD installation path")
     ("help,h", "Print this help");
-  // clang-format on
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    // clang-format on
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    std::cout << desc << std::endl;
-    exit(EXIT_SUCCESS);
-  }
-
-  auto files = Files::CreateInstance(vm["path"].as<std::string>());
-  std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false);
-  Buildings::CreateInstance(buildingsCod);
-  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
-  BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
-
-  GamParser gam(vm["island"].as<std::string>(), false);
-
-  int selectedIsland = -1;
-  if (gam.Islands5Size() > 1)
-  {
-    std::cout << "Islands: " << static_cast<int>(gam.Islands5Size()) << std::endl;
-    while (selectedIsland > static_cast<int>(gam.Islands5Size() - 1) || selectedIsland == -1)
+    if (vm.count("help"))
     {
-      std::cout << "Select island to export: " << std::endl;
-      std::cin >> selectedIsland;
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
     }
-  }
-  else
-  {
-    selectedIsland = 0;
-  }
 
-  auto island = gam.GetIsland5(selectedIsland);
-  uint8_t width = island->GetIslandData().width;
-  uint8_t height = island->GetIslandData().height;
+    auto files = Files::CreateInstance(vm["path"].as<std::string>());
+    std::shared_ptr<CodParser> buildingsCod = std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false);
+    Buildings::CreateInstance(buildingsCod);
+    Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+    BshReader bshReader(files->FindPathForFile("/gfx/stadtfld.bsh"));
 
-  FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
+    GamParser gam(vm["island"].as<std::string>(), false);
 
-  int x, y;
-  for (y = 0; y < height; y++)
-  {
-    for (x = 0; x < width; x++)
+    int selectedIsland = -1;
+    if (gam.Islands5Size() > 1)
     {
-      auto tile = island->TerrainTile(x, y);
-      auto gfx = island->GraphicIndexForTile(tile, 0);
-      if (gfx.index != -1)
-      {
-        BshImage& bsh = bshReader.GetBshImage(gfx.index);
-        fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
-      }
+        std::cout << "Islands: " << static_cast<int>(gam.Islands5Size()) << std::endl;
+        while (selectedIsland > static_cast<int>(gam.Islands5Size() - 1) || selectedIsland == -1)
+        {
+            std::cout << "Select island to export: " << std::endl;
+            std::cin >> selectedIsland;
+        }
     }
-  }
-  fb.ExportBMP(vm["output"].as<std::string>().c_str());
-  return 0;
+    else
+    {
+        selectedIsland = 0;
+    }
+
+    auto island = gam.GetIsland5(selectedIsland);
+    uint8_t width = island->GetIslandData().width;
+    uint8_t height = island->GetIslandData().height;
+
+    FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
+
+    int x, y;
+    for (y = 0; y < height; y++)
+    {
+        for (x = 0; x < width; x++)
+        {
+            auto tile = island->TerrainTile(x, y);
+            auto gfx = island->GraphicIndexForTile(tile, 0);
+            if (gfx.index != -1)
+            {
+                BshImage& bsh = bshReader.GetBshImage(gfx.index);
+                fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - gfx.groundHeight);
+            }
+        }
+    }
+    fb.ExportBMP(vm["output"].as<std::string>().c_str());
+    return 0;
 }

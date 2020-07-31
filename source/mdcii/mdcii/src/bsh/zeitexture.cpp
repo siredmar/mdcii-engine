@@ -25,52 +25,52 @@
 #include "framebuffer/framebuffer_trans_pal8.hpp"
 
 StringToSDLTextureConverter::StringToSDLTextureConverter(SDL_Renderer* renderer, const std::string& font)
-  : renderer(renderer)
-  , font(font)
-  , files(Files::Instance())
-  , zei(std::make_shared<ZeiReader>(files->FindPathForFile(font)))
+    : renderer(renderer)
+    , font(font)
+    , files(Files::Instance())
+    , zei(std::make_shared<ZeiReader>(files->FindPathForFile(font)))
 {
 }
 
 SDL_Texture* StringToSDLTextureConverter::Convert(const std::string& str, int color, int shadowColor, int verticalMargin)
 {
-  auto palette = Palette::Instance();
-  int transparent = palette->GetTransparentColor();
-  auto transparentColor = palette->GetColor(transparent);
-  unsigned int stringLength = 0;
-  unsigned int stringHeight = 0;
+    auto palette = Palette::Instance();
+    int transparent = palette->GetTransparentColor();
+    auto transparentColor = palette->GetColor(transparent);
+    unsigned int stringLength = 0;
+    unsigned int stringHeight = 0;
 
-  std::wstring wide = converter.from_bytes(str);
-  for (auto& ch : wide)
-  {
-    try
+    std::wstring wide = converter.from_bytes(str);
+    for (auto& ch : wide)
     {
-      ZeiCharacter& zz = zei->GetBshImage(ch - ' ');
-      stringLength += zz.width;
-      if (stringHeight < zz.height)
-      {
-        stringHeight = zz.height;
-        if (verticalMargin > 0)
+        try
         {
-          stringHeight += verticalMargin * 2;
+            ZeiCharacter& zz = zei->GetBshImage(ch - ' ');
+            stringLength += zz.width;
+            if (stringHeight < zz.height)
+            {
+                stringHeight = zz.height;
+                if (verticalMargin > 0)
+                {
+                    stringHeight += verticalMargin * 2;
+                }
+            }
         }
-      }
+        catch (std::exception& ex)
+        {
+            std::cout << ex.what() << std::endl;
+        }
     }
-    catch (std::exception& ex)
-    {
-      std::cout << ex.what() << std::endl;
-    }
-  }
 
-  SDL_Surface* finalSurface;
-  SDL_Surface* s8 = SDL_CreateRGBSurface(0, static_cast<int>(stringLength), static_cast<int>(stringHeight), 8, 0, 0, 0, 0);
-  SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
-  FramebufferTransparentPal8 fb(
-      stringLength, stringHeight, palette->GetTransparentColor(), static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch, palette->GetTransparentColor());
-  fb.SetFontColor(color, shadowColor);
-  fb.DrawString(*zei, wide, 0, verticalMargin);
-  finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
-  SDL_SetColorKey(finalSurface, SDL_TRUE, SDL_MapRGB(finalSurface->format, transparentColor.getRed(), transparentColor.getGreen(), transparentColor.getBlue()));
-  auto texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
-  return texture;
+    SDL_Surface* finalSurface;
+    SDL_Surface* s8 = SDL_CreateRGBSurface(0, static_cast<int>(stringLength), static_cast<int>(stringHeight), 8, 0, 0, 0, 0);
+    SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
+    FramebufferTransparentPal8 fb(
+        stringLength, stringHeight, palette->GetTransparentColor(), static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch, palette->GetTransparentColor());
+    fb.SetFontColor(color, shadowColor);
+    fb.DrawString(*zei, wide, 0, verticalMargin);
+    finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+    SDL_SetColorKey(finalSurface, SDL_TRUE, SDL_MapRGB(finalSurface->format, transparentColor.getRed(), transparentColor.getGreen(), transparentColor.getBlue()));
+    auto texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
+    return texture;
 }

@@ -2,25 +2,25 @@
 
 void Renderer::RenderIsland(Island5 i)
 {
-  auto islandHouseLayers = i.GetIslandHouseData();
-  auto islandHouse = islandHouseLayers[0]->GetIslandHouse();
-  // for (auto tile : islandHouse)
-  // {
-  //   auto element = buildings->GetHouse(tile.id);
-  //   if (element)
-  //   {
-  //     // int x = tile.posx;
-  //     // int y = tile.posy;
-  //     // BshImage& bsh = bshReader.GetBshImage(element.value()->Gfx);
-  //     // int elevation = element.value()->Posoffs;
-  //     // fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - elevation);
-  //   }
-  // }
+    auto islandHouseLayers = i.GetIslandHouseData();
+    auto islandHouse = islandHouseLayers[0]->GetIslandHouse();
+    // for (auto tile : islandHouse)
+    // {
+    //   auto element = buildings->GetHouse(tile.id);
+    //   if (element)
+    //   {
+    //     // int x = tile.posx;
+    //     // int y = tile.posy;
+    //     // BshImage& bsh = bshReader.GetBshImage(element.value()->Gfx);
+    //     // int elevation = element.value()->Posoffs;
+    //     // fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - elevation);
+    //   }
+    // }
 }
 
 void Renderer::RenderIsland(std::shared_ptr<Island5> i)
 {
-  return RenderIsland(*i.get());
+    return RenderIsland(*i.get());
 }
 
 // std::experimental::optional<IslandHouseData> Renderer::TerrainTile(uint8_t x, uint8_t y)

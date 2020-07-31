@@ -22,35 +22,34 @@
 #include <string>
 #include <vector>
 
-
 struct MarketPlaceGoods
 {
-  uint32_t goodConsumption; //  Letzter Verbrauch
-  uint32_t goodCoverRatio;  //  Deckungssatz der Bedürfnisse
-  uint32_t empty0;          //  empty
-  uint16_t houseId;         //  Hausnummer für Warentyp !!
-  uint8_t goodSupplyLevel;  //  Versorgungsgrad mit dieser Ware
-  uint8_t empty1;           //  empty
+    uint32_t goodConsumption; //  Letzter Verbrauch
+    uint32_t goodCoverRatio; //  Deckungssatz der Bedürfnisse
+    uint32_t empty0; //  empty
+    uint16_t houseId; //  Hausnummer für Warentyp !!
+    uint8_t goodSupplyLevel; //  Versorgungsgrad mit dieser Ware
+    uint8_t empty1; //  empty
 };
 
 struct MarketPlaceData // MARKT
 {
-  uint8_t islandNumber : 8;
-  uint8_t cityNumber : 4;     // Auf welcher Insel und Stadt??
-  MarketPlaceGoods goods[16]; // ACHTUNG: Falls MARKT_WAREMAX > 16
+    uint8_t islandNumber : 8;
+    uint8_t cityNumber : 4; // Auf welcher Insel und Stadt??
+    MarketPlaceGoods goods[16]; // ACHTUNG: Falls MARKT_WAREMAX > 16
 };
 
 class MarketPlace
 {
 public:
-  MarketPlace()
-  {
-  }
-  explicit MarketPlace(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<MarketPlaceData> marketPlace;
+    MarketPlace()
+    {
+    }
+    explicit MarketPlace(uint8_t* data, uint32_t length, const std::string& name);
+    std::vector<MarketPlaceData> marketPlace;
 
 private:
-  std::string name;
+    std::string name;
 };
 
 #endif // _MARKETPLACE_HPP

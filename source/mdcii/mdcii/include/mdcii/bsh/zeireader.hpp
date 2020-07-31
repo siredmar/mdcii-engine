@@ -30,11 +30,10 @@ struct ZeiCharacter : public GenericBshImage<3>
 class ZeiReader : public GenericBshReader<ZeiCharacter>
 {
 public:
-  explicit ZeiReader(const std::string& path)
-    : GenericBshReader<ZeiCharacter>(path, "ZEI")
-  {
-  }
+    explicit ZeiReader(const std::string& path)
+        : GenericBshReader<ZeiCharacter>(path, "ZEI")
+    {
+    }
 };
-
 
 #endif

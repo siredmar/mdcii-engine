@@ -24,23 +24,22 @@
 #include "../bsh/bshreader.hpp"
 #include "framebuffer.hpp"
 
-
 class FramebufferTransparentPal8 : public Framebuffer
 {
 public:
-  explicit FramebufferTransparentPal8(
-      uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0, uint8_t transparent = 253);
-  void DrawBshImage(BshImage& image, int x, int y);
-  void DrawPixel(int x, int y, uint8_t color);
-  void ExportPNM(const char* path);
-  void ExportBMP(const char* path);
-  void Clear();
+    explicit FramebufferTransparentPal8(
+        uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0, uint8_t transparent = 253);
+    void DrawBshImage(BshImage& image, int x, int y);
+    void DrawPixel(int x, int y, uint8_t color);
+    void ExportPNM(const char* path);
+    void ExportBMP(const char* path);
+    void Clear();
 
 private:
-  uint8_t transparent;
-  uint8_t dunkel[256];
+    uint8_t transparent;
+    uint8_t dunkel[256];
 
-  void DrawBshImageFull(BshImage& image, int x, int y);
+    void DrawBshImageFull(BshImage& image, int x, int y);
 };
 
 #endif // _FRAMEBUFFER_TRANS_PAL8_HPP_

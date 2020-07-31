@@ -19,9 +19,8 @@
 
 #include "gam/island.hpp"
 
-
 Island4::Island4(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  memcpy((char*)&island, data, length);
+    memcpy((char*)&island, data, length);
 }

@@ -28,17 +28,17 @@
 class FramebufferPal8 : public Framebuffer
 {
 public:
-  explicit FramebufferPal8(uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
-  void DrawBshImage(BshImage& image, int x, int y);
-  void DrawPixel(int x, int y, uint8_t color);
-  void ExportPNM(const char* path);
-  void ExportBMP(const char* path);
-  void Clear();
+    explicit FramebufferPal8(uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
+    void DrawBshImage(BshImage& image, int x, int y);
+    void DrawPixel(int x, int y, uint8_t color);
+    void ExportPNM(const char* path);
+    void ExportBMP(const char* path);
+    void Clear();
 
 private:
-  uint8_t dunkel[256];
-  void DrawBshImageFull(BshImage& image, int x, int y);
-  void DrawBshImagePartial(BshImage& image, int x, int y);
+    uint8_t dunkel[256];
+    void DrawBshImageFull(BshImage& image, int x, int y);
+    void DrawBshImagePartial(BshImage& image, int x, int y);
 };
 
 #endif // _FRAMEBUFFER_PAL8_HPP_

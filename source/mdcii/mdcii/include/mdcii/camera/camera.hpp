@@ -31,44 +31,44 @@
 class Kamera
 {
 public:
-  explicit Kamera();
+    explicit Kamera();
 
-  void gehe_zu(uint16_t x, uint16_t y);
-  void nach_rechts();
-  void nach_links();
-  void nach_oben();
-  void nach_unten();
-  void vergroessern();
-  void verkleinern();
-  void setze_vergroesserung(uint8_t vergroesserung);
-  void rechts_drehen();
-  void links_drehen();
+    void gehe_zu(uint16_t x, uint16_t y);
+    void nach_rechts();
+    void nach_links();
+    void nach_oben();
+    void nach_unten();
+    void vergroessern();
+    void verkleinern();
+    void setze_vergroesserung(uint8_t vergroesserung);
+    void rechts_drehen();
+    void links_drehen();
 
-  void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y);
-  void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
-  void auf_bildschirm_256(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
-  void auf_karte(Framebuffer& fb, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y);
+    void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int& bildschirm_x, int& bildschirm_y);
+    void auf_bildschirm(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
+    void auf_bildschirm_256(Framebuffer& fb, int karte_x, int karte_y, int karte_z, int& bildschirm_x, int& bildschirm_y, int& bildschirm_z);
+    void auf_karte(Framebuffer& fb, int bildschirm_x, int bildschirm_y, int& karte_x, int& karte_y);
 
-  void zeichne_bild(Framebuffer& fb, Welt& welt, int maus_x, int maus_y);
+    void zeichne_bild(Framebuffer& fb, Welt& welt, int maus_x, int maus_y);
 
 private:
-  std::shared_ptr<Buildings> buildings;
-  uint16_t xpos, ypos;
-  uint8_t drehung, vergroesserung;
+    std::shared_ptr<Buildings> buildings;
+    uint16_t xpos, ypos;
+    uint8_t drehung, vergroesserung;
 
-  static const int x_raster[3];
-  static const int y_raster[3];
-  static const int grundhoehe[3];
+    static const int x_raster[3];
+    static const int y_raster[3];
+    static const int grundhoehe[3];
 
-  std::shared_ptr<BshReader> effekte_bsh[3];
-  std::shared_ptr<BshReader> maeher_bsh[3];
-  std::shared_ptr<BshReader> numbers_bsh[3];
-  std::shared_ptr<BshReader> ship_bsh[3];
-  std::shared_ptr<BshReader> soldat_bsh[3];
-  std::shared_ptr<BshReader> stadtfld_bsh[3];
-  std::shared_ptr<BshReader> tiere_bsh[3];
-  std::shared_ptr<BshReader> traeger_bsh[3];
-  std::shared_ptr<ZeiReader> zei;
+    std::shared_ptr<BshReader> effekte_bsh[3];
+    std::shared_ptr<BshReader> maeher_bsh[3];
+    std::shared_ptr<BshReader> numbers_bsh[3];
+    std::shared_ptr<BshReader> ship_bsh[3];
+    std::shared_ptr<BshReader> soldat_bsh[3];
+    std::shared_ptr<BshReader> stadtfld_bsh[3];
+    std::shared_ptr<BshReader> tiere_bsh[3];
+    std::shared_ptr<BshReader> traeger_bsh[3];
+    std::shared_ptr<ZeiReader> zei;
 };
 
 #endif

@@ -24,23 +24,23 @@
 
 struct ChunkData
 {
-  std::string name;
-  uint32_t length;
-  uint8_t* data;
+    std::string name;
+    uint32_t length;
+    uint8_t* data;
 };
 
 class Chunk
 {
 public:
-  explicit Chunk(const char* buffer);
-  ~Chunk();
-  uint32_t GetLength();
-  static std::vector<char> ReadFile(const std::string& filename);
-  static std::vector<std::shared_ptr<Chunk>> ReadChunks(const std::string& path);
-  ChunkData chunk;
+    explicit Chunk(const char* buffer);
+    ~Chunk();
+    uint32_t GetLength();
+    static std::vector<char> ReadFile(const std::string& filename);
+    static std::vector<std::shared_ptr<Chunk>> ReadChunks(const std::string& path);
+    ChunkData chunk;
 
 private:
-  uint32_t chunkLength;
+    uint32_t chunkLength;
 };
 
 // /*========================================+

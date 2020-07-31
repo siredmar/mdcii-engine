@@ -19,15 +19,14 @@
 
 #include "gam/scene.hpp"
 
-
 SceneRanking::SceneRanking(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  memcpy((char*)&sceneRanking, data, length);
+    memcpy((char*)&sceneRanking, data, length);
 }
 
 SceneSave::SceneSave(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  memcpy((char*)&sceneSave, data, length);
+    memcpy((char*)&sceneSave, data, length);
 }

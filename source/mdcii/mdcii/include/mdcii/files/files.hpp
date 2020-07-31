@@ -26,42 +26,41 @@
 class Files
 {
 public:
-  static Files* CreateInstance(const std::string& path);
-  static Files* Instance();
+    static Files* CreateInstance(const std::string& path);
+    static Files* Instance();
 
-  bool CheckFile(const std::string& filename);
-  bool CheckAllFiles(std::vector<std::pair<std::string, std::string>>* files);
-  std::string FindPathForFile(const std::string& file);
-  std::vector<std::string> GetDirectoryTree(const std::string& path);
-  std::vector<std::string> GetDirectoryFiles(const std::string& directory);
-  std::vector<std::string> GrepFiles(const std::string& search);
-  std::string StringToLowerCase(const std::string& str);
-  static std::string GetFilename(const std::string& filePath, bool withExtention = true);
+    bool CheckFile(const std::string& filename);
+    bool CheckAllFiles(std::vector<std::pair<std::string, std::string>>* files);
+    std::string FindPathForFile(const std::string& file);
+    std::vector<std::string> GetDirectoryTree(const std::string& path);
+    std::vector<std::string> GetDirectoryFiles(const std::string& directory);
+    std::vector<std::string> GrepFiles(const std::string& search);
+    std::string StringToLowerCase(const std::string& str);
+    static std::string GetFilename(const std::string& filePath, bool withExtention = true);
 
 private:
-  static Files* _instance;
-  explicit Files(const std::string& path)
-  {
-    tree = GetDirectoryTree(path);
-  }
-
-  Files(const Files&) = delete;
-
-
-  std::vector<std::string> tree;
-
-  class CGuard
-  {
-  public:
-    ~CGuard()
+    static Files* _instance;
+    explicit Files(const std::string& path)
     {
-      if (NULL != Files::_instance)
-      {
-        delete Files::_instance;
-        Files::_instance = NULL;
-      }
+        tree = GetDirectoryTree(path);
     }
-  };
+
+    Files(const Files&) = delete;
+
+    std::vector<std::string> tree;
+
+    class CGuard
+    {
+    public:
+        ~CGuard()
+        {
+            if (NULL != Files::_instance)
+            {
+                delete Files::_instance;
+                Files::_instance = NULL;
+            }
+        }
+    };
 };
 
 #endif

@@ -21,59 +21,57 @@
 
 Savegames::Savegames(const std::string& basepath, const std::string& fileEnding)
 {
-  auto files = Files::Instance();
-  auto savegameFolder = files->FindPathForFile(basepath);
-  auto tree = files->GetDirectoryFiles(savegameFolder);
-  for (auto& s : tree)
-  {
-    if (s.find(fileEnding) != std::string::npos)
+    auto files = Files::Instance();
+    auto savegameFolder = files->FindPathForFile(basepath);
+    auto tree = files->GetDirectoryFiles(savegameFolder);
+    for (auto& s : tree)
     {
-      // ignoring lastgame.gam file in list as this is a copy of one other savegame.
-      if (s.find("lastgame.gam") == std::string::npos)
-      {
-        GamParser p(s, true);
-        std::string gameName = files->GetFilename(s, false);
-        savegames.push_back(std::tuple<std::string, std::string, int>(s, gameName, p.GetSceneRanking()));
-      }
+        if (s.find(fileEnding) != std::string::npos)
+        {
+            // ignoring lastgame.gam file in list as this is a copy of one other savegame.
+            if (s.find("lastgame.gam") == std::string::npos)
+            {
+                GamParser p(s, true);
+                std::string gameName = files->GetFilename(s, false);
+                savegames.push_back(std::tuple<std::string, std::string, int>(s, gameName, p.GetSceneRanking()));
+            }
+        }
     }
-  }
 }
 
 unsigned int Savegames::size() const
 {
-  return savegames.size();
+    return savegames.size();
 }
 
 std::experimental::optional<std::string> Savegames::GetPath(unsigned int index) const
 {
-  if (index < savegames.size())
-  {
-    return std::get<0>(savegames[index]);
-  }
-  return {};
+    if (index < savegames.size())
+    {
+        return std::get<0>(savegames[index]);
+    }
+    return {};
 }
 
 std::experimental::optional<std::string> Savegames::GetName(unsigned int index) const
 {
-  if (index < savegames.size())
-  {
-    return std::get<1>(savegames[index]);
-  }
-  return {};
+    if (index < savegames.size())
+    {
+        return std::get<1>(savegames[index]);
+    }
+    return {};
 }
-
 
 std::experimental::optional<int> Savegames::GetRanking(unsigned int index) const
 {
-  if (index < savegames.size())
-  {
-    return std::get<2>(savegames[index]);
-  }
-  return {};
+    if (index < savegames.size())
+    {
+        return std::get<2>(savegames[index]);
+    }
+    return {};
 }
-
 
 std::vector<std::tuple<std::string, std::string, int>> Savegames::GetSavegames() const
 {
-  return savegames;
+    return savegames;
 }

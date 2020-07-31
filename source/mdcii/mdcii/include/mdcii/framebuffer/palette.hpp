@@ -24,82 +24,82 @@
 class PaletteColor
 {
 public:
-  PaletteColor(uint8_t r, uint8_t g, uint8_t b)
-    : r(r)
-    , g(g)
-    , b(b)
-  {
-  }
-
-  uint8_t getRed()
-  {
-    return r;
-  }
-  uint8_t getGreen()
-  {
-    return g;
-  }
-  uint8_t getBlue()
-  {
-    return b;
-  }
-
-  bool operator==(PaletteColor const& obj)
-  {
-    if ((r == obj.r) && (g == obj.g) && (b == obj.b))
+    PaletteColor(uint8_t r, uint8_t g, uint8_t b)
+        : r(r)
+        , g(g)
+        , b(b)
     {
-      return true;
     }
-    return false;
-  }
+
+    uint8_t getRed()
+    {
+        return r;
+    }
+    uint8_t getGreen()
+    {
+        return g;
+    }
+    uint8_t getBlue()
+    {
+        return b;
+    }
+
+    bool operator==(PaletteColor const& obj)
+    {
+        if ((r == obj.r) && (g == obj.g) && (b == obj.b))
+        {
+            return true;
+        }
+        return false;
+    }
 
 private:
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 };
 
 class Palette
 {
 public:
-  static Palette* CreateInstance(const std::string& palette_file_path);
-  static Palette* Instance();
-  void Init(const std::string& palette_file_path);
+    static Palette* CreateInstance(const std::string& palette_file_path);
+    static Palette* Instance();
+    void Init(const std::string& palette_file_path);
 
-  std::vector<PaletteColor> GetPalette();
-  SDL_Color* GetSDLColors();
-  int size();
-  int GetTransparentColor();
-  PaletteColor GetColor(int index);
-  uint8_t Index(int index);
+    std::vector<PaletteColor> GetPalette();
+    SDL_Color* GetSDLColors();
+    int size();
+    int GetTransparentColor();
+    PaletteColor GetColor(int index);
+    uint8_t Index(int index);
 
 private:
-  std::string path;
-  std::vector<PaletteColor> palette;
-  int transparentColor;
-  SDL_Color* c;
+    std::string path;
+    std::vector<PaletteColor> palette;
+    int transparentColor;
+    SDL_Color* c;
 
-  static Palette* _instance;
-  ~Palette();
-  Palette() = delete;
-  explicit Palette(const std::string& palette_file_path);
+    static Palette* _instance;
+    ~Palette();
+    Palette() = delete;
+    explicit Palette(const std::string& palette_file_path);
 
-  Palette(const Palette&);
+    Palette(const Palette&);
 
-  int FindTransparentColorIndex();
+    int FindTransparentColorIndex();
 
-  class CGuard
-  {
-  public:
-    ~CGuard()
+    class CGuard
     {
-      if (NULL != Palette::_instance)
-      {
-        delete Palette::_instance;
-        Palette::_instance = NULL;
-      }
-    }
-  };
+    public:
+        ~CGuard()
+        {
+            if (NULL != Palette::_instance)
+            {
+                delete Palette::_instance;
+                Palette::_instance = NULL;
+            }
+        }
+    };
 };
 
 #endif

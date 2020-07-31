@@ -28,39 +28,39 @@
 class Framebuffer
 {
 public:
-  uint32_t width;
-  uint32_t height;
+    uint32_t width;
+    uint32_t height;
 
-  explicit Framebuffer(uint32_t width, uint32_t height, uint32_t format = 1, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
-  virtual ~Framebuffer();
-  void Init(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
-  void Uninit();
-  void Resize(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
+    explicit Framebuffer(uint32_t width, uint32_t height, uint32_t format = 1, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
+    virtual ~Framebuffer();
+    void Init(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
+    void Uninit();
+    void Resize(uint32_t width, uint32_t height, uint32_t format, uint32_t color, uint8_t* buffer, uint32_t bufferLength);
 
-  virtual void DrawBshImage(BshImage& image, int x, int y);
-  void zeichne_bsh_bild_oz(BshImage& image, int x, int y);
-  virtual void zeichne_bsh_bild_sp(BshImage& image, int x, int y, int sx, int sy, bool& schnitt);
-  void zeichne_bsh_bild_sp_oz(BshImage& image, int x, int y, int sx, int sy, bool& schnitt);
-  virtual void DrawPixel(int x, int y, uint8_t color) = 0;
-  virtual void DrawRectangle(int x1, int y1, int x2, int y2, uint8_t color);
-  virtual void DrawLine(int x1, int y1, int x2, int y2, uint8_t color, uint8_t pattern = 0xff);
-  virtual void DrawZeiCharacter(ZeiCharacter& character, int x, int y);
-  void DrawString(ZeiReader& zei, std::string s, int x, int y);
-  void DrawString(ZeiReader& zei, std::wstring s, int x, int y);
-  void SetFontColor(uint8_t font, uint8_t shadow);
-  void FillWithColor(uint8_t color);
-  virtual void ExportPNM(const char* path);
-  virtual void ExportBMP(const char* path);
-  virtual void Clear();
+    virtual void DrawBshImage(BshImage& image, int x, int y);
+    void zeichne_bsh_bild_oz(BshImage& image, int x, int y);
+    virtual void zeichne_bsh_bild_sp(BshImage& image, int x, int y, int sx, int sy, bool& schnitt);
+    void zeichne_bsh_bild_sp_oz(BshImage& image, int x, int y, int sx, int sy, bool& schnitt);
+    virtual void DrawPixel(int x, int y, uint8_t color) = 0;
+    virtual void DrawRectangle(int x1, int y1, int x2, int y2, uint8_t color);
+    virtual void DrawLine(int x1, int y1, int x2, int y2, uint8_t color, uint8_t pattern = 0xff);
+    virtual void DrawZeiCharacter(ZeiCharacter& character, int x, int y);
+    void DrawString(ZeiReader& zei, std::string s, int x, int y);
+    void DrawString(ZeiReader& zei, std::wstring s, int x, int y);
+    void SetFontColor(uint8_t font, uint8_t shadow);
+    void FillWithColor(uint8_t color);
+    virtual void ExportPNM(const char* path);
+    virtual void ExportBMP(const char* path);
+    virtual void Clear();
 
 protected:
-  uint8_t* buffer;
-  uint8_t freeBuffer;
-  uint32_t bufferLength;
-  uint32_t format;
-  uint32_t color;
+    uint8_t* buffer;
+    uint8_t freeBuffer;
+    uint32_t bufferLength;
+    uint32_t format;
+    uint32_t color;
 
-  uint8_t fontColorTable[256];
+    uint8_t fontColorTable[256];
 };
 
 #endif // _FRAMEBUFFER_HPP_

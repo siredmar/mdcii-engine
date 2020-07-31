@@ -24,27 +24,27 @@
 
 struct RawGrowthData // ROHWACHS2
 {
-  uint8_t islandNumber;   // On which island is the raw good
-  uint8_t posx;           // Position on the island
-  uint8_t posy;           // Position on the island
-  uint8_t speed;          // Which speed counter (MAXWACHSSPEEDKIND)
-  uint8_t speedcnt;       // If (Timecnt != SpeedCnt) currentfield->animationCount++ (MAXROHWACHSCNT)
-  uint8_t animationCount; // current animation index
-  uint8_t empty1;
-  uint8_t empty2;
+    uint8_t islandNumber; // On which island is the raw good
+    uint8_t posx; // Position on the island
+    uint8_t posy; // Position on the island
+    uint8_t speed; // Which speed counter (MAXWACHSSPEEDKIND)
+    uint8_t speedcnt; // If (Timecnt != SpeedCnt) currentfield->animationCount++ (MAXROHWACHSCNT)
+    uint8_t animationCount; // current animation index
+    uint8_t empty1;
+    uint8_t empty2;
 };
 
 class RawGrowth
 {
 public:
-  RawGrowth()
-  {
-  }
-  explicit RawGrowth(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<RawGrowthData> rawGrowth;
+    RawGrowth()
+    {
+    }
+    explicit RawGrowth(uint8_t* data, uint32_t length, const std::string& name);
+    std::vector<RawGrowthData> rawGrowth;
 
 private:
-  std::string name;
+    std::string name;
 };
 
 #endif // _RAWGROWTH_HPP

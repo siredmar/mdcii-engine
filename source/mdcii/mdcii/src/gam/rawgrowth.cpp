@@ -19,17 +19,16 @@
 
 #include "gam/rawgrowth.hpp"
 
-
 RawGrowth::RawGrowth(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int num = length / sizeof(RawGrowthData);
-  for (int i = 0; i < num; i++)
-  {
-    RawGrowthData entity;
-    int l = length / num;
-    memset((char*)&entity, 0, l);
-    memcpy((char*)&entity, data + (i * l), l);
-    rawGrowth.push_back(entity);
-  }
+    int num = length / sizeof(RawGrowthData);
+    for (int i = 0; i < num; i++)
+    {
+        RawGrowthData entity;
+        int l = length / num;
+        memset((char*)&entity, 0, l);
+        memcpy((char*)&entity, data + (i * l), l);
+        rawGrowth.push_back(entity);
+    }
 }

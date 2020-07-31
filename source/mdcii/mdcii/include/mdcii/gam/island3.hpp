@@ -37,25 +37,25 @@
 
 struct Island3Data // Insel3
 {
-  uint8_t inselnr;    // ID for this island (per game)
-  uint8_t width;      // width
-  uint8_t height;     // height
-  uint8_t a;          // TODO: unknown
-  uint16_t x_pos;     // position of island x
-  uint16_t y_pos;     // position of island y
-  uint16_t b;         // TODO: unknown
-  uint16_t c;         // TODO: unknown
-  uint8_t bytes1[28]; // TODO: unknown
+    uint8_t inselnr; // ID for this island (per game)
+    uint8_t width; // width
+    uint8_t height; // height
+    uint8_t a; // TODO: unknown
+    uint16_t x_pos; // position of island x
+    uint16_t y_pos; // position of island y
+    uint16_t b; // TODO: unknown
+    uint16_t c; // TODO: unknown
+    uint8_t bytes1[28]; // TODO: unknown
 };
 
 class Island3
 {
 public:
-  explicit Island3(uint8_t* data, uint32_t length, const std::string& name);
-  Island3Data island3;
+    explicit Island3(uint8_t* data, uint32_t length, const std::string& name);
+    Island3Data island3;
 
 private:
-  std::string name;
+    std::string name;
 };
 
 #endif // _ISLAND3_HPP

@@ -21,105 +21,105 @@
 #include "cod/basegad_dat.hpp"
 
 Basegad::Basegad(std::shared_ptr<CodParser> cod)
-  : cod(cod)
+    : cod(cod)
 {
-  GenerateGadgets();
+    GenerateGadgets();
 }
 
 std::experimental::optional<BaseGadGadget*> Basegad::GetGadget(int id)
 {
-  if (gadgets.find(id) == gadgets.end())
-  {
-    return {};
-  }
-  else
-  {
-    return &gadgets[id];
-  }
+    if (gadgets.find(id) == gadgets.end())
+    {
+        return {};
+    }
+    else
+    {
+        return &gadgets[id];
+    }
 }
 int Basegad::GetGadgetsSize()
 {
-  return gadgetsVector.size();
+    return gadgetsVector.size();
 }
 BaseGadGadget* Basegad::GetGadgetsByIndex(int index)
 {
-  return gadgetsVector[index];
+    return gadgetsVector[index];
 }
 
 void Basegad::GenerateGadgets()
 {
-  for (int o = 0; o < cod->objects.object_size(); o++)
-  {
-    auto obj = cod->objects.object(o);
-    if (obj.name() == "GADGET")
+    for (int o = 0; o < cod->objects.object_size(); o++)
     {
-      for (int i = 0; i < obj.objects_size(); i++)
-      {
-        auto gadget = GenerateGadget(&obj.objects(i));
-        gadgets[gadget.Id] = gadget;
-        gadgetsVector.push_back(&gadgets[gadget.Id]);
-      }
+        auto obj = cod->objects.object(o);
+        if (obj.name() == "GADGET")
+        {
+            for (int i = 0; i < obj.objects_size(); i++)
+            {
+                auto gadget = GenerateGadget(&obj.objects(i));
+                gadgets[gadget.Id] = gadget;
+                gadgetsVector.push_back(&gadgets[gadget.Id]);
+            }
+        }
     }
-  }
 }
 
 BaseGadGadget Basegad::GenerateGadget(const cod_pb::Object* obj)
 {
-  BaseGadGadget h;
-  if (obj->has_variables() == true)
-  {
-    for (int i = 0; i < obj->variables().variable_size(); i++)
+    BaseGadGadget h;
+    if (obj->has_variables() == true)
     {
-      if (obj->has_variables() == true)
-      {
-        auto var = obj->variables().variable(i);
-        if (var.name() == "Id")
+        for (int i = 0; i < obj->variables().variable_size(); i++)
         {
-          if (var.value_int() == 0)
-          {
-            h.Id = 0;
-          }
-          else
-          {
-            h.Id = var.value_int() - idOffset;
-          }
+            if (obj->has_variables() == true)
+            {
+                auto var = obj->variables().variable(i);
+                if (var.name() == "Id")
+                {
+                    if (var.value_int() == 0)
+                    {
+                        h.Id = 0;
+                    }
+                    else
+                    {
+                        h.Id = var.value_int() - idOffset;
+                    }
+                }
+                else if (var.name() == "Blocknr")
+                {
+                    h.Blocknr = var.value_int();
+                }
+                else if (var.name() == "Gfxnr")
+                {
+                    h.Gfxnr = var.value_int();
+                }
+                else if (var.name() == "Kind")
+                {
+                    h.Kind = kindMap[var.value_string()];
+                }
+                else if (var.name() == "Noselflg")
+                {
+                    h.Noselflg = var.value_int();
+                }
+                else if (var.name() == "Pressoff")
+                {
+                    h.Pressoff = var.value_int();
+                }
+                else if (var.name() == "Blocknr")
+                {
+                    h.Blocknr = var.value_int();
+                }
+                else if (var.name() == "Pos")
+                {
+                    h.Pos.x = var.value_array().value(0).value_int();
+                    h.Pos.y = var.value_array().value(1).value_int();
+                }
+                else if (var.name() == "Size")
+                {
+                    h.Size.w = var.value_array().value(0).value_int();
+                    h.Size.h = var.value_array().value(1).value_int();
+                }
+            }
         }
-        else if (var.name() == "Blocknr")
-        {
-          h.Blocknr = var.value_int();
-        }
-        else if (var.name() == "Gfxnr")
-        {
-          h.Gfxnr = var.value_int();
-        }
-        else if (var.name() == "Kind")
-        {
-          h.Kind = kindMap[var.value_string()];
-        }
-        else if (var.name() == "Noselflg")
-        {
-          h.Noselflg = var.value_int();
-        }
-        else if (var.name() == "Pressoff")
-        {
-          h.Pressoff = var.value_int();
-        }
-        else if (var.name() == "Blocknr")
-        {
-          h.Blocknr = var.value_int();
-        }
-        else if (var.name() == "Pos")
-        {
-          h.Pos.x = var.value_array().value(0).value_int();
-          h.Pos.y = var.value_array().value(1).value_int();
-        }
-        else if (var.name() == "Size")
-        {
-          h.Size.w = var.value_array().value(0).value_int();
-          h.Size.h = var.value_array().value(1).value_int();
-        }
-      }
     }
-  }
-  return h;
+    return h;
 }
