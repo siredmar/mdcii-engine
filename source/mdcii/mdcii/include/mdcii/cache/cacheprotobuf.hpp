@@ -31,107 +31,106 @@
 
 namespace fs = std::filesystem;
 
-template<typename T>
+template <typename T>
 class CacheProtobuf
 {
 public:
-  explicit CacheProtobuf(const std::string& file, bool clearOnCreate = false)
-    : dataPath(sago::getDataHome())
-    , cacheFilePath(fs::path(dataPath.string() + "/" + file))
-    , cacheFileDirectoryPath(cacheFilePath.parent_path())
-  {
-    if (clearOnCreate)
+    explicit CacheProtobuf(const std::string& file, bool clearOnCreate = false)
+        : dataPath(sago::getDataHome())
+        , cacheFilePath(fs::path(dataPath.string() + "/" + file))
+        , cacheFileDirectoryPath(cacheFilePath.parent_path())
     {
-      if (DirectoryExists())
-      {
-        DeleteDirectory();
-      }
+        if (clearOnCreate)
+        {
+            if (DirectoryExists())
+            {
+                DeleteDirectory();
+            }
+        }
+
+        if (not CreateCacheFileDirectory())
+        {
+            throw("[EER] Cannot create cache file directroy: " + cacheFileDirectoryPath.string());
+        }
     }
 
-    if (not CreateCacheFileDirectory())
+    void Serialize(const T& data)
     {
-      throw("[EER] Cannot create cache file directroy: " + cacheFileDirectoryPath.string());
+        std::string jsonString;
+        google::protobuf::util::JsonPrintOptions options;
+        options.add_whitespace = true;
+        options.always_print_primitive_fields = true;
+        MessageToJsonString(data, &jsonString, options);
+        std::ofstream out(cacheFilePath.string());
+        if (!out.is_open())
+        {
+            throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
+        }
+        out << jsonString;
+        out.close();
     }
-  }
 
-  void Serialize(const T& data)
-  {
-    std::string jsonString;
-    google::protobuf::util::JsonPrintOptions options;
-    options.add_whitespace = true;
-    options.always_print_primitive_fields = true;
-    MessageToJsonString(data, &jsonString, options);
-    std::ofstream out(cacheFilePath.string());
-    if (!out.is_open())
+    T Deserialize()
     {
-      throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
-    }
-    out << jsonString;
-    out.close();
-  }
+        T data;
+        std::string jsonString;
+        std::ifstream t(cacheFilePath.string());
+        std::stringstream buffer;
+        if (!t.is_open())
+        {
+            throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
+        }
+        buffer << t.rdbuf();
+        jsonString = buffer.str();
+        t.close();
 
-  T Deserialize()
-  {
-    T data;
-    std::string jsonString;
-    std::ifstream t(cacheFilePath.string());
-    std::stringstream buffer;
-    if (!t.is_open())
+        google::protobuf::util::JsonParseOptions options;
+        options.ignore_unknown_fields = false;
+        JsonStringToMessage(jsonString, &data, options);
+        return data;
+    }
+
+    bool Exists()
     {
-      throw("[EER] Failed to open file \"" + cacheFilePath.string() + "\"");
+        return fs::exists(cacheFilePath);
     }
-    buffer << t.rdbuf();
-    jsonString = buffer.str();
-    t.close();
-
-    google::protobuf::util::JsonParseOptions options;
-    options.ignore_unknown_fields = false;
-    JsonStringToMessage(jsonString, &data, options);
-    return data;
-  }
-
-  bool Exists()
-  {
-    return fs::exists(cacheFilePath);
-  }
 
 private:
-  fs::path dataPath;
-  fs::path cacheFilePath;
-  fs::path cacheFileDirectoryPath;
+    fs::path dataPath;
+    fs::path cacheFilePath;
+    fs::path cacheFileDirectoryPath;
 
-  bool DeleteDirectory()
-  {
-    return fs::remove_all(cacheFileDirectoryPath);
-  }
-
-
-  bool DirectoryExists()
-  {
-    return fs::exists(cacheFileDirectoryPath);
-  }
-
-  bool CreateCacheFileDirectory()
-  {
-    if (not DirectoryExists())
+    bool DeleteDirectory()
     {
-      bool ret;
-      try
-      {
-        ret = fs::create_directories(cacheFileDirectoryPath);
-      }
-      catch (const std::exception& e)
-      {
-        std::cerr << e.what() << '\n';
-      }
+        return fs::remove_all(cacheFileDirectoryPath);
+    }
 
-      return ret;
-    }
-    else
+    bool DirectoryExists()
     {
-      return true;
+        return fs::exists(cacheFileDirectoryPath);
     }
-  }
+
+    bool CreateCacheFileDirectory()
+    {
+        if (not DirectoryExists())
+        {
+            bool ret;
+            try
+            {
+                ret = fs::create_directories(cacheFileDirectoryPath);
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+
+            return ret;
+        }
+        else
+        {
+            return true;
+        }
+    }
 };
 
 #endif // _CACHE_PROTOBUF_HPP_

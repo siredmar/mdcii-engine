@@ -28,11 +28,11 @@
 class BshImageToSDLTextureConverter
 {
 public:
-  explicit BshImageToSDLTextureConverter(SDL_Renderer* renderer);
-  SDL_Texture* Convert(BshImage* image);
+    explicit BshImageToSDLTextureConverter(SDL_Renderer* renderer);
+    SDL_Texture* Convert(BshImage* image);
 
 private:
-  SDL_Renderer* renderer;
+    SDL_Renderer* renderer;
 };
 
 #endif // _BSH_TEXTURE_HPP

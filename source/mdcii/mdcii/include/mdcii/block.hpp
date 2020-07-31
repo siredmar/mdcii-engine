@@ -25,12 +25,12 @@
 class Block
 {
 public:
-  char kennung[16];
-  uint32_t length;
-  uint8_t* data;
+    char kennung[16];
+    uint32_t length;
+    uint8_t* data;
 
-  explicit Block(std::istream& f);
-  ~Block();
+    explicit Block(std::istream& f);
+    ~Block();
 };
 
 #endif

@@ -49,30 +49,30 @@ using namespace sdlgui;
 class SinglePlayerWindow : public Screen
 {
 public:
-  SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
-  void Handle();
+    SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
+    void Handle();
 
 private:
-  void LoadGame(const std::string& gamName);
-  void Redraw();
-  SDL_Renderer* renderer;
-  int width;
-  int height;
-  bool fullscreen;
-  Scale* scale;
-  std::shared_ptr<Buildings> buildings;
-  SDL_Window* pwindow;
-  Files* files;
-  std::shared_ptr<Hostgad> hostgad;
-  bool quit;
-  StringToSDLTextureConverter stringConverter;
-  std::string savegame;
-  bool triggerStartGame;
-  std::vector<SDL_Texture*> tableStars;
-  std::vector<Widget> scenariosList;
-  TextureTable* scenariosTablePtr;
-  TextureTable* savegamesTablePtr;
-  TextureTable* currentTablePtr;
-  std::vector<std::tuple<Widget*, int, int>> widgets;
+    void LoadGame(const std::string& gamName);
+    void Redraw();
+    SDL_Renderer* renderer;
+    int width;
+    int height;
+    bool fullscreen;
+    Scale* scale;
+    std::shared_ptr<Buildings> buildings;
+    SDL_Window* pwindow;
+    Files* files;
+    std::shared_ptr<Hostgad> hostgad;
+    bool quit;
+    StringToSDLTextureConverter stringConverter;
+    std::string savegame;
+    bool triggerStartGame;
+    std::vector<SDL_Texture*> tableStars;
+    std::vector<Widget> scenariosList;
+    TextureTable* scenariosTablePtr;
+    TextureTable* savegamesTablePtr;
+    TextureTable* currentTablePtr;
+    std::vector<std::tuple<Widget*, int, int>> widgets;
 };
 #endif

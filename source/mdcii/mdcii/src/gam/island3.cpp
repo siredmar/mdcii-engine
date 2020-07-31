@@ -20,7 +20,7 @@
 #include "gam/island.hpp"
 
 Island3::Island3(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  memcpy((char*)&island3, data, length);
+    memcpy((char*)&island3, data, length);
 }

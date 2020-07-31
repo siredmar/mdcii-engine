@@ -23,63 +23,62 @@
 
 #include "cod_parser.hpp"
 
-
 enum class HostGadKindType
 {
-  UNSET = 0,
-  GAD_TEXTL,
-  GAD_GFX
+    UNSET = 0,
+    GAD_TEXTL,
+    GAD_GFX
 };
 
 struct HostGadGadget
 {
-  int Id = -1;
-  // Ignore Blocknr for now
-  // int Blocknr = -1;
-  int Gfxnr = -1;
-  HostGadKindType Kind = HostGadKindType::UNSET;
-  int Noselflg = -1;
-  int Basenr = -1;
-  int Reiheflg = -1;
-  int Pressoff = -1;
-  std::vector<int> Color = {-1, -1};
-  struct
-  {
-    int x;
-    int y;
-  } Pos;
-  struct
-  {
-    int x;
-    int y;
-  } Posoffs;
-  struct
-  {
-    int h;
-    int w;
-  } Size;
+    int Id = -1;
+    // Ignore Blocknr for now
+    // int Blocknr = -1;
+    int Gfxnr = -1;
+    HostGadKindType Kind = HostGadKindType::UNSET;
+    int Noselflg = -1;
+    int Basenr = -1;
+    int Reiheflg = -1;
+    int Pressoff = -1;
+    std::vector<int> Color = { -1, -1 };
+    struct
+    {
+        int x;
+        int y;
+    } Pos;
+    struct
+    {
+        int x;
+        int y;
+    } Posoffs;
+    struct
+    {
+        int h;
+        int w;
+    } Size;
 };
 
 class Hostgad
 {
 public:
-  explicit Hostgad(std::shared_ptr<CodParser> cod);
-  std::experimental::optional<HostGadGadget*> GetGadget(int id);
-  int GetGadgetsSize();
-  HostGadGadget* GetGadgetByIndex(int index);
+    explicit Hostgad(std::shared_ptr<CodParser> cod);
+    std::experimental::optional<HostGadGadget*> GetGadget(int id);
+    int GetGadgetsSize();
+    HostGadGadget* GetGadgetByIndex(int index);
 
 private:
-  void GenerateGadgets();
+    void GenerateGadgets();
 
-  HostGadGadget GenerateGadget(const cod_pb::Object* obj);
+    HostGadGadget GenerateGadget(const cod_pb::Object* obj);
 
 private:
-  const int idOffset = 0;
-  std::map<int, HostGadGadget> gadgets;
-  std::vector<HostGadGadget*> gadgetsVector;
-  std::shared_ptr<CodParser> cod;
+    const int idOffset = 0;
+    std::map<int, HostGadGadget> gadgets;
+    std::vector<HostGadGadget*> gadgetsVector;
+    std::shared_ptr<CodParser> cod;
 
-  std::map<std::string, HostGadKindType> kindMap = {{"GAD_GFX", HostGadKindType::GAD_GFX}, {"GAD_TEXTL", HostGadKindType::GAD_TEXTL}};
+    std::map<std::string, HostGadKindType> kindMap = { { "GAD_GFX", HostGadKindType::GAD_GFX }, { "GAD_TEXTL", HostGadKindType::GAD_TEXTL } };
 };
 
 #endif //_HOST_GAD_H_

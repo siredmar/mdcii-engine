@@ -26,32 +26,32 @@ using namespace boost::iostreams;
 
 struct bytewise_2s_complement_input_filter
 {
-  typedef char char_type;
-  typedef input_filter_tag category;
+    typedef char char_type;
+    typedef input_filter_tag category;
 
-  template<typename Source>
-  int get(Source& src)
-  {
-    int c = boost::iostreams::get(src);
-    if (c != EOF && c != WOULD_BLOCK)
-      c = -c & 0xff;
-    return c;
-  }
+    template <typename Source>
+    int get(Source& src)
+    {
+        int c = boost::iostreams::get(src);
+        if (c != EOF && c != WOULD_BLOCK)
+            c = -c & 0xff;
+        return c;
+    }
 };
 
 int main(int argc, char** argv)
 {
-  if (argc != 2)
-    exit(EXIT_FAILURE);
+    if (argc != 2)
+        exit(EXIT_FAILURE);
 
-  filtering_istream in;
-  // in.push(newline_filter(newline::dos));
-  in.push(bytewise_2s_complement_input_filter());
-  in.push(file_source(argv[1]));
+    filtering_istream in;
+    // in.push(newline_filter(newline::dos));
+    in.push(bytewise_2s_complement_input_filter());
+    in.push(file_source(argv[1]));
 
-  while (in.good())
-  {
-    char c = in.get();
-    cout.put(c);
-  }
+    while (in.good())
+    {
+        char c = in.get();
+        cout.put(c);
+    }
 }

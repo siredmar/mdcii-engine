@@ -29,7 +29,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char** argv)
 {
-  // clang-format off
+    // clang-format off
   po::options_description desc("Zulässige Optionen");
   desc.add_options()
     ("width,W", po::value<int>()->default_value(1024), "Bildschirmbreite")
@@ -38,35 +38,35 @@ int main(int argc, char** argv)
     ("path,p", po::value<std::string>()->default_value("."), "Pfad zur ANNO1602-Installation")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
-  // clang-format on
+    // clang-format on
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    std::cout << desc << std::endl;
-    exit(EXIT_SUCCESS);
-  }
+    if (vm.count("help"))
+    {
+        std::cout << desc << std::endl;
+        exit(EXIT_SUCCESS);
+    }
 
-  try
-  {
-    Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["path"].as<std::string>());
-  }
-  catch (const std::exception& ex)
-  {
-    std::cout << ex.what() << std::endl;
-    exit(1);
-  }
-  catch (const std::string& ex)
-  {
-    std::cout << ex << std::endl;
-  }
-  catch (...)
-  {
-    std::cout << "unknown exception" << std::endl;
-  }
+    try
+    {
+        Mdcii mdcii(vm["width"].as<int>(), vm["height"].as<int>(), vm["fullscreen"].as<bool>(), vm["path"].as<std::string>());
+    }
+    catch (const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        exit(1);
+    }
+    catch (const std::string& ex)
+    {
+        std::cout << ex << std::endl;
+    }
+    catch (...)
+    {
+        std::cout << "unknown exception" << std::endl;
+    }
 
-  return 0;
+    return 0;
 }

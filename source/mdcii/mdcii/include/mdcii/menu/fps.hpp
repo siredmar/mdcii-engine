@@ -24,29 +24,29 @@
 class Fps
 {
 public:
-  explicit Fps(int tickInterval = 41)
-    : m_tickInterval(tickInterval)
-    , m_nextTime(SDL_GetTicks() + tickInterval)
-  {
-  }
+    explicit Fps(int tickInterval = 41)
+        : m_tickInterval(tickInterval)
+        , m_nextTime(SDL_GetTicks() + tickInterval)
+    {
+    }
 
-  void Next()
-  {
-    SDL_Delay(GetTicksToNextFrame());
+    void Next()
+    {
+        SDL_Delay(GetTicksToNextFrame());
 
-    m_nextTime += m_tickInterval;
-  }
+        m_nextTime += m_tickInterval;
+    }
 
 private:
-  const int m_tickInterval;
-  Uint32 m_nextTime;
+    const int m_tickInterval;
+    Uint32 m_nextTime;
 
-  Uint32 GetTicksToNextFrame() const
-  {
-    Uint32 now = SDL_GetTicks();
+    Uint32 GetTicksToNextFrame() const
+    {
+        Uint32 now = SDL_GetTicks();
 
-    return (m_nextTime <= now) ? 0 : m_nextTime - now;
-  }
+        return (m_nextTime <= now) ? 0 : m_nextTime - now;
+    }
 };
 
 #endif

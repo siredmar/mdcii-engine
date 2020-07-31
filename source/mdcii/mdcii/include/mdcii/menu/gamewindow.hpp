@@ -44,25 +44,25 @@ using namespace sdlgui;
 class GameWindow : public Screen
 {
 public:
-  GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
-  void Handle();
-  void RedrawControlWidgets();
+    GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
+    void Handle();
+    void RedrawControlWidgets();
 
 private:
-  void CreateSpielbildschirm(uint32_t width, uint32_t height);
+    void CreateSpielbildschirm(uint32_t width, uint32_t height);
 
-  SDL_Renderer* renderer;
-  int width;
-  int height;
-  std::string gamName;
-  bool fullscreen;
-  std::shared_ptr<Buildings> buildings;
-  bool running;
-  std::shared_ptr<GamParser> gam;
-  Scale* scale;
-  SDL_Surface* s8;
-  std::shared_ptr<FramebufferPal8> fb;
-  std::shared_ptr<Spielbildschirm> spielbildschirm;
-  std::vector<std::tuple<Widget*, int, int>> controlWidgets;
+    SDL_Renderer* renderer;
+    int width;
+    int height;
+    std::string gamName;
+    bool fullscreen;
+    std::shared_ptr<Buildings> buildings;
+    bool running;
+    std::shared_ptr<GamParser> gam;
+    Scale* scale;
+    SDL_Surface* s8;
+    std::shared_ptr<FramebufferPal8> fb;
+    std::shared_ptr<Spielbildschirm> spielbildschirm;
+    std::vector<std::tuple<Widget*, int, int>> controlWidgets;
 };
 #endif

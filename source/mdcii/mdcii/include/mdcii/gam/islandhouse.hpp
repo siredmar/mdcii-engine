@@ -27,39 +27,38 @@
 
 struct IslandHouseData
 {
-  uint16_t id;                 // tile gaphic ID, see haeuser.cod for referene
-  uint8_t posx;                // position on island
-  uint8_t posy;                // position on island
-  uint32_t orientation : 2;    // orientation
-  uint32_t animationCount : 4; // animation step for tile
-  uint32_t islandNumber : 8;   // the island the field is part of
-  uint32_t cityNumber : 3;     // the city the field is part of
-  uint32_t randomNumber : 5;   // random number, what for?
-  uint32_t playerNumber : 4;   // the player that occupies this field
+    uint16_t id; // tile gaphic ID, see haeuser.cod for referene
+    uint8_t posx; // position on island
+    uint8_t posy; // position on island
+    uint32_t orientation : 2; // orientation
+    uint32_t animationCount : 4; // animation step for tile
+    uint32_t islandNumber : 8; // the island the field is part of
+    uint32_t cityNumber : 3; // the city the field is part of
+    uint32_t randomNumber : 5; // random number, what for?
+    uint32_t playerNumber : 4; // the player that occupies this field
 };
 
 class IslandHouse
 {
 public:
-  IslandHouse()
-  {
-  }
-  explicit IslandHouse(uint8_t* data, uint32_t length, const char* name, uint16_t width, uint16_t height);
-  explicit IslandHouse(const std::string& name, uint16_t width, uint16_t height);
-  void Finalize();
-  std::shared_ptr<IslandHouseData[]> GetIslandHouse();
-  IslandHouseData Get(uint16_t x, uint16_t y);
-  uint32_t Size();
+    IslandHouse()
+    {
+    }
+    explicit IslandHouse(uint8_t* data, uint32_t length, const char* name, uint16_t width, uint16_t height);
+    explicit IslandHouse(const std::string& name, uint16_t width, uint16_t height);
+    void Finalize();
+    std::shared_ptr<IslandHouseData[]> GetIslandHouse();
+    IslandHouseData Get(uint16_t x, uint16_t y);
+    uint32_t Size();
 
 private:
-  std::string name;
-  uint32_t elements;
-  uint32_t rawElements;
-  uint16_t width;
-  uint16_t height;
-  std::shared_ptr<IslandHouseData[]> rawIslandHouse;
-  std::shared_ptr<IslandHouseData[]> islandHouse;
+    std::string name;
+    uint32_t elements;
+    uint32_t rawElements;
+    uint16_t width;
+    uint16_t height;
+    std::shared_ptr<IslandHouseData[]> rawIslandHouse;
+    std::shared_ptr<IslandHouseData[]> islandHouse;
 };
-
 
 #endif // _ISLANDHOUSE_HPP

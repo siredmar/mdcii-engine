@@ -22,14 +22,14 @@
 
 enum class AnnoVersion
 {
-  VANILLA = 0,
-  NINA = 1
+    VANILLA = 0,
+    NINA = 1
 };
 
 class Version
 {
 public:
-  static AnnoVersion DetectGameVersion();
-  static std::string GameVersionString();
+    static AnnoVersion DetectGameVersion();
+    static std::string GameVersionString();
 };
 #endif

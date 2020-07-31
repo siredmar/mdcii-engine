@@ -28,16 +28,16 @@
 class Savegames
 {
 public:
-  explicit Savegames(const std::string& basepath, const std::string& fileEnding);
-  unsigned int size() const;
-  std::experimental::optional<std::string> GetPath(unsigned int index) const;
-  std::experimental::optional<std::string> GetName(unsigned int index) const;
-  std::experimental::optional<int> GetRanking(unsigned int index) const;
-  std::vector<std::tuple<std::string, std::string, int>> GetSavegames() const;
+    explicit Savegames(const std::string& basepath, const std::string& fileEnding);
+    unsigned int size() const;
+    std::experimental::optional<std::string> GetPath(unsigned int index) const;
+    std::experimental::optional<std::string> GetName(unsigned int index) const;
+    std::experimental::optional<int> GetRanking(unsigned int index) const;
+    std::vector<std::tuple<std::string, std::string, int>> GetSavegames() const;
 
 private:
-  // vector element contains: path, name, ranking
-  std::vector<std::tuple<std::string, std::string, int>> savegames;
+    // vector element contains: path, name, ranking
+    std::vector<std::tuple<std::string, std::string, int>> savegames;
 };
 
 #endif // _SAVEGAMES_H_

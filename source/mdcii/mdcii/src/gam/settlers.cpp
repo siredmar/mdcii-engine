@@ -19,17 +19,16 @@
 
 #include "gam/settlers.hpp"
 
-
 Settlers::Settlers(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int num = length / sizeof(SettlersData);
-  for (int i = 0; i < num; i++)
-  {
-    SettlersData entity;
-    int l = length / num;
-    memset((char*)&entity, 0, l);
-    memcpy((char*)&entity, data + (i * l), l);
-    settlers.push_back(entity);
-  }
+    int num = length / sizeof(SettlersData);
+    for (int i = 0; i < num; i++)
+    {
+        SettlersData entity;
+        int l = length / num;
+        memset((char*)&entity, 0, l);
+        memcpy((char*)&entity, data + (i * l), l);
+        settlers.push_back(entity);
+    }
 }

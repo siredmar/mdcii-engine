@@ -27,30 +27,30 @@
 class BshWriter
 {
 public:
-  explicit BshWriter(int transparentColor = 0, int extraColumns = 0, bool isZei = false);
-  ~BshWriter();
-  void WriteBsh(uint8_t* image, int width, int height, std::vector<uint8_t>& target);
-  void ReadPGM(const char* path, uint8_t*& image, int& width, int& height);
-  void AttachPGM(const char* path);
-  void WriteFile(const char* path);
+    explicit BshWriter(int transparentColor = 0, int extraColumns = 0, bool isZei = false);
+    ~BshWriter();
+    void WriteBsh(uint8_t* image, int width, int height, std::vector<uint8_t>& target);
+    void ReadPGM(const char* path, uint8_t*& image, int& width, int& height);
+    void AttachPGM(const char* path);
+    void WriteFile(const char* path);
 
 private:
-  int transparentColor;
-  int extraColumns;
-  bool isZei;
+    int transparentColor;
+    int extraColumns;
+    bool isZei;
 
-  struct ImageWithMeta
-  {
-    uint32_t width;
-    uint32_t height;
-    uint32_t typ;
-    uint32_t length;
-    uint32_t crc;
-    uint32_t offset;
-    int duplicateOf;
-    std::vector<uint8_t> data;
-  };
-  std::vector<ImageWithMeta> images;
+    struct ImageWithMeta
+    {
+        uint32_t width;
+        uint32_t height;
+        uint32_t typ;
+        uint32_t length;
+        uint32_t crc;
+        uint32_t offset;
+        int duplicateOf;
+        std::vector<uint8_t> data;
+    };
+    std::vector<ImageWithMeta> images;
 };
 
 #endif // _BSHWRITER_HPP_

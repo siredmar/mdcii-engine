@@ -21,69 +21,69 @@ Scale* Scale::_instance = 0;
 
 Scale* Scale::CreateInstance(SDL_Window* window)
 {
-  static CGuard g;
-  if (not _instance)
-  {
-    _instance = new Scale(window);
-  }
-  return _instance;
+    static CGuard g;
+    if (not _instance)
+    {
+        _instance = new Scale(window);
+    }
+    return _instance;
 }
 
 Scale* Scale::Instance()
 {
-  if (not _instance)
-  {
-    throw("[EER] Scale not initialized yet!");
-  }
-  return _instance;
+    if (not _instance)
+    {
+        throw("[EER] Scale not initialized yet!");
+    }
+    return _instance;
 }
 
 Scale::ScreenSize Scale::GetScreenSize()
 {
-  int width;
-  int height;
-  SDL_GetWindowSize(window, &width, &height);
-  return ScreenSize(width, height);
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
+    return ScreenSize(width, height);
 }
 
 int Scale::GetScreenWidth()
 {
-  int width;
-  int height;
-  SDL_GetWindowSize(window, &width, &height);
-  return width;
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
+    return width;
 }
 
 int Scale::GetScreenHeight()
 {
-  int width;
-  int height;
-  SDL_GetWindowSize(window, &width, &height);
-  return height;
+    int width;
+    int height;
+    SDL_GetWindowSize(window, &width, &height);
+    return height;
 }
 
 void Scale::Update()
 {
-  SetScreenSize(GetScreenSize());
+    SetScreenSize(GetScreenSize());
 }
 
 void Scale::SetScreenSize(Scale::ScreenSize newSize)
 {
-  SDL_SetWindowSize(window, newSize.width, newSize.height);
+    SDL_SetWindowSize(window, newSize.width, newSize.height);
 }
 
 void Scale::SetFullscreen(bool enabled)
 {
-  SDL_SetWindowFullscreen(window, static_cast<int>(enabled));
+    SDL_SetWindowFullscreen(window, static_cast<int>(enabled));
 }
 
 void Scale::ToggleFullscreen()
 {
-  fullscreen = !fullscreen;
-  SDL_SetWindowFullscreen(window, static_cast<int>(fullscreen));
+    fullscreen = !fullscreen;
+    SDL_SetWindowFullscreen(window, static_cast<int>(fullscreen));
 }
 
 Scale::Scale(SDL_Window* window)
-  : window(window)
+    : window(window)
 {
 }

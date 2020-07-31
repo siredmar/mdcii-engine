@@ -19,17 +19,16 @@
 
 #include "gam/deer.hpp"
 
-
 Deer::Deer(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int num = length / sizeof(DeerData);
-  for (int i = 0; i < num; i++)
-  {
-    DeerData entity;
-    int l = length / num;
-    memset((char*)&entity, 0, l);
-    memcpy((char*)&entity, data + (i * l), l);
-    deers.push_back(entity);
-  }
+    int num = length / sizeof(DeerData);
+    for (int i = 0; i < num; i++)
+    {
+        DeerData entity;
+        int l = length / num;
+        memset((char*)&entity, 0, l);
+        memcpy((char*)&entity, data + (i * l), l);
+        deers.push_back(entity);
+    }
 }

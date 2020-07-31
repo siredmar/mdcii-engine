@@ -26,16 +26,16 @@
 
 class Karte
 {
-  int xpos;
-  int ypos;
-  int width;
-  int height;
+    int xpos;
+    int ypos;
+    int width;
+    int height;
 
 public:
-  explicit Karte(int xpos = 0, int ypos = 0, int width = 500, int height = 350);
+    explicit Karte(int xpos = 0, int ypos = 0, int width = 500, int height = 350);
 
-  void zeichne_bild(Framebuffer& fb, Welt& welt);
-  void zeichne_kameraposition(Framebuffer& fb, Kamera& kamera);
+    void zeichne_bild(Framebuffer& fb, Welt& welt);
+    void zeichne_kameraposition(Framebuffer& fb, Kamera& kamera);
 };
 
 #endif

@@ -33,37 +33,37 @@
 class Welt
 {
 public:
-  explicit Welt(std::istream&);
-  enum
-  {
-    KARTENBREITE = 500
-  };
-  enum
-  {
-    KARTENHOEHE = 350
-  };
+    explicit Welt(std::istream&);
+    enum
+    {
+        KARTENBREITE = 500
+    };
+    enum
+    {
+        KARTENHOEHE = 350
+    };
 
-  Bebauung* bebauung;
-  std::map<std::pair<int, int>, Animation> animationen;
+    Bebauung* bebauung;
+    std::map<std::pair<int, int>, Animation> animationen;
 
-  int inselnummer_an_pos(uint16_t x, uint16_t y);
-  Insel* insel_an_pos(uint16_t x, uint16_t y);
-  std::vector<Block*> bloecke;
-  std::vector<Insel*> inseln;
-  std::vector<Kontor> kontore;
-  std::vector<Ship> schiffe;
-  std::vector<Soldat> soldaten;
-  std::vector<Prodlist> prodlist;
-  std::vector<Player> spieler;
-  void simulationsschritt();
-  void feld_an_pos(inselfeld_t& feld, int x, int y);
-  Prodlist* prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y);
-  Ship* schiff_an_pos(uint16_t x, uint16_t y);
-  uint8_t spielerfarbe(uint8_t spieler);
+    int inselnummer_an_pos(uint16_t x, uint16_t y);
+    Insel* insel_an_pos(uint16_t x, uint16_t y);
+    std::vector<Block*> bloecke;
+    std::vector<Insel*> inseln;
+    std::vector<Kontor> kontore;
+    std::vector<Ship> schiffe;
+    std::vector<Soldat> soldaten;
+    std::vector<Prodlist> prodlist;
+    std::vector<Player> spieler;
+    void simulationsschritt();
+    void feld_an_pos(inselfeld_t& feld, int x, int y);
+    Prodlist* prodlist_an_pos(uint8_t insel, uint8_t x, uint8_t y);
+    Ship* schiff_an_pos(uint16_t x, uint16_t y);
+    uint8_t spielerfarbe(uint8_t spieler);
 
 private:
-  int ani;
-  std::shared_ptr<Buildings> buildings;
+    int ani;
+    std::shared_ptr<Buildings> buildings;
 };
 
 #endif

@@ -25,66 +25,64 @@ BshResources* BshResources::_instance = 0;
 
 BshResources* BshResources::Instance()
 {
-  if (not _instance)
-  {
-    throw("[EER] BshResources not initialized yet!");
-  }
-  return _instance;
+    if (not _instance)
+    {
+        throw("[EER] BshResources not initialized yet!");
+    }
+    return _instance;
 }
 
 BshResources* BshResources::CreateInstance()
 {
-  static CGuard g;
-  if (!_instance)
-  {
-    _instance = new BshResources();
-  }
-  return _instance;
+    static CGuard g;
+    if (!_instance)
+    {
+        _instance = new BshResources();
+    }
+    return _instance;
 }
 
 BshResources::BshResources()
-  : files(Files::Instance())
+    : files(Files::Instance())
 {
-  for (auto const& f : FilesToCheck)
-  {
-    auto file = std::get<0>(f);
-    if (std::get<1>(f) == "bsh")
+    for (auto const& f : FilesToCheck)
     {
-      bshMap[file] = std::make_shared<BshReader>(files->FindPathForFile(file));
+        auto file = std::get<0>(f);
+        if (std::get<1>(f) == "bsh")
+        {
+            bshMap[file] = std::make_shared<BshReader>(files->FindPathForFile(file));
+        }
+        else
+        {
+            zeiMap[file] = std::make_shared<ZeiReader>(files->FindPathForFile(file));
+        }
     }
-    else
-    {
-      zeiMap[file] = std::make_shared<ZeiReader>(files->FindPathForFile(file));
-    }
-  }
 }
-
 
 bool BshResources::BshReaderExists(std::string key)
 {
-  if (bshMap.find(key) == bshMap.end())
-  {
-    return false;
-  }
-  return true;
+    if (bshMap.find(key) == bshMap.end())
+    {
+        return false;
+    }
+    return true;
 }
 
 std::shared_ptr<BshReader> BshResources::GetBshReader(std::string key)
 {
-  return bshMap[key];
+    return bshMap[key];
 }
-
 
 bool BshResources::ZeiReaderExists(std::string key)
 {
-  if (zeiMap.find(key) == zeiMap.end())
-  {
-    return false;
-  }
-  return true;
+    if (zeiMap.find(key) == zeiMap.end())
+    {
+        return false;
+    }
+    return true;
 }
 
 std::shared_ptr<ZeiReader> BshResources::GetZeiReader(std::string key)
 {
-  return zeiMap[key];
+    return zeiMap[key];
 }

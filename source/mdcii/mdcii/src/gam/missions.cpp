@@ -23,33 +23,32 @@
 
 #include "gam/missions.hpp"
 
-
 Mission4::Mission4(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  Mission4Data m;
-  // Multiple missions in one chunk laying adjacent in memory.
-  int numMissions = length / sizeof(Mission4Data);
-  for (int i = 0; i < numMissions; i++)
-  {
-    int missionLength = length / numMissions;
-    memset((char*)&m, 0, missionLength);
-    memcpy((char*)&m, data + (i * missionLength), missionLength);
-    missions.push_back(m);
-  }
+    Mission4Data m;
+    // Multiple missions in one chunk laying adjacent in memory.
+    int numMissions = length / sizeof(Mission4Data);
+    for (int i = 0; i < numMissions; i++)
+    {
+        int missionLength = length / numMissions;
+        memset((char*)&m, 0, missionLength);
+        memcpy((char*)&m, data + (i * missionLength), missionLength);
+        missions.push_back(m);
+    }
 }
 
 Mission2::Mission2(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  Mission2Data m;
-  // Multiple missions in one chunk laying adjacent in memory.
-  int numMissions = length / sizeof(Mission2Data);
-  for (int i = 0; i < numMissions; i++)
-  {
-    int missionLength = length / numMissions;
-    memset((char*)&m, 0, missionLength);
-    memcpy((char*)&m, data + (i * missionLength), missionLength);
-    missions.push_back(m);
-  }
+    Mission2Data m;
+    // Multiple missions in one chunk laying adjacent in memory.
+    int numMissions = length / sizeof(Mission2Data);
+    for (int i = 0; i < numMissions; i++)
+    {
+        int missionLength = length / numMissions;
+        memset((char*)&m, 0, missionLength);
+        memcpy((char*)&m, data + (i * missionLength), missionLength);
+        missions.push_back(m);
+    }
 }

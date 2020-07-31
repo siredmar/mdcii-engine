@@ -24,44 +24,44 @@
 class Scale
 {
 public:
-  struct ScreenSize
-  {
-    ScreenSize(uint32_t width, uint32_t height)
-      : width(width)
-      , height(height)
+    struct ScreenSize
     {
-    }
-    uint32_t width;
-    uint32_t height;
-  };
+        ScreenSize(uint32_t width, uint32_t height)
+            : width(width)
+            , height(height)
+        {
+        }
+        uint32_t width;
+        uint32_t height;
+    };
 
-  static Scale* CreateInstance(SDL_Window* window);
-  static Scale* Instance();
-  ScreenSize GetScreenSize();
-  void Update();
-  int GetScreenWidth();
-  int GetScreenHeight();
-  void SetScreenSize(ScreenSize newSize);
-  void SetFullscreen(bool enabled);
-  void ToggleFullscreen();
+    static Scale* CreateInstance(SDL_Window* window);
+    static Scale* Instance();
+    ScreenSize GetScreenSize();
+    void Update();
+    int GetScreenWidth();
+    int GetScreenHeight();
+    void SetScreenSize(ScreenSize newSize);
+    void SetFullscreen(bool enabled);
+    void ToggleFullscreen();
 
 private:
-  bool fullscreen;
-  SDL_Window* window;
-  static Scale* _instance;
-  Scale(SDL_Window* window);
-  class CGuard
-  {
-  public:
-    ~CGuard()
+    bool fullscreen;
+    SDL_Window* window;
+    static Scale* _instance;
+    Scale(SDL_Window* window);
+    class CGuard
     {
-      if (NULL != Scale::_instance)
-      {
-        delete Scale::_instance;
-        Scale::_instance = NULL;
-      }
-    }
-  };
+    public:
+        ~CGuard()
+        {
+            if (NULL != Scale::_instance)
+            {
+                delete Scale::_instance;
+                Scale::_instance = NULL;
+            }
+        }
+    };
 };
 
 #endif // _SCALE_HPP_

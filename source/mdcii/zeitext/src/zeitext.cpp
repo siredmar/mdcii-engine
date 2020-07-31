@@ -32,15 +32,15 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  string input_name;
-  string file_format;
-  string output;
-  string text;
-  string path;
-  int color;
-  int bpp;
+    string input_name;
+    string file_format;
+    string output;
+    string text;
+    string path;
+    int color;
+    int bpp;
 
-  // clang-format off
+    // clang-format off
   po::options_description desc("Zulässige Optionen");
   desc.add_options()
     ("input,i", po::value<string>(&input_name), "Eingabedatei (*.zei)")
@@ -52,78 +52,78 @@ int main(int argc, char** argv)
     ("path,p", po::value<string>(&path), "ANNO1602")
     ("help,h", "Gibt diesen Hilfetext aus")
   ;
-  // clang-format on
+    // clang-format on
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-  if (vm.count("help"))
-  {
-    cout << desc << endl;
-    exit(EXIT_SUCCESS);
-  }
+    if (vm.count("help"))
+    {
+        cout << desc << endl;
+        exit(EXIT_SUCCESS);
+    }
 
-  if (vm.count("input") != 1)
-  {
-    cout << "Keine Eingabedatei angegeben" << endl;
-    exit(EXIT_FAILURE);
-  }
+    if (vm.count("input") != 1)
+    {
+        cout << "Keine Eingabedatei angegeben" << endl;
+        exit(EXIT_FAILURE);
+    }
 
-  if (vm.count("output") != 1)
-  {
-    cout << "Keine Ausgabedatei angegeben" << endl;
-    exit(EXIT_FAILURE);
-  }
+    if (vm.count("output") != 1)
+    {
+        cout << "Keine Ausgabedatei angegeben" << endl;
+        exit(EXIT_FAILURE);
+    }
 
-  if (bpp != 8 && bpp != 24)
-  {
-    cout << "Ungültige Angabe für die Anzahl an Bits pro Pixel" << endl;
-    exit(EXIT_FAILURE);
-  }
+    if (bpp != 8 && bpp != 24)
+    {
+        cout << "Ungültige Angabe für die Anzahl an Bits pro Pixel" << endl;
+        exit(EXIT_FAILURE);
+    }
 
-  if (file_format != "bmp" && file_format != "pnm")
-  {
-    cout << "Gültige Werte für --format sind bmp und pnm" << endl;
-    exit(EXIT_FAILURE);
-  }
-  auto files = Files::CreateInstance(path);
-  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+    if (file_format != "bmp" && file_format != "pnm")
+    {
+        cout << "Gültige Werte für --format sind bmp und pnm" << endl;
+        exit(EXIT_FAILURE);
+    }
+    auto files = Files::CreateInstance(path);
+    Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
 
-  ZeiReader zei(input_name);
-  vector<ZeiCharacter*> character;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  for (int c : text)
-  {
-    ZeiCharacter& z = zei.GetBshImage(c - ' ');
-    character.push_back(&z);
-    width += z.width;
-    if (z.height > height)
-      height = z.height;
-  }
-  if (bpp == 24)
-  {
-    FramebufferRgb24 fb(width, height, color);
-    fb.SetFontColor(255, 0);
-    fb.Clear();
-    fb.DrawString(zei, text, 0, 0);
+    ZeiReader zei(input_name);
+    vector<ZeiCharacter*> character;
+    unsigned int width = 0;
+    unsigned int height = 0;
+    for (int c : text)
+    {
+        ZeiCharacter& z = zei.GetBshImage(c - ' ');
+        character.push_back(&z);
+        width += z.width;
+        if (z.height > height)
+            height = z.height;
+    }
+    if (bpp == 24)
+    {
+        FramebufferRgb24 fb(width, height, color);
+        fb.SetFontColor(255, 0);
+        fb.Clear();
+        fb.DrawString(zei, text, 0, 0);
 
-    if (file_format == "pnm")
-      fb.ExportPNM((output + ".ppm").c_str());
-    else if (file_format == "bmp")
-      fb.ExportBMP((output + ".bmp").c_str());
-  }
-  else if (bpp == 8)
-  {
-    FramebufferPal8 fb(width, height, color);
-    fb.SetFontColor(255, 0);
-    fb.Clear();
-    fb.DrawString(zei, text, 0, 0);
+        if (file_format == "pnm")
+            fb.ExportPNM((output + ".ppm").c_str());
+        else if (file_format == "bmp")
+            fb.ExportBMP((output + ".bmp").c_str());
+    }
+    else if (bpp == 8)
+    {
+        FramebufferPal8 fb(width, height, color);
+        fb.SetFontColor(255, 0);
+        fb.Clear();
+        fb.DrawString(zei, text, 0, 0);
 
-    if (file_format == "pnm")
-      fb.ExportPNM((output + ".pgm").c_str());
-    else if (file_format == "bmp")
-      fb.ExportBMP((output + ".bmp").c_str());
-  }
+        if (file_format == "pnm")
+            fb.ExportPNM((output + ".pgm").c_str());
+        else if (file_format == "bmp")
+            fb.ExportBMP((output + ".bmp").c_str());
+    }
 }

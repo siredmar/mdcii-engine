@@ -31,10 +31,10 @@ struct BshImage : public GenericBshImage<0>
 class BshReader : public GenericBshReader<BshImage>
 {
 public:
-  explicit BshReader(const std::string& path)
-    : GenericBshReader<BshImage>(path, "BSH")
-  {
-  }
+    explicit BshReader(const std::string& path)
+        : GenericBshReader<BshImage>(path, "BSH")
+    {
+    }
 };
 
 #endif // _BSHREADER_HPP

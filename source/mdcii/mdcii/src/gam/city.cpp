@@ -19,17 +19,16 @@
 
 #include "gam/city.hpp"
 
-
 City4::City4(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int num = length / sizeof(City4Data);
-  for (int i = 0; i < num; i++)
-  {
-    City4Data entity;
-    int l = length / num;
-    memset((char*)&entity, 0, l);
-    memcpy((char*)&entity, data + (i * l), l);
-    city.push_back(entity);
-  }
+    int num = length / sizeof(City4Data);
+    for (int i = 0; i < num; i++)
+    {
+        City4Data entity;
+        int l = length / num;
+        memset((char*)&entity, 0, l);
+        memcpy((char*)&entity, data + (i * l), l);
+        city.push_back(entity);
+    }
 }

@@ -24,23 +24,23 @@
 
 struct DeerData // Hirsch2
 {
-  uint32_t inselnr : 8;
-  uint32_t posx : 8;
-  uint32_t posy : 8;
-  uint32_t timecnt;
+    uint32_t inselnr : 8;
+    uint32_t posx : 8;
+    uint32_t posy : 8;
+    uint32_t timecnt;
 };
 
 class Deer
 {
 public:
-  Deer()
-  {
-  }
-  explicit Deer(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<DeerData> deers;
+    Deer()
+    {
+    }
+    explicit Deer(uint8_t* data, uint32_t length, const std::string& name);
+    std::vector<DeerData> deers;
 
 private:
-  std::string name;
+    std::string name;
 };
 
 #endif // _DEER_HPP

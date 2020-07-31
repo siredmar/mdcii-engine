@@ -28,16 +28,16 @@
 class FramebufferRgb24 : public Framebuffer
 {
 public:
-  explicit FramebufferRgb24(uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
-  void DrawBshImage(BshImage& image, int x, int y);
-  void DrawPixel(int x, int y, uint8_t color);
-  void ExportPNM(const char* path);
-  void ExportBMP(const char* path);
-  void Clear();
+    explicit FramebufferRgb24(uint32_t width, uint32_t height, uint32_t color = 0, uint8_t* buffer = NULL, uint32_t bufferLength = 0);
+    void DrawBshImage(BshImage& image, int x, int y);
+    void DrawPixel(int x, int y, uint8_t color);
+    void ExportPNM(const char* path);
+    void ExportBMP(const char* path);
+    void Clear();
 
 private:
-  void DrawBshImageFull(BshImage& image, int x, int y);
-  void DrawBshImagePartial(BshImage& image, int x, int y);
+    void DrawBshImageFull(BshImage& image, int x, int y);
+    void DrawBshImagePartial(BshImage& image, int x, int y);
 };
 
 #endif // _FRAMEBUFFER_RGB24_HPP_

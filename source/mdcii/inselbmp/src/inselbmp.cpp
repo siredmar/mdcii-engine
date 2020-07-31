@@ -31,7 +31,6 @@
 #include "mdcii/insel.hpp"
 #include "mdcii/version/version.hpp"
 
-
 #define XRASTER 32
 #define YRASTER 16
 #define ELEVATION 20
@@ -42,47 +41,47 @@
 */
 int main(int argc, char** argv)
 {
-  if (argc < 4)
-  {
-    std::cout << "usage: ./mdcii-inselbmp <island.scp> <output.bmp> <anno path>" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  std::ifstream f;
-  f.open(argv[1], std::ios_base::in | std::ios_base::binary);
-
-  Block inselX = Block(f);
-  Block inselhaus = Block(f);
-
-  f.close();
-
-  auto files = Files::CreateInstance(std::string(argv[3]));
-  Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
-  Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
-  Version::DetectGameVersion();
-
-  Insel insel = Insel(&inselX, &inselhaus, Buildings::Instance());
-  uint8_t width = insel.width;
-  uint8_t height = insel.height;
-
-  BshReader bsh_leser(files->FindPathForFile("/gfx/stadtfld.bsh"));
-
-  FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
-
-  int x, y;
-  for (y = 0; y < height; y++)
-  {
-    for (x = 0; x < width; x++)
+    if (argc < 4)
     {
-      feld_t feld;
-      insel.grafik_bebauung(feld, x, y, 0);
-      if (feld.index != -1)
-      {
-        BshImage& bsh = bsh_leser.GetBshImage(feld.index);
-        fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
-      }
+        std::cout << "usage: ./mdcii-inselbmp <island.scp> <output.bmp> <anno path>" << std::endl;
+        exit(EXIT_FAILURE);
     }
-  }
 
-  fb.ExportBMP(argv[2]);
+    std::ifstream f;
+    f.open(argv[1], std::ios_base::in | std::ios_base::binary);
+
+    Block inselX = Block(f);
+    Block inselhaus = Block(f);
+
+    f.close();
+
+    auto files = Files::CreateInstance(std::string(argv[3]));
+    Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
+    Palette::CreateInstance(files->FindPathForFile("stadtfld.col"));
+    Version::DetectGameVersion();
+
+    Insel insel = Insel(&inselX, &inselhaus, Buildings::Instance());
+    uint8_t width = insel.width;
+    uint8_t height = insel.height;
+
+    BshReader bsh_leser(files->FindPathForFile("/gfx/stadtfld.bsh"));
+
+    FramebufferPal8 fb((width + height) * XRASTER, (width + height) * YRASTER, 0);
+
+    int x, y;
+    for (y = 0; y < height; y++)
+    {
+        for (x = 0; x < width; x++)
+        {
+            feld_t feld;
+            insel.grafik_bebauung(feld, x, y, 0);
+            if (feld.index != -1)
+            {
+                BshImage& bsh = bsh_leser.GetBshImage(feld.index);
+                fb.zeichne_bsh_bild_oz(bsh, (x - y + height) * XRASTER, (x + y) * YRASTER + 2 * YRASTER - feld.grundhoehe * ELEVATION);
+            }
+        }
+    }
+
+    fb.ExportBMP(argv[2]);
 }

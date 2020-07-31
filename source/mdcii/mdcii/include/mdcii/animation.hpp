@@ -21,14 +21,14 @@
 
 struct Animation
 {
-  int x;
-  int y;
-  int z;
-  int ani;
-  int start_index;
-  int schritte;
-  int bs_z_versatz;
-  bool wiederholen;
+    int x;
+    int y;
+    int z;
+    int ani;
+    int start_index;
+    int schritte;
+    int bs_z_versatz;
+    bool wiederholen;
 };
 
 #endif

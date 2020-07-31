@@ -24,40 +24,39 @@
 
 struct KontorGood
 {
-  uint32_t vkpreis : 10;
-  uint32_t ekpreis : 10;
-  uint32_t vkflg : 1;
-  uint32_t ekflg : 1;
-  uint32_t lagerres : 16;
-  uint32_t ownlager : 16;
-  uint32_t minlager : 16;
-  uint32_t bedarf : 16;
-  uint32_t lager;
-  uint32_t hausid : 16;
+    uint32_t vkpreis : 10;
+    uint32_t ekpreis : 10;
+    uint32_t vkflg : 1;
+    uint32_t ekflg : 1;
+    uint32_t lagerres : 16;
+    uint32_t ownlager : 16;
+    uint32_t minlager : 16;
+    uint32_t bedarf : 16;
+    uint32_t lager;
+    uint32_t hausid : 16;
 };
 
 #define MAX_WAREHOUSE_SAVE 50
 struct Warehouse2Data
 {
-  uint32_t islandNumber : 8;            // island number + 1
-  uint32_t posx : 8;                    // position of warehouse on island
-  uint32_t posy : 8;                    // position of warehouse on island
-  uint32_t cityNumber : 4;              // number of city on this island
-  KontorGood goods[MAX_WAREHOUSE_SAVE]; //  Danger if MAX_WAREHOUSE_SAVE > 50
+    uint32_t islandNumber : 8; // island number + 1
+    uint32_t posx : 8; // position of warehouse on island
+    uint32_t posy : 8; // position of warehouse on island
+    uint32_t cityNumber : 4; // number of city on this island
+    KontorGood goods[MAX_WAREHOUSE_SAVE]; //  Danger if MAX_WAREHOUSE_SAVE > 50
 };
 
 class Warehouse2
 {
 public:
-  Warehouse2()
-  {
-  }
-  explicit Warehouse2(uint8_t* data, uint32_t length, const std::string& name);
-  std::vector<Warehouse2Data> warehouses;
+    Warehouse2()
+    {
+    }
+    explicit Warehouse2(uint8_t* data, uint32_t length, const std::string& name);
+    std::vector<Warehouse2Data> warehouses;
 
 private:
-  std::string name;
+    std::string name;
 };
-
 
 #endif // _WAREHOUSE_HPP_

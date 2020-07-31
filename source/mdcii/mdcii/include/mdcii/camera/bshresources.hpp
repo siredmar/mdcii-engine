@@ -29,35 +29,35 @@
 class BshResources
 {
 public:
-  static BshResources* CreateInstance();
-  static BshResources* Instance();
+    static BshResources* CreateInstance();
+    static BshResources* Instance();
 
-  bool BshReaderExists(std::string key);
-  std::shared_ptr<BshReader> GetBshReader(std::string key);
-  bool ZeiReaderExists(std::string key);
-  std::shared_ptr<ZeiReader> GetZeiReader(std::string key);
+    bool BshReaderExists(std::string key);
+    std::shared_ptr<BshReader> GetBshReader(std::string key);
+    bool ZeiReaderExists(std::string key);
+    std::shared_ptr<ZeiReader> GetZeiReader(std::string key);
 
 private:
-  static BshResources* _instance;
-  Files* files;
-  std::map<std::string, std::shared_ptr<BshReader>> bshMap;
-  std::map<std::string, std::shared_ptr<ZeiReader>> zeiMap;
+    static BshResources* _instance;
+    Files* files;
+    std::map<std::string, std::shared_ptr<BshReader>> bshMap;
+    std::map<std::string, std::shared_ptr<ZeiReader>> zeiMap;
 
-  BshResources();
-  BshResources(const BshResources&) = delete;
+    BshResources();
+    BshResources(const BshResources&) = delete;
 
-  class CGuard
-  {
-  public:
-    ~CGuard()
+    class CGuard
     {
-      if (NULL != BshResources::_instance)
-      {
-        delete BshResources::_instance;
-        BshResources::_instance = NULL;
-      }
-    }
-  };
+    public:
+        ~CGuard()
+        {
+            if (NULL != BshResources::_instance)
+            {
+                delete BshResources::_instance;
+                BshResources::_instance = NULL;
+            }
+        }
+    };
 };
 
 #endif // _BSHRESOURCES_HPP_

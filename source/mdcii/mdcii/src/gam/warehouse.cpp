@@ -23,17 +23,16 @@
 
 #include "gam/warehouse.hpp"
 
-
 Warehouse2::Warehouse2(uint8_t* data, uint32_t length, const std::string& name)
-  : name(name)
+    : name(name)
 {
-  int numWarehouses = length / sizeof(Warehouse2Data);
-  for (int i = 0; i < numWarehouses; i++)
-  {
-    Warehouse2Data w;
-    int warehouseLength = length / numWarehouses;
-    memset((char*)&w, 0, warehouseLength);
-    memcpy((char*)&w, data + (i * warehouseLength), warehouseLength);
-    warehouses.push_back(w);
-  }
+    int numWarehouses = length / sizeof(Warehouse2Data);
+    for (int i = 0; i < numWarehouses; i++)
+    {
+        Warehouse2Data w;
+        int warehouseLength = length / numWarehouses;
+        memset((char*)&w, 0, warehouseLength);
+        memcpy((char*)&w, data + (i * warehouseLength), warehouseLength);
+        warehouses.push_back(w);
+    }
 }
