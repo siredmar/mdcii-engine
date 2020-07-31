@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package scenarios_pb;
+
+message SingleScenario
+{
+    string name = 1;
+    string path = 2;
+    int32 stars = 3;
+    int32 multiplayer = 4;
+}
+
+message MultiScenario
+{
+    repeated SingleScenario scenarios = 1;
+}
+
+message ScenarioEntry
+{
+    oneof Scenario
+    {
+        SingleScenario singleScenario = 1;
+        MultiScenario multiScenario = 2;
+    }
+}
+
+message Scenarios
+{
+    repeated ScenarioEntry scenarioEntry = 1;
+}
