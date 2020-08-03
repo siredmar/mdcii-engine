@@ -102,7 +102,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
     Buildings::CreateInstance(std::make_shared<CodParser>(files->FindPathForFile("haeuser.cod"), true, false));
     auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->FindPathForFile("base.gad"), false, false));
     BshResources::CreateInstance();
-    auto textCod = TextCod(files->FindPathForFile("text.cod"), true);
+    TextCod::CreateInstance(files->FindPathForFile("text.cod"), true);
 
     MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
     mainMenu.Handle();

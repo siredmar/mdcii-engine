@@ -30,3 +30,9 @@ SceneSave::SceneSave(uint8_t* data, uint32_t length, const std::string& name)
 {
     memcpy((char*)&sceneSave, data, length);
 }
+
+SceneCampaign::SceneCampaign(uint8_t* data, uint32_t length, const std::string& name)
+    : name(name)
+{
+    memcpy((char*)&sceneCampaign, data, length);
+}

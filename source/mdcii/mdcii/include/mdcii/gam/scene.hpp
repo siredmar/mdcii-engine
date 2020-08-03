@@ -153,6 +153,7 @@ private:
     std::string name;
 };
 
+// SCENE_RANKING
 struct SceneRankingData
 {
     int32_t ranking; // the ranking of the mission 0 to 3 stars
@@ -163,6 +164,22 @@ class SceneRanking
 public:
     explicit SceneRanking(uint8_t* data, uint32_t length, const std::string& name);
     SceneRankingData sceneRanking;
+
+private:
+    std::string name;
+};
+
+// SCENE_CAMPAIGN
+struct SceneGampaignData
+{
+    uint32_t campaignNumber; // the number of the campaign the scenario belongs to
+};
+
+class SceneCampaign
+{
+public:
+    explicit SceneCampaign(uint8_t* data, uint32_t length, const std::string& name);
+    SceneGampaignData sceneCampaign;
 
 private:
     std::string name;
