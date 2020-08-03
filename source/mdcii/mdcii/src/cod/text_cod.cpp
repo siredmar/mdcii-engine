@@ -92,7 +92,7 @@ void TextCod::Parse()
     for (auto& line : codTxt)
     {
         // find the begin of a new section and add a new group
-        if (IsSubstring(line, "[END]") || IsSubstring(line, "--------"))
+        if (IsSubstring(line, "[END]") || IsSubstring(line, "--------------------------------------------------"))
         {
             continue;
         }

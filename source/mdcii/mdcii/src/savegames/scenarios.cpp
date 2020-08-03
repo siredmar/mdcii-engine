@@ -52,7 +52,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     auto game = gamelist.add_endless();
                     game->set_path(s.c_str());
                     game->set_stars(gam.GetSceneRanking());
-                    game->set_name(fs::path(s).stem());
+                    game->set_name(RemoveDigits(fs::path(s).stem()));
                 }
                 else
                 {
@@ -103,7 +103,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                 auto game = gamelist.add_single();
                 game->set_path(s.c_str());
                 game->set_stars(gam.GetSceneRanking());
-                game->set_name(fs::path(s).stem());
+                game->set_name(RemoveDigits(fs::path(s).stem()));
             }
         }
     }

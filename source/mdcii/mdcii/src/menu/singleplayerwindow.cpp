@@ -17,6 +17,7 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <iostream>
+#include <random>
 
 #include "SDL2/SDL.h"
 
@@ -28,11 +29,14 @@
 #include "sdlgui/textureview.h"
 #include "sdlgui/window.h"
 
+#include "cod/text_cod.hpp"
 #include "menu/gamewindow.hpp"
 #include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
 #include "savegames/savegames.hpp"
 #include "savegames/scenarios.hpp"
+
+static std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
@@ -118,7 +122,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
         // SCENARIOS
         Scenarios szenesRaw("/szenes", "szs");
-        auto scenes = szenesRaw.Get();
+        scenes = szenesRaw.Get();
 
         std::cout << "Single Missions" << std::endl;
         for (int i = 0; i < scenes.single_size(); i++)
@@ -160,10 +164,70 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
             Vector2i{ tableGad->Pos.x + 20, tableGad->Pos.y + 13 }, Vector2i{ tableGad->Size.w, tableGad->Size.h },
             [&](GamesPb::Games* elements) -> Widget* {
                 auto& table = wdg<Widget>();
+
+                // Original list entry
+                auto& originalMissionsWidget = table.widget();
+                auto originalMissionsText = TextCod::Instance()->GetValue("GAME", 85);
+                auto originalMissionsTexture = stringConverter.Convert(originalMissionsText, 243, 0, 0);
+                auto originalMissionsTextureHover = stringConverter.Convert(originalMissionsText, 245, 0, 0);
+                auto& originalMissionsButton = originalMissionsWidget.texturebutton(originalMissionsTexture, [this, originalMissionsText] {
+                    std::cout << originalMissionsText << " clicked" << std::endl;
+                });
+                originalMissionsButton.setPosition(0, 0);
+                originalMissionsButton.setWidth(tableGad->Size.w);
+                originalMissionsButton.setSecondaryTexture(originalMissionsTextureHover);
+                originalMissionsButton.setTextureSwitchFlags(TextureButton::OnClick);
+                originalMissionsWidget.setSize(originalMissionsButton.size());
+                originalMissionsWidget.setVisible(false);
+
+                // Original missions entries
+                std::cout << elements->endless_size() << std::endl;
+                auto entry = elements->endless(0);
+                auto& endlessEntry = table.widget();
+                auto endlessTexture = stringConverter.Convert(entry.name(), 243, 0, 0);
+                auto endlessTextureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
+                auto& endlessButton = endlessEntry.texturebutton(endlessTexture, [this, entry, elements] {
+                    std::cout << elements->endless_size() << std::endl;
+                    std::cout << entry.name() << " clicked" << std::endl;
+                    std::uniform_int_distribution<int> uid{ 0, elements->endless_size() - 1 };
+                    int randomIndex = uid(dre);
+
+                    std::cout << elements->endless(randomIndex).path() << " clicked" << std::endl;
+                    savegame = elements->endless(randomIndex).path();
+                    triggerStartGame = true;
+                });
+                endlessButton.setPosition(0, 0);
+                endlessButton.setWidth(tableGad->Size.w);
+                endlessButton.setSecondaryTexture(endlessTextureHover);
+                endlessButton.setTextureSwitchFlags(TextureButton::OnClick);
+                endlessEntry.setSize(endlessButton.size());
+
+                if (entry.stars() >= 0)
+                {
+                    auto& star = endlessEntry.textureview(tableStars.at(entry.stars()));
+                    star.setPosition(320, 0);
+                }
+                endlessEntry.setVisible(false);
+
+                // New Adventures list entry
+                auto& newAdventuresWidget = table.widget();
+                auto newAdventuresText = TextCod::Instance()->GetValue("GAME", 87);
+                auto texture = stringConverter.Convert(newAdventuresText, 243, 0, 0);
+                auto textureHover = stringConverter.Convert(newAdventuresText, 245, 0, 0);
+                auto& button = newAdventuresWidget.texturebutton(texture, [this, newAdventuresText] {
+                    std::cout << newAdventuresText << " clicked" << std::endl;
+                });
+                button.setPosition(0, 0);
+                button.setWidth(tableGad->Size.w);
+                button.setSecondaryTexture(textureHover);
+                button.setTextureSwitchFlags(TextureButton::OnClick);
+                newAdventuresWidget.setSize(button.size());
+                newAdventuresWidget.setVisible(false);
+
+                // New Adventures missions entries
                 for (int i = 0; i < elements->single_size(); i++)
                 {
                     auto entry = elements->single(i);
-
                     auto& tableEntry = table.widget();
                     auto texture = stringConverter.Convert(entry.name(), 243, 0, 0);
                     auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
