@@ -26,7 +26,7 @@
 
 #include "gam/gam_parser.hpp"
 
-std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
+static std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
 GamParser::GamParser(const std::string& gam, bool peek)
     : files(Files::Instance())
