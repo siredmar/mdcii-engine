@@ -15,9 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#include "savegames/savegames.hpp"
 #include "files/files.hpp"
 #include "gam/gam_parser.hpp"
+#include "savegames/savegames.hpp"
 
 Savegames::Savegames(const std::string& basepath, const std::string& fileEnding)
 {
@@ -38,6 +38,22 @@ Savegames::Savegames(const std::string& basepath, const std::string& fileEnding)
         }
     }
 }
+
+// GamesPb::MultiGame Savegames::CreateMultigame(const std::string& basename, const std::vector<std::string>& list)
+// {
+//     GamesPb::MultiGame ret;
+//     ret.set_name(basename.c_str());
+//     for (auto& s : list)
+//     {
+//         if (s.find(basename) != std::string::npos)
+//         {
+//             auto g = ret.add_games();
+//             auto gam = GamParser(s, true);
+//             g->set_name();
+//         }
+//     }
+//     return ret;
+// }
 
 unsigned int Savegames::size() const
 {

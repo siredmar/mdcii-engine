@@ -4,7 +4,7 @@
 find_package(Protobuf REQUIRED)
 
 # Target name
-set(target proto-scenarios)
+set(target proto-gamelist)
 
 # Exit here if required dependencies are not met
 message(STATUS "Lib ${target}")
@@ -18,7 +18,7 @@ set(template_export_file "include/${target}/${target}_api.h")
 set(export_macro         "${target_id}_API")
 
 # Protobuf Generator
-protobuf_generate_cpp(PROTO_SRC PROTO_HEADER scenarios.proto)
+protobuf_generate_cpp(PROTO_SRC PROTO_HEADER gamelist.proto)
 
 # 
 # Sources

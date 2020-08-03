@@ -15,32 +15,33 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef _SAVEGAMES_H_
-#define _SAVEGAMES_H_
+#ifndef _TEXTCOD_HPP_
+#define _TEXTCOD_HPP_
 
-#include <experimental/optional>
+#include <map>
 #include <string>
-#include <tuple>
 #include <vector>
 
-#include "gamelist.pb.h"
+#include "textcod.pb.h"
 
-#include "files/files.hpp"
+#include "cod/codhelpers.hpp"
 
-class Savegames
+class TextCod
 {
 public:
-    explicit Savegames(const std::string& basepath, const std::string& fileEnding);
-    unsigned int size() const;
-    std::experimental::optional<std::string> GetPath(unsigned int index) const;
-    std::experimental::optional<std::string> GetName(unsigned int index) const;
-    std::experimental::optional<int> GetRanking(unsigned int index) const;
-    std::vector<std::tuple<std::string, std::string, int>> GetSavegames() const;
+    explicit TextCod(const std::string& file, bool decode);
+    explicit TextCod(const std::string& fileAsString);
+    TextcodPb::Section* GetSection(const std::string& name);
+    int GetSectionSize(const std::string& name);
+    std::string GetValue(const std::string& section, int index);
 
 private:
-    // vector element contains: path, name, ranking
-    GamesPb::Games gamelist;
-    std::vector<std::tuple<std::string, std::string, int>> savegames;
+    void Parse();
+    std::vector<std::string> codTxt;
+    TextcodPb::Texts texts;
+    TextcodPb::Section* currentSection;
+    std::map<std::string, TextcodPb::Section*> textMap;
 };
 
-#endif // _SAVEGAMES_H_
+#endif // _TEXTCOD_HPP_
+;

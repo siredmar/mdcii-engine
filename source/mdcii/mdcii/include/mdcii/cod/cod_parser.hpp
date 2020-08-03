@@ -39,7 +39,6 @@ public:
 
 private:
     // Input/Output related functions
-    bool ReadFileAsString(const std::string& buffer);
     bool ReadFile(bool decode);
     void ParseFile();
     void Json();
@@ -68,18 +67,6 @@ private:
     bool TopIsNumberObject();
     void AddToStack(cod_pb::Object* o, bool numberObject, int spaces);
     void ObjectFinished();
-
-    // String handling functions
-    std::vector<std::string> RegexMatch(const std::string& regex, const std::string& str);
-    std::vector<std::string> RegexSearch(const std::string& regex, const std::string& str);
-    std::string TabsToSpaces(const std::string& str);
-    int CountFrontSpaces(const std::string& str);
-    std::string TrimSpacesLeadingTrailing(const std::string& s);
-    bool IsEmpty(const std::string& str);
-    bool IsSubstring(const std::string& str, const std::string& substr);
-    std::vector<std::string> SplitByDelimiter(const std::string& str, const std::string& delim);
-    std::string TrimCommentFromLine(const std::string& str);
-    bool BeginsWith(const std::string& str, const std::string& begin);
 
     struct ObjectType
     {

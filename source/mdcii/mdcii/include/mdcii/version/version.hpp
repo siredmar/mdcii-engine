@@ -23,7 +23,8 @@
 enum class AnnoVersion
 {
     VANILLA = 0,
-    NINA = 1
+    NINA = 1,
+    OTHER = 2
 };
 
 class Version
