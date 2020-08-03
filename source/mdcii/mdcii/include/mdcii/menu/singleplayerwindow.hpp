@@ -59,7 +59,6 @@ private:
     int width;
     int height;
     bool fullscreen;
-    Scale* scale;
     std::shared_ptr<Buildings> buildings;
     SDL_Window* pwindow;
     Files* files;
@@ -68,6 +67,7 @@ private:
     StringToSDLTextureConverter stringConverter;
     std::string savegame;
     bool triggerStartGame;
+    Scale* scale;
     std::vector<SDL_Texture*> tableStars;
     std::vector<Widget> scenariosList;
     TextureTableBase* scenariosTablePtr;
