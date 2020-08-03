@@ -74,5 +74,6 @@ private:
     TextureTableBase* savegamesTablePtr;
     TextureTableBase* currentTablePtr;
     std::vector<std::tuple<Widget*, int, int>> widgets;
+    GamesPb::Games scenes;
 };
 #endif
