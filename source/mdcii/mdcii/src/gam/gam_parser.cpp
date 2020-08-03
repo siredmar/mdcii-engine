@@ -58,6 +58,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
         {
             sceneRanking = std::make_shared<SceneRanking>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         }
+        else if (chunkName == "SZENE_KAMPAGNE")
+        {
+            sceneCampaign = std::make_shared<SceneCampaign>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        }
         else if (chunkName == "RANDTAB")
         {
             // more to come later

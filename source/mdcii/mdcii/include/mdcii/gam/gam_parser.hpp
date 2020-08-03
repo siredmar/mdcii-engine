@@ -61,6 +61,7 @@ private:
     std::shared_ptr<Mission2> mission2; // AUFTRAG2
     std::shared_ptr<Mission4> mission4; // AUFTRAG4
     std::shared_ptr<SceneRanking> sceneRanking; // SZENE_RANKING
+    std::shared_ptr<SceneCampaign> sceneCampaign; // SZENE_KAMPAGNE
     std::shared_ptr<SceneSave> sceneSave; // SZENE2
     std::shared_ptr<Shipyard> shipyard; // WERFT
     std::shared_ptr<Military> military; // MILITAR
