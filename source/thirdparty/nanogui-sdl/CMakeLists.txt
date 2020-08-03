@@ -160,7 +160,6 @@ set(sources
   ${source_path}/tabwidget.cpp
   ${source_path}/textbox.cpp
   ${source_path}/texturebutton.cpp
-  ${source_path}/texturetable.cpp
   ${source_path}/textureview.cpp
   ${source_path}/theme.cpp
   ${source_path}/vscrollpanel.cpp
@@ -264,7 +263,6 @@ target_link_libraries(${target}
     ${SDL2_LIBRARY}
     ${SDL2TTF_LIBRARY}
     ${SDL2IMAGE_LIBRARY}
-    
     PUBLIC
     ${DEFAULT_LIBRARIES}
     INTERFACE
