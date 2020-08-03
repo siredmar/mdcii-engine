@@ -23,15 +23,22 @@
 
 AnnoVersion Version::DetectGameVersion()
 {
-    auto files = Files::Instance();
-    BshReader bsh(files->FindPathForFile("sgfx/stadtfld.bsh"));
-    if (bsh.Count() == 5748)
+    try
     {
-        return AnnoVersion::VANILLA;
+        auto files = Files::Instance();
+        BshReader bsh(files->FindPathForFile("sgfx/stadtfld.bsh"));
+        if (bsh.Count() == 5748)
+        {
+            return AnnoVersion::VANILLA;
+        }
+        else // sgfx.count == 5964
+        {
+            return AnnoVersion::NINA;
+        }
     }
-    else // sgfx.count == 5964
+    catch (...)
     {
-        return AnnoVersion::NINA;
+        return AnnoVersion::OTHER;
     }
 }
 
@@ -42,8 +49,12 @@ std::string Version::GameVersionString()
     {
         return "vanilla";
     }
-    else
+    else if (version == AnnoVersion::NINA)
     {
         return "NINA";
+    }
+    else
+    {
+        return "OTHER";
     }
 }

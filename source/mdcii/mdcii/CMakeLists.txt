@@ -63,10 +63,12 @@ set(headers
     ${include_path}/menu/gamewindow.hpp
     ${include_path}/menu/fps.hpp
     ${include_path}/menu/scale.hpp
+    ${include_path}/cod/codhelpers.hpp
     ${include_path}/cod/cod_parser.hpp
     ${include_path}/cod/basegad_dat.hpp
     ${include_path}/cod/buildings.hpp
     ${include_path}/cod/host_gad.hpp
+    ${include_path}/cod/text_cod.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/city.hpp
     ${include_path}/gam/deer.hpp
@@ -114,10 +116,12 @@ set(sources
     ${source_path}/menu/singleplayerwindow.cpp
     ${source_path}/menu/gamewindow.cpp
     ${source_path}/menu/scale.cpp
+    ${source_path}/cod/codhelpers.cpp
     ${source_path}/cod/cod_parser.cpp
     ${source_path}/cod/basegad_dat.cpp
     ${source_path}/cod/buildings.cpp
     ${source_path}/cod/host_gad.cpp
+    ${source_path}/cod/text_cod.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/city.cpp
     ${source_path}/gam/deer.cpp
@@ -250,6 +254,8 @@ target_link_libraries(${target}
     ${SDL2_LIBRARY}
     ${META_PROJECT_NAME}::PlatformFolders
     ${META_PROJECT_NAME}::proto-cod
+    ${META_PROJECT_NAME}::proto-gamelist
+    ${META_PROJECT_NAME}::proto-textcod
     stdc++fs
     INTERFACE
 )

@@ -31,10 +31,12 @@
 #include <google/protobuf/util/json_util.h>
 
 #include "cod/cod_parser.hpp"
+#include "cod/codhelpers.hpp"
 
 #include "version/version.hpp"
 
-namespace fs = std::filesystem;
+namespace fs
+    = std::filesystem;
 
 CodParser::CodParser(const std::string& codFilePath, bool decode, bool debug)
     : path(codFilePath)
@@ -58,7 +60,7 @@ CodParser::CodParser(const std::string& codFilePath, bool decode, bool debug)
 
 CodParser::CodParser(const std::string& fileAsString)
 {
-    ReadFileAsString(fileAsString);
+    codTxt = ReadFileAsString(fileAsString);
     ParseFile();
 }
 
@@ -74,29 +76,6 @@ bool CodParser::ReadFile(bool decode)
             c = -c;
         }
     }
-    std::string line;
-    for (unsigned int i = 0; i < buffer.size() - 1; i++)
-    {
-        if (buffer[i + 1] != '\n' && buffer[i] != '\r')
-        {
-            line.append(1, buffer[i]);
-        }
-        else
-        {
-            line = TrimCommentFromLine(TabsToSpaces((line)));
-            if (IsEmpty(line) == false)
-            {
-                codTxt.push_back(line);
-            }
-            line = "";
-            i++; // hop over '\n'
-        }
-    }
-    return true;
-}
-
-bool CodParser::ReadFileAsString(const std::string& buffer)
-{
     std::string line;
     for (unsigned int i = 0; i < buffer.size() - 1; i++)
     {
@@ -897,114 +876,6 @@ void CodParser::ObjectFinished()
     {
         objectStack.pop();
     }
-}
-
-// String handling functions
-std::vector<std::string> CodParser::RegexMatch(const std::string& regex, const std::string& str)
-{
-    std::vector<std::string> ret;
-    boost::regex expr{ regex };
-    boost::smatch what;
-    if (boost::regex_match(str, what, expr))
-    {
-        for (unsigned int i = 0; i < what.size(); i++)
-        {
-            ret.push_back(what[i]);
-        }
-    }
-    return ret;
-}
-
-std::vector<std::string> CodParser::RegexSearch(const std::string& regex, const std::string& str)
-{
-    std::vector<std::string> ret;
-    boost::regex expr{ regex };
-    boost::smatch what;
-    if (boost::regex_search(str, what, expr))
-    {
-        for (unsigned int i = 0; i < what.size(); i++)
-        {
-            ret.push_back(what[i]);
-        }
-    }
-    return ret;
-}
-
-std::string CodParser::TabsToSpaces(const std::string& str)
-{
-    std::string newtext = "  ";
-    boost::regex re("\t");
-
-    std::string result = boost::regex_replace(str, re, newtext);
-    return result;
-}
-
-int CodParser::CountFrontSpaces(const std::string& str)
-{
-    int numberOfSpaces = 0;
-    std::vector<std::string> result = RegexSearch("(\\s*)(\\w+)", str);
-    if (result.size() > 0)
-    {
-        for (auto& iter : result[1])
-        {
-            if (iter == ' ')
-            {
-                numberOfSpaces++;
-            }
-            if (iter != ' ')
-            {
-                break;
-            }
-        }
-    }
-    return numberOfSpaces;
-}
-
-std::string CodParser::TrimSpacesLeadingTrailing(const std::string& s)
-{
-    std::string input = s;
-    boost::algorithm::trim(input);
-    return input;
-}
-
-bool CodParser::IsEmpty(const std::string& str)
-{
-    if (str.size() == 0 || std::all_of(str.begin(), str.end(), isspace))
-    {
-        return true;
-    }
-    return false;
-}
-
-bool CodParser::IsSubstring(const std::string& str, const std::string& substr)
-{
-    std::size_t found = str.find(substr);
-    if (found != std::string::npos)
-    {
-        return true;
-    }
-    return false;
-}
-
-std::vector<std::string> CodParser::SplitByDelimiter(const std::string& str, const std::string& delim)
-{
-    std::vector<std::string> tokens;
-    boost::split(tokens, str, boost::is_any_of(delim));
-    return tokens;
-}
-
-std::string CodParser::TrimCommentFromLine(const std::string& str)
-{
-    return SplitByDelimiter(str, ";")[0];
-}
-
-bool CodParser::BeginsWith(const std::string& str, const std::string& begin)
-{
-    if (str.rfind(begin, 0) == 0)
-    {
-        return true;
-    }
-    return false;
 }
 
 CodParser::CodValueType CodParser::CheckType(const std::string& s)

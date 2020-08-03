@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package GamesPb;
+
+message SingleGame
+{
+    string name = 1;
+    string path = 2;
+    int32 stars = 3;
+    int32 multiplayer = 4;
+}
+
+message MultiGame
+{
+    string name = 1;
+    repeated SingleGame games = 2;
+}
+
+message GameEntry
+{
+    oneof Game
+    {
+        SingleGame singlegame = 1;
+        MultiGame multigame = 2;
+    }
+}
+
+message Games
+{
+    repeated GameEntry gameEntry = 1;
+}

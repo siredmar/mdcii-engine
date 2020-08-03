@@ -164,7 +164,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
         for (unsigned int i = 0; i < saves.size(); i++)
         {
-            std::cout << "Saves " << i << ": " << std::get<1>(scenes[i]) << std::endl;
+            std::cout << "Saves " << i << ": " << std::get<1>(saves[i]) << std::endl;
         }
         auto& savegamesTable = wdg<TextureTable>(
             Vector2i{ tableGad->Pos.x + 20, tableGad->Pos.y + 13 }, Vector2i{ tableGad->Size.w, tableGad->Size.h },
