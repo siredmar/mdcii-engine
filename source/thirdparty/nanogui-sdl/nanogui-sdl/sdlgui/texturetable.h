@@ -22,114 +22,12 @@ NAMESPACE_BEGIN(sdlgui)
 class TextureTableBase
 {
 public:
-    // void setVisibleElements(int visible)
-    // {
-    //     visibleElements = visible;
-    // }
-
-    // void setScrollBy(int scroll)
-    // {
-    //     scrollBy = scroll;
-    // }
-
-    // void setMouseScroll(bool state)
-    // {
-    //     mouseScroll = state;
-    // }
-
-    // void setVerticalMargin(int margin)
-    // {
-    //     verticalMargin = margin;
-    // }
-
-    // bool scrollEvent(const Vector2i& p, const Vector2f& rel)
-    // {
-    //     if (mouseScroll)
-    //     {
-    //         if (rel.y < 0)
-    //         {
-    //             scrollNegative();
-    //             setVisibleFlag = false;
-    //             return true;
-    //         }
-    //         else if (rel.y > 0)
-    //         {
-    //             scrollPositive();
-    //             setVisibleFlag = false;
-    //             return true;
-    //         }
-    //     }
-    //     return Widget::scrollEvent(p, rel);
-    // }
-
-    // void setPosition(const Vector2i& pos)
-    // {
-    //     _pos = pos;
-    // }
-
-    // void setPosition(int x, int y)
-    // {
-    //     _pos = Vector2i{ x, y };
-    // }
-
-    // Vector2i preferredSize(SDL_Renderer* ctx) const
-    // {
-    //     return size;
-    // }
-
-    // virtual void draw(SDL_Renderer* renderer)
-    // {
-    //     // ...
-    // }
-
-    // bool mouseMotionEvent(const Vector2i& p, const Vector2i& rel, int button, int modifiers)
-    // {
-    //     // ...
-    // }
-
-    // virtual uint32_t elementsCount()
-    // {
-    //     // ...
-    // }
-
-    virtual void scrollPositive()
+    virtual void scrollPositive() = 0;
+    virtual void scrollNegative() = 0;
+    virtual Widget* childAt([[maybe_unused]] int index)
     {
-        // ...
-    }
-
-    virtual void scrollNegative()
-    {
-        // ...
-    }
-
-    virtual Widget* childAt(int index)
-    {
-        // ...
-    }
-
-    // virtual bool removeElement(unsigned int index)
-    // {
-    //     // ...
-    // }
-
-    // virtual void clear()
-    // {
-    //     // ...
-    // }
-
-protected:
-    // Vector2i size;
-    // unsigned int visibleElements;
-    // int scrollBy;
-    // int verticalMargin;
-    // bool mouseScroll;
-    // int currentScrollIndex;
-    // int visibleFrom;
-    // int visibleTo;
-    // int visibleFromOld;
-    // int visibleToOld;
-    // Widget* tableaddr;
-    // bool setVisibleFlag = false;
+        return nullptr;
+    };
 };
 
 /**
@@ -144,7 +42,7 @@ class TextureTable : public TextureTableBase, public Widget
 {
 public:
     TextureTable(Widget* parent, Vector2i pos, Vector2i size, std::function<Widget*(T)> factory,
-        T data, unsigned int visibleElements = 10, int scrollBy = 3, int verticalMargin = 2,
+        T data, int visibleElements = 10, int scrollBy = 3, int verticalMargin = 2,
         bool mouseScroll = false)
         : Widget(parent)
         , pos(pos)
@@ -168,7 +66,7 @@ public:
         }
     }
 
-    Vector2i preferredSize(SDL_Renderer* ctx) const
+    Vector2i preferredSize([[maybe_unused]] SDL_Renderer* ctx) const
     {
         return size;
     }
@@ -217,7 +115,7 @@ public:
         }
     }
 
-    uint32_t elementsCount()
+    int elementsCount()
     {
         return tableaddr->childCount();
     }
@@ -283,7 +181,6 @@ public:
         tableaddr->setVisible(visible);
     }
 
-    ////
     void setVisibleElements(int visible)
     {
         visibleElements = visible;
@@ -337,7 +234,7 @@ public:
 protected:
     Vector2i pos;
     Vector2i size;
-    unsigned int visibleElements;
+    int visibleElements;
     int scrollBy;
     int verticalMargin;
     bool mouseScroll;
