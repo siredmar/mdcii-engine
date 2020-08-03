@@ -29,19 +29,38 @@
 class TextCod
 {
 public:
-    explicit TextCod(const std::string& file, bool decode);
-    explicit TextCod(const std::string& fileAsString);
+    static TextCod* CreateInstance(const std::string& path, bool decode);
+    static TextCod* CreateInstance(const std::string& fileAsString);
+    static TextCod* Instance();
+
     TextcodPb::Section* GetSection(const std::string& name);
     int GetSectionSize(const std::string& name);
     std::string GetValue(const std::string& section, int index);
 
 private:
+    explicit TextCod(const std::string& file, bool decode);
+    explicit TextCod(const std::string& fileAsString);
+
     void Parse();
     std::vector<std::string> codTxt;
     TextcodPb::Texts texts;
     TextcodPb::Section* currentSection;
     std::map<std::string, TextcodPb::Section*> textMap;
+
+    static TextCod* _instance;
+
+    class CGuard
+    {
+    public:
+        ~CGuard()
+        {
+            if (NULL != TextCod::_instance)
+            {
+                delete TextCod::_instance;
+                TextCod::_instance = NULL;
+            }
+        }
+    };
 };
 
 #endif // _TEXTCOD_HPP_
-;

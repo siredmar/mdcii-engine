@@ -17,6 +17,37 @@
 
 #include "cod/text_cod.hpp"
 
+TextCod* TextCod::_instance = 0;
+
+TextCod* TextCod::CreateInstance(const std::string& path, bool decode)
+{
+    static CGuard g;
+    if (!_instance)
+    {
+        _instance = new TextCod(path, decode);
+    }
+    return _instance;
+}
+
+TextCod* TextCod::CreateInstance(const std::string& fileAsString)
+{
+    static CGuard g;
+    if (!_instance)
+    {
+        _instance = new TextCod(fileAsString);
+    }
+    return _instance;
+}
+
+TextCod* TextCod::Instance()
+{
+    if (not _instance)
+    {
+        throw("[EER] TextCod not initialized yet!");
+    }
+    return _instance;
+}
+
 TextCod::TextCod(const std::string& file, bool decode)
 {
     codTxt = ReadFile(file, decode, false);
