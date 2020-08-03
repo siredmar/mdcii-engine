@@ -24,6 +24,8 @@ jobs:
           command: |
             cd build
             ./cacheprotobuf-test
+            ./proto-gamelist-test
+            ./proto-textcod-test
       - persist_to_workspace:
           root: .
           paths: build
