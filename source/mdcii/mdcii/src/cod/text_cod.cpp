@@ -80,7 +80,8 @@ int TextCod::GetSectionSize(const std::string& name)
 
 std::string TextCod::GetValue(const std::string& section, int index)
 {
-    if (!textMap.count(section))
+    auto s = GetSection(section);
+    if (index >= s->value_size())
     {
         throw std::string("[ERR] TextCod::GetValue index out of boundaries");
     }
