@@ -2,30 +2,34 @@ syntax = "proto3";
 
 package GamesPb;
 
+// Single game mission
 message SingleGame
 {
     string name = 1;
     string path = 2;
     int32 stars = 3;
-    int32 multiplayer = 4;
+    int32 flags = 4;
 }
 
-message MultiGame
+// Campaign: group of multiple missions
+message Campaign
 {
     string name = 1;
-    repeated SingleGame games = 2;
+    repeated SingleGame game = 2;
 }
 
-message GameEntry
+// Endless missions
+message EndlessGame
 {
-    oneof Game
-    {
-        SingleGame singlegame = 1;
-        MultiGame multigame = 2;
-    }
+    string name = 1;
+    string path = 2;
+    int32 stars = 3;
+    int32 flags = 4;
 }
 
 message Games
 {
-    repeated GameEntry gameEntry = 1;
+    repeated SingleGame single = 1;
+    repeated Campaign campaign = 2;
+    repeated EndlessGame endless = 3;
 }

@@ -41,6 +41,8 @@ class GamParser
 public:
     explicit GamParser(const std::string& gam, bool peek);
     int GetSceneRanking();
+    int GetSceneCampaign();
+    SceneGameIDType GetSceneGameID();
 
     Island5 SceneRandomIsland(SizeType size);
     Island5 SceneRandomIsland(SizeType size, ClimateType climate);
@@ -62,6 +64,7 @@ private:
     std::shared_ptr<Mission4> mission4; // AUFTRAG4
     std::shared_ptr<SceneRanking> sceneRanking; // SZENE_RANKING
     std::shared_ptr<SceneCampaign> sceneCampaign; // SZENE_KAMPAGNE
+    std::shared_ptr<SceneGameID> sceneGameID; // SZENE_GAMEID
     std::shared_ptr<SceneSave> sceneSave; // SZENE2
     std::shared_ptr<Shipyard> shipyard; // WERFT
     std::shared_ptr<Military> military; // MILITAR

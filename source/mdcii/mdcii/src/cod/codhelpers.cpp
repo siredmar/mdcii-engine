@@ -15,6 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+#include <algorithm>
+#include <cctype>
 #include <fstream>
 
 #include <boost/algorithm/string.hpp>
@@ -202,4 +204,13 @@ bool BeginsWith(const std::string& str, const std::string& begin)
         return true;
     }
     return false;
+}
+
+std::string RemoveDigits(const std::string& str)
+{
+    std::string ret = str;
+    ret.erase(std::remove_if(std::begin(ret), std::end(ret),
+                  [](auto ch) { return std::isdigit(ch); }),
+        ret.end());
+    return ret;
 }
