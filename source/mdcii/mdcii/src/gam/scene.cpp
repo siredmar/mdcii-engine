@@ -36,3 +36,9 @@ SceneCampaign::SceneCampaign(uint8_t* data, uint32_t length, const std::string& 
 {
     memcpy((char*)&sceneCampaign, data, length);
 }
+
+SceneGameID::SceneGameID(uint8_t* data, uint32_t length, const std::string& name)
+    : name(name)
+{
+    memcpy((char*)&sceneGameID, data, length);
+}

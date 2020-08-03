@@ -1,3 +1,6 @@
+#ifndef _CODHELPERS_HPP_
+#define _CODHELPERS_HPP_
+
 #include <string>
 #include <vector>
 
@@ -17,3 +20,6 @@ bool IsSubstring(const std::string& str, const std::string& substr);
 std::vector<std::string> SplitByDelimiter(const std::string& str, const std::string& delim);
 std::string TrimCommentFromLine(const std::string& str);
 bool BeginsWith(const std::string& str, const std::string& begin);
+std::string RemoveDigits(const std::string& str);
+
+#endif // _CODHELPERS_HPP_

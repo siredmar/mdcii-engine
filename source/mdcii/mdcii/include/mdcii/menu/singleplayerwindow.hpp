@@ -70,9 +70,9 @@ private:
     bool triggerStartGame;
     std::vector<SDL_Texture*> tableStars;
     std::vector<Widget> scenariosList;
-    TextureTable* scenariosTablePtr;
-    TextureTable* savegamesTablePtr;
-    TextureTable* currentTablePtr;
+    TextureTableBase* scenariosTablePtr;
+    TextureTableBase* savegamesTablePtr;
+    TextureTableBase* currentTablePtr;
     std::vector<std::tuple<Widget*, int, int>> widgets;
 };
 #endif

@@ -56,6 +56,7 @@ set(headers
     ${include_path}/files/files.hpp
     ${include_path}/files/filestocheck.hpp
     ${include_path}/savegames/savegames.hpp
+    ${include_path}/savegames/scenarios.hpp
     ${include_path}/cache/cacheprotobuf.hpp
     ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
@@ -111,6 +112,7 @@ set(sources
     ${source_path}/bsh/bshtexture.cpp
     ${source_path}/bsh/zeitexture.cpp
     ${source_path}/savegames/savegames.cpp
+    ${source_path}/savegames/scenarios.cpp
     ${source_path}/renderer/renderer.cpp
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp

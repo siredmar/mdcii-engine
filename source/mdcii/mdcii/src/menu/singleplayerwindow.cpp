@@ -31,6 +31,8 @@
 #include "menu/gamewindow.hpp"
 #include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
+#include "savegames/savegames.hpp"
+#include "savegames/scenarios.hpp"
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
@@ -115,25 +117,59 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         widgets.push_back(std::make_tuple(&tableFrame, tableGad->Pos.x, tableGad->Pos.y));
 
         // SCENARIOS
-        Savegames szenesRaw("/szenes", ".szs");
-        auto scenes = szenesRaw.GetSavegames();
+        Scenarios szenesRaw("/szenes", "szs");
+        auto scenes = szenesRaw.Get();
 
-        for (unsigned int i = 0; i < scenes.size(); i++)
+        std::cout << "Single Missions" << std::endl;
+        for (int i = 0; i < scenes.single_size(); i++)
         {
-            std::cout << "Szenes " << i << ": " << std::get<1>(scenes[i]) << std::endl;
+            std::cout << "--------------------------------------------------" << std::endl;
+            std::cout << scenes.single(i).name() << std::endl;
+            std::cout << scenes.single(i).path() << std::endl;
+            std::cout << scenes.single(i).stars() << std::endl;
+            std::cout << scenes.single(i).flags() << std::endl;
         }
-        auto& scenariosTable = wdg<TextureTable>(
+
+        std::cout << "Endless games" << std::endl;
+        for (int i = 0; i < scenes.endless_size(); i++)
+        {
+            std::cout << "--------------------------------------------------" << std::endl;
+            std::cout << scenes.endless(i).name() << std::endl;
+            std::cout << scenes.endless(i).path() << std::endl;
+            std::cout << scenes.endless(i).stars() << std::endl;
+            std::cout << scenes.endless(i).flags() << std::endl;
+        }
+
+        std::cout << "Campaigns" << std::endl;
+        for (int i = 0; i < scenes.campaign_size(); i++)
+        {
+            std::cout << "--------------------------------------------------" << std::endl;
+            std::cout << scenes.campaign(i).name() << std::endl;
+            for (int a = 0; a < scenes.campaign(i).game_size(); a++)
+            {
+                std::cout << "\t" << scenes.campaign(i).game(a).name() << std::endl;
+                std::cout << "\t" << scenes.campaign(i).game(a).path() << std::endl;
+                std::cout << "\t" << scenes.campaign(i).game(a).stars() << std::endl;
+                std::cout << "\t" << scenes.campaign(i).game(a).flags() << std::endl;
+            }
+        }
+
+        auto& scenariosTable = *(new TextureTable<GamesPb::Games*>(
+            this,
+            // auto& scenariosTable = wdg<TextureTable>(
             Vector2i{ tableGad->Pos.x + 20, tableGad->Pos.y + 13 }, Vector2i{ tableGad->Size.w, tableGad->Size.h },
-            [&](const std::vector<std::tuple<std::string, std::string, int>>& elements) -> Widget* {
+            [&](GamesPb::Games* elements) -> Widget* {
                 auto& table = wdg<Widget>();
-                for (auto& entry : elements)
+                for (int i = 0; i < elements->single_size(); i++)
                 {
+                    auto entry = elements->single(i);
+
                     auto& tableEntry = table.widget();
-                    auto texture = stringConverter.Convert(std::get<1>(entry), 243, 0, 0);
-                    auto textureHover = stringConverter.Convert(std::get<1>(entry), 245, 0, 0);
+                    auto texture = stringConverter.Convert(entry.name(), 243, 0, 0);
+                    auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
                     auto& button = tableEntry.texturebutton(texture, [this, entry] {
-                        std::cout << std::get<1>(entry) << " clicked" << std::endl;
-                        savegame = std::get<0>(entry);
+                        std::cout << entry.name() << " clicked" << std::endl;
+                        savegame = entry.path();
                         triggerStartGame = true;
                     });
                     button.setPosition(0, 0);
@@ -142,16 +178,16 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     button.setTextureSwitchFlags(TextureButton::OnClick);
                     tableEntry.setSize(button.size());
 
-                    if (std::get<2>(entry) >= 0)
+                    if (entry.stars() >= 0)
                     {
-                        auto& star = tableEntry.textureview(tableStars.at(std::get<2>(entry)));
+                        auto& star = tableEntry.textureview(tableStars.at(entry.stars()));
                         star.setPosition(320, 0);
                     }
                     tableEntry.setVisible(false);
                 }
                 return &table;
             },
-            scenes, 14, 14, true);
+            &scenes, 14, 14, true));
         scenariosTable.setPosition(scaleLeftBorder + tableGad->Pos.x + 20, scaleUpperBorder + tableGad->Pos.y + 13);
         scenariosTable.setVisible(true);
         scenariosTablePtr = &scenariosTable;
@@ -166,7 +202,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         {
             std::cout << "Saves " << i << ": " << std::get<1>(saves[i]) << std::endl;
         }
-        auto& savegamesTable = wdg<TextureTable>(
+        auto& savegamesTable = *(new TextureTable<const std::vector<std::tuple<std::string, std::string, int>>&>(
+            this,
+            // auto& savegamesTable = wdg<TextureTable>(
             Vector2i{ tableGad->Pos.x + 20, tableGad->Pos.y + 13 }, Vector2i{ tableGad->Size.w, tableGad->Size.h },
             [&](const std::vector<std::tuple<std::string, std::string, int>>& elements) -> Widget* {
                 auto& table = wdg<Widget>();
@@ -189,7 +227,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 }
                 return &table;
             },
-            saves, 14, 14, true);
+            saves, 14, 14, true));
         savegamesTable.setPosition(scaleLeftBorder + tableGad->Pos.x + 20, scaleUpperBorder + tableGad->Pos.y + 13);
         savegamesTable.setVisible(false);
         savegamesTablePtr = &savegamesTable;

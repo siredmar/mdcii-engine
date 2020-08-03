@@ -62,6 +62,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
         {
             sceneCampaign = std::make_shared<SceneCampaign>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         }
+        else if (chunkName == "SZENE_GAMEID")
+        {
+            sceneGameID = std::make_shared<SceneGameID>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        }
         else if (chunkName == "RANDTAB")
         {
             // more to come later
@@ -305,4 +309,25 @@ int GamParser::GetSceneRanking()
     {
         return -1;
     }
+}
+
+int GamParser::GetSceneCampaign()
+{
+    if (sceneCampaign)
+    {
+        return sceneCampaign->sceneCampaign.campaignNumber;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+SceneGameIDType GamParser::GetSceneGameID()
+{
+    if (sceneGameID->sceneGameID.id == 0x68A8)
+    {
+        return SceneGameIDType::Endless;
+    }
+    return SceneGameIDType::SingleMission;
 }

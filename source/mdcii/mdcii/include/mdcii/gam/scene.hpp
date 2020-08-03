@@ -185,4 +185,29 @@ private:
     std::string name;
 };
 
+// SCENE_GAMEID
+enum class SceneGameIDType : uint16_t
+{
+    Endless = 0,
+    SingleMission = 1,
+    MultiMission = 2
+};
+
+struct SceneGameIDData
+{
+    uint8_t empty0; // empty
+    uint8_t empty1; // empty
+    uint16_t id; // type of scenario: 0x68A8 is endless game
+};
+
+class SceneGameID
+{
+public:
+    explicit SceneGameID(uint8_t* data, uint32_t length, const std::string& name);
+    SceneGameIDData sceneGameID;
+
+private:
+    std::string name;
+};
+
 #endif // _SCENE_HPP
