@@ -69,6 +69,7 @@ set(headers
     ${include_path}/cod/basegad_dat.hpp
     ${include_path}/cod/buildings.hpp
     ${include_path}/cod/host_gad.hpp
+    ${include_path}/cod/mission_gad.hpp
     ${include_path}/cod/text_cod.hpp
     ${include_path}/gam/chunk.hpp
     ${include_path}/gam/city.hpp
@@ -123,6 +124,7 @@ set(sources
     ${source_path}/cod/basegad_dat.cpp
     ${source_path}/cod/buildings.cpp
     ${source_path}/cod/host_gad.cpp
+    ${source_path}/cod/mission_gad.cpp
     ${source_path}/cod/text_cod.cpp
     ${source_path}/gam/chunk.cpp
     ${source_path}/gam/city.cpp

@@ -18,15 +18,15 @@
 #include <experimental/optional>
 #include <map>
 
-#include "cod/host_gad.hpp"
+#include "cod/mission_gad.hpp"
 
-Hostgad::Hostgad(std::shared_ptr<CodParser> cod)
+Missiongad::Missiongad(std::shared_ptr<CodParser> cod)
     : cod(cod)
 {
     GenerateGadgets();
 }
 
-std::experimental::optional<HostGadGadget*> Hostgad::GetGadget(int id)
+std::experimental::optional<MissionGadGadget*> Missiongad::GetGadget(int id)
 {
     if (gadgets.find(id) == gadgets.end())
     {
@@ -37,16 +37,16 @@ std::experimental::optional<HostGadGadget*> Hostgad::GetGadget(int id)
         return &gadgets[id];
     }
 }
-int Hostgad::GetGadgetsSize()
+int Missiongad::GetGadgetsSize()
 {
     return gadgetsVector.size();
 }
-HostGadGadget* Hostgad::GetGadgetByIndex(int index)
+MissionGadGadget* Missiongad::GetGadgetByIndex(int index)
 {
     return gadgetsVector[index];
 }
 
-void Hostgad::GenerateGadgets()
+void Missiongad::GenerateGadgets()
 {
     for (int o = 0; o < cod->objects.object_size(); o++)
     {
@@ -55,6 +55,10 @@ void Hostgad::GenerateGadgets()
         {
             for (int i = 0; i < obj.objects_size(); i++)
             {
+                if (i == 18)
+                {
+                    std::cout << "h" << std::endl;
+                }
                 auto gadget = GenerateGadget(&obj.objects(i));
                 gadgets[gadget.Id] = gadget;
                 gadgetsVector.push_back(&gadgets[gadget.Id]);
@@ -63,9 +67,9 @@ void Hostgad::GenerateGadgets()
     }
 }
 
-HostGadGadget Hostgad::GenerateGadget(const cod_pb::Object* obj)
+MissionGadGadget Missiongad::GenerateGadget(const cod_pb::Object* obj)
 {
-    HostGadGadget h;
+    MissionGadGadget h;
     if (obj->has_variables() == true)
     {
         for (int i = 0; i < obj->variables().variable_size(); i++)
