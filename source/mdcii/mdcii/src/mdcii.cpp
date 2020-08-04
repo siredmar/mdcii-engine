@@ -27,6 +27,7 @@
 #include "camera/bshresources.hpp"
 #include "camera/camera.hpp"
 #include "cod/cod_parser.hpp"
+#include "cod/mission_gad.hpp"
 #include "cod/text_cod.hpp"
 #include "files/files.hpp"
 #include "files/filestocheck.hpp"
@@ -103,7 +104,7 @@ Mdcii::Mdcii(int screen_width, int screen_height, bool fullscreen, const std::st
     auto basegad = std::make_shared<Basegad>(std::make_shared<CodParser>(files->FindPathForFile("base.gad"), false, false));
     BshResources::CreateInstance();
     TextCod::CreateInstance(files->FindPathForFile("text.cod"), true);
-
+    auto missiongad = std::make_shared<Missiongad>(std::make_shared<CodParser>(files->FindPathForFile("mission.gad"), false, false));
     MainMenu mainMenu(renderer, basegad, window, screen_width, screen_height, fullscreen);
     mainMenu.Handle();
 }
