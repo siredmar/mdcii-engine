@@ -21,8 +21,7 @@ NAMESPACE_BEGIN(sdlgui)
 class Widget;
 
 /// The different kinds of alignments a layout can perform.
-enum class Alignment : uint8_t
-{
+enum class Alignment : uint8_t {
     Minimum = 0,
     Middle,
     Maximum,
@@ -30,8 +29,7 @@ enum class Alignment : uint8_t
 };
 
 /// The direction of data flow for a layout.
-enum class Orientation
-{
+enum class Orientation {
     Horizontal = 0,
     Vertical
 };
@@ -41,16 +39,12 @@ enum class Orientation
  *
  * \brief Basic interface of a layout engine.
  */
-class Layout : public Object
-{
+class  Layout : public Object {
 public:
-    virtual void performLayout(SDL_Renderer* ctx, Widget* widget) const = 0;
-    virtual Vector2i preferredSize(SDL_Renderer* ctx, const Widget* widget) const = 0;
-
+    virtual void performLayout(SDL_Renderer *ctx, Widget *widget) const = 0;
+    virtual Vector2i preferredSize(SDL_Renderer *ctx, const Widget *widget) const = 0;
 protected:
-    virtual ~Layout()
-    {
-    }
+    virtual ~Layout() { }
 };
 
 /**
@@ -62,7 +56,7 @@ protected:
  * margins around the entire container and a custom spacing between adjacent
  * widgets.
  */
-class BoxLayout : public Layout
+class  BoxLayout : public Layout 
 {
 public:
     /**
@@ -78,47 +72,23 @@ public:
      *     Extra spacing placed between widgets
      */
     BoxLayout(Orientation orientation, Alignment alignment = Alignment::Middle,
-        int margin = 0, int spacing = 0);
+              int margin = 0, int spacing = 0);
 
-    Orientation orientation() const
-    {
-        return mOrientation;
-    }
-    void setOrientation(Orientation orientation)
-    {
-        mOrientation = orientation;
-    }
+    Orientation orientation() const { return mOrientation; }
+    void setOrientation(Orientation orientation) { mOrientation = orientation; }
 
-    Alignment alignment() const
-    {
-        return mAlignment;
-    }
-    void setAlignment(Alignment alignment)
-    {
-        mAlignment = alignment;
-    }
+    Alignment alignment() const { return mAlignment; }
+    void setAlignment(Alignment alignment) { mAlignment = alignment; }
 
-    int margin() const
-    {
-        return mMargin;
-    }
-    void setMargin(int margin)
-    {
-        mMargin = margin;
-    }
+    int margin() const { return mMargin; }
+    void setMargin(int margin) { mMargin = margin; }
 
-    int spacing() const
-    {
-        return mSpacing;
-    }
-    void setSpacing(int spacing)
-    {
-        mSpacing = spacing;
-    }
+    int spacing() const { return mSpacing; }
+    void setSpacing(int spacing) { mSpacing = spacing; }
 
     /* Implementation of the layout interface */
-    virtual Vector2i preferredSize(SDL_Renderer* ctx, const Widget* widget) const override;
-    virtual void performLayout(SDL_Renderer* ctx, Widget* widget) const override;
+    virtual Vector2i preferredSize(SDL_Renderer *ctx, const Widget *widget) const override;
+    virtual void performLayout(SDL_Renderer *ctx, Widget *widget) const override;
 
 protected:
     Orientation mOrientation;
@@ -139,57 +109,29 @@ protected:
  * This creates a pleasing layout where a number of widgets are grouped
  * under some high-level heading.
  */
-class GroupLayout : public Layout
+class  GroupLayout : public Layout 
 {
 public:
     GroupLayout(int margin = 15, int spacing = 6, int groupSpacing = 14,
-        int groupIndent = 20)
-        : mMargin(margin)
-        , mSpacing(spacing)
-        , mGroupSpacing(groupSpacing)
-        , mGroupIndent(groupIndent)
-    {
-    }
+                int groupIndent = 20)
+        : mMargin(margin), mSpacing(spacing), mGroupSpacing(groupSpacing),
+          mGroupIndent(groupIndent) {}
 
-    int margin() const
-    {
-        return mMargin;
-    }
-    void setMargin(int margin)
-    {
-        mMargin = margin;
-    }
+    int margin() const { return mMargin; }
+    void setMargin(int margin) { mMargin = margin; }
 
-    int spacing() const
-    {
-        return mSpacing;
-    }
-    void setSpacing(int spacing)
-    {
-        mSpacing = spacing;
-    }
+    int spacing() const { return mSpacing; }
+    void setSpacing(int spacing) { mSpacing = spacing; }
 
-    int groupIndent() const
-    {
-        return mGroupIndent;
-    }
-    void setGroupIndent(int groupIndent)
-    {
-        mGroupIndent = groupIndent;
-    }
+    int groupIndent() const { return mGroupIndent; }
+    void setGroupIndent(int groupIndent) { mGroupIndent = groupIndent; }
 
-    int groupSpacing() const
-    {
-        return mGroupSpacing;
-    }
-    void setGroupSpacing(int groupSpacing)
-    {
-        mGroupSpacing = groupSpacing;
-    }
+    int groupSpacing() const { return mGroupSpacing; }
+    void setGroupSpacing(int groupSpacing) { mGroupSpacing = groupSpacing; }
 
     /* Implementation of the layout interface */
-    Vector2i preferredSize(SDL_Renderer* ctx, const Widget* widget) const override;
-    void performLayout(SDL_Renderer* ctx, Widget* widget) const override;
+    Vector2i preferredSize(SDL_Renderer *ctx, const Widget *widget) const override;
+    void performLayout(SDL_Renderer *ctx, Widget *widget) const override;
 
 protected:
     int mMargin;
@@ -209,94 +151,54 @@ protected:
  * specified per axis. The horizontal/vertical alignment can be specified per
  * row and column.
  */
-class GridLayout : public Layout
+class  GridLayout : public Layout 
 {
 public:
     /// Create a 2-column grid layout by default
     GridLayout(Orientation orientation = Orientation::Horizontal, int resolution = 2,
-        Alignment alignment = Alignment::Middle,
-        int margin = 0, int spacing = 0)
-        : mOrientation(orientation)
-        , mResolution(resolution)
-        , mMargin(margin)
+               Alignment alignment = Alignment::Middle,
+               int margin = 0, int spacing = 0)
+        : mOrientation(orientation), mResolution(resolution), mMargin(margin) 
     {
         mDefaultAlignment[0] = mDefaultAlignment[1] = alignment;
         mSpacing = { spacing, spacing };
     }
 
-    Orientation orientation() const
-    {
-        return mOrientation;
-    }
-    void setOrientation(Orientation orientation)
-    {
+    Orientation orientation() const { return mOrientation; }
+    void setOrientation(Orientation orientation) {
         mOrientation = orientation;
     }
 
-    int resolution() const
-    {
-        return mResolution;
-    }
-    void setResolution(int resolution)
-    {
-        mResolution = resolution;
-    }
+    int resolution() const { return mResolution; }
+    void setResolution(int resolution) { mResolution = resolution; }
 
-    int spacing(int axis) const
-    {
-        return mSpacing[axis];
-    }
-    void setSpacing(int axis, int spacing)
-    {
-        mSpacing[axis] = spacing;
-    }
-    void setSpacing(int spacing)
-    {
-        mSpacing[0] = mSpacing[1] = spacing;
-    }
+    int spacing(int axis) const { return mSpacing[axis]; }
+    void setSpacing(int axis, int spacing) { mSpacing[axis] = spacing; }
+    void setSpacing(int spacing) { mSpacing[0] = mSpacing[1] = spacing; }
 
-    int margin() const
-    {
-        return mMargin;
-    }
-    void setMargin(int margin)
-    {
-        mMargin = margin;
-    }
+    int margin() const { return mMargin; }
+    void setMargin(int margin) { mMargin = margin; }
 
-    Alignment alignment(int axis, int item) const
-    {
-        if (item < (int)mAlignment[axis].size())
+    Alignment alignment(int axis, int item) const {
+        if (item < (int) mAlignment[axis].size())
             return mAlignment[axis][item];
         else
             return mDefaultAlignment[axis];
     }
 
-    void setColAlignment(Alignment value)
-    {
-        mDefaultAlignment[0] = value;
-    }
-    void setRowAlignment(Alignment value)
-    {
-        mDefaultAlignment[1] = value;
-    }
-    void setColAlignment(const std::vector<Alignment>& value)
-    {
-        mAlignment[0] = value;
-    }
-    void setRowAlignment(const std::vector<Alignment>& value)
-    {
-        mAlignment[1] = value;
-    }
+    void setColAlignment(Alignment value) { mDefaultAlignment[0] = value; }
+    void setRowAlignment(Alignment value) { mDefaultAlignment[1] = value; }
+    void setColAlignment(const std::vector<Alignment> &value) { mAlignment[0] = value; }
+    void setRowAlignment(const std::vector<Alignment> &value) { mAlignment[1] = value; }
 
     /* Implementation of the layout interface */
-    virtual Vector2i preferredSize(SDL_Renderer* ctx, const Widget* widget) const override;
-    virtual void performLayout(SDL_Renderer* ctx, Widget* widget) const override;
+    virtual Vector2i preferredSize(SDL_Renderer *ctx, const Widget *widget) const override;
+    virtual void performLayout(SDL_Renderer *ctx, Widget *widget) const override;
 
 protected:
     // Compute the maximum row and column sizes
-    void computeLayout(SDL_Renderer* ctx, const Widget* widget,
-        std::vector<int>* grid) const;
+    void computeLayout(SDL_Renderer *ctx, const Widget *widget,
+                       std::vector<int> *grid) const;
 
 protected:
     Orientation mOrientation;
@@ -341,113 +243,71 @@ protected:
  * - https://web.archive.org/web/20070813221705/http://www.autel.cz/dmi/tutorial.html
  * - https://github.com/jaapgeurts/higlayout
  */
-class AdvancedGridLayout : public Layout
-{
+class  AdvancedGridLayout : public Layout {
 public:
     /**
      * \struct Anchor layout.h sdl_gui/layout.h
      *
      * \brief Helper struct to coordinate anchor points for the layout.
      */
-    struct Anchor
-    {
+    struct Anchor {
         uint8_t pos[2];
         uint8_t size[2];
         Alignment align[2];
 
-        Anchor()
-        {
-        }
+        Anchor() { }
 
         Anchor(int x, int y, Alignment horiz = Alignment::Fill,
-            Alignment vert = Alignment::Fill)
-        {
-            pos[0] = (uint8_t)x;
-            pos[1] = (uint8_t)y;
+              Alignment vert = Alignment::Fill) {
+            pos[0] = (uint8_t) x; pos[1] = (uint8_t) y;
             size[0] = size[1] = 1;
-            align[0] = horiz;
-            align[1] = vert;
+            align[0] = horiz; align[1] = vert;
         }
 
         Anchor(int x, int y, int w, int h,
-            Alignment horiz = Alignment::Fill,
-            Alignment vert = Alignment::Fill)
-        {
-            pos[0] = (uint8_t)x;
-            pos[1] = (uint8_t)y;
-            size[0] = (uint8_t)w;
-            size[1] = (uint8_t)h;
-            align[0] = horiz;
-            align[1] = vert;
+              Alignment horiz = Alignment::Fill,
+              Alignment vert = Alignment::Fill) {
+            pos[0] = (uint8_t) x; pos[1] = (uint8_t) y;
+            size[0] = (uint8_t) w; size[1] = (uint8_t) h;
+            align[0] = horiz; align[1] = vert;
         }
 
-        operator std::string() const
-        {
+        operator std::string() const {
             char buf[50];
             SDLGUI_SNPRINTF(buf, 50, "Format[pos=(%i, %i), size=(%i, %i), align=(%i, %i)]",
-                pos[0], pos[1], size[0], size[1], (int)align[0], (int)align[1]);
+                pos[0], pos[1], size[0], size[1], (int) align[0], (int) align[1]);
             return buf;
         }
     };
 
-    AdvancedGridLayout(const std::vector<int>& cols = {}, const std::vector<int>& rows = {}, int margin = 0);
+    AdvancedGridLayout(const std::vector<int> &cols = {}, const std::vector<int> &rows = {}, int margin = 0);
 
-    int margin() const
-    {
-        return mMargin;
-    }
-    void setMargin(int margin)
-    {
-        mMargin = margin;
-    }
+    int margin() const { return mMargin; }
+    void setMargin(int margin) { mMargin = margin; }
 
     /// Return the number of cols
-    int colCount() const
-    {
-        return (int)mCols.size();
-    }
+    int colCount() const { return (int) mCols.size(); }
 
     /// Return the number of rows
-    int rowCount() const
-    {
-        return (int)mRows.size();
-    }
+    int rowCount() const { return (int) mRows.size(); }
 
     /// Append a row of the given size (and stretch factor)
-    void appendRow(int size, float stretch = 0.f)
-    {
-        mRows.push_back(size);
-        mRowStretch.push_back(stretch);
-    };
+    void appendRow(int size, float stretch = 0.f) { mRows.push_back(size); mRowStretch.push_back(stretch); };
 
     /// Append a column of the given size (and stretch factor)
-    void appendCol(int size, float stretch = 0.f)
-    {
-        mCols.push_back(size);
-        mColStretch.push_back(stretch);
-    };
+    void appendCol(int size, float stretch = 0.f) { mCols.push_back(size); mColStretch.push_back(stretch); };
 
     /// Set the stretch factor of a given row
-    void setRowStretch(int index, float stretch)
-    {
-        mRowStretch.at(index) = stretch;
-    }
+    void setRowStretch(int index, float stretch) { mRowStretch.at(index) = stretch; }
 
     /// Set the stretch factor of a given column
-    void setColStretch(int index, float stretch)
-    {
-        mColStretch.at(index) = stretch;
-    }
+    void setColStretch(int index, float stretch) { mColStretch.at(index) = stretch; }
 
     /// Specify the anchor data structure for a given widget
-    void setAnchor(const Widget* widget, const Anchor& anchor)
-    {
-        mAnchor[widget] = anchor;
-    }
+    void setAnchor(const Widget *widget, const Anchor &anchor) { mAnchor[widget] = anchor; }
 
     /// Retrieve the anchor data structure for a given widget
-    Anchor anchor(const Widget* widget) const
-    {
+    Anchor anchor(const Widget *widget) const {
         auto it = mAnchor.find(widget);
         if (it == mAnchor.end())
             throw std::runtime_error("Widget was not registered with the grid layout!");
@@ -455,17 +315,17 @@ public:
     }
 
     /* Implementation of the layout interface */
-    virtual Vector2i preferredSize(SDL_Renderer* ctx, const Widget* widget) const override;
-    virtual void performLayout(SDL_Renderer* ctx, Widget* widget) const override;
+    virtual Vector2i preferredSize(SDL_Renderer *ctx, const Widget *widget) const override;
+    virtual void performLayout(SDL_Renderer *ctx, Widget *widget) const override;
 
 protected:
-    void computeLayout(SDL_Renderer* ctx, const Widget* widget,
-        std::vector<int>* grid) const;
+    void computeLayout(SDL_Renderer *ctx, const Widget *widget,
+                       std::vector<int> *grid) const;
 
 protected:
     std::vector<int> mCols, mRows;
     std::vector<float> mColStretch, mRowStretch;
-    std::unordered_map<const Widget*, Anchor> mAnchor;
+    std::unordered_map<const Widget *, Anchor> mAnchor;
     int mMargin;
 };
 

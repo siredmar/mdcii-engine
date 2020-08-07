@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include <mutex>
 #include <sdlgui/common.h>
+#include <mutex>
 
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -24,18 +24,12 @@ NAMESPACE_BEGIN(sdlgui)
 
 struct Texture
 {
-    SDL_Texture* tex = nullptr;
-    SDL_Rect rrect;
-    bool dirty = false;
+  SDL_Texture* tex = nullptr;
+  SDL_Rect rrect;
+  bool dirty = false;
 
-    inline int w() const
-    {
-        return rrect.w;
-    }
-    inline int h() const
-    {
-        return rrect.h;
-    }
+  inline int w() const { return rrect.w; }
+  inline int h() const { return rrect.h; }
 };
 
 void SDL_RenderCopy(SDL_Renderer* renderer, Texture& tex, const Vector2i& pos);
@@ -45,10 +39,10 @@ void SDL_RenderCopy(SDL_Renderer* renderer, Texture& tex, const Vector2i& pos);
  * \brief Storage class for basic theme-related properties.
  */
 
-class Theme : public Object
+class  Theme : public Object 
 {
 public:
-    Theme(SDL_Renderer* ctx);
+    Theme(SDL_Renderer *ctx);
 
     /* Spacing-related parameters */
     int mStandardFontSize;
@@ -105,25 +99,25 @@ public:
     Color mWindowPopup;
     Color mWindowPopupTransparent;
 
-    void getTexAndRect(SDL_Renderer* renderer, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor);
+    void getTexAndRect(SDL_Renderer *renderer, int x, int y, const char *text,
+      const char* fontname, size_t ptsize, SDL_Texture **texture, SDL_Rect *rect, SDL_Color *textColor);
 
-    void getTexAndRectUtf8(SDL_Renderer* renderer, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor);
+    void getTexAndRectUtf8(SDL_Renderer *renderer, int x, int y, const char *text,
+      const char* fontname, size_t ptsize, SDL_Texture **texture, SDL_Rect *rect, SDL_Color *textColor);
 
     std::string breakText(SDL_Renderer* renderer, const char* string, const char* fontname, int ptsize,
-        float breakRowWidth);
+                       float breakRowWidth);
 
     int getTextWidth(const char* fontname, size_t ptsize, const char* text);
     int getUtf8Width(const char* fontname, size_t ptsize, const char* text);
-    int getTextBounds(const char* fontname, size_t ptsize, const char* text, int* w, int* h);
-    int getUtf8Bounds(const char* fontname, size_t ptsize, const char* text, int* w, int* h);
+    int getTextBounds(const char* fontname, size_t ptsize, const char* text, int *w, int *h);
+    int getUtf8Bounds(const char* fontname, size_t ptsize, const char* text, int *w, int *h);
 
-    void getTexAndRectUtf8(SDL_Renderer* renderer, Texture& tx, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, const Color& textColor);
+    void getTexAndRectUtf8(SDL_Renderer *renderer, Texture& tx, int x, int y, const char *text,
+                           const char* fontname, size_t ptsize, const Color& textColor);
 
 protected:
-    virtual ~Theme(){};
+    virtual ~Theme() { };
 };
 
 NAMESPACE_END(sdlgui)

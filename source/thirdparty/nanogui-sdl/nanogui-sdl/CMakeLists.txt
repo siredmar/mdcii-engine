@@ -148,6 +148,7 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/tabheader.cpp
      sdlgui/tabwidget.cpp
      sdlgui/textbox.cpp
+     sdlgui/texturetable.cpp
      sdlgui/texturebutton.cpp
      sdlgui/textureview.cpp
      sdlgui/switchbox.cpp
@@ -167,12 +168,6 @@ if (NANOGUI_BUILD_EXAMPLE)
       example1 PROPERTIES
       VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
   target_link_libraries(example1 ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
-
-  add_executable(twoscreens ${NNGUI_EXTRA_SOURCE} ${NNGUI_BASIC_SOURCE} twoscreens.cpp )
-  set_target_properties(
-      twoscreens PROPERTIES
-      VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-  target_link_libraries(twoscreens ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
 
   # Copy icons for example application
   if (WIN32) 

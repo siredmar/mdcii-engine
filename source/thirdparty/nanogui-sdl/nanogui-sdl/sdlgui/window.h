@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <memory>
 #include <sdlgui/widget.h>
+#include <memory>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -21,42 +21,26 @@ NAMESPACE_BEGIN(sdlgui)
  *
  * \brief Top-level window widget.
  */
-class Window : public Widget
+class  Window : public Widget 
 {
     friend class Popup;
-
 public:
-    Window(Widget* parent, const std::string& title = "Untitled");
-    Window(Widget* parent, const std::string& title, const Vector2i& pos)
-        : Window(parent, title)
-    {
-        setPosition(pos);
-    }
+    Window(Widget *parent, const std::string &title = "Untitled");
+    Window(Widget *parent, const std::string &title, const Vector2i& pos)
+      : Window(parent, title) { setPosition(pos); }
 
     /// Return the window title
-    const std::string& title() const
-    {
-        return mTitle;
-    }
+    const std::string &title() const { return mTitle; }
     /// Set the window title
-    void setTitle(const std::string& title)
-    {
-        mTitle = title;
-    }
+    void setTitle(const std::string &title) { mTitle = title; }
 
     /// Is this a model dialog?
-    bool modal() const
-    {
-        return mModal;
-    }
+    bool modal() const { return mModal; }
     /// Set whether or not this is a modal dialog
-    void setModal(bool modal)
-    {
-        mModal = modal;
-    }
+    void setModal(bool modal) { mModal = modal; }
 
     /// Return the panel used to house window buttons
-    Widget* buttonPanel();
+    Widget *buttonPanel();
 
     /// Dispose the window
     void dispose();
@@ -70,15 +54,15 @@ public:
     virtual void drawBodyTemp(SDL_Renderer* renderer);
 
     /// Handle window drag events
-    bool mouseDragEvent(const Vector2i& p, const Vector2i& rel, int button, int modifiers) override;
+    bool mouseDragEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers) override;
     /// Handle mouse events recursively and bring the current window to the top
-    bool mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers) override;
+    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override;
     /// Accept scroll events and propagate them to the widget under the mouse cursor
-    bool scrollEvent(const Vector2i& p, const Vector2f& rel) override;
+    bool scrollEvent(const Vector2i &p, const Vector2f &rel) override;
     /// Compute the preferred size of the widget
-    Vector2i preferredSize(SDL_Renderer* ctx) const override;
+    Vector2i preferredSize(SDL_Renderer *ctx) const override;
     /// Invoke the associated layout generator to properly place child widgets, if any
-    void performLayout(SDL_Renderer* ctx) override;
+    void performLayout(SDL_Renderer *ctx) override;
 
     /// Handle a focus change event (default implementation: record the focus status, but do nothing)
     bool focusEvent(bool focused);
@@ -86,10 +70,10 @@ public:
 protected:
     /// Internal helper function to maintain nested window position values; overridden in \ref Popup
     void refreshRelativePlacement();
-
 protected:
+
     std::string mTitle;
-    Widget* mButtonPanel;
+    Widget *mButtonPanel;
 
     Texture _titleTex;
 
