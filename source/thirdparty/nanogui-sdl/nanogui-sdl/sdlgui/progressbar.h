@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <sdlgui/widget.h>
 #include <memory>
+#include <sdlgui/widget.h>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -21,21 +21,24 @@ NAMESPACE_BEGIN(sdlgui)
  *
  * \brief Standard widget for visualizing progress.
  */
-class  ProgressBar : public Widget 
+class ProgressBar : public Widget
 {
 public:
-    ProgressBar(Widget *parent);
+    ProgressBar(Widget* parent);
 
-    float value() { return mValue; }
+    float value()
+    {
+        return mValue;
+    }
     void setValue(float value);
 
-    Vector2i preferredSize(SDL_Renderer *ctx) const override;
+    Vector2i preferredSize(SDL_Renderer* ctx) const override;
     void draw(SDL_Renderer* renderer) override;
     void drawBody(SDL_Renderer* renderer);
     void drawBar(SDL_Renderer* renderer);
 
 protected:
-  float mValue;
+    float mValue;
 
     struct AsyncTexture;
     typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;

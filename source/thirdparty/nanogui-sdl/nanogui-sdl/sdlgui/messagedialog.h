@@ -16,49 +16,67 @@ NAMESPACE_BEGIN(sdlgui)
 
 class Label;
 
-class  MessageDialog : public Window 
+class MessageDialog : public Window
 {
 public:
-    enum class Type 
+    enum class Type
     {
         Information,
         Question,
         Warning
     };
 
-    MessageDialog(Widget *parent, Type type, const std::string &title = "Untitled",
-                  const std::string &message = "Message",
-                  const std::string &buttonText = "OK",
-                  const std::string &altButtonText = "Cancel", bool altButton = false);
+    MessageDialog(Widget* parent, Type type, const std::string& title = "Untitled",
+        const std::string& message = "Message",
+        const std::string& buttonText = "OK",
+        const std::string& altButtonText = "Cancel", bool altButton = false);
 
-    MessageDialog(Widget *parent, Type type, const std::string &title,
-                  const std::string &message,
-                  const std::string &buttonText,
-                  const std::string &altButtonText,
-                  bool altButton,
-                  const std::function<void(int)> &callback )
-      : MessageDialog(parent, type, title, message, buttonText, altButtonText, altButton)
-    { setCallback(callback); }
-
-    MessageDialog(Widget *parent, Type type, const std::string &title,
-      const std::string &message,
-      const std::function<void(int)> &callback)
-      : MessageDialog(parent, type, title, message)
+    MessageDialog(Widget* parent, Type type, const std::string& title,
+        const std::string& message,
+        const std::string& buttonText,
+        const std::string& altButtonText,
+        bool altButton,
+        const std::function<void(int)>& callback)
+        : MessageDialog(parent, type, title, message, buttonText, altButtonText, altButton)
     {
-      setCallback(callback);
+        setCallback(callback);
     }
 
-    Label *messageLabel() { return mMessageLabel; }
-    const Label *messageLabel() const { return mMessageLabel; }
+    MessageDialog(Widget* parent, Type type, const std::string& title,
+        const std::string& message,
+        const std::function<void(int)>& callback)
+        : MessageDialog(parent, type, title, message)
+    {
+        setCallback(callback);
+    }
 
-    std::function<void(int)> callback() const { return mCallback; }
-    void setCallback(const std::function<void(int)> &callback) { mCallback = callback; }
+    Label* messageLabel()
+    {
+        return mMessageLabel;
+    }
+    const Label* messageLabel() const
+    {
+        return mMessageLabel;
+    }
 
-    MessageDialog& withCallback(const std::function<void(int)> &callback)
-    { setCallback( callback ); return *this; }
+    std::function<void(int)> callback() const
+    {
+        return mCallback;
+    }
+    void setCallback(const std::function<void(int)>& callback)
+    {
+        mCallback = callback;
+    }
+
+    MessageDialog& withCallback(const std::function<void(int)>& callback)
+    {
+        setCallback(callback);
+        return *this;
+    }
+
 protected:
     std::function<void(int)> mCallback;
-    Label *mMessageLabel;
+    Label* mMessageLabel;
 };
 
 NAMESPACE_END(sdlgui)

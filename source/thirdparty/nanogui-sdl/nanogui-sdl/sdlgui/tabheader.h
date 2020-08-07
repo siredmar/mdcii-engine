@@ -13,12 +13,12 @@
 
 #pragma once
 
-#include <sdlgui/widget.h>
-#include <vector>
-#include <string>
 #include <functional>
-#include <utility>
 #include <iterator>
+#include <sdlgui/widget.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -27,26 +27,44 @@ NAMESPACE_BEGIN(sdlgui)
  *
  * \brief A Tab navigable widget.
  */
-class  TabHeader : public Widget 
+class TabHeader : public Widget
 {
 public:
-    TabHeader(Widget *parent, const std::string &font = "sans-bold");
+    TabHeader(Widget* parent, const std::string& font = "sans-bold");
 
-    void setFont(const std::string& font) { mFont = font; }
-    const std::string& font() const { return mFont; }
-    bool overflowing() const { return mOverflowing; }
+    void setFont(const std::string& font)
+    {
+        mFont = font;
+    }
+    const std::string& font() const
+    {
+        return mFont;
+    }
+    bool overflowing() const
+    {
+        return mOverflowing;
+    }
 
     /**
      * Sets the callable objects which is invoked when a tab button is pressed.
      * The argument provided to the callback is the index of the tab.
      */
-    void setCallback(const std::function<void(int)>& callback) { mCallback = callback; };
-    const std::function<void(int)>& callback() const { return mCallback; }
+    void setCallback(const std::function<void(int)>& callback)
+    {
+        mCallback = callback;
+    };
+    const std::function<void(int)>& callback() const
+    {
+        return mCallback;
+    }
 
     void setActiveTab(int tabIndex);
     int activeTab() const;
     bool isTabVisible(int index) const;
-    int tabCount() const { return (int) mTabButtons.size();  }
+    int tabCount() const
+    {
+        return (int)mTabButtons.size();
+    }
 
     /// Inserts a tab at the end of the tabs collection.
     void addTab(const std::string& label);
@@ -95,7 +113,7 @@ public:
 
     void performLayout(SDL_Renderer* ctx) override;
     Vector2i preferredSize(SDL_Renderer* ctx) const override;
-    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override;
+    bool mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers) override;
 
     void draw(SDL_Renderer* renderer) override;
 
@@ -105,22 +123,35 @@ private:
      *
      * \brief Implementation class of the actual tab buttons.
      */
-    class TabButton {
+    class TabButton
+    {
     public:
         constexpr static const char* dots = "...";
 
         TabButton(TabHeader& header, const std::string& label);
 
-        void setLabel(const std::string& label) { mLabel = label; }
-        const std::string& label() const { return mLabel; }
-        void setSize(const Vector2i& size) { mSize = size; }
-        const Vector2i& size() const { return mSize; }
+        void setLabel(const std::string& label)
+        {
+            mLabel = label;
+        }
+        const std::string& label() const
+        {
+            return mLabel;
+        }
+        void setSize(const Vector2i& size)
+        {
+            mSize = size;
+        }
+        const Vector2i& size() const
+        {
+            return mSize;
+        }
 
         Vector2i preferredSize(SDL_Renderer* ctx) const;
         void calculateVisibleString(SDL_Renderer* renderer);
         void drawAtPosition(SDL_Renderer* renderer, const Vector2i& position, bool active);
-        void drawActiveBorderAt(SDL_Renderer * renderer, const Vector2i& position, float offset, const Color& color);
-        void drawInactiveBorderAt(SDL_Renderer * renderer, const Vector2i& position, float offset, const Color& color);
+        void drawActiveBorderAt(SDL_Renderer* renderer, const Vector2i& position, float offset, const Color& color);
+        void drawInactiveBorderAt(SDL_Renderer* renderer, const Vector2i& position, float offset, const Color& color);
 
     private:
         TabHeader* mHeader;
@@ -132,7 +163,8 @@ private:
          *
          * \brief Helper struct to represent the TabButton.
          */
-        struct StringView {
+        struct StringView
+        {
             const char* first = nullptr;
             const char* last = nullptr;
         };
@@ -146,19 +178,46 @@ private:
     using ConstTabIterator = std::vector<TabButton>::const_iterator;
 
     /// The location in which the Widget will be facing.
-    enum class ClickLocation {
-        LeftControls, RightControls, TabButtons
+    enum class ClickLocation
+    {
+        LeftControls,
+        RightControls,
+        TabButtons
     };
 
-    TabIterator visibleBegin() { return std::next(mTabButtons.begin(), mVisibleStart); }
-    TabIterator visibleEnd() { return std::next(mTabButtons.begin(), mVisibleEnd); }
-    TabIterator activeIterator() { return std::next(mTabButtons.begin(), mActiveTab); }
-    TabIterator tabIterator(int index) { return std::next(mTabButtons.begin(), index); }
+    TabIterator visibleBegin()
+    {
+        return std::next(mTabButtons.begin(), mVisibleStart);
+    }
+    TabIterator visibleEnd()
+    {
+        return std::next(mTabButtons.begin(), mVisibleEnd);
+    }
+    TabIterator activeIterator()
+    {
+        return std::next(mTabButtons.begin(), mActiveTab);
+    }
+    TabIterator tabIterator(int index)
+    {
+        return std::next(mTabButtons.begin(), index);
+    }
 
-    ConstTabIterator visibleBegin() const { return std::next(mTabButtons.begin(), mVisibleStart); }
-    ConstTabIterator visibleEnd() const { return std::next(mTabButtons.begin(), mVisibleEnd); }
-    ConstTabIterator activeIterator() const { return std::next(mTabButtons.begin(), mActiveTab); }
-    ConstTabIterator tabIterator(int index) const { return std::next(mTabButtons.begin(), index); }
+    ConstTabIterator visibleBegin() const
+    {
+        return std::next(mTabButtons.begin(), mVisibleStart);
+    }
+    ConstTabIterator visibleEnd() const
+    {
+        return std::next(mTabButtons.begin(), mVisibleEnd);
+    }
+    ConstTabIterator activeIterator() const
+    {
+        return std::next(mTabButtons.begin(), mActiveTab);
+    }
+    ConstTabIterator tabIterator(int index) const
+    {
+        return std::next(mTabButtons.begin(), index);
+    }
 
     /// Given the beginning of the visible tabs, calculate the end.
     void calculateVisibleEnd();

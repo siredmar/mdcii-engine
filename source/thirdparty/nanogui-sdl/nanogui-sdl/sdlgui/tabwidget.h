@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include <sdlgui/widget.h>
 #include <functional>
+#include <sdlgui/widget.h>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -27,7 +27,7 @@ class TabHeader;
  * \brief A wrapper around the widgets TabHeader and StackedWidget which hooks
  *        the two classes together.
  */
-class  TabWidget : public Widget 
+class TabWidget : public Widget
 {
 public:
     TabWidget(Widget* parent);
@@ -40,36 +40,42 @@ public:
      * Sets the callable objects which is invoked when a tab is changed.
      * The argument provided to the callback is the index of the new active tab.
      */
-    void setCallback(const std::function<void(int)> &callback) { mCallback = callback; };
-    const std::function<void(int)> &callback() const { return mCallback; }
+    void setCallback(const std::function<void(int)>& callback)
+    {
+        mCallback = callback;
+    };
+    const std::function<void(int)>& callback() const
+    {
+        return mCallback;
+    }
 
     /// Creates a new tab with the specified name and returns a pointer to the layer.
-    Widget* createTab(const std::string &label);
-    Widget* createTab(int index, const std::string &label);
+    Widget* createTab(const std::string& label);
+    Widget* createTab(int index, const std::string& label);
 
     /// Inserts a tab at the end of the tabs collection and associates it with the provided widget.
-    void addTab(const std::string &label, Widget *tab);
+    void addTab(const std::string& label, Widget* tab);
 
     /// Inserts a tab into the tabs collection at the specified index and associates it with the provided widget.
-    void addTab(int index, const std::string &label, Widget *tab);
+    void addTab(int index, const std::string& label, Widget* tab);
 
     /**
      * Removes the tab with the specified label and returns the index of the label.
      * Returns whether the removal was successful.
      */
-    bool removeTab(const std::string &label);
+    bool removeTab(const std::string& label);
 
     /// Removes the tab with the specified index.
     void removeTab(int index);
 
     /// Retrieves the label of the tab at a specific index.
-    const std::string &tabLabelAt(int index) const;
+    const std::string& tabLabelAt(int index) const;
 
     /**
      * Retrieves the index of a specific tab using its tab label.
      * Returns -1 if there is no such tab.
      */
-    int tabLabelIndex(const std::string &label);
+    int tabLabelIndex(const std::string& label);
 
     /**
      * Retrieves the index of a specific tab using a widget pointer.
@@ -86,8 +92,8 @@ public:
      */
     void ensureTabVisible(int index);
 
-    const Widget* tab(const std::string &label) const;
-    Widget* tab(const std::string &label);
+    const Widget* tab(const std::string& label) const;
+    Widget* tab(const std::string& label);
 
     void performLayout(SDL_Renderer* ctx) override;
     Vector2i preferredSize(SDL_Renderer* ctx) const override;

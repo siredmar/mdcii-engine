@@ -13,8 +13,8 @@
 
 #pragma once
 
-#include <sdlgui/widget.h>
 #include <functional>
+#include <sdlgui/widget.h>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -23,54 +23,120 @@ NAMESPACE_BEGIN(sdlgui)
  *
  * \brief Widget used to display images.
  */
-class  ImageView : public Widget 
+class ImageView : public Widget
 {
 public:
-    ImageView(Widget* parent, SDL_Texture *texture);
+    ImageView(Widget* parent, SDL_Texture* texture);
     ~ImageView();
 
     void bindImage(SDL_Texture* texture);
 
-    Vector2f positionF() const { return _pos.tofloat(); }
-    Vector2f sizeF() const { return mSize.tofloat(); }
+    Vector2f positionF() const
+    {
+        return _pos.tofloat();
+    }
+    Vector2f sizeF() const
+    {
+        return mSize.tofloat();
+    }
 
-    const Vector2i& imageSize() const { return mImageSize; }
-    Vector2i scaledImageSize() const { return (mImageSize.tofloat() * mScale).toint(); }
-    Vector2f imageSizeF() const { return mImageSize.tofloat(); }
-    Vector2f scaledImageSizeF() const { return (mImageSize.tofloat() * mScale); }
+    const Vector2i& imageSize() const
+    {
+        return mImageSize;
+    }
+    Vector2i scaledImageSize() const
+    {
+        return (mImageSize.tofloat() * mScale).toint();
+    }
+    Vector2f imageSizeF() const
+    {
+        return mImageSize.tofloat();
+    }
+    Vector2f scaledImageSizeF() const
+    {
+        return (mImageSize.tofloat() * mScale);
+    }
 
-    const Vector2f& offset() const { return mOffset; }
-    void setOffset(const Vector2f& offset) { mOffset = offset; }
-    float scale() const { return mScale; }
-    void setScale(float scale) { mScale = scale > 0.01f ? scale : 0.01f; }
+    const Vector2f& offset() const
+    {
+        return mOffset;
+    }
+    void setOffset(const Vector2f& offset)
+    {
+        mOffset = offset;
+    }
+    float scale() const
+    {
+        return mScale;
+    }
+    void setScale(float scale)
+    {
+        mScale = scale > 0.01f ? scale : 0.01f;
+    }
 
-    bool fixedOffset() const { return mFixedOffset; }
-    void setFixedOffset(bool fixedOffset) { mFixedOffset = fixedOffset; }
-    bool fixedScale() const { return mFixedScale; }
-    void setFixedScale(bool fixedScale) { mFixedScale = fixedScale; }
+    bool fixedOffset() const
+    {
+        return mFixedOffset;
+    }
+    void setFixedOffset(bool fixedOffset)
+    {
+        mFixedOffset = fixedOffset;
+    }
+    bool fixedScale() const
+    {
+        return mFixedScale;
+    }
+    void setFixedScale(bool fixedScale)
+    {
+        mFixedScale = fixedScale;
+    }
 
-    float zoomSensitivity() const { return mZoomSensitivity; }
-    void setZoomSensitivity(float zoomSensitivity) { mZoomSensitivity = zoomSensitivity; }
+    float zoomSensitivity() const
+    {
+        return mZoomSensitivity;
+    }
+    void setZoomSensitivity(float zoomSensitivity)
+    {
+        mZoomSensitivity = zoomSensitivity;
+    }
 
-    float gridThreshold() const { return mGridThreshold; }
-    void setGridThreshold(float gridThreshold) { mGridThreshold = gridThreshold; }
+    float gridThreshold() const
+    {
+        return mGridThreshold;
+    }
+    void setGridThreshold(float gridThreshold)
+    {
+        mGridThreshold = gridThreshold;
+    }
 
-    float pixelInfoThreshold() const { return mPixelInfoThreshold; }
-    void setPixelInfoThreshold(float pixelInfoThreshold) { mPixelInfoThreshold = pixelInfoThreshold; }
+    float pixelInfoThreshold() const
+    {
+        return mPixelInfoThreshold;
+    }
+    void setPixelInfoThreshold(float pixelInfoThreshold)
+    {
+        mPixelInfoThreshold = pixelInfoThreshold;
+    }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    void setPixelInfoCallback(const std::function<std::pair<std::string, Color>(const Vector2i&)>& callback) 
+    void setPixelInfoCallback(const std::function<std::pair<std::string, Color>(const Vector2i&)>& callback)
     {
         mPixelInfoCallback = callback;
     }
-    const std::function<std::pair<std::string, Color>(const Vector2i&)>& pixelInfoCallback() const 
+    const std::function<std::pair<std::string, Color>(const Vector2i&)>& pixelInfoCallback() const
     {
         return mPixelInfoCallback;
     }
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-    void setFontScaleFactor(float fontScaleFactor) { mFontScaleFactor = fontScaleFactor; }
-    float fontScaleFactor() const { return mFontScaleFactor; }
+    void setFontScaleFactor(float fontScaleFactor)
+    {
+        mFontScaleFactor = fontScaleFactor;
+    }
+    float fontScaleFactor() const
+    {
+        return mFontScaleFactor;
+    }
 
     // Image transformation functions.
 
@@ -115,8 +181,8 @@ public:
 
     bool keyboardEvent(int key, int scancode, int action, int modifiers) override;
     bool keyboardCharacterEvent(unsigned int codepoint) override;
-    bool mouseDragEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers) override;
-    bool scrollEvent(const Vector2i &p, const Vector2f &rel) override;
+    bool mouseDragEvent(const Vector2i& p, const Vector2i& rel, int button, int modifiers) override;
+    bool scrollEvent(const Vector2i& p, const Vector2f& rel) override;
 
     /// Function indicating whether the grid is currently visible.
     bool gridVisible() const;
@@ -131,7 +197,11 @@ public:
     void performLayout(SDL_Renderer* ctx) override;
     void draw(SDL_Renderer* renderer);
 
-    ImageView& withImage(SDL_Texture *texture) { bindImage(texture); return *this; }
+    ImageView& withImage(SDL_Texture* texture)
+    {
+        bindImage(texture);
+        return *this;
+    }
 
 private:
     // Helper image methods.
@@ -142,10 +212,10 @@ private:
     void drawImageBorder(SDL_Renderer* ctx, const SDL_Point& ap) const;
     void drawHelpers(SDL_Renderer* ctx) const;
     static void drawPixelGrid(SDL_Renderer* ctx, const Vector2f& upperLeftCorner,
-                              const Vector2f& lowerRightCorner, const float stride);
+        const Vector2f& lowerRightCorner, const float stride);
     void drawPixelInfo(SDL_Renderer* ctx, const float stride) const;
     void writePixelInfo(SDL_Renderer* ctx, const Vector2f& cellPosition,
-                        const Vector2i& pixel, const float stride) const;
+        const Vector2i& pixel, const float stride) const;
 
     SDL_Texture* mTexture = nullptr;
     Vector2i mImageSize;

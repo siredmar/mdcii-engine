@@ -11,4 +11,3 @@ extern uint32_t roboto_regular_ttf_size;
 
 extern uint8_t entypo_ttf[];
 extern uint32_t entypo_ttf_size;
-
