@@ -31,7 +31,7 @@ class  Screen : public Widget
 public:
     /// Create a new screen
     Screen( SDL_Window* window, const Vector2i &size, const std::string &caption,
-            bool resizable = true, bool fullscreen = false);
+            bool resizable = true, bool fullscreen = false, bool singleScreen = false);
 
     /// Release all resources
     virtual ~Screen();
@@ -125,6 +125,7 @@ protected:
     bool mProcessEvents;
     Color mBackground;
     std::string mCaption;
+    bool mSingleScreen;
     std::string _lastTooltip;
     Texture _tooltipTex;
 };

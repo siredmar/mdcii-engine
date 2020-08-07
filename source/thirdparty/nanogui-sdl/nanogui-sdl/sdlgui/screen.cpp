@@ -28,8 +28,8 @@ NAMESPACE_BEGIN(sdlgui)
 std::map<SDL_Window *, Screen *> __sdlgui_screens;
 
 Screen::Screen( SDL_Window* window, const Vector2i &size, const std::string &caption,
-               bool resizable, bool fullscreen)
-    : Widget(nullptr), _window(nullptr), mSDL_Renderer(nullptr), mCaption(caption)
+               bool resizable, bool fullscreen, bool singleScreen)
+    : Widget(nullptr), _window(nullptr), mSDL_Renderer(nullptr), mCaption(caption), mSingleScreen(singleScreen)
 {
     SDL_SetWindowTitle( window, caption.c_str() );
     initialize( window );
@@ -37,10 +37,13 @@ Screen::Screen( SDL_Window* window, const Vector2i &size, const std::string &cap
 
 bool Screen::onEvent(SDL_Event& event)
 {
-    auto it = __sdlgui_screens.find(_window);
-    if (it == __sdlgui_screens.end())
-       return false;
-
+    if(!mSingleScreen)
+    {
+        auto it = __sdlgui_screens.find(_window);
+        if (it == __sdlgui_screens.end())
+           return false;
+    }
+    
     switch( event.type )
     {
     case SDL_MOUSEWHEEL:
