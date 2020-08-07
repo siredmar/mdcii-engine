@@ -24,7 +24,7 @@ NAMESPACE_BEGIN(sdlgui)
  *
  * \brief A stack widget.
  */
-class  StackedWidget : public Widget 
+class StackedWidget : public Widget
 {
 public:
     StackedWidget(Widget* parent);

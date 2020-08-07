@@ -15,10 +15,12 @@
 
 NAMESPACE_BEGIN(sdlgui)
 
-StackedWidget::StackedWidget(Widget *parent)
-    : Widget(parent) { }
+StackedWidget::StackedWidget(Widget* parent)
+    : Widget(parent)
+{
+}
 
-void StackedWidget::setSelectedIndex(int index) 
+void StackedWidget::setSelectedIndex(int index)
 {
     assert(index < childCount());
     if (mSelectedIndex >= 0)
@@ -27,27 +29,31 @@ void StackedWidget::setSelectedIndex(int index)
     mChildren[mSelectedIndex]->setVisible(true);
 }
 
-int StackedWidget::selectedIndex() const {
+int StackedWidget::selectedIndex() const
+{
     return mSelectedIndex;
 }
 
-void StackedWidget::performLayout(SDL_Renderer *ctx) {
-    for (auto child : mChildren) {
-      child->setPosition({ 0, 0 });
+void StackedWidget::performLayout(SDL_Renderer* ctx)
+{
+    for (auto child : mChildren)
+    {
+        child->setPosition({ 0, 0 });
         child->setSize(mSize);
         child->performLayout(ctx);
     }
 }
 
-Vector2i StackedWidget::preferredSize(SDL_Renderer *ctx) const 
+Vector2i StackedWidget::preferredSize(SDL_Renderer* ctx) const
 {
-  Vector2i size{ 0, 0 };
+    Vector2i size{ 0, 0 };
     for (auto child : mChildren)
         size = size.cmax(child->preferredSize(ctx));
     return size;
 }
 
-void StackedWidget::addChild(int index, Widget *widget) {
+void StackedWidget::addChild(int index, Widget* widget)
+{
     if (mSelectedIndex >= 0)
         mChildren[mSelectedIndex]->setVisible(false);
     Widget::addChild(index, widget);

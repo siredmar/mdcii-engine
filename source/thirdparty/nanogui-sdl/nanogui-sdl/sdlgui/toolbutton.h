@@ -17,8 +17,8 @@ NAMESPACE_BEGIN(sdlgui)
 class ToolButton : public Button
 {
 public:
-    ToolButton(Widget *parent, int icon,
-           const std::string &caption = "")
+    ToolButton(Widget* parent, int icon,
+        const std::string& caption = "")
         : Button(parent, caption, icon)
     {
         setFlags(Flags::RadioButton | Flags::ToggleButton);

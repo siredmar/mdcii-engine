@@ -20,20 +20,21 @@
 
 NAMESPACE_BEGIN(sdlgui)
 
-ColorWheel::ColorWheel(Widget *parent, const Color& rgb)
-    : Widget(parent), mDragRegion(None) 
+ColorWheel::ColorWheel(Widget* parent, const Color& rgb)
+    : Widget(parent)
+    , mDragRegion(None)
 {
     setColor(rgb);
 }
 
-Vector2i ColorWheel::preferredSize(SDL_Renderer *) const
+Vector2i ColorWheel::preferredSize(SDL_Renderer*) const
 {
     return { 100, 100 };
 }
 
-void ColorWheel::draw(SDL_Renderer *renderer) 
+void ColorWheel::draw(SDL_Renderer* renderer)
 {
-/*    Widget::draw(ctx);
+    /*    Widget::draw(ctx);
 
     if (!mVisible)
         return;
@@ -144,31 +145,34 @@ void ColorWheel::draw(SDL_Renderer *renderer)
     */
 }
 
-bool ColorWheel::mouseButtonEvent(const Vector2i &p, int button, bool down,
-                                  int modifiers) 
+bool ColorWheel::mouseButtonEvent(const Vector2i& p, int button, bool down,
+    int modifiers)
 {
     Widget::mouseButtonEvent(p, button, down, modifiers);
     if (!mEnabled || button != SDL_BUTTON_LEFT)
         return false;
 
-    if (down) {
+    if (down)
+    {
         mDragRegion = adjustPosition(p);
         return mDragRegion != None;
-    } else {
+    }
+    else
+    {
         mDragRegion = None;
         return true;
     }
 }
 
-bool ColorWheel::mouseDragEvent(const Vector2i &p, const Vector2i &,
-                                int, int) 
+bool ColorWheel::mouseDragEvent(const Vector2i& p, const Vector2i&,
+    int, int)
 {
     return adjustPosition(p, mDragRegion) != None;
 }
 
-ColorWheel::Region ColorWheel::adjustPosition(const Vector2i &p, Region consideredRegions)
+ColorWheel::Region ColorWheel::adjustPosition(const Vector2i& p, Region consideredRegions)
 {
- /*   float x = p.x - _pos.x,
+    /*   float x = p.x - _pos.x,
           y = p.y - _pos.y,
           w = mSize.x,
           h = mSize.y;
@@ -240,14 +244,14 @@ ColorWheel::Region ColorWheel::adjustPosition(const Vector2i &p, Region consider
     }
     */
     return None;
-
 }
 
-Color ColorWheel::hue2rgb(float h) const 
+Color ColorWheel::hue2rgb(float h) const
 {
     float s = 1., v = 1.;
 
-    if (h < 0) h += 1;
+    if (h < 0)
+        h += 1;
 
     int i = int(h * 6);
     float f = h * 6 - i;
@@ -256,29 +260,42 @@ Color ColorWheel::hue2rgb(float h) const
     float t = v * (1 - (1 - f) * s);
 
     float r = 0, g = 0, b = 0;
-    switch (i % 6) {
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
+    switch (i % 6)
+    {
+        case 0:
+            r = v, g = t, b = p;
+            break;
+        case 1:
+            r = q, g = v, b = p;
+            break;
+        case 2:
+            r = p, g = v, b = t;
+            break;
+        case 3:
+            r = p, g = q, b = v;
+            break;
+        case 4:
+            r = t, g = p, b = v;
+            break;
+        case 5:
+            r = v, g = p, b = q;
+            break;
     }
 
     return { r, g, b, 1.f };
 }
 
-Color ColorWheel::color() const 
+Color ColorWheel::color() const
 {
-    Color rgb    = hue2rgb(mHue);
-    Color black  { 0.f, 0.f, 0.f, 1.f };
-    Color white  { 1.f, 1.f, 1.f, 1.f };
+    Color rgb = hue2rgb(mHue);
+    Color black{ 0.f, 0.f, 0.f, 1.f };
+    Color white{ 1.f, 1.f, 1.f, 1.f };
     return rgb * (1 - mWhite - mBlack) + black * mBlack + white * mWhite;
 }
 
-void ColorWheel::setColor(const Color &rgb) 
+void ColorWheel::setColor(const Color& rgb)
 {
-/*    float r = rgb[0], g = rgb[1], b = rgb[2];
+    /*    float r = rgb[0], g = rgb[1], b = rgb[2];
 
     float max = std::max({ r, g, b });
     float min = std::min({ r, g, b });
@@ -316,4 +333,3 @@ void ColorWheel::setColor(const Color &rgb)
 }
 
 NAMESPACE_END(sdlgui)
-
