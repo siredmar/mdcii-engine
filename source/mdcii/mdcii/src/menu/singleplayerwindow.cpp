@@ -33,8 +33,11 @@
 #include "menu/gamewindow.hpp"
 #include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
+#include "menu/startgamewindow.hpp"
 #include "savegames/savegames.hpp"
 #include "savegames/scenarios.hpp"
+
+#include "gamelist.pb.h"
 
 static std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
 
@@ -51,7 +54,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     , hostgad(std::make_shared<Hostgad>(std::make_shared<CodParser>(files->FindPathForFile("host.gad"), false, false)))
     , quit(false)
     , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
+    , savegameSingleGame(GamesPb::SingleGame())
     , savegame("")
+    , triggerStartSingleGame(false)
     , triggerStartGame(false)
     , scale(Scale::Instance())
 {
@@ -233,8 +238,8 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
                     auto& button = tableEntry.texturebutton(texture, [this, entry] {
                         std::cout << entry.name() << " clicked" << std::endl;
-                        savegame = entry.path();
-                        triggerStartGame = true;
+                        savegameSingleGame = entry;
+                        triggerStartSingleGame = true;
                     });
                     button.setPosition(0, 0);
                     button.setWidth(tableGad->Size.w);
@@ -347,6 +352,12 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     Redraw();
 }
 
+void SinglePlayerWindow::LoadGame(const GamesPb::SingleGame& gamName)
+{
+    StartGameWindow startGameWindow(renderer, pwindow, width, height, fullscreen);
+    startGameWindow.Handle(gamName);
+}
+
 void SinglePlayerWindow::LoadGame(const std::string& gamName)
 {
     if (files->CheckFile(gamName) == false)
@@ -356,7 +367,6 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
     }
     GameWindow gameWindow(renderer, pwindow, gamName, fullscreen);
     gameWindow.Handle();
-    Handle();
 }
 
 void SinglePlayerWindow::Redraw()
@@ -438,10 +448,17 @@ void SinglePlayerWindow::Handle()
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-            if (triggerStartGame)
+            if (triggerStartSingleGame)
+            {
+                triggerStartSingleGame = false;
+                LoadGame(savegameSingleGame);
+                Handle();
+            }
+            else if (triggerStartGame)
             {
                 triggerStartGame = false;
-                this->LoadGame(savegame);
+                LoadGame(savegame);
+                Handle();
             }
             this->drawAll();
             SDL_RenderPresent(renderer);

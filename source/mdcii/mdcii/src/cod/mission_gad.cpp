@@ -20,13 +20,13 @@
 
 #include "cod/mission_gad.hpp"
 
-Missiongad::Missiongad(std::shared_ptr<CodParser> cod)
+MissionGad::MissionGad(std::shared_ptr<CodParser> cod)
     : cod(cod)
 {
     GenerateGadgets();
 }
 
-std::experimental::optional<MissionGadGadget*> Missiongad::GetGadget(int id)
+std::experimental::optional<MissionGadGadget*> MissionGad::GetGadget(int id)
 {
     if (gadgets.find(id) == gadgets.end())
     {
@@ -37,16 +37,16 @@ std::experimental::optional<MissionGadGadget*> Missiongad::GetGadget(int id)
         return &gadgets[id];
     }
 }
-int Missiongad::GetGadgetsSize()
+int MissionGad::GetGadgetsSize()
 {
     return gadgetsVector.size();
 }
-MissionGadGadget* Missiongad::GetGadgetByIndex(int index)
+MissionGadGadget* MissionGad::GetGadgetByIndex(int index)
 {
     return gadgetsVector[index];
 }
 
-void Missiongad::GenerateGadgets()
+void MissionGad::GenerateGadgets()
 {
     for (int o = 0; o < cod->objects.object_size(); o++)
     {
@@ -67,7 +67,7 @@ void Missiongad::GenerateGadgets()
     }
 }
 
-MissionGadGadget Missiongad::GenerateGadget(const cod_pb::Object* obj)
+MissionGadGadget MissionGad::GenerateGadget(const cod_pb::Object* obj)
 {
     MissionGadGadget h;
     if (obj->has_variables() == true)

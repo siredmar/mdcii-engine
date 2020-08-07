@@ -59,10 +59,10 @@ struct MissionGadGadget
     } Size;
 };
 
-class Missiongad
+class MissionGad
 {
 public:
-    explicit Missiongad(std::shared_ptr<CodParser> cod);
+    explicit MissionGad(std::shared_ptr<CodParser> cod);
     std::experimental::optional<MissionGadGadget*> GetGadget(int id);
     int GetGadgetsSize();
     MissionGadGadget* GetGadgetByIndex(int index);
