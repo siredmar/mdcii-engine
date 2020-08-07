@@ -61,6 +61,7 @@ set(headers
     ${include_path}/renderer/renderer.hpp
     ${include_path}/menu/mainmenu.hpp
     ${include_path}/menu/singleplayerwindow.hpp
+    ${include_path}/menu/startgamewindow.hpp
     ${include_path}/menu/gamewindow.hpp
     ${include_path}/menu/fps.hpp
     ${include_path}/menu/scale.hpp
@@ -117,6 +118,7 @@ set(sources
     ${source_path}/renderer/renderer.cpp
     ${source_path}/menu/mainmenu.cpp
     ${source_path}/menu/singleplayerwindow.cpp
+    ${source_path}/menu/startgamewindow.cpp
     ${source_path}/menu/gamewindow.cpp
     ${source_path}/menu/scale.cpp
     ${source_path}/cod/codhelpers.cpp
