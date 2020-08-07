@@ -39,7 +39,7 @@
 
 using namespace sdlgui;
 StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
-    : Screen(pwindow, Vector2i(width, height), "Game", false, true)
+    : Screen(pwindow, Vector2i(width, height), "Game", false, true, true)
     , renderer(renderer)
     , width(width)
     , height(height)
@@ -160,8 +160,9 @@ void StartGameWindow::LoadGame(const GamesPb::SingleGame& gamName)
         std::cout << "[ERR] Could not load savegame: " << gamName.path() << std::endl;
         exit(EXIT_FAILURE);
     }
-    GameWindow gameWindow(renderer, pwindow, gamName.path(), fullscreen);
-    gameWindow.Handle();
+    auto gameWindow = std::make_shared<GameWindow>(renderer, pwindow, gamName.path(), fullscreen);
+    gameWindow->Handle();
+    gameWindow.reset();
 }
 
 void StartGameWindow::Redraw()

@@ -32,7 +32,7 @@
 using namespace sdlgui;
 
 GameWindow::GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen)
-    : Screen(pwindow, Vector2i(Scale::Instance()->GetScreenWidth(), Scale::Instance()->GetScreenHeight()), "Game")
+    : Screen(pwindow, Vector2i(Scale::Instance()->GetScreenWidth(), Scale::Instance()->GetScreenHeight()), "Game", false, false, true)
     , renderer(renderer)
     , width(Scale::Instance()->GetScreenWidth())
     , height(Scale::Instance()->GetScreenHeight())

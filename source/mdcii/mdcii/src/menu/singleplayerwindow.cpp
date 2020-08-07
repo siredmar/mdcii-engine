@@ -43,7 +43,7 @@ static std::default_random_engine dre(std::chrono::steady_clock::now().time_sinc
 
 using namespace sdlgui;
 SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
-    : Screen(pwindow, Vector2i(width, height), "Game", false, true)
+    : Screen(pwindow, Vector2i(width, height), "Game", false, true, true)
     , renderer(renderer)
     , width(width)
     , height(height)
@@ -354,8 +354,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 
 void SinglePlayerWindow::LoadGame(const GamesPb::SingleGame& gamName)
 {
-    StartGameWindow startGameWindow(renderer, pwindow, width, height, fullscreen);
-    startGameWindow.Handle(gamName);
+    auto startGameWindow = std::make_shared<StartGameWindow>(renderer, pwindow, width, height, fullscreen);
+    startGameWindow->Handle(gamName);
+    startGameWindow.reset();
 }
 
 void SinglePlayerWindow::LoadGame(const std::string& gamName)
@@ -365,8 +366,8 @@ void SinglePlayerWindow::LoadGame(const std::string& gamName)
         std::cout << "[ERR] Could not load savegame: " << gamName << std::endl;
         exit(EXIT_FAILURE);
     }
-    GameWindow gameWindow(renderer, pwindow, gamName, fullscreen);
-    gameWindow.Handle();
+    auto gameWindow = std::make_shared<GameWindow>(renderer, pwindow, gamName, fullscreen);
+    gameWindow->Handle();
 }
 
 void SinglePlayerWindow::Redraw()
@@ -452,13 +453,11 @@ void SinglePlayerWindow::Handle()
             {
                 triggerStartSingleGame = false;
                 LoadGame(savegameSingleGame);
-                Handle();
             }
             else if (triggerStartGame)
             {
                 triggerStartGame = false;
                 LoadGame(savegame);
-                Handle();
             }
             this->drawAll();
             SDL_RenderPresent(renderer);
