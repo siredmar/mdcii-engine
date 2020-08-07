@@ -16,33 +16,33 @@
 NAMESPACE_BEGIN(sdlgui)
 
 TextureView::TextureView(Widget* parent, SDL_Texture* texture)
-  : Widget(parent)
-  , mTexture(texture)
+    : Widget(parent)
+    , mTexture(texture)
 {
 }
 
 Vector2i TextureView::preferredSize(SDL_Renderer* ctx) const
 {
-  int w, h;
-  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
-  return Vector2i(w, h);
+    int w, h;
+    SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+    return Vector2i(w, h);
 }
 
 void TextureView::draw(SDL_Renderer* renderer)
 {
-  Widget::draw(renderer);
-  SDL_Point ap = getAbsolutePos();
-  int w, h;
-  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
-  auto mImageSize = Vector2i(w, h);
+    Widget::draw(renderer);
+    SDL_Point ap = getAbsolutePos();
+    int w, h;
+    SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+    auto mImageSize = Vector2i(w, h);
 
-  int x, y;
-  auto pos = absolutePosition();
-  x = pos[0];
-  y = pos[1];
-  SDL_Rect rect{x, y, w, h};
+    int x, y;
+    auto pos = absolutePosition();
+    x = pos[0];
+    y = pos[1];
+    SDL_Rect rect{ x, y, w, h };
 
-  SDL_RenderCopy(renderer, mTexture, NULL, &rect);
+    SDL_RenderCopy(renderer, mTexture, NULL, &rect);
 }
 
 NAMESPACE_END(sdlgui)

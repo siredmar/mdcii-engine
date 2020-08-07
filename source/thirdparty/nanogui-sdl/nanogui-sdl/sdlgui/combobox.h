@@ -14,37 +14,59 @@
 
 NAMESPACE_BEGIN(sdlgui)
 
-class  ComboBox : public PopupButton
+class ComboBox : public PopupButton
 {
 public:
     /// Create an empty combo box
-    ComboBox(Widget *parent);
+    ComboBox(Widget* parent);
 
     /// Create a new combo box with the given items
     //ComboBox(Widget *parent, const std::vector<std::string>& items={});
-    ComboBox(Widget *parent, const std::vector<std::string>& items);
+    ComboBox(Widget* parent, const std::vector<std::string>& items);
 
     /**
      * \brief Create a new combo box with the given items, providing both short and
      * long descriptive labels for each item
      */
-    ComboBox(Widget *parent, const std::vector<std::string> &items,
-             const std::vector<std::string> &itemsShort);
+    ComboBox(Widget* parent, const std::vector<std::string>& items,
+        const std::vector<std::string>& itemsShort);
 
-    std::function<void(int)> callback() const { return mCallback; }
-    void setCallback(const std::function<void(int)> &callback) { mCallback = callback; }
+    std::function<void(int)> callback() const
+    {
+        return mCallback;
+    }
+    void setCallback(const std::function<void(int)>& callback)
+    {
+        mCallback = callback;
+    }
 
-    int selectedIndex() const { return mSelectedIndex; }
+    int selectedIndex() const
+    {
+        return mSelectedIndex;
+    }
     void setSelectedIndex(int idx);
 
-    void setItems(const std::vector<std::string> &items, const std::vector<std::string> &itemsShort);
-    void setItems(const std::vector<std::string> &items) { setItems(items, items); }
-    const std::vector<std::string> &items() const { return mItems; }
-    const std::vector<std::string> &itemsShort() const { return mItemsShort; }
+    void setItems(const std::vector<std::string>& items, const std::vector<std::string>& itemsShort);
+    void setItems(const std::vector<std::string>& items)
+    {
+        setItems(items, items);
+    }
+    const std::vector<std::string>& items() const
+    {
+        return mItems;
+    }
+    const std::vector<std::string>& itemsShort() const
+    {
+        return mItemsShort;
+    }
 
-    ComboBox& withItems(const std::vector<std::string>& items) {setItems(items); return *this;}
+    ComboBox& withItems(const std::vector<std::string>& items)
+    {
+        setItems(items);
+        return *this;
+    }
 
-    bool scrollEvent(const Vector2i &p, const Vector2f &rel);
+    bool scrollEvent(const Vector2i& p, const Vector2f& rel);
 
 protected:
     std::vector<std::string> mItems, mItemsShort;
