@@ -100,6 +100,7 @@ set(headers
     ${include_path}/spielbildschirm.hpp
     ${include_path}/strukturen.hpp
     ${include_path}/welt.hpp
+    ${include_path}/sdl2shared/sdl2shared.hpp
 )
 
 set(sources
