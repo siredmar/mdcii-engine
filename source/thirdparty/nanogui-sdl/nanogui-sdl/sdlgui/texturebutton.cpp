@@ -16,103 +16,104 @@
 NAMESPACE_BEGIN(sdlgui)
 
 TextureButton::TextureButton(Widget* parent, SDL_Texture* texture)
-    : Widget(parent)
-    , mPrimaryTexture(texture)
-    , mTexture(mPrimaryTexture)
-    , mPushed(false)
-    , mFlags(0)
-    , _pushedTemp(false)
+  : Widget(parent)
+  , mPrimaryTexture(texture)
+  , mTexture(mPrimaryTexture)
+  , mPushed(false)
+  , mFlags(0)
+  , _pushedTemp(false)
 {
-    int w, h;
-    SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
-    Vector2i size = { w, h };
-    setSize(size);
+  int w, h;
+  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+  Vector2i size = {w, h};
+  setSize(size);
 }
 
 Vector2i TextureButton::preferredSize(SDL_Renderer* ctx) const
 {
-    int w, h;
-    SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
-    return Vector2i(w, h);
+  int w, h;
+  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+  return Vector2i(w, h);
 }
 
 void TextureButton::draw(SDL_Renderer* renderer)
 {
-    Widget::draw(renderer);
-    SDL_Point ap = getAbsolutePos();
-    int w, h;
-    SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
-    auto mImageSize = Vector2i(w, h);
+  Widget::draw(renderer);
+  SDL_Point ap = getAbsolutePos();
+  int w, h;
+  SDL_QueryTexture(mTexture, nullptr, nullptr, &w, &h);
+  auto mImageSize = Vector2i(w, h);
 
-    int x, y;
-    auto pos = absolutePosition();
-    x = pos[0];
-    y = pos[1];
-    SDL_Rect rect{ x, y, w, h };
+  int x, y;
+  auto pos = absolutePosition();
+  x = pos[0];
+  y = pos[1];
+  SDL_Rect rect{x, y, w, h};
 
-    SDL_RenderCopy(renderer, mTexture, NULL, &rect);
+  SDL_RenderCopy(renderer, mTexture, NULL, &rect);
 }
+
 
 bool TextureButton::mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers)
 {
-    Widget::mouseButtonEvent(p, button, down, modifiers);
-    /* Temporarily increase the reference count of the button in case the
+  Widget::mouseButtonEvent(p, button, down, modifiers);
+  /* Temporarily increase the reference count of the button in case the
      button causes the parent window to be destructed */
-    ref<TextureButton> self = this;
+  ref<TextureButton> self = this;
 
-    if (button == SDL_BUTTON_LEFT && mEnabled)
+  if (button == SDL_BUTTON_LEFT && mEnabled)
+  {
+    bool pushedBackup = mPushed;
+    if (down == true)
     {
-        bool pushedBackup = mPushed;
-        if (down == true)
-        {
-            _pushedTemp = true;
-            if (mFlags & OnClick)
-            {
-                mTexture = mSecondaryTexture;
-            }
-        }
-        else
-        {
-            mTexture = mPrimaryTexture;
-        }
-
-        if (down == false && _pushedTemp)
-        {
-            mPushed = true;
-        }
-
-        if (mPushed)
-        {
-            if (contains(p) && mCallback)
-            {
-                mCallback();
-            }
-
-            mPushed = false;
-            _pushedTemp = false;
-        }
-        return true;
+      _pushedTemp = true;
+      if (mFlags & OnClick)
+      {
+        mTexture = mSecondaryTexture;
+      }
     }
-    return false;
+    else
+    {
+      mTexture = mPrimaryTexture;
+    }
+
+    if (down == false && _pushedTemp)
+    {
+      mPushed = true;
+    }
+
+    if (mPushed)
+    {
+      if (contains(p) && mCallback)
+      {
+        mCallback();
+      }
+
+      mPushed = false;
+      _pushedTemp = false;
+    }
+    return true;
+  }
+  return false;
 }
 
 bool TextureButton::mouseEnterEvent(const Vector2i& p, bool enter)
 {
-    Widget::mouseEnterEvent(p, enter);
-    /* Temporarily increase the reference count of the button in case the
+  Widget::mouseEnterEvent(p, enter);
+  /* Temporarily increase the reference count of the button in case the
      button causes the parent window to be destructed */
-    ref<TextureButton> self = this;
-    if (mFlags & OnHover && mSecondaryTexture)
+  ref<TextureButton> self = this;
+  if (mFlags & OnHover && mSecondaryTexture)
+  {
+    if (enter)
     {
-        if (enter)
-        {
-            mTexture = mSecondaryTexture;
-        }
-        else
-        {
-            mTexture = mPrimaryTexture;
-        }
+      mTexture = mSecondaryTexture;
     }
+    else
+    {
+      mTexture = mPrimaryTexture;
+    }
+  }
 }
 
 NAMESPACE_END(sdlgui)

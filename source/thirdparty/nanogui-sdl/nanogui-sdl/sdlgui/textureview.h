@@ -26,26 +26,26 @@ NAMESPACE_BEGIN(sdlgui)
 class TextureView : public Widget
 {
 public:
-    TextureView(Widget* parent, SDL_Texture* texture);
+  TextureView(Widget* parent, SDL_Texture* texture);
 
-    SDL_Texture* texture() const
-    {
-        return mTexture;
-    }
-    /// Set the primary SDL_Texture
-    void setTexture(SDL_Texture* texture)
-    {
-        mTexture = texture;
-    }
+  SDL_Texture* texture() const
+  {
+    return mTexture;
+  }
+  /// Set the primary SDL_Texture
+  void setTexture(SDL_Texture* texture)
+  {
+    mTexture = texture;
+  }
 
-    /// Compute the size needed to fully display the texture view
-    virtual Vector2i preferredSize(SDL_Renderer* ctx) const override;
+  /// Compute the size needed to fully display the texture view
+  virtual Vector2i preferredSize(SDL_Renderer* ctx) const override;
 
-    /// Draw the texture view
-    void draw(SDL_Renderer* renderer) override;
+  /// Draw the texture view
+  void draw(SDL_Renderer* renderer) override;
 
 protected:
-    SDL_Texture* mTexture;
+  SDL_Texture* mTexture;
 };
 
 NAMESPACE_END(sdlgui)
