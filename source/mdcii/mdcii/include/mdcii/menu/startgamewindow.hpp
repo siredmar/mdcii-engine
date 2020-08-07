@@ -15,8 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef SINGLEPLAYERWINDOW_H_
-#define SINGLEPLAYERWINDOW_H_
+#ifndef _STARTGAMEWINDOW_HPP_
+#define _STARTGAMEWINDOW_HPP_
 
 #include <iostream>
 #include <memory>
@@ -36,7 +36,7 @@
 #include "cod/basegad_dat.hpp"
 #include "cod/buildings.hpp"
 #include "cod/cod_parser.hpp"
-#include "cod/host_gad.hpp"
+#include "cod/mission_gad.hpp"
 #include "files/files.hpp"
 #include "framebuffer/palette.hpp"
 #include "savegames/savegames.hpp"
@@ -48,15 +48,14 @@
 
 using namespace sdlgui;
 
-class SinglePlayerWindow : public Screen
+class StartGameWindow : public Screen
 {
 public:
-    SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
-    void Handle();
+    StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
+    void Handle(const GamesPb::SingleGame& savegame);
 
 private:
     void LoadGame(const GamesPb::SingleGame& gamName);
-    void LoadGame(const std::string& gamName);
     void Redraw();
     SDL_Renderer* renderer;
     int width;
@@ -65,20 +64,11 @@ private:
     std::shared_ptr<Buildings> buildings;
     SDL_Window* pwindow;
     Files* files;
-    std::shared_ptr<Hostgad> hostgad;
+    std::shared_ptr<MissionGad> gad;
     bool quit;
     StringToSDLTextureConverter stringConverter;
-    GamesPb::SingleGame savegameSingleGame;
-    std::string savegame;
-    bool triggerStartSingleGame;
     bool triggerStartGame;
     Scale* scale;
-    std::vector<SDL_Texture*> tableStars;
-    std::vector<Widget> scenariosList;
-    TextureTableBase* scenariosTablePtr;
-    TextureTableBase* savegamesTablePtr;
-    TextureTableBase* currentTablePtr;
     std::vector<std::tuple<Widget*, int, int>> widgets;
-    GamesPb::Games scenes;
 };
 #endif
