@@ -47,6 +47,9 @@ public:
     GameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, const std::string& gamName, bool fullscreen);
     void Handle();
     void RedrawControlWidgets();
+    ~GameWindow()
+    {
+    }
 
 private:
     void CreateSpielbildschirm(uint32_t width, uint32_t height);

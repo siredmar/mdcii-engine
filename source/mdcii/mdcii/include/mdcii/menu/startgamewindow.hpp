@@ -53,6 +53,9 @@ class StartGameWindow : public Screen
 public:
     StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
     void Handle(const GamesPb::SingleGame& savegame);
+    ~StartGameWindow()
+    {
+    }
 
 private:
     void LoadGame(const GamesPb::SingleGame& gamName);

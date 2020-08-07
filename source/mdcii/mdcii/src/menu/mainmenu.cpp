@@ -32,7 +32,7 @@
 
 using namespace sdlgui;
 MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL_Window* pwindow, int width, int height, bool fullscreen)
-    : Screen(pwindow, Vector2i(width, height), "Game", false, true)
+    : Screen(pwindow, Vector2i(width, height), "Game", false, true, true)
     , renderer(renderer)
     , buildings(Buildings::Instance())
     , basegad(basegad)
@@ -160,7 +160,6 @@ void MainMenu::Handle()
 
         Fps fps;
 
-        SinglePlayerWindow singleplayerwindow(renderer, pwindow, width, height, fullscreen);
         SDL_Event e;
         while (!quit)
         {
@@ -208,8 +207,8 @@ void MainMenu::Handle()
             if (triggerSinglePlayer)
             {
                 triggerSinglePlayer = false;
-                singleplayerwindow.Handle();
-                Handle();
+                auto singleplayerwindow = std::make_shared<SinglePlayerWindow>(renderer, pwindow, width, height, fullscreen);
+                singleplayerwindow->Handle();
             }
             this->drawAll();
             SDL_RenderPresent(renderer);
