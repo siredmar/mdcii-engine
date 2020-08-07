@@ -60,7 +60,7 @@ private:
     bool running;
     std::shared_ptr<GamParser> gam;
     Scale* scale;
-    SDL_Surface* s8;
+    std::shared_ptr<SDL_Surface> s8;
     std::shared_ptr<FramebufferPal8> fb;
     std::shared_ptr<Spielbildschirm> spielbildschirm;
     std::vector<std::tuple<Widget*, int, int>> controlWidgets;
