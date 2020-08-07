@@ -19,26 +19,24 @@
 
 NAMESPACE_BEGIN(sdlgui)
 
-ListImages loadImageDirectory(SDL_Renderer* renderer, const std::string& path)
+ListImages loadImageDirectory(SDL_Renderer* renderer, const std::string &path) 
 {
-    ListImages result;
+  ListImages result;
 #if !defined(_WIN32)
-    DIR* dp = opendir(path.c_str());
+    DIR *dp = opendir(path.c_str());
     if (!dp)
         throw std::runtime_error("Could not open image directory!");
-    struct dirent* ep;
-    while ((ep = readdir(dp)))
-    {
-        const char* fname = ep->d_name;
+    struct dirent *ep;
+    while ((ep = readdir(dp))) {
+        const char *fname = ep->d_name;
 #else
     WIN32_FIND_DATA ffd;
     std::string searchPath = path + "/*.*";
     HANDLE handle = FindFirstFileA(searchPath.c_str(), &ffd);
     if (handle == INVALID_HANDLE_VALUE)
         throw std::runtime_error("Could not open image directory!");
-    do
-    {
-        const char* fname = ffd.cFileName;
+    do {
+        const char *fname = ffd.cFileName;
 #endif
         if (strstr(fname, "png") == nullptr)
             continue;
@@ -50,7 +48,7 @@ ListImages loadImageDirectory(SDL_Renderer* renderer, const std::string& path)
         iminfo.tex = tex;
         iminfo.path = fullName;
         SDL_QueryTexture(tex, nullptr, nullptr, &iminfo.w, &iminfo.h);
-
+        
         result.push_back(iminfo);
 #if !defined(_WIN32)
     }

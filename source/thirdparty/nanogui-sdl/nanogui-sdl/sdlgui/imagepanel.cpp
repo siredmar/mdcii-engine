@@ -13,42 +13,42 @@
 
 NAMESPACE_BEGIN(sdlgui)
 
-ImagePanel::ImagePanel(Widget* parent)
-    : Widget(parent)
-    , mThumbSize(64)
-    , mSpacing(10)
-    , mMargin(10)
-    , mMouseIndex(-1)
+ImagePanel::ImagePanel(Widget *parent)
+    : Widget(parent), mThumbSize(64), mSpacing(10), mMargin(10),
+  mMouseIndex(-1) 
 {
 }
 
 Vector2i ImagePanel::gridSize() const
 {
-    int nCols = 1 + std::max(0, (int)((mSize.x - 2 * mMargin - mThumbSize) / (float)(mThumbSize + mSpacing)));
-    int nRows = ((int)mImages.size() + nCols - 1) / nCols;
+    int nCols = 1 + std::max(0,
+        (int) ((mSize.x - 2 * mMargin - mThumbSize) /
+        (float) (mThumbSize + mSpacing)));
+    int nRows = ((int) mImages.size() + nCols - 1) / nCols;
     return Vector2i(nCols, nRows);
 }
 
-int ImagePanel::indexForPosition(const Vector2i& p) const
+int ImagePanel::indexForPosition(const Vector2i &p) const
 {
-    Vector2f pp = (p.tofloat() - Vector2f(mMargin, mMargin)) / (float)(mThumbSize + mSpacing);
+  Vector2f pp = (p.tofloat() - Vector2f(mMargin, mMargin)) / (float)(mThumbSize + mSpacing);
     float iconRegion = mThumbSize / (float)(mThumbSize + mSpacing);
-    bool overImage = pp.x - std::floor(pp.x) < iconRegion && pp.y - std::floor(pp.y) < iconRegion;
+    bool overImage = pp.x - std::floor(pp.x) < iconRegion &&
+                    pp.y - std::floor(pp.y) < iconRegion;
     Vector2i gridPos = pp.toint();
     Vector2i grid = gridSize();
     overImage &= gridPos.positive() && gridPos.lessOrEq(grid);
     return overImage ? (gridPos.x + gridPos.y * grid.x) : -1;
 }
 
-bool ImagePanel::mouseMotionEvent(const Vector2i& p, const Vector2i& /* rel */,
-    int /* button */, int /* modifiers */)
+bool ImagePanel::mouseMotionEvent(const Vector2i &p, const Vector2i & /* rel */,
+                              int /* button */, int /* modifiers */) 
 {
     mMouseIndex = indexForPosition(p);
     return true;
 }
 
-bool ImagePanel::mouseButtonEvent(const Vector2i& p, int /* button */, bool down,
-    int /* modifiers */)
+bool ImagePanel::mouseButtonEvent(const Vector2i &p, int /* button */, bool down,
+                                  int /* modifiers */) 
 {
     int index = indexForPosition(p);
     if (index >= 0 && mCallback && down)
@@ -56,18 +56,18 @@ bool ImagePanel::mouseButtonEvent(const Vector2i& p, int /* button */, bool down
     return true;
 }
 
-Vector2i ImagePanel::preferredSize(SDL_Renderer*) const
+Vector2i ImagePanel::preferredSize(SDL_Renderer *) const
 {
-    Vector2i grid = gridSize();
-    return {
+  Vector2i grid = gridSize();
+    return{
         grid.x * mThumbSize + (grid.x - 1) * mSpacing + 2 * mMargin,
         grid.y * mThumbSize + (grid.y - 1) * mSpacing + 2 * mMargin
     };
 }
 
-void ImagePanel::draw(SDL_Renderer* renderer)
+void ImagePanel::draw(SDL_Renderer* renderer) 
 {
-    Vector2i grid = gridSize();
+  Vector2i grid = gridSize();
 
     int ax = getAbsoluteLeft();
     int ay = getAbsoluteTop();
@@ -75,22 +75,22 @@ void ImagePanel::draw(SDL_Renderer* renderer)
     PntRect clip = getAbsoluteCliprect();
     SDL_Rect clipRect = pntrect2srect(clip);
 
-    for (size_t i = 0; i < mImages.size(); ++i)
+    for (size_t i=0; i<mImages.size(); ++i) 
     {
-        Vector2i p = Vector2i(mMargin, mMargin) + Vector2i((int)i % grid.x, (int)i / grid.x) * (mThumbSize + mSpacing);
+      Vector2i p = Vector2i(mMargin, mMargin) + Vector2i((int) i % grid.x, (int) i / grid.x) * (mThumbSize + mSpacing);
         p += Vector2i(ax, ay);
         int imgw = mImages[i].w;
         int imgh = mImages[i].h;
 
         float iw, ih, ix, iy;
-        if (imgw < imgh)
+        if (imgw < imgh) 
         {
             iw = mThumbSize;
             ih = iw * (float)imgh / (float)imgw;
             ix = 0;
             iy = -(ih - mThumbSize) * 0.5f;
-        }
-        else
+        } 
+        else 
         {
             ih = mThumbSize;
             iw = ih * (float)imgw / (float)imgh;
@@ -107,8 +107,8 @@ void ImagePanel::draw(SDL_Renderer* renderer)
 
         if (shadowPaintRect.w > 0 && shadowPaintRect.h > 0)
         {
-            SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
-            SDL_RenderFillRect(renderer, &shadowPaintRect);
+          SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
+          SDL_RenderFillRect(renderer, &shadowPaintRect);
         }
 
         SDL_Rect imgPaintRect{ p.x + ix, p.y + iy, iw, ih };
@@ -118,23 +118,23 @@ void ImagePanel::draw(SDL_Renderer* renderer)
         imgPaintRect.h = imgrect.y2 - imgrect.y1;
         if (imgPaintRect.y < clip.y1)
         {
-            imgPaintRect.y = clip.y1;
-            imgSrcRect.h = (imgPaintRect.h / (float)ih) * imgh;
-            imgSrcRect.y = (1 - (imgPaintRect.h / (float)ih)) * imgh;
+          imgPaintRect.y = clip.y1;
+          imgSrcRect.h = (imgPaintRect.h / (float)ih) * imgh;
+          imgSrcRect.y = (1 - (imgPaintRect.h / (float)ih)) * imgh;
         }
-        else if (imgPaintRect.h < ih)
+        else if(imgPaintRect.h < ih)
         {
-            imgSrcRect.h = (imgPaintRect.h / (float)ih) * imgh;
+          imgSrcRect.h = (imgPaintRect.h / (float)ih) * imgh;
         }
 
         SDL_RenderCopy(renderer, mImages[i].tex, &imgSrcRect, &imgPaintRect);
 
-        SDL_Rect brect{ p.x + 1, p.y + 1, mThumbSize - 2, mThumbSize - 2 };
+        SDL_Rect brect{ p.x + 1, p.y + 1, mThumbSize - 2, mThumbSize - 2};
         brect = clip_rects(brect, clipRect);
         if (brect.w > 0 && brect.h > 0)
         {
-            SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 80);
-            SDL_RenderDrawRect(renderer, &brect);
+          SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 80);
+          SDL_RenderDrawRect(renderer, &brect);
         }
     }
 

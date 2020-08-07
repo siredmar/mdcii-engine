@@ -11,13 +11,13 @@
 */
 
 #include <sdlgui/colorpicker.h>
-#include <sdlgui/colorwheel.h>
 #include <sdlgui/layout.h>
+#include <sdlgui/colorwheel.h>
 
 NAMESPACE_BEGIN(sdlgui)
 
-ColorPicker::ColorPicker(Widget* parent, const Color& color)
-    : PopupButton(parent, "")
+ColorPicker::ColorPicker(Widget *parent, const Color& color) 
+  : PopupButton(parent, "") 
 {
     setBackgroundColor(color);
     Popup& p = this->popup();
@@ -32,7 +32,7 @@ ColorPicker::ColorPicker(Widget* parent, const Color& color)
         mCallback(backgroundColor());
     });
 
-    mColorWheel->setCallback([&](const Color& value) {
+    mColorWheel->setCallback([&](const Color &value) {
         mPickButton->setBackgroundColor(value);
         mPickButton->setTextColor(value.contrastingColor());
         mCallback(value);
@@ -46,16 +46,14 @@ ColorPicker::ColorPicker(Widget* parent, const Color& color)
     });
 }
 
-Color ColorPicker::color() const
+Color ColorPicker::color() const 
 {
     return backgroundColor();
 }
 
-void ColorPicker::setColor(const Color& color)
-{
+void ColorPicker::setColor(const Color& color) {
     /* Ignore setColor() calls when the user is currently editing */
-    if (!mPushed)
-    {
+    if (!mPushed) {
         Color fg = color.contrastingColor();
         setBackgroundColor(color);
         setTextColor(fg);
