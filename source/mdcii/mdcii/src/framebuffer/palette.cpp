@@ -42,6 +42,7 @@ Palette* Palette::CreateInstance(const std::string& paletteFilePath)
         _instance = new Palette(paletteFilePath);
         _instance->transparentColor = _instance->FindTransparentColorIndex();
         _instance->c = (SDL_Color*)malloc(_instance->size() * sizeof(SDL_Color));
+        memset(_instance->c, 0, _instance->size() * sizeof(SDL_Color));
         for (int i = 0; i < _instance->size(); i++)
         {
             _instance->c[i].r = _instance->GetColor(i).getRed();

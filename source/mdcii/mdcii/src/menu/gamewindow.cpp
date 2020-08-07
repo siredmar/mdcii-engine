@@ -27,6 +27,7 @@
 #include "sdlgui/widget.h"
 
 #include "menu/gamewindow.hpp"
+#include "sdl2shared/sdl2shared.hpp"
 
 using namespace sdlgui;
 
@@ -63,15 +64,11 @@ void GameWindow::CreateSpielbildschirm(uint32_t width, uint32_t height)
     //   return;
     // }
 
-    if (s8 != NULL)
-    {
-        free(s8);
-    }
     auto palette = Palette::Instance();
 
-    s8 = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
-    SDL_SetPaletteColors(s8->format->palette, palette->GetSDLColors(), 0, palette->size());
-    fb = std::make_shared<FramebufferPal8>(width, height, 0, static_cast<uint8_t*>(s8->pixels), (uint32_t)s8->pitch);
+    s8 = sdl2::make_shared(SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0));
+    SDL_SetPaletteColors(s8.get()->format->palette, palette->GetSDLColors(), 0, palette->size());
+    fb = std::make_shared<FramebufferPal8>(width, height, 0, static_cast<uint8_t*>(s8.get()->pixels), (uint32_t)s8.get()->pitch);
     spielbildschirm = std::make_shared<Spielbildschirm>(*fb);
 }
 
@@ -105,7 +102,7 @@ void GameWindow::Handle()
 
     try
     {
-        auto finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+        auto finalSurface = SDL_ConvertSurfaceFormat(s8.get(), SDL_PIXELFORMAT_RGB888, 0);
         auto texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -190,7 +187,7 @@ void GameWindow::Handle()
 
             welt.simulationsschritt();
             spielbildschirm->zeichne_bild(welt, x, y);
-            finalSurface = SDL_ConvertSurfaceFormat(s8, SDL_PIXELFORMAT_RGB888, 0);
+            finalSurface = SDL_ConvertSurfaceFormat(s8.get(), SDL_PIXELFORMAT_RGB888, 0);
             texture = SDL_CreateTextureFromSurface(renderer, finalSurface);
             SDL_FreeSurface(finalSurface);
             SDL_RenderClear(renderer);
@@ -210,7 +207,6 @@ void GameWindow::Handle()
         std::cerr << error_msg << std::endl;
 #endif
     }
-    SDL_FreeSurface(s8);
 }
 
 #endif

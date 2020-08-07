@@ -246,7 +246,7 @@ void StartGameWindow::Handle(const GamesPb::SingleGame& savegame)
             if (triggerStartGame)
             {
                 triggerStartGame = false;
-                this->LoadGame(savegame);
+                LoadGame(savegame);
                 quit = true;
             }
             this->drawAll();
