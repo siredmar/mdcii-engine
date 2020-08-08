@@ -156,7 +156,8 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
 
         for (int i = 0; i < 5; i++)
         {
-            auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [&, i] {
+            auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i] {
+                std::cout << this->campaign.name() << std::endl;
                 for (int missions = 0; missions < 5; missions++)
                 {
                     if (missions == i)
@@ -165,10 +166,10 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
                     }
                     missionSelectButtons[missions]->setPushed(false);
                 }
-                if (campaign.game_size() >= i)
+                if (this->campaign.game_size() > 0 && this->campaign.game_size() > i)
                 {
-                    singleGame = campaign.game(i);
-                    std::cout << "Mission " + singleGame.name() + " selected" << std::endl;
+                    this->singleGame = this->campaign.game(i);
+                    std::cout << "Mission " + this->singleGame.name() + " selected" << std::endl;
                 }
             });
             missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
@@ -199,7 +200,9 @@ void StartGameWindow::SetGame(const GamesPb::Campaign& game)
     campaign = game;
     if (campaign.game_size() > 0)
     {
+        missionSelectButtons[0]->setPushed(true);
         singleGame = campaign.game(0);
+        std::cout << "[INFO] Setting campaign " + campaign.name() << std::endl;
     }
     else
     {
