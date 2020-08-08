@@ -394,16 +394,16 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
 void SinglePlayerWindow::LoadGame(const GamesPb::Campaign& campaign)
 {
     auto startGameWindow = std::make_shared<StartGameWindow>(renderer, pwindow, width, height, fullscreen);
-    startGameWindow->Handle();
     startGameWindow->SetGame(campaign);
+    startGameWindow->Handle();
     startGameWindow.reset();
 }
 
 void SinglePlayerWindow::LoadGame(const GamesPb::SingleGame& gamName)
 {
     auto startGameWindow = std::make_shared<StartGameWindow>(renderer, pwindow, width, height, fullscreen);
-    startGameWindow->Handle();
     startGameWindow->SetGame(gamName);
+    startGameWindow->Handle();
     startGameWindow.reset();
 }
 
@@ -510,7 +510,7 @@ void SinglePlayerWindow::Handle()
             else if (triggerStartCampaignGame)
             {
                 triggerStartCampaignGame = false;
-                LoadGame(savegameSingleGame);
+                LoadGame(savegameCampaignGame);
             }
             this->drawAll();
             SDL_RenderPresent(renderer);
