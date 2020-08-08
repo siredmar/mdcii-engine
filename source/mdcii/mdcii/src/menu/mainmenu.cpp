@@ -92,25 +92,25 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
         });
         singlePlayerButton.setPosition(singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y);
         singlePlayerButton.setSecondaryTexture(singlePlayerTextureClicked);
-        singlePlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+        singlePlayerButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&singlePlayerButton, singlePlayerButtonGad->Pos.x, singlePlayerButtonGad->Pos.y));
 
         auto& multiPlayerButton = wdg<TextureButton>(multiPlayerTexture, [this] { std::cout << "Multiplayer pressed" << std::endl; });
         multiPlayerButton.setPosition(multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y);
         multiPlayerButton.setSecondaryTexture(multiPlayerTextureClicked);
-        multiPlayerButton.setTextureSwitchFlags(TextureButton::OnClick);
+        multiPlayerButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&multiPlayerButton, multiPlayerButtonGad->Pos.x, multiPlayerButtonGad->Pos.y));
 
         auto& creditsButton = wdg<TextureButton>(creditsTexture, [this] { std::cout << "credits pressed" << std::endl; });
         creditsButton.setPosition(creditsButtonGad->Pos.x, creditsButtonGad->Pos.y);
         creditsButton.setSecondaryTexture(creditsTextureClicked);
-        creditsButton.setTextureSwitchFlags(TextureButton::OnClick);
+        creditsButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&creditsButton, creditsButtonGad->Pos.x, creditsButtonGad->Pos.y));
 
         auto& introButton = wdg<TextureButton>(introTexture, [this] { std::cout << "intro pressed" << std::endl; });
         introButton.setPosition(introButtonGad->Pos.x, introButtonGad->Pos.y);
         introButton.setSecondaryTexture(introTextureClicked);
-        introButton.setTextureSwitchFlags(TextureButton::OnClick);
+        introButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&introButton, introButtonGad->Pos.x, introButtonGad->Pos.y));
 
         auto& exitButton = wdg<TextureButton>(exitTexture, [this] {
@@ -119,7 +119,7 @@ MainMenu::MainMenu(SDL_Renderer* renderer, std::shared_ptr<Basegad> basegad, SDL
         });
         exitButton.setPosition(exitButtonGad->Pos.x, exitButtonGad->Pos.y);
         exitButton.setSecondaryTexture(exitTextureClicked);
-        exitButton.setTextureSwitchFlags(TextureButton::OnClick);
+        exitButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&exitButton, exitButtonGad->Pos.x, exitButtonGad->Pos.y));
     }
     performLayout(renderer);

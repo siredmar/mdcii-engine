@@ -58,8 +58,10 @@ public:
     }
 
 private:
+    void LoadGame(const GamesPb::Campaign& campaign);
     void LoadGame(const GamesPb::SingleGame& gamName);
     void LoadGame(const std::string& gamName);
+
     void Redraw();
     SDL_Renderer* renderer;
     int width;
@@ -72,8 +74,10 @@ private:
     bool quit;
     StringToSDLTextureConverter stringConverter;
     GamesPb::SingleGame savegameSingleGame;
+    GamesPb::Campaign savegameCampaignGame;
     std::string savegame;
     bool triggerStartSingleGame;
+    bool triggerStartCampaignGame;
     bool triggerStartGame;
     Scale* scale;
     std::vector<SDL_Texture*> tableStars;

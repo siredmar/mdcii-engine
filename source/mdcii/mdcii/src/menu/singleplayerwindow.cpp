@@ -111,13 +111,13 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         auto& scrollUpButton = wdg<TextureButton>(scrollUpTexture, [this] { currentTablePtr->scrollPositive(); });
         scrollUpButton.setPosition(scaleLeftBorder + scrollUpButtonGad->Pos.x, scaleUpperBorder + scrollUpButtonGad->Pos.y);
         scrollUpButton.setSecondaryTexture(scrollUpTextureClicked);
-        scrollUpButton.setTextureSwitchFlags(TextureButton::OnClick);
+        scrollUpButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&scrollUpButton, scrollUpButtonGad->Pos.x, scrollUpButtonGad->Pos.y));
 
         auto& scrollDownButton = wdg<TextureButton>(scrollDownTexture, [this] { currentTablePtr->scrollNegative(); });
         scrollDownButton.setPosition(scaleLeftBorder + scrollDownButtonGad->Pos.x, scaleUpperBorder + scrollDownButtonGad->Pos.y);
         scrollDownButton.setSecondaryTexture(scrollDownTextureClicked);
-        scrollDownButton.setTextureSwitchFlags(TextureButton::OnClick);
+        scrollDownButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&scrollDownButton, scrollDownButtonGad->Pos.x, scrollDownButtonGad->Pos.y));
 
         // TABLES
@@ -181,7 +181,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 originalMissionsButton.setPosition(0, 0);
                 originalMissionsButton.setWidth(tableGad->Size.w);
                 originalMissionsButton.setSecondaryTexture(originalMissionsTextureHover);
-                originalMissionsButton.setTextureSwitchFlags(TextureButton::OnClick);
+                originalMissionsButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                 originalMissionsWidget.setSize(originalMissionsButton.size());
                 originalMissionsWidget.setVisible(false);
 
@@ -204,7 +204,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 endlessButton.setPosition(0, 0);
                 endlessButton.setWidth(tableGad->Size.w);
                 endlessButton.setSecondaryTexture(endlessTextureHover);
-                endlessButton.setTextureSwitchFlags(TextureButton::OnClick);
+                endlessButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                 endlessEntry.setSize(endlessButton.size());
 
                 if (entry.stars() >= 0)
@@ -213,6 +213,47 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     star.setPosition(320, 0);
                 }
                 endlessEntry.setVisible(false);
+
+                // Campaigns
+                // Campaigns list entry
+                auto& campaignMissionsWidget = table.widget();
+                auto campaignMissionsText = TextCod::Instance()->GetValue("GAME", 86);
+                auto campaignMissionsTexture = stringConverter.Convert(campaignMissionsText, 243, 0, 0);
+                auto campaignMissionsTextureHover = stringConverter.Convert(campaignMissionsText, 245, 0, 0);
+                auto& campaignMissionsButton = campaignMissionsWidget.texturebutton(campaignMissionsTexture, [this, campaignMissionsText] {
+                    std::cout << campaignMissionsText << " clicked" << std::endl;
+                });
+                campaignMissionsButton.setPosition(0, 0);
+                campaignMissionsButton.setWidth(tableGad->Size.w);
+                campaignMissionsButton.setSecondaryTexture(campaignMissionsTextureHover);
+                campaignMissionsButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
+                campaignMissionsWidget.setSize(campaignMissionsButton.size());
+                campaignMissionsWidget.setVisible(false);
+
+                for (int i = 0; i < elements->campaign_size(); i++)
+                {
+                    auto entry = elements->campaign(i);
+                    auto& tableEntry = table.widget();
+                    auto texture = stringConverter.Convert(entry.name(), 243, 0, 0);
+                    auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
+                    auto& button = tableEntry.texturebutton(texture, [this, entry] {
+                        std::cout << entry.name() << " clicked" << std::endl;
+                        savegameCampaignGame = entry;
+                        triggerStartCampaignGame = true;
+                    });
+                    button.setPosition(0, 0);
+                    button.setWidth(tableGad->Size.w);
+                    button.setSecondaryTexture(textureHover);
+                    button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
+                    tableEntry.setSize(button.size());
+
+                    // if (entry.stars() >= 0)
+                    // {
+                    //     auto& star = tableEntry.textureview(tableStars.at(entry.stars()));
+                    //     star.setPosition(320, 0);
+                    // }
+                    tableEntry.setVisible(false);
+                }
 
                 // New Adventures list entry
                 auto& newAdventuresWidget = table.widget();
@@ -225,10 +266,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 button.setPosition(0, 0);
                 button.setWidth(tableGad->Size.w);
                 button.setSecondaryTexture(textureHover);
-                button.setTextureSwitchFlags(TextureButton::OnClick);
+                button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                 newAdventuresWidget.setSize(button.size());
                 newAdventuresWidget.setVisible(false);
-
                 // New Adventures missions entries
                 for (int i = 0; i < elements->single_size(); i++)
                 {
@@ -244,7 +284,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     button.setPosition(0, 0);
                     button.setWidth(tableGad->Size.w);
                     button.setSecondaryTexture(textureHover);
-                    button.setTextureSwitchFlags(TextureButton::OnClick);
+                    button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                     tableEntry.setSize(button.size());
 
                     if (entry.stars() >= 0)
@@ -273,7 +313,6 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         }
         auto& savegamesTable = *(new TextureTable<const std::vector<std::tuple<std::string, std::string, int>>&>(
             this,
-            // auto& savegamesTable = wdg<TextureTable>(
             Vector2i{ tableGad->Pos.x + 20, tableGad->Pos.y + 13 }, Vector2i{ tableGad->Size.w, tableGad->Size.h },
             [&](const std::vector<std::tuple<std::string, std::string, int>>& elements) -> Widget* {
                 auto& table = wdg<Widget>();
@@ -290,7 +329,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     button.setPosition(0, 0);
                     button.setWidth(tableGad->Size.w);
                     button.setSecondaryTexture(textureHover);
-                    button.setTextureSwitchFlags(TextureButton::OnClick);
+                    button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                     tableEntry.setSize(button.size());
                     tableEntry.setVisible(false);
                 }
@@ -308,12 +347,12 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
             savegamesTable.setVisible(false);
             scenariosTable.setVisible(true);
             currentTablePtr = scenariosTablePtr;
-            scrollUpButton.setVisible(scenariosTablePtr->childAt(0)->childCount() < 14 ? false : true);
-            scrollDownButton.setVisible(scenariosTablePtr->childAt(0)->childCount() < 14 ? false : true);
+            scrollUpButton.setVisible(true);
+            scrollDownButton.setVisible(true);
         });
         newGameButton.setPosition(scaleLeftBorder + newGameButtonGad->Pos.x, scaleUpperBorder + newGameButtonGad->Pos.y);
         newGameButton.setSecondaryTexture(newGameTextureClicked);
-        newGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+        newGameButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&newGameButton, newGameButtonGad->Pos.x, newGameButtonGad->Pos.y));
 
         auto& loadGameButton = wdg<TextureButton>(loadGameTexture, [&] {
@@ -321,12 +360,12 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
             savegamesTable.setVisible(true);
             scenariosTable.setVisible(false);
             currentTablePtr = savegamesTablePtr;
-            scrollUpButton.setVisible(savegamesTablePtr->childAt(0)->childCount() < 14 ? false : true);
-            scrollDownButton.setVisible(savegamesTablePtr->childAt(0)->childCount() < 14 ? false : true);
+            scrollUpButton.setVisible(false);
+            scrollDownButton.setVisible(false);
         });
         loadGameButton.setPosition(scaleLeftBorder + loadGameButtonGad->Pos.x, scaleUpperBorder + loadGameButtonGad->Pos.y);
         loadGameButton.setSecondaryTexture(loadGameTextureClicked);
-        loadGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+        loadGameButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&loadGameButton, loadGameButtonGad->Pos.x, loadGameButtonGad->Pos.y));
 
         auto& continueGameButton = wdg<TextureButton>(continueTexture, [this] {
@@ -335,7 +374,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         });
         continueGameButton.setPosition(scaleLeftBorder + continueGameButtonGad->Pos.x, scaleUpperBorder + continueGameButtonGad->Pos.y);
         continueGameButton.setSecondaryTexture(continueTextureClicked);
-        continueGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+        continueGameButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&continueGameButton, continueGameButtonGad->Pos.x, continueGameButtonGad->Pos.y));
 
         auto& mainMenuButton = wdg<TextureButton>(mainMenuTexture, [this] {
@@ -344,7 +383,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         });
         mainMenuButton.setPosition(scaleLeftBorder + mainMenuButtonGad->Pos.x, scaleUpperBorder + mainMenuButtonGad->Pos.y);
         mainMenuButton.setSecondaryTexture(mainMenuTextureClicked);
-        mainMenuButton.setTextureSwitchFlags(TextureButton::OnClick);
+        mainMenuButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&mainMenuButton, mainMenuButtonGad->Pos.x, mainMenuButtonGad->Pos.y));
     }
 
@@ -352,10 +391,19 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     Redraw();
 }
 
+void SinglePlayerWindow::LoadGame(const GamesPb::Campaign& campaign)
+{
+    auto startGameWindow = std::make_shared<StartGameWindow>(renderer, pwindow, width, height, fullscreen);
+    startGameWindow->Handle();
+    startGameWindow->SetGame(campaign);
+    startGameWindow.reset();
+}
+
 void SinglePlayerWindow::LoadGame(const GamesPb::SingleGame& gamName)
 {
     auto startGameWindow = std::make_shared<StartGameWindow>(renderer, pwindow, width, height, fullscreen);
-    startGameWindow->Handle(gamName);
+    startGameWindow->Handle();
+    startGameWindow->SetGame(gamName);
     startGameWindow.reset();
 }
 
@@ -458,6 +506,11 @@ void SinglePlayerWindow::Handle()
             {
                 triggerStartGame = false;
                 LoadGame(savegame);
+            }
+            else if (triggerStartCampaignGame)
+            {
+                triggerStartCampaignGame = false;
+                LoadGame(savegameSingleGame);
             }
             this->drawAll();
             SDL_RenderPresent(renderer);
