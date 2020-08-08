@@ -36,6 +36,7 @@
 #include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
 #include "menu/startgamewindow.hpp"
+#include "sdl2shared/sdl2shared.hpp"
 
 using namespace sdlgui;
 StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen)
@@ -52,6 +53,8 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
     , stringConverter(StringToSDLTextureConverter(renderer, "zei20v.zei"))
     , triggerStartGame(false)
     , scale(Scale::Instance())
+    , singleGame(GamesPb::SingleGame())
+    , campaign(GamesPb::Campaign())
 {
     std::cout << "mission.gad: " << gad->GetGadgetsSize() << std::endl;
     BshReader bsh_leser(files->FindPathForFile("toolgfx/start.bsh"));
@@ -87,13 +90,15 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
     SDL_Texture* scrollDownTexture = converter.Convert(&bsh_leser.GetBshImage(scrollDownButtonGad->Gfxnr));
     SDL_Texture* scrollDownTextureClicked = converter.Convert(&bsh_leser.GetBshImage(scrollDownButtonGad->Gfxnr + scrollDownButtonGad->Pressoff));
 
-    // for (int i = 8; i < 13; i++)
-    // {
-    //     auto missionUnselectedGad = gad->GetGadgetByIndex(i);
-    //     SDL_Texture* missionUnselectedTexture = converter.Convert(&bsh_leser.GetBshImage(missionUnselectedGad->Gfxnr));
-    //     SDL_Texture* missionSelectedTexture = converter.Convert(&bsh_leser.GetBshImage(missionUnselectedGad->Gfxnr + missionUnselectedGad->Pressoff));
-    //     missionSelect.push_back(std::make_tuple(missionUnselectedGad, missionUnselectedTexture, missionSelectedTexture));
-    // }
+    auto emptyMissionTextTexture = stringConverter.Convert("mission", 243, 0, 0);
+
+    for (int i = 8; i < 13; i++)
+    {
+        auto missionUnselectedGad = gad->GetGadgetByIndex(i);
+        auto missionUnselectedTexture = sdl2::make_shared(converter.Convert(&bsh_leser.GetBshImage(missionUnselectedGad->Gfxnr)));
+        auto missionSelectedTexture = sdl2::make_shared(converter.Convert(&bsh_leser.GetBshImage(missionUnselectedGad->Gfxnr + missionUnselectedGad->Pressoff)));
+        missionSelect.push_back(std::make_tuple(missionUnselectedGad, missionUnselectedTexture, missionSelectedTexture));
+    }
 
     {
         // BACKGROUND
@@ -116,13 +121,13 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         auto& scrollUpButton = wdg<TextureButton>(scrollUpTexture, [this] { /*currentTablePtr->scrollPositive();*/ });
         scrollUpButton.setPosition(scaleLeftBorder + scrollUpButtonGad->Pos.x, scaleUpperBorder + scrollUpButtonGad->Pos.y);
         scrollUpButton.setSecondaryTexture(scrollUpTextureClicked);
-        scrollUpButton.setTextureSwitchFlags(TextureButton::OnClick);
+        scrollUpButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&scrollUpButton, scrollUpButtonGad->Pos.x, scrollUpButtonGad->Pos.y));
 
         auto& scrollDownButton = wdg<TextureButton>(scrollDownTexture, [this] { /*currentTablePtr->scrollNegative();*/ });
         scrollDownButton.setPosition(scaleLeftBorder + scrollDownButtonGad->Pos.x, scaleUpperBorder + scrollDownButtonGad->Pos.y);
         scrollDownButton.setSecondaryTexture(scrollDownTextureClicked);
-        scrollDownButton.setTextureSwitchFlags(TextureButton::OnClick);
+        scrollDownButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&scrollDownButton, scrollDownButtonGad->Pos.x, scrollDownButtonGad->Pos.y));
 
         // TABLES
@@ -137,7 +142,7 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         });
         startGameButton.setPosition(scaleLeftBorder + startGameButtonGad->Pos.x, scaleUpperBorder + startGameButtonGad->Pos.y);
         startGameButton.setSecondaryTexture(startGameTextureClicked);
-        startGameButton.setTextureSwitchFlags(TextureButton::OnClick);
+        startGameButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&startGameButton, startGameButtonGad->Pos.x, startGameButtonGad->Pos.y));
 
         auto& abortButton = wdg<TextureButton>(abortTexture, [&] {
@@ -146,11 +151,60 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         });
         abortButton.setPosition(scaleLeftBorder + abortButtonGad->Pos.x, scaleUpperBorder + abortButtonGad->Pos.y);
         abortButton.setSecondaryTexture(abortTextureClicked);
-        abortButton.setTextureSwitchFlags(TextureButton::OnClick);
+        abortButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&abortButton, abortButtonGad->Pos.x, abortButtonGad->Pos.y));
+
+        for (int i = 0; i < 5; i++)
+        {
+            auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [&, i] {
+                for (int missions = 0; missions < 5; missions++)
+                {
+                    if (missions == i)
+                    {
+                        continue;
+                    }
+                    missionSelectButtons[missions]->setPushed(false);
+                }
+                if (campaign.game_size() >= i)
+                {
+                    singleGame = campaign.game(i);
+                    std::cout << "Mission " + singleGame.name() + " selected" << std::endl;
+                }
+            });
+            missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
+            missionSelectButton.setSecondaryTexture(std::get<2>(missionSelect[i]).get());
+            missionSelectButton.setFlags(TextureButton::OnClick | TextureButton::ToggleButton);
+            missionSelectButton.setVisible(true);
+            widgets.push_back(std::make_tuple(&missionSelectButton, std::get<0>(missionSelect[i])->Pos.x, std::get<0>(missionSelect[i])->Pos.y));
+            missionSelectButtons.push_back(&missionSelectButton);
+
+            auto& missionSelectLabel = wdg<TextureView>(emptyMissionTextTexture);
+            missionSelectLabel.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x + 30, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
+            missionSelectLabel.setVisible(true);
+            widgets.push_back(std::make_tuple(&missionSelectLabel, std::get<0>(missionSelect[i])->Pos.x + 30, std::get<0>(missionSelect[i])->Pos.y));
+            missionSelectLabels.push_back(&missionSelectLabel);
+        }
     }
     performLayout(renderer);
     Redraw();
+}
+
+void StartGameWindow::SetGame(const GamesPb::SingleGame& game)
+{
+    singleGame = game;
+}
+
+void StartGameWindow::SetGame(const GamesPb::Campaign& game)
+{
+    campaign = game;
+    if (campaign.game_size() > 0)
+    {
+        singleGame = campaign.game(0);
+    }
+    else
+    {
+        throw(std::string("[ERR] Campaign " + campaign.name() + "has no missions!"));
+    }
 }
 
 void StartGameWindow::LoadGame(const GamesPb::SingleGame& gamName)
@@ -177,7 +231,7 @@ void StartGameWindow::Redraw()
 }
 
 // todo: add signal/slot for exiting window
-void StartGameWindow::Handle(const GamesPb::SingleGame& savegame)
+void StartGameWindow::Handle()
 {
     auto palette = Palette::Instance();
 
@@ -247,7 +301,7 @@ void StartGameWindow::Handle(const GamesPb::SingleGame& savegame)
             if (triggerStartGame)
             {
                 triggerStartGame = false;
-                LoadGame(savegame);
+                LoadGame(singleGame);
                 quit = true;
             }
             this->drawAll();

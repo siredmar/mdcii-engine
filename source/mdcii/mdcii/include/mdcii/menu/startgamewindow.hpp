@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -52,10 +53,9 @@ class StartGameWindow : public Screen
 {
 public:
     StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, int width, int height, bool fullscreen);
-    void Handle(const GamesPb::SingleGame& savegame);
-    ~StartGameWindow()
-    {
-    }
+    void Handle();
+    void SetGame(const GamesPb::SingleGame& game);
+    void SetGame(const GamesPb::Campaign& game);
 
 private:
     void LoadGame(const GamesPb::SingleGame& gamName);
@@ -72,6 +72,11 @@ private:
     StringToSDLTextureConverter stringConverter;
     bool triggerStartGame;
     Scale* scale;
+    GamesPb::SingleGame singleGame;
+    GamesPb::Campaign campaign;
     std::vector<std::tuple<Widget*, int, int>> widgets;
+    std::vector<std::tuple<MissionGadGadget*, std::shared_ptr<SDL_Texture>, std::shared_ptr<SDL_Texture>>> missionSelect;
+    std::vector<TextureButton*> missionSelectButtons;
+    std::vector<Widget*> missionSelectLabels;
 };
 #endif
