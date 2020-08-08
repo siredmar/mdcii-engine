@@ -35,10 +35,6 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
     {
         if ("." + fileEnding == fs::path(s).extension())
         {
-            if (IsSubstring(s, "ngsspiel4"))
-            {
-                std::cout << "h";
-            }
             GamParser gam(s, true);
             std::string filename = fs::path(s).filename();
             auto multiMatch = RegexSearch("([0-9]+)?[.](" + fileEnding + ")", filename);
@@ -66,7 +62,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     int index = -1;
                     for (int i = 0; i < gamelist.campaign_size(); i++)
                     {
-                        if (gamelist.campaign(i).name() == fs::path(s).stem())
+                        if (gamelist.campaign(i).name() == RemoveDigits(fs::path(s).stem()))
                         {
                             index = i;
                             break;
