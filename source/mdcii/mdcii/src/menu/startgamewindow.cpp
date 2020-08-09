@@ -1,5 +1,3 @@
-#include "menu/startgamewindow.hpp"
-
 // This file is part of the MDCII Game Engine.
 // Copyright (C) 2020  Armin Schlegel
 //
@@ -17,8 +15,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+#include <codecvt>
 #include <iostream>
 #include <random>
+#include <string>
 
 #include "SDL2/SDL.h"
 
@@ -32,6 +32,7 @@
 
 #include "cod/mission_gad.hpp"
 #include "cod/text_cod.hpp"
+#include "common/stringhelpers.hpp"
 #include "menu/gamewindow.hpp"
 #include "menu/scale.hpp"
 #include "menu/singleplayerwindow.hpp"
@@ -175,13 +176,13 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
             missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
             missionSelectButton.setSecondaryTexture(std::get<2>(missionSelect[i]).get());
             missionSelectButton.setFlags(TextureButton::OnClick | TextureButton::ToggleButton);
-            missionSelectButton.setVisible(true);
+            missionSelectButton.setVisible(false);
             widgets.push_back(std::make_tuple(&missionSelectButton, std::get<0>(missionSelect[i])->Pos.x, std::get<0>(missionSelect[i])->Pos.y));
             missionSelectButtons.push_back(&missionSelectButton);
 
             auto& missionSelectLabel = wdg<TextureView>(emptyMissionTextTexture);
             missionSelectLabel.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x + 30, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
-            missionSelectLabel.setVisible(true);
+            missionSelectLabel.setVisible(false);
             widgets.push_back(std::make_tuple(&missionSelectLabel, std::get<0>(missionSelect[i])->Pos.x + 30, std::get<0>(missionSelect[i])->Pos.y));
             missionSelectLabels.push_back(&missionSelectLabel);
         }
@@ -202,7 +203,15 @@ void StartGameWindow::SetGame(const GamesPb::Campaign& game)
     {
         missionSelectButtons[0]->setPushed(true);
         singleGame = campaign.game(0);
-        std::cout << "[INFO] Setting campaign " + campaign.name() << std::endl;
+        std::cout << "[INFO] Setting campaign " + campaign.name() + ". Missions: " << campaign.game_size() << std::endl;
+        for (int i = 0; i < campaign.game_size(); i++)
+        {
+            missionSelectButtons[i]->setVisible(true);
+            missionSelectLabels[i]->setVisible(true);
+            auto name = campaign.game(i).name();
+            std::cout << name << std::endl;
+            missionSelectLabels[i]->setTexture(stringConverter.Convert(campaign.game(i).name(), 243, 0, 0));
+        }
     }
     else
     {

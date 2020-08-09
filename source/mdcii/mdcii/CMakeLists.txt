@@ -41,6 +41,7 @@ set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(headers
     ${include_path}/mdcii.hpp
+    ${include_path}/common/stringhelpers.hpp
     ${include_path}/animation.hpp
     ${include_path}/framebuffer/framebuffer.hpp
     ${include_path}/framebuffer/framebuffer_pal8.hpp
@@ -105,6 +106,7 @@ set(headers
 
 set(sources
     ${source_path}/mdcii.cpp
+    ${source_path}/common/stringhelpers.cpp
     ${source_path}/framebuffer/framebuffer.cpp
     ${source_path}/framebuffer/framebuffer_pal8.cpp
     ${source_path}/framebuffer/framebuffer_rgb24.cpp
