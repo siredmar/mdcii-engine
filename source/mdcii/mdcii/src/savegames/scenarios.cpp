@@ -91,12 +91,21 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     game->set_name(TextCod::Instance()->GetValue("KAMPAGNE", TextCodIndex));
                     game->set_stars(gam.GetSceneRanking());
                     game->set_path(s.c_str());
+                    campaign->set_stars(gam.GetSceneRanking());
                 }
             }
             else
             {
-                auto singleMatch = RegexSearch("(.*)[.](" + fileEnding + ")", filename);
-                auto game = gamelist.add_single();
+                GamesPb::SingleGame* game;
+                if (gam.GetMissionNumber() != -1)
+                {
+                    game = gamelist.add_originalsingle();
+                }
+                else
+                {
+                    game = gamelist.add_addonsingle();
+                }
+
                 game->set_path(s.c_str());
                 game->set_stars(gam.GetSceneRanking());
                 game->set_name(RemoveDigits(fs::path(s).stem()));

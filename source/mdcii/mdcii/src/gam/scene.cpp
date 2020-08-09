@@ -42,3 +42,9 @@ SceneGameID::SceneGameID(uint8_t* data, uint32_t length, const std::string& name
 {
     memcpy((char*)&sceneGameID, data, length);
 }
+
+SceneMissionNumber::SceneMissionNumber(uint8_t* data, uint32_t length, const std::string& name)
+    : name(name)
+{
+    memcpy((char*)&sceneMissionNumber, data, length);
+}

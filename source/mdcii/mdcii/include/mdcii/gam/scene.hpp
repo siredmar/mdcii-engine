@@ -210,4 +210,20 @@ private:
     std::string name;
 };
 
+// SCENE_MISSNR
+struct SceneMissionNumberData
+{
+    int32_t number;
+};
+
+class SceneMissionNumber
+{
+public:
+    explicit SceneMissionNumber(uint8_t* data, uint32_t length, const std::string& name);
+    SceneMissionNumberData sceneMissionNumber;
+
+private:
+    std::string name;
+};
+
 #endif // _SCENE_HPP

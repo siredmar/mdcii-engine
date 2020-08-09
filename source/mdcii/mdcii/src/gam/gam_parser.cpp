@@ -66,6 +66,10 @@ GamParser::GamParser(const std::string& gam, bool peek)
         {
             sceneGameID = std::make_shared<SceneGameID>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
         }
+        else if (chunkName == "SZENE_MISSNR")
+        {
+            sceneMissionNumber = std::make_shared<SceneMissionNumber>(chunks[chunkIndex]->chunk.data, chunks[chunkIndex]->chunk.length, chunkName);
+        }
         else if (chunkName == "RANDTAB")
         {
             // more to come later
