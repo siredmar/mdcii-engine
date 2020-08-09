@@ -25,6 +25,7 @@
 #include <boost/variant.hpp>
 
 #include "cod/codhelpers.hpp"
+#include "common/stringhelpers.hpp"
 
 std::vector<std::string> ReadFile(const std::string& path, bool decode, bool filterEmptyLines)
 {
@@ -51,7 +52,7 @@ std::vector<std::string> ReadFile(const std::string& path, bool decode, bool fil
             line = TrimCommentFromLine(TabsToSpaces((line)));
             if (filterEmptyLines == false)
             {
-                codTxt.push_back(line);
+                codTxt.push_back(iso_8859_1_to_utf8(line));
             }
             line = "";
             i++; // hop over '\n'

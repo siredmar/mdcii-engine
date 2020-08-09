@@ -15,6 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+#include <algorithm>
 #include <filesystem>
 
 #include "cod/codhelpers.hpp"
@@ -52,6 +53,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                 }
                 else
                 {
+                    auto missionNumber = std::stoi(multiMatch.at(1));
                     // Abort this mission for now if if does not belong to a valid campaign
                     auto campaignNumber = gam.GetSceneCampaign();
                     if (campaignNumber == -1)
@@ -74,6 +76,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     {
                         auto newCampaign = gamelist.add_campaign();
                         newCampaign->set_name(RemoveDigits(fs::path(s).stem()));
+                        newCampaign->set_number(campaignNumber);
                         campaign = newCampaign;
                     }
                     else
@@ -86,18 +89,19 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     // The campaign number is read from the szenario file.
                     // The mission number within the campaign is the number in the filename.
                     // The calculated index for the mission name is: campaign number * 5 + file number
-                    auto TextCodIndex
-                        = campaignNumber * 5 + std::stoi(multiMatch.at(1));
+                    auto TextCodIndex = campaignNumber * 5 + missionNumber;
                     game->set_name(TextCod::Instance()->GetValue("KAMPAGNE", TextCodIndex));
                     game->set_stars(gam.GetSceneRanking());
                     game->set_path(s.c_str());
+                    game->set_missionnumber(missionNumber);
                     campaign->set_stars(gam.GetSceneRanking());
                 }
             }
             else
             {
                 GamesPb::SingleGame* game;
-                if (gam.GetMissionNumber() != -1)
+                auto missionNumber = gam.GetMissionNumber();
+                if (missionNumber != -1)
                 {
                     game = gamelist.add_originalsingle();
                 }
@@ -105,62 +109,47 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                 {
                     game = gamelist.add_addonsingle();
                 }
-
+                game->set_missionnumber(missionNumber);
                 game->set_path(s.c_str());
                 game->set_stars(gam.GetSceneRanking());
                 game->set_name(RemoveDigits(fs::path(s).stem()));
             }
         }
     }
+    for (int i = 0; i < gamelist.campaign_size(); i++)
+    {
+        SortCampaignMissions(gamelist.mutable_campaign(i));
+    }
+    SortOriginalMissions();
+    SortCampaigns();
 }
 
-// GamesPb::MultiGame Savegames::CreateMultigame(const std::string& basename, const std::vector<std::string>& list)
-// {
-//     GamesPb::MultiGame ret;
-//     ret.set_name(basename.c_str());
-//     for (auto& s : list)
-//     {
-//         if (s.find(basename) != std::string::npos)
-//         {
-//             auto g = ret.add_games();
-//             auto gam = GamParser(s, true);
-//             g->set_name();
-//         }
-//     }
-//     return ret;
-// }
+void Scenarios::SortCampaignMissions(GamesPb::Campaign* campaign)
+{
+    std::sort(campaign->mutable_game()->begin(),
+        campaign->mutable_game()->end(),
+        [](const GamesPb::SingleGame& a, const GamesPb::SingleGame& b) {
+            return a.missionnumber() < b.missionnumber();
+        });
+}
 
-// unsigned int Scenarios::size() const
-// {
-//     return savegames.size();
-// }
+void Scenarios::SortOriginalMissions()
+{
+    std::sort(gamelist.mutable_originalsingle()->begin(),
+        gamelist.mutable_originalsingle()->end(),
+        [](const GamesPb::SingleGame& a, const GamesPb::SingleGame& b) {
+            return a.missionnumber() < b.missionnumber();
+        });
+}
 
-// std::experimental::optional<std::string> Savegames::GetPath(unsigned int index) const
-// {
-//     if (index < savegames.size())
-//     {
-//         return std::get<0>(savegames[index]);
-//     }
-//     return {};
-// }
-
-// std::experimental::optional<std::string> Savegames::GetName(unsigned int index) const
-// {
-//     if (index < savegames.size())
-//     {
-//         return std::get<1>(savegames[index]);
-//     }
-//     return {};
-// }
-
-// std::experimental::optional<int> Savegames::GetRanking(unsigned int index) const
-// {
-//     if (index < savegames.size())
-//     {
-//         return std::get<2>(savegames[index]);
-//     }
-//     return {};
-// }
+void Scenarios::SortCampaigns()
+{
+    std::sort(gamelist.mutable_campaign()->begin(),
+        gamelist.mutable_campaign()->end(),
+        [](const GamesPb::Campaign& a, const GamesPb::Campaign& b) {
+            return a.number() < b.number();
+        });
+}
 
 GamesPb::Games Scenarios::Get() const
 {

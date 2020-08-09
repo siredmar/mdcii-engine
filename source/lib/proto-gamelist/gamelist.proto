@@ -22,6 +22,8 @@ message SingleGame
     int32 flags = 4;
     // flag indicating if the single mission comes from the original game or with NINA addon
     bool original = 5;
+    // mission number count
+    int32 missionNumber = 6;
 }
 
 // Campaign: group of multiple missions
@@ -31,8 +33,10 @@ message Campaign
     string name = 1;
     // the ranking of the campaign resulting in stars in games list
     int32 stars = 2;
+    // campaign number
+    int32 number = 3;
     // the list of single games for the campaign
-    repeated SingleGame game = 3;
+    repeated SingleGame game = 4;
 }
 
 // Endless missions
