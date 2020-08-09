@@ -57,6 +57,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
     , savegameSingleGame(GamesPb::SingleGame())
     , savegame("")
     , triggerStartSingleGame(false)
+    , triggerStartCampaignGame(false)
     , triggerStartGame(false)
     , scale(Scale::Instance())
 {
@@ -129,14 +130,24 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
         Scenarios szenesRaw("/szenes", "szs");
         scenes = szenesRaw.Get();
 
-        std::cout << "Single Missions" << std::endl;
-        for (int i = 0; i < scenes.single_size(); i++)
+        std::cout << "Original single Missions" << std::endl;
+        for (int i = 0; i < scenes.originalsingle_size(); i++)
         {
             std::cout << "--------------------------------------------------" << std::endl;
-            std::cout << scenes.single(i).name() << std::endl;
-            std::cout << scenes.single(i).path() << std::endl;
-            std::cout << scenes.single(i).stars() << std::endl;
-            std::cout << scenes.single(i).flags() << std::endl;
+            std::cout << scenes.originalsingle(i).name() << std::endl;
+            std::cout << scenes.originalsingle(i).path() << std::endl;
+            std::cout << scenes.originalsingle(i).stars() << std::endl;
+            std::cout << scenes.originalsingle(i).flags() << std::endl;
+        }
+
+        std::cout << "Addon (NINA) single Missions" << std::endl;
+        for (int i = 0; i < scenes.addonsingle_size(); i++)
+        {
+            std::cout << "--------------------------------------------------" << std::endl;
+            std::cout << scenes.addonsingle(i).name() << std::endl;
+            std::cout << scenes.addonsingle(i).path() << std::endl;
+            std::cout << scenes.addonsingle(i).stars() << std::endl;
+            std::cout << scenes.addonsingle(i).flags() << std::endl;
         }
 
         std::cout << "Endless games" << std::endl;
@@ -214,6 +225,32 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 }
                 endlessEntry.setVisible(false);
 
+                // Original missions entries
+                for (int i = 0; i < elements->originalsingle_size(); i++)
+                {
+                    auto entry = elements->originalsingle(i);
+                    auto& tableEntry = table.widget();
+                    auto texture = stringConverter.Convert(entry.name(), 243, 0, 0);
+                    auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);
+                    auto& button = tableEntry.texturebutton(texture, [this, entry] {
+                        std::cout << entry.name() << " clicked" << std::endl;
+                        savegameSingleGame = entry;
+                        triggerStartSingleGame = true;
+                    });
+                    button.setPosition(0, 0);
+                    button.setWidth(tableGad->Size.w);
+                    button.setSecondaryTexture(textureHover);
+                    button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
+                    tableEntry.setSize(button.size());
+
+                    if (entry.stars() >= 0)
+                    {
+                        auto& star = tableEntry.textureview(tableStars.at(entry.stars()));
+                        star.setPosition(320, 0);
+                    }
+                    tableEntry.setVisible(false);
+                }
+
                 // Campaigns
                 // Campaigns list entry
                 auto& campaignMissionsWidget = table.widget();
@@ -247,11 +284,11 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                     button.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
                     tableEntry.setSize(button.size());
 
-                    // if (entry.stars() >= 0)
-                    // {
-                    //     auto& star = tableEntry.textureview(tableStars.at(entry.stars()));
-                    //     star.setPosition(320, 0);
-                    // }
+                    if (entry.stars() >= 0)
+                    {
+                        auto& star = tableEntry.textureview(tableStars.at(entry.stars()));
+                        star.setPosition(320, 0);
+                    }
                     tableEntry.setVisible(false);
                 }
 
@@ -270,9 +307,9 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
                 newAdventuresWidget.setSize(button.size());
                 newAdventuresWidget.setVisible(false);
                 // New Adventures missions entries
-                for (int i = 0; i < elements->single_size(); i++)
+                for (int i = 0; i < elements->addonsingle_size(); i++)
                 {
-                    auto entry = elements->single(i);
+                    auto entry = elements->addonsingle(i);
                     auto& tableEntry = table.widget();
                     auto texture = stringConverter.Convert(entry.name(), 243, 0, 0);
                     auto textureHover = stringConverter.Convert(entry.name(), 245, 0, 0);

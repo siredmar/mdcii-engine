@@ -56,6 +56,15 @@ public:
         return islands5[index];
     }
 
+    int32_t GetMissionNumber()
+    {
+        if (sceneMissionNumber)
+        {
+            return sceneMissionNumber->sceneMissionNumber.number;
+        }
+        return -1;
+    }
+
 private:
     Files* files;
     std::vector<std::shared_ptr<Chunk>> chunks;
@@ -66,6 +75,7 @@ private:
     std::shared_ptr<SceneCampaign> sceneCampaign; // SZENE_KAMPAGNE
     std::shared_ptr<SceneGameID> sceneGameID; // SZENE_GAMEID
     std::shared_ptr<SceneSave> sceneSave; // SZENE2
+    std::shared_ptr<SceneMissionNumber> sceneMissionNumber; // SXENE_MISSNR
     std::shared_ptr<Shipyard> shipyard; // WERFT
     std::shared_ptr<Military> military; // MILITAR
     std::shared_ptr<ProductionList> productionList; // PRODLIST2
