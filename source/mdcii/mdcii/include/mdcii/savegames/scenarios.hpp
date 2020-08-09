@@ -32,16 +32,13 @@ class Scenarios
 public:
     explicit Scenarios(const std::string& basepath, const std::string& fileEnding);
     unsigned int size() const;
-    // std::experimental::optional<std::string> GetPath(unsigned int index) const;
-    // std::experimental::optional<std::string> GetName(unsigned int index) const;
-    // std::experimental::optional<int> GetRanking(unsigned int index) const;
     GamesPb::Games Get() const;
-    // std::vector<std::tuple<std::string, std::string, int>> Get() const;
 
 private:
-    // vector element contains: path, name, ranking
+    void SortCampaigns();
+    void SortOriginalMissions();
+    void SortCampaignMissions(GamesPb::Campaign* campaign);
     GamesPb::Games gamelist;
-    // std::vector<std::tuple<std::string, std::string, int>> savegames;
 };
 
 #endif // _SAVEGAMES_H_

@@ -77,6 +77,6 @@ private:
     std::vector<std::tuple<Widget*, int, int>> widgets;
     std::vector<std::tuple<MissionGadGadget*, std::shared_ptr<SDL_Texture>, std::shared_ptr<SDL_Texture>>> missionSelect;
     std::vector<TextureButton*> missionSelectButtons;
-    std::vector<Widget*> missionSelectLabels;
+    std::vector<TextureView*> missionSelectLabels;
 };
 #endif
