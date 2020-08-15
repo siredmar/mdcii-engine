@@ -125,6 +125,7 @@ std::vector<std::string> Files::GetDirectoryFiles(const std::string& directory)
             files.push_back(entry.path().string());
         }
     }
+    std::sort(files.begin(), files.end());
     return files;
 }
 
