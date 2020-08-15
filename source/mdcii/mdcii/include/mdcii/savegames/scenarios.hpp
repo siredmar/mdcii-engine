@@ -35,6 +35,7 @@ public:
     GamesPb::Games Get() const;
 
 private:
+    int CampagneIndex(const std::string& name);
     void SortCampaigns();
     void SortOriginalMissions();
     void SortCampaignMissions(GamesPb::Campaign* campaign);

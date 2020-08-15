@@ -34,85 +34,95 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
     auto tree = files->GetDirectoryFiles(files->FindPathForFile(basepath));
     for (auto& s : tree)
     {
-        if ("." + fileEnding == fs::path(s).extension())
+        // TODO: filter Einfuehrungsspiel hardcoded
+        if (!IsSubstring(fs::path(s).filename(), "rungsspiel"))
         {
-            GamParser gam(s, true);
-            std::string filename = fs::path(s).filename();
-            auto multiMatch = RegexSearch("([0-9]+)?[.](" + fileEnding + ")", filename);
-            // Check if previous regex detects that the selected file is a mission from a campaign by checking the number.
-            // e.g. Mission4.szs. The '4' says that the file is within a campaign and its number 4 (counted from 0).
-            // Files with no number mean single mission.
-            if (!IsEmpty(multiMatch.at(1)))
+            if ("." + fileEnding == fs::path(s).extension())
             {
-                if (gam.GetSceneGameID() == SceneGameIDType::Endless)
+                GamParser gam(s, true);
+                std::string filename = fs::path(s).filename();
+                auto multiMatch = RegexSearch("([0-9]+)?[.](" + fileEnding + ")", filename);
+                // Check if previous regex detects that the selected file is a mission from a campaign by checking the number.
+                // e.g. Mission4.szs. The '4' says that the file is within a campaign and its number 4 (counted from 0).
+                // Files with no number mean single mission.
+                if (!IsEmpty(multiMatch.at(1)))
                 {
-                    auto game = gamelist.add_endless();
+                    if (gam.GetSceneGameID() == SceneGameIDType::Endless)
+                    {
+                        auto game = gamelist.add_endless();
+                        game->set_path(s.c_str());
+                        game->set_stars(gam.GetSceneRanking());
+                        game->set_name(RemoveDigits(fs::path(s).stem()));
+                    }
+                    else
+                    {
+                        auto missionNumber = std::stoi(multiMatch.at(1));
+                        // Abort this mission for now if if does not belong to a valid campaign
+                        auto campaignNumber = gam.GetSceneCampaign();
+                        if (missionNumber > 0)
+                        {
+                            int protoCampaignIndex = CampagneIndex(RemoveDigits(fs::path(s).stem()));
+                            campaignNumber = gamelist.campaign(protoCampaignIndex).number();
+                        }
+                        if (campaignNumber == -1)
+                        {
+                            std::cout << "[INFO] Skipping, because no valid scene campaign: " << filename << std::endl;
+                            continue;
+                        }
+
+                        int index = CampagneIndex(RemoveDigits(fs::path(s).stem()));
+                        // for (int i = 0; i < gamelist.campaign_size(); i++)
+                        // {
+                        //     if (gamelist.campaign(i).name() == RemoveDigits(fs::path(s).stem()))
+                        //     {
+                        //         index = i;
+                        //         break;
+                        //     }
+                        // }
+                        // The campaign has not been found yet, lets create one
+                        GamesPb::Campaign* campaign;
+                        if (index == -1)
+                        {
+                            auto newCampaign = gamelist.add_campaign();
+                            newCampaign->set_name(RemoveDigits(fs::path(s).stem()));
+                            newCampaign->set_number(campaignNumber);
+                            campaign = newCampaign;
+                        }
+                        else
+                        {
+                            campaign = gamelist.mutable_campaign(index);
+                        }
+                        auto game = campaign->add_game();
+                        // TODO: 5 is currently hardcoded
+                        // There are five possible missions referred from text.cod.
+                        // The campaign number is read from the szenario file.
+                        // The mission number within the campaign is the number in the filename.
+                        // The calculated index for the mission name is: campaign number * 5 + file number
+                        auto TextCodIndex = campaignNumber * 5 + missionNumber;
+                        game->set_name(TextCod::Instance()->GetValue("KAMPAGNE", TextCodIndex));
+                        game->set_stars(gam.GetSceneRanking());
+                        game->set_path(s.c_str());
+                        game->set_missionnumber(missionNumber);
+                        campaign->set_stars(gam.GetSceneRanking());
+                    }
+                }
+                else
+                {
+                    GamesPb::SingleGame* game;
+                    auto missionNumber = gam.GetMissionNumber();
+                    if (missionNumber != -1)
+                    {
+                        game = gamelist.add_originalsingle();
+                    }
+                    else
+                    {
+                        game = gamelist.add_addonsingle();
+                    }
+                    game->set_missionnumber(missionNumber);
                     game->set_path(s.c_str());
                     game->set_stars(gam.GetSceneRanking());
                     game->set_name(RemoveDigits(fs::path(s).stem()));
                 }
-                else
-                {
-                    auto missionNumber = std::stoi(multiMatch.at(1));
-                    // Abort this mission for now if if does not belong to a valid campaign
-                    auto campaignNumber = gam.GetSceneCampaign();
-                    if (campaignNumber == -1)
-                    {
-                        continue;
-                    }
-
-                    int index = -1;
-                    for (int i = 0; i < gamelist.campaign_size(); i++)
-                    {
-                        if (gamelist.campaign(i).name() == RemoveDigits(fs::path(s).stem()))
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
-                    // The campaign has not been found yet, lets create one
-                    GamesPb::Campaign* campaign;
-                    if (index == -1)
-                    {
-                        auto newCampaign = gamelist.add_campaign();
-                        newCampaign->set_name(RemoveDigits(fs::path(s).stem()));
-                        newCampaign->set_number(campaignNumber);
-                        campaign = newCampaign;
-                    }
-                    else
-                    {
-                        campaign = gamelist.mutable_campaign(index);
-                    }
-                    auto game = campaign->add_game();
-                    // TODO: 5 is currently hardcoded
-                    // There are five possible missions referred from text.cod.
-                    // The campaign number is read from the szenario file.
-                    // The mission number within the campaign is the number in the filename.
-                    // The calculated index for the mission name is: campaign number * 5 + file number
-                    auto TextCodIndex = campaignNumber * 5 + missionNumber;
-                    game->set_name(TextCod::Instance()->GetValue("KAMPAGNE", TextCodIndex));
-                    game->set_stars(gam.GetSceneRanking());
-                    game->set_path(s.c_str());
-                    game->set_missionnumber(missionNumber);
-                    campaign->set_stars(gam.GetSceneRanking());
-                }
-            }
-            else
-            {
-                GamesPb::SingleGame* game;
-                auto missionNumber = gam.GetMissionNumber();
-                if (missionNumber != -1)
-                {
-                    game = gamelist.add_originalsingle();
-                }
-                else
-                {
-                    game = gamelist.add_addonsingle();
-                }
-                game->set_missionnumber(missionNumber);
-                game->set_path(s.c_str());
-                game->set_stars(gam.GetSceneRanking());
-                game->set_name(RemoveDigits(fs::path(s).stem()));
             }
         }
     }
@@ -122,6 +132,19 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
     }
     SortOriginalMissions();
     SortCampaigns();
+}
+
+int Scenarios::CampagneIndex(const std::string& name)
+{
+    int index = -1;
+    for (int i = 0; i < gamelist.campaign_size(); i++)
+    {
+        if (gamelist.campaign(i).name() == name)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void Scenarios::SortCampaignMissions(GamesPb::Campaign* campaign)
