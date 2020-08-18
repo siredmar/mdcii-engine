@@ -353,3 +353,18 @@ install(EXPORT ${target}-export
     DESTINATION ${INSTALL_CMAKE}/${target}
     COMPONENT   dev
 )
+
+
+add_executable(nanogui-sdl-example1 ${CMAKE_CURRENT_SOURCE_DIR}/nanogui-sdl/example1.cpp )
+set_target_properties(
+    nanogui-sdl-example1 PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
+target_link_libraries(nanogui-sdl-example1 nanogui-sdl ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+
+add_executable(nanogui-sdl-twoscreens ${CMAKE_CURRENT_SOURCE_DIR}/nanogui-sdl/twoscreens.cpp )
+set_target_properties(
+    nanogui-sdl-twoscreens PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
+target_link_libraries(nanogui-sdl-twoscreens nanogui-sdl ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+
+
