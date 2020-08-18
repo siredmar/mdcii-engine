@@ -119,6 +119,12 @@ protected:
     float mTextOffset;
     double mLastClick;
     int caretLastTickCount = 0;
+    Color mGradientTopFocused;
+    Color mGradientBotFocused;
+    Color mGradientTopUnfocused;
+    Color mGradientBotUnfocused;
+    Color mGradientTopBackground;
+    Color mGradientBotBackground;
 
     Texture _captionTex;
     Texture _unitsTex;
