@@ -96,6 +96,8 @@ public:
     Color mTextBoxGradientBotBackground;
     Color mTextBoxBorderFocused;
     Color mTextBoxBorderUnfocused;
+    Color mTextBoxCursor;
+    Color mTextBoxSelection;
 
     /* Window colors */
     Color mWindowFillUnfocused;

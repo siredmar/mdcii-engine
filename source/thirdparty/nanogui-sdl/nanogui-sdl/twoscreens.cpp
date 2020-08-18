@@ -198,6 +198,8 @@ public:
             theme->mTextBoxGradientBotUnfocused = theme->mTransparent;
             theme->mTextBoxBorderFocused = theme->mTransparent;
             theme->mTextBoxBorderUnfocused = theme->mTransparent;
+            theme->mTextBoxCursor = theme->mTextColor;
+            theme->mTextBoxSelection = Color(0, 0, 0, 100);
 
             auto& input = wdg<TextBox>("Namenlos");
             input.setPosition(100, 40);
