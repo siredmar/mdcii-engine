@@ -69,6 +69,8 @@ Theme::Theme(SDL_Renderer* ctx)
     mTextBoxGradientBotBackground = Color(32, 32);
     mTextBoxBorderFocused = Color(255, 64);
     mTextBoxBorderUnfocused = Color(255, 32);
+    mTextBoxCursor = Color(255, 192, 0, 255);
+    mTextBoxSelection = Color(255, 255, 255, 80);
 
     /* Window-related */
     mWindowFillUnfocused

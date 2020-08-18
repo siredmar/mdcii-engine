@@ -152,12 +152,6 @@ TextBox::TextBox(Widget* parent, const std::string& value, const std::string& un
     if (mTheme)
     {
         mFontSize = mTheme->mTextBoxFontSize;
-        mGradientTopFocused = mTheme->mTextBoxGradientTopFocused;
-        mGradientBotFocused = mTheme->mTextBoxGradientBotFocused;
-        mGradientTopUnfocused = mTheme->mTextBoxGradientTopUnfocused;
-        mGradientBotUnfocused = mTheme->mTextBoxGradientBotUnfocused;
-        mGradientTopBackground = mTheme->mTextBoxGradientTopBackground;
-        mGradientBotBackground = mTheme->mTextBoxGradientBotBackground;
     }
     _captionTex.dirty = true;
     _unitsTex.dirty = true;
@@ -176,12 +170,6 @@ void TextBox::setTheme(Theme* theme)
     if (mTheme)
     {
         mFontSize = mTheme->mTextBoxFontSize;
-        mGradientTopFocused = mTheme->mTextBoxGradientTopFocused;
-        mGradientBotFocused = mTheme->mTextBoxGradientBotFocused;
-        mGradientTopUnfocused = mTheme->mTextBoxGradientTopUnfocused;
-        mGradientBotUnfocused = mTheme->mTextBoxGradientBotUnfocused;
-        mGradientTopBackground = mTheme->mTextBoxGradientTopBackground;
-        mGradientBotBackground = mTheme->mTextBoxGradientBotBackground;
     }
 }
 
@@ -334,7 +322,7 @@ void TextBox::draw(SDL_Renderer* renderer)
                     std::swap(caretx, selx);
 
                 // draw selection
-                SDL_Color c = Color(255, 255, 255, 80).toSdlColor();
+                SDL_Color c = mTheme->mTextBoxSelection.toSdlColor();
                 SDL_Rect sr{ oldDrawPos.x + caretx, oldDrawPos.y + 4, selx - caretx, height() - 4 };
                 SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
                 SDL_RenderFillRect(renderer, &sr);
@@ -346,7 +334,7 @@ void TextBox::draw(SDL_Renderer* renderer)
             {
                 float caretx = cursorIndex2Position(mCursorPos, textBound[2], mValueTemp);
 
-                SDL_Color c = Color(255, 192, 0, 255).toSdlColor();
+                SDL_Color c = mTheme->mTextBoxCursor.toSdlColor();
                 SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
                 SDL_RenderDrawLine(renderer, oldDrawPos.x + caretx, oldDrawPos.y + 4,
                     oldDrawPos.x + caretx, oldDrawPos.y + lineh - 3);
