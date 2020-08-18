@@ -11,9 +11,11 @@
 
 #include <memory>
 #include <sdlgui/button.h>
+#include <sdlgui/label.h>
 #include <sdlgui/screen.h>
 #include <sdlgui/textbox.h>
 #include <sdlgui/theme.h>
+#include <sdlgui/vscrollpanel.h>
 #include <sdlgui/window.h>
 
 #if defined(_WIN32)
@@ -196,33 +198,50 @@ public:
             theme->mTextBoxGradientBotFocused = theme->mTransparent;
             theme->mTextBoxGradientTopUnfocused = theme->mTransparent;
             theme->mTextBoxGradientBotUnfocused = theme->mTransparent;
-            theme->mTextBoxBorderFocused = theme->mTransparent;
-            theme->mTextBoxBorderUnfocused = theme->mTransparent;
+            // theme->mTextBoxBorderFocused = theme->mTransparent;
+            // theme->mTextBoxBorderUnfocused = theme->mTransparent;
             theme->mTextBoxCursor = theme->mTextColor;
             theme->mTextBoxSelection = Color(0, 0, 0, 100);
 
-            auto& input = wdg<TextBox>("Namenlos");
-            input.setPosition(100, 40);
-            input.setFixedSize(sdlgui::Vector2i{ 200, 26 });
-            input.setFontSize(20);
-            input.setEditable(true);
-            input.setTheme(theme);
+            auto& slider = wdg<VScrollPanel>();
+            slider.setFixedHeight(100);
+            // slider.setFixedSize(sdlgui::Vector2i{ 200, 100 });
+            // slider.setSize(sdlgui::Vector2i{ 200, 100 });
+            slider.setPosition(200, 40);
 
-            auto& button = wdg<Button>("Button 1", [this, &input] {
+            auto frame = new Widget(&slider);
+            frame->setSize(sdlgui::Vector2i{ 200, 200 });
+
+            auto input = new TextBox(frame, "Namenlos");
+            input->setPosition(0, 0);
+            input->setFixedSize(sdlgui::Vector2i{ 200, 26 });
+            input->setFontSize(20);
+            input->setEditable(true);
+            input->setAlignment(sdlgui::TextBox::Alignment::Left);
+            input->setTheme(theme);
+
+            auto label = new Label(frame, "Label1");
+            label->setPosition(0, 40);
+            label->setFixedSize(sdlgui::Vector2i{ 200, 26 });
+            label->setFontSize(20);
+
+            // auto& button = wdg<Button>("Button 1", [this, input] {
+            auto button = new Button(frame, "Button 1", [this, input] {
                 std::cout << "screen 1 button pushed!" << std::endl;
-                std::cout << input.value() << std::endl;
+                std::cout << input->value() << std::endl;
                 loadScreenTwo = true;
             });
-            button.setSize(sdlgui::Vector2i{ 100, 20 });
-            button.setPosition(100, 100);
+            button->setSize(sdlgui::Vector2i{ 100, 20 });
+            button->setPosition(0, 50);
 
-            auto& exit = wdg<Button>("Exit", [this] {
+            // auto& exit = wdg<Button>("Exit", [this] {
+            auto exit = new Button(frame, "Exit", [this] {
                 std::cout << "Exit button pushed!" << std::endl;
                 _Exit(0);
                 quit = true;
             });
-            exit.setSize(sdlgui::Vector2i{ 100, 20 });
-            exit.setPosition(100, 140);
+            exit->setSize(sdlgui::Vector2i{ 100, 20 });
+            exit->setPosition(0, 90);
             // this->setTheme(theme);
         }
         performLayout(mSDL_Renderer);
