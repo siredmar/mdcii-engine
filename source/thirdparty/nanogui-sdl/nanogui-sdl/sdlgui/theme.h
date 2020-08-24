@@ -118,10 +118,10 @@ public:
     Color mWindowPopupTransparent;
 
     void getTexAndRect(SDL_Renderer* renderer, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor);
+        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor, int lineWidth = -1);
 
     void getTexAndRectUtf8(SDL_Renderer* renderer, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor);
+        const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor, int lineWidth = -1);
 
     std::string breakText(SDL_Renderer* renderer, const char* string, const char* fontname, int ptsize,
         float breakRowWidth);
@@ -132,7 +132,7 @@ public:
     int getUtf8Bounds(const char* fontname, size_t ptsize, const char* text, int* w, int* h);
 
     void getTexAndRectUtf8(SDL_Renderer* renderer, Texture& tx, int x, int y, const char* text,
-        const char* fontname, size_t ptsize, const Color& textColor);
+        const char* fontname, size_t ptsize, const Color& textColor, int lineWidth = -1);
 
 protected:
     virtual ~Theme(){};
