@@ -167,7 +167,7 @@ int Theme::getUtf8Width(const char* fontname, size_t ptsize, const char* text)
 }
 
 void Theme::getTexAndRect(SDL_Renderer* renderer, int x, int y, const char* text,
-    const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor)
+    const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor, int lineWidth)
 {
     int text_width;
     int text_height;
@@ -182,7 +182,15 @@ void Theme::getTexAndRect(SDL_Renderer* renderer, int x, int y, const char* text
     if (!font)
         return;
 
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text, textColor ? *textColor : defColor);
+    SDL_Surface* surface;
+    if (lineWidth == -1)
+    {
+        surface = TTF_RenderText_Blended(font, text, textColor ? *textColor : defColor);
+    }
+    else
+    {
+        surface = TTF_RenderText_Blended_Wrapped(font, text, textColor ? *textColor : defColor, lineWidth);
+    }
     if (!surface)
     {
         rect->x = x;
@@ -204,7 +212,7 @@ void Theme::getTexAndRect(SDL_Renderer* renderer, int x, int y, const char* text
 }
 
 void Theme::getTexAndRectUtf8(SDL_Renderer* renderer, int x, int y, const char* text,
-    const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor)
+    const char* fontname, size_t ptsize, SDL_Texture** texture, SDL_Rect* rect, SDL_Color* textColor, int lineWidth)
 {
     int text_width;
     int text_height;
@@ -219,7 +227,16 @@ void Theme::getTexAndRectUtf8(SDL_Renderer* renderer, int x, int y, const char* 
     if (!font)
         return;
 
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, textColor ? *textColor : defColor);
+    SDL_Surface* surface;
+    if (lineWidth == -1)
+    {
+        surface = TTF_RenderUTF8_Blended(font, text, textColor ? *textColor : defColor);
+    }
+    else
+    {
+        surface = TTF_RenderUTF8_Blended_Wrapped(font, text, textColor ? *textColor : defColor, lineWidth);
+    }
+
     if (!surface)
     {
         rect->x = x;
@@ -254,11 +271,11 @@ std::string Theme::breakText(SDL_Renderer* renderer, const char* string, const c
 }
 
 void Theme::getTexAndRectUtf8(SDL_Renderer* renderer, Texture& tx, int x, int y, const char* text,
-    const char* fontname, size_t ptsize, const Color& textColor)
+    const char* fontname, size_t ptsize, const Color& textColor, int lineWidth)
 {
     tx.dirty = false;
     SDL_Color tColor = textColor.toSdlColor();
-    getTexAndRectUtf8(renderer, 0, 0, text, fontname, ptsize, &tx.tex, &tx.rrect, &tColor);
+    getTexAndRectUtf8(renderer, 0, 0, text, fontname, ptsize, &tx.tex, &tx.rrect, &tColor, lineWidth);
 }
 
 void SDL_RenderCopy(SDL_Renderer* renderer, Texture& tx, const Vector2i& pos)

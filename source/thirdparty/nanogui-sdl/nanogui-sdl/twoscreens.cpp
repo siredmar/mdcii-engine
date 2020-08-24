@@ -198,21 +198,20 @@ public:
             theme->mTextBoxGradientBotFocused = theme->mTransparent;
             theme->mTextBoxGradientTopUnfocused = theme->mTransparent;
             theme->mTextBoxGradientBotUnfocused = theme->mTransparent;
-            // theme->mTextBoxBorderFocused = theme->mTransparent;
-            // theme->mTextBoxBorderUnfocused = theme->mTransparent;
+            theme->mTextBoxBorderFocused = theme->mTransparent;
+            theme->mTextBoxBorderUnfocused = theme->mTransparent;
             theme->mTextBoxCursor = theme->mTextColor;
             theme->mTextBoxSelection = Color(0, 0, 0, 100);
 
             auto& slider = wdg<VScrollPanel>();
-            slider.setFixedHeight(100);
-            // slider.setFixedSize(sdlgui::Vector2i{ 200, 100 });
-            // slider.setSize(sdlgui::Vector2i{ 200, 100 });
+            slider.setFixedHeight(140);
+            slider.setFixedWidth(300);
             slider.setPosition(200, 40);
 
             auto frame = new Widget(&slider);
             frame->setSize(sdlgui::Vector2i{ 200, 200 });
 
-            auto input = new TextBox(frame, "Namenlos");
+            auto input = new TextBox(frame, "No Name");
             input->setPosition(0, 0);
             input->setFixedSize(sdlgui::Vector2i{ 200, 26 });
             input->setFontSize(20);
@@ -220,29 +219,27 @@ public:
             input->setAlignment(sdlgui::TextBox::Alignment::Left);
             input->setTheme(theme);
 
-            auto label = new Label(frame, "Label1");
-            label->setPosition(0, 40);
-            label->setFixedSize(sdlgui::Vector2i{ 200, 26 });
-            label->setFontSize(20);
-
-            // auto& button = wdg<Button>("Button 1", [this, input] {
             auto button = new Button(frame, "Button 1", [this, input] {
                 std::cout << "screen 1 button pushed!" << std::endl;
                 std::cout << input->value() << std::endl;
                 loadScreenTwo = true;
             });
             button->setSize(sdlgui::Vector2i{ 100, 20 });
-            button->setPosition(0, 50);
+            button->setPosition(0, 40);
 
-            // auto& exit = wdg<Button>("Exit", [this] {
             auto exit = new Button(frame, "Exit", [this] {
                 std::cout << "Exit button pushed!" << std::endl;
                 _Exit(0);
                 quit = true;
             });
             exit->setSize(sdlgui::Vector2i{ 100, 20 });
-            exit->setPosition(0, 90);
-            // this->setTheme(theme);
+            exit->setPosition(0, 80);
+
+            auto& label = wdg<Label>("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+            label.setPosition(100, 200);
+            label.setFontSize(20);
+            label.setMultiline(400);
+            label.setTheme(theme);
         }
         performLayout(mSDL_Renderer);
     }
@@ -329,8 +326,8 @@ int main(int /* argc */, char** /* argv */)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    int winWidth = 640;
-    int winHeight = 480;
+    int winWidth = 800;
+    int winHeight = 600;
 
     // Create an application window with the following settings:
     window = SDL_CreateWindow(
