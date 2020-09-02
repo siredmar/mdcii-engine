@@ -448,6 +448,11 @@ public:
         return *this;
     }
 
+    std::string getType()
+    {
+        return mType;
+    }
+
     template <typename LayoutClass, typename... Args>
     Widget& withLayout(const Args&... args)
     {
@@ -569,6 +574,7 @@ protected:
     std::string mTooltip;
     int mFontSize;
     Cursor mCursor;
+    std::string mType;
 };
 
 NAMESPACE_END(sdlgui)
