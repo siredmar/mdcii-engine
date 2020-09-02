@@ -65,6 +65,8 @@ public:
         return -1;
     }
 
+    std::string GetMissionText(int player);
+
 private:
     Files* files;
     std::vector<std::shared_ptr<Chunk>> chunks;

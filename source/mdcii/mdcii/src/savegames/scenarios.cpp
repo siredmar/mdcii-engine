@@ -53,6 +53,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                         game->set_path(s.c_str());
                         game->set_stars(gam.GetSceneRanking());
                         game->set_name(RemoveDigits(fs::path(s).stem()));
+                        game->set_missiontext(gam.GetMissionText(0));
                     }
                     else
                     {
@@ -71,14 +72,6 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                         }
 
                         int index = CampagneIndex(RemoveDigits(fs::path(s).stem()));
-                        // for (int i = 0; i < gamelist.campaign_size(); i++)
-                        // {
-                        //     if (gamelist.campaign(i).name() == RemoveDigits(fs::path(s).stem()))
-                        //     {
-                        //         index = i;
-                        //         break;
-                        //     }
-                        // }
                         // The campaign has not been found yet, lets create one
                         GamesPb::Campaign* campaign;
                         if (index == -1)
@@ -103,6 +96,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                         game->set_stars(gam.GetSceneRanking());
                         game->set_path(s.c_str());
                         game->set_missionnumber(missionNumber);
+                        game->set_missiontext(gam.GetMissionText(0));
                         campaign->set_stars(gam.GetSceneRanking());
                     }
                 }
@@ -122,6 +116,7 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                     game->set_path(s.c_str());
                     game->set_stars(gam.GetSceneRanking());
                     game->set_name(RemoveDigits(fs::path(s).stem()));
+                    game->set_missiontext(gam.GetMissionText(0));
                 }
             }
         }
