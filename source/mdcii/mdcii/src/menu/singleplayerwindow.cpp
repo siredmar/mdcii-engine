@@ -168,6 +168,7 @@ SinglePlayerWindow::SinglePlayerWindow(SDL_Renderer* renderer, SDL_Window* pwind
             for (int a = 0; a < scenes.campaign(i).game_size(); a++)
             {
                 std::cout << "\t" << scenes.campaign(i).game(a).name() << std::endl;
+                std::cout << "\t" << scenes.campaign(i).game(a).missiontext() << std::endl;
                 std::cout << "\t" << scenes.campaign(i).game(a).path() << std::endl;
                 std::cout << "\t" << scenes.campaign(i).game(a).stars() << std::endl;
                 std::cout << "\t" << scenes.campaign(i).game(a).flags() << std::endl;

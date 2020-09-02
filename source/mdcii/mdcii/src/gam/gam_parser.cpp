@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+#include "common/stringhelpers.hpp"
 #include "gam/gam_parser.hpp"
 
 static std::default_random_engine dre(std::chrono::steady_clock::now().time_since_epoch().count());
@@ -301,6 +302,24 @@ Island5 GamParser::SceneIslandbyFile(SizeType size, ClimateType climate, uint16_
     i.SetIslandFile(fileNumber);
     i.AddIslandHouse(islandHouse);
     return i;
+}
+
+std::string GamParser::GetMissionText(int player)
+{
+    if (mission4)
+    {
+
+        try
+        {
+            std::string text = std::string(mission4->missions[player].missionText);
+            return iso_8859_1_to_utf8(text);
+        }
+        catch (const std::exception& e)
+        {
+            throw(std::string("[ERR] GetMissionText(): no mission for selected player!"));
+        }
+    }
+    return "";
 }
 
 int GamParser::GetSceneRanking()
