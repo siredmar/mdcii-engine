@@ -287,4 +287,9 @@ void SDL_RenderCopy(SDL_Renderer* renderer, Texture& tx, const Vector2i& pos)
     SDL_RenderCopy(renderer, tx.tex, nullptr, &rect);
 }
 
+void SDL_RenderCopyOriginal(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect)
+{
+    SDL_RenderCopy(renderer, texture, srcrect, dstrect);
+}
+
 NAMESPACE_END(sdlgui)

@@ -38,12 +38,14 @@ public:
     void setCaption(const std::string& caption)
     {
         mCaption = caption;
+        _texture.dirty = true;
     }
 
     /// Set the currently active font (2 are available by default: 'sans' and 'sans-bold')
     void setFont(const std::string& font)
     {
         mFont = font;
+        _texture.dirty = true;
     }
     /// Get the currently active font
     const std::string& font() const
@@ -60,6 +62,7 @@ public:
     void setColor(const Color& color)
     {
         mColor = color;
+        _texture.dirty = true;
     }
 
     /// Get multiline mode
@@ -71,6 +74,7 @@ public:
     void setMultiline(int lineWidth)
     {
         mMultiline = lineWidth;
+        _texture.dirty = true;
     }
 
     /// Set the \ref Theme used to draw this widget
@@ -81,14 +85,17 @@ public:
 
     /// Draw the label
     void draw(SDL_Renderer* renderer) override;
+    void drawScroll(SDL_Renderer* renderer, Vector2i pos, Vector2i scroll, Vector2i parentSize);
     void setFontSize(int fontSize) override;
 
 protected:
+    Widget* mParent;
     std::string mCaption;
     std::string mFont;
     int mMultiline;
     Color mColor;
     Texture _texture;
+    // std::string mType;
 };
 
 NAMESPACE_END(sdlgui)

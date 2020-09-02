@@ -26,8 +26,9 @@ Widget::Widget(Widget *parent)
       _pos(Vector2i::Zero()), mSize(Vector2i::Zero()),
       mFixedSize(Vector2i::Zero()), mVisible(true), mEnabled(true),
       mFocused(false), mMouseFocus(false), mTooltip(""), mFontSize(-1.0f),
-      mCursor(Cursor::Arrow) 
+      mCursor(Cursor::Arrow)
 {
+    mType = "Widget";
     if (parent)
         parent->addChild(this);
 }
