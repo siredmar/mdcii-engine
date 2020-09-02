@@ -74,9 +74,12 @@ private:
     Scale* scale;
     GamesPb::SingleGame singleGame;
     GamesPb::Campaign campaign;
+    Theme* theme;
+
     std::vector<std::tuple<Widget*, int, int>> widgets;
     std::vector<std::tuple<MissionGadGadget*, std::shared_ptr<SDL_Texture>, std::shared_ptr<SDL_Texture>>> missionSelect;
     std::vector<TextureButton*> missionSelectButtons;
     std::vector<TextureView*> missionSelectLabels;
+    Label* missionLabel;
 };
 #endif

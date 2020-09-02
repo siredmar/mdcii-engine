@@ -24,6 +24,8 @@ message SingleGame
     bool original = 5;
     // mission number count
     int32 missionNumber = 6;
+    // mission text
+    string missionText = 7;
 }
 
 // Campaign: group of multiple missions
@@ -50,6 +52,8 @@ message EndlessGame
     int32 stars = 3;
     // flags like single/multiplayer
     int32 flags = 4;
+    // mission text
+    string missionText = 5;
 }
 
 message Games

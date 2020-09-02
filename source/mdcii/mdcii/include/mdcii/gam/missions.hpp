@@ -186,7 +186,7 @@ struct Mission4Data // Auftrag4
     int32_t stadtanzmin; // unused? maybe number for stadtmin?
     int16_t stadtanzminfrmd; // foreign allied city goal to `_hold_ number of _cities_`
     uint8_t empty3[10]; // empty
-    char infotxt[2048]; // mission info text
+    char missionText[2048]; // mission info text
     WareMin waremin[2]; // goal to have specific amount of goods. Enabled by `store1` and `store2` in flags
     CityMin stadtmin[4]; // goal to reach cities with specific settlers. Enabled by `city1`, `city2` and `city3` in flags
     CityMin stadtlowfrmd; // foreign allied city goal to `_hold_ specific amount of _settlers_`

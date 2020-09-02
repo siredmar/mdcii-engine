@@ -28,6 +28,7 @@
 #include "sdlgui/screen.h"
 #include "sdlgui/texturebutton.h"
 #include "sdlgui/textureview.h"
+#include "sdlgui/vscrollpanel.h"
 #include "sdlgui/window.h"
 
 #include "cod/mission_gad.hpp"
@@ -56,6 +57,7 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
     , scale(Scale::Instance())
     , singleGame(GamesPb::SingleGame())
     , campaign(GamesPb::Campaign())
+    , theme(new Theme(renderer))
 {
     std::cout << "mission.gad: " << gad->GetGadgetsSize() << std::endl;
     BshReader bsh_leser(files->FindPathForFile("toolgfx/start.bsh"));
@@ -79,6 +81,8 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
 
     auto highscoreGad = gad->GetGadgetByIndex(4);
     SDL_Texture* highscoreTexture = converter.Convert(&bsh_leser.GetBshImage(highscoreGad->Gfxnr));
+
+    // auto missionTextGad = gad->GetGadgetByIndex();
 
     auto tableGad = gad->GetGadgetByIndex(5);
     SDL_Texture* tableTexture = converter.Convert(&bsh_leser.GetBshImage(tableGad->Gfxnr));
@@ -113,9 +117,26 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         mission.setPosition(scaleLeftBorder, scaleUpperBorder);
         widgets.push_back(std::make_tuple(&mission, scaleLeftBorder + missionGad->Pos.x, scaleUpperBorder + missionGad->Pos.y));
 
+        // // Mission text
+
+        theme->mTextColor = Color(202, 172, 52, 255);
+        theme->mTextColorShadow = Color(0, 0, 0, 100);
+
+        auto& slider = wdg<VScrollPanel>();
+        slider.setPosition(Vector2i{ 450 + scaleLeftBorder, 385 + scaleUpperBorder });
+        // slider.setFixedSize(Vector2i{ 470, 220 });
+        slider.setFixedWidth(470);
+        slider.setFixedHeight(220);
+
+        widgets.push_back(std::make_tuple(&slider, scaleLeftBorder + 450, scaleUpperBorder + 385));
+        missionLabel = new Label(&slider, "");
+        missionLabel->setMultiline(400);
+        missionLabel->setTheme(theme);
+        // missionLabel->setFixedSize(Vector2i{ 450, 300 });
+
         // // Highscore
         auto& highscore = wdg<TextureView>(highscoreTexture);
-        highscore.setPosition(scaleLeftBorder, scaleUpperBorder);
+        highscore.setPosition(highscoreGad->Pos.x + scaleLeftBorder, highscoreGad->Pos.y + scaleUpperBorder);
         widgets.push_back(std::make_tuple(&highscore, scaleLeftBorder + highscoreGad->Pos.x, scaleUpperBorder + highscoreGad->Pos.y));
 
         // BUTTONS
@@ -154,38 +175,47 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         abortButton.setSecondaryTexture(abortTextureClicked);
         abortButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&abortButton, abortButtonGad->Pos.x, abortButtonGad->Pos.y));
-
-        for (int i = 0; i < 5; i++)
+        // if (campaign.game_size() > 0)
+        missionLabel->setCaption(this->singleGame.missiontext());
         {
-            auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i] {
-                std::cout << this->campaign.name() << std::endl;
-                for (int missions = 0; missions < 5; missions++)
-                {
-                    if (missions == i)
+            // missionLabel->setCaption(this->campaign.game(0).missiontext());
+            for (int i = 0; i < 5; i++)
+            {
+                auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i] {
+                    std::cout << this->campaign.name() << std::endl;
+                    for (int missions = 0; missions < 5; missions++)
                     {
-                        continue;
+                        if (missions == i)
+                        {
+                            continue;
+                        }
+                        missionSelectButtons[missions]->setPushed(false);
                     }
-                    missionSelectButtons[missions]->setPushed(false);
-                }
-                if (this->campaign.game_size() > 0 && this->campaign.game_size() > i)
-                {
-                    this->singleGame = this->campaign.game(i);
-                    std::cout << "Mission " + this->singleGame.name() + " selected" << std::endl;
-                }
-            });
-            missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
-            missionSelectButton.setSecondaryTexture(std::get<2>(missionSelect[i]).get());
-            missionSelectButton.setFlags(TextureButton::OnClick | TextureButton::ToggleButton);
-            missionSelectButton.setVisible(false);
-            widgets.push_back(std::make_tuple(&missionSelectButton, std::get<0>(missionSelect[i])->Pos.x, std::get<0>(missionSelect[i])->Pos.y));
-            missionSelectButtons.push_back(&missionSelectButton);
+                    if (this->campaign.game_size() > 0 && this->campaign.game_size() > i)
+                    {
+                        this->singleGame = this->campaign.game(i);
+                        std::cout << "Mission " + this->singleGame.name() + " selected" << std::endl;
+                        missionLabel->setCaption(this->singleGame.missiontext());
+                    }
+                });
+                missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
+                missionSelectButton.setSecondaryTexture(std::get<2>(missionSelect[i]).get());
+                missionSelectButton.setFlags(TextureButton::OnClick | TextureButton::ToggleButton);
+                missionSelectButton.setVisible(false);
+                widgets.push_back(std::make_tuple(&missionSelectButton, std::get<0>(missionSelect[i])->Pos.x, std::get<0>(missionSelect[i])->Pos.y));
+                missionSelectButtons.push_back(&missionSelectButton);
 
-            auto& missionSelectLabel = wdg<TextureView>(emptyMissionTextTexture);
-            missionSelectLabel.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x + 30, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
-            missionSelectLabel.setVisible(false);
-            widgets.push_back(std::make_tuple(&missionSelectLabel, std::get<0>(missionSelect[i])->Pos.x + 30, std::get<0>(missionSelect[i])->Pos.y));
-            missionSelectLabels.push_back(&missionSelectLabel);
+                auto& missionSelectLabel = wdg<TextureView>(emptyMissionTextTexture);
+                missionSelectLabel.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x + 30, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
+                missionSelectLabel.setVisible(false);
+                widgets.push_back(std::make_tuple(&missionSelectLabel, std::get<0>(missionSelect[i])->Pos.x + 30, std::get<0>(missionSelect[i])->Pos.y));
+                missionSelectLabels.push_back(&missionSelectLabel);
+            }
         }
+        // else
+        // {
+        //     missionLabel->setCaption(this->singleGame.missiontext());
+        // }
     }
     performLayout(renderer);
     Redraw();
