@@ -39,6 +39,7 @@ struct Texture
 };
 
 void SDL_RenderCopy(SDL_Renderer* renderer, Texture& tex, const Vector2i& pos);
+void SDL_RenderCopyOriginal(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect);
 /**
  * \class Theme theme.h sdlgui/theme.h
  *
