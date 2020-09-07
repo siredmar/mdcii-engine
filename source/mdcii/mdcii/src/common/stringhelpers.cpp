@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <codecvt>
 #include <locale>
+#include <regex>
 #include <string>
 
 #include "common/stringhelpers.hpp"
@@ -27,4 +29,10 @@ std::string iso_8859_1_to_utf8(std::string& str)
         }
     }
     return strOut;
+}
+
+std::string removeTrailingCarriageReturnNewline(const std::string& input)
+{
+    std::regex r("[\r\n]{2,}");
+    return std::regex_replace(input, r, "\r\n");
 }

@@ -20,6 +20,7 @@
 
 #include "cod/codhelpers.hpp"
 #include "cod/text_cod.hpp"
+#include "common/stringhelpers.hpp"
 #include "files/files.hpp"
 #include "gam/gam_parser.hpp"
 #include "savegames/scenarios.hpp"
@@ -96,7 +97,8 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                         game->set_stars(gam.GetSceneRanking());
                         game->set_path(s.c_str());
                         game->set_missionnumber(missionNumber);
-                        game->set_missiontext(gam.GetMissionText(0));
+                        std::string missionTextRaw = gam.GetMissionText(0);
+                        game->set_missiontext(removeTrailingCarriageReturnNewline(missionTextRaw));
                         campaign->set_stars(gam.GetSceneRanking());
                     }
                 }

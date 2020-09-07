@@ -124,13 +124,12 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
 
         auto& slider = wdg<VScrollPanel>();
         slider.setPosition(Vector2i{ 450 + scaleLeftBorder, 385 + scaleUpperBorder });
-        // slider.setFixedSize(Vector2i{ 470, 220 });
         slider.setFixedWidth(470);
-        slider.setFixedHeight(220);
+        slider.setFixedHeight(200);
 
         widgets.push_back(std::make_tuple(&slider, scaleLeftBorder + 450, scaleUpperBorder + 385));
         missionLabel = new Label(&slider, "");
-        missionLabel->setMultiline(400);
+        missionLabel->setMultiline(420);
         missionLabel->setTheme(theme);
         // missionLabel->setFixedSize(Vector2i{ 450, 300 });
 
@@ -181,7 +180,7 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
             // missionLabel->setCaption(this->campaign.game(0).missiontext());
             for (int i = 0; i < 5; i++)
             {
-                auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i] {
+                auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i, &slider] {
                     std::cout << this->campaign.name() << std::endl;
                     for (int missions = 0; missions < 5; missions++)
                     {
@@ -196,6 +195,7 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
                         this->singleGame = this->campaign.game(i);
                         std::cout << "Mission " + this->singleGame.name() + " selected" << std::endl;
                         missionLabel->setCaption(this->singleGame.missiontext());
+                        slider.setScrollAmount(0);
                     }
                 });
                 missionSelectButton.setPosition(scaleLeftBorder + std::get<0>(missionSelect[i])->Pos.x, scaleUpperBorder + std::get<0>(missionSelect[i])->Pos.y);
