@@ -88,6 +88,8 @@ public:
     void drawScroll(SDL_Renderer* renderer, Vector2i pos, Vector2i scroll, Vector2i parentSize);
     void setFontSize(int fontSize) override;
 
+    // void save_texture(const char* file_name, SDL_Renderer* renderer, SDL_Texture* texture);
+
 protected:
     Widget* mParent;
     std::string mCaption;

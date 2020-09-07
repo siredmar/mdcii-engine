@@ -32,7 +32,7 @@ void VScrollPanel::performLayout(SDL_Renderer* ctx)
     Widget* child = mChildren[0];
     mChildPreferredHeight = child->preferredSize(ctx).y;
     child->setPosition({ 0, 0 });
-    child->setSize({ mSize.x - 12, mChildPreferredHeight });
+    child->setSize({ child->preferredSize(ctx).x + 12 >= mSize.x ? mSize.x - 12 : mSize.x - 12, mChildPreferredHeight });
 }
 
 Vector2i VScrollPanel::preferredSize(SDL_Renderer* ctx) const
