@@ -4,6 +4,8 @@
 
 The main goal of this project is to provide an independent reimplementation of the game engine for Anno 1602/1602 AD under a free license.
 
+**Note: Supported versions of the original game are NINA ("Neue Inseln, Neue Abenteuer", "New Islands, New Adventures"), Königsedition (Kings Edition), Gold Edition. The original vanilla game without the NINA addon won't work, because of hardcoded stuff in the .exe files. The new published version 'History Edition' currently won't work either, because of changed BSH files.**
+
 Currently this project contains several helper tools:
 
 -   [`bshdump`](docs/doc/bshdump.md)
