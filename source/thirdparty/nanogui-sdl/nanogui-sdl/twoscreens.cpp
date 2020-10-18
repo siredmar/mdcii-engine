@@ -211,10 +211,22 @@ public:
             slider0.setFixedWidth(500);
             slider0.setPosition(100, 200);
 
-            auto label = new Label(&slider0, "0000000000 000000000 00000000000000 00000000000000 00000000000000 0000 000000 000000 000000000\r\n11111111 1111111111 11111111111 1111111111111 111 11111 11111 11 111 111111111 1  111111111111111111 11111111 111111 1111\r\n2222222222 22222 222222 2222 222222222 22222 2222 2222222 2222222 22222 222 2222 222 2222222 222222 2222\r\n\r\n\r\n");
-            label->setFontSize(20);
-            label->setMultiline(450);
-            label->setTheme(theme);
+            // auto label = new Label(&slider0, "0000000000");
+            // label->setFontSize(20);
+            // label->setPosition(sdlgui::Vector2i{ 0, 0 });
+            // // label->setMultiline(450);
+            // label->setTheme(theme);
+
+            auto button = new Button(&slider0, "Button 1", [this] {
+                std::cout << "screen 1 button pushed!" << std::endl;
+            });
+            button->setSize(sdlgui::Vector2i{ 100, 20 });
+            button->setPosition(0, 40);
+
+            // auto label = new Label(&slider0, "0000000000 000000000 00000000000000 00000000000000 00000000000000 0000 000000 000000 000000000\r\n11111111 1111111111 11111111111 1111111111111 111 11111 11111 11 111 111111111 1  111111111111111111 11111111 111111 1111\r\n2222222222 22222 222222 2222 222222222 22222 2222 2222222 2222222 22222 222 2222 222 2222222 222222 2222\r\n\r\n\r\n");
+            // label->setFontSize(20);
+            // label->setMultiline(450);
+            // label->setTheme(theme);
 
             // auto& slider = wdg<VScrollPanel>();
             // slider.setFixedHeight(140);
