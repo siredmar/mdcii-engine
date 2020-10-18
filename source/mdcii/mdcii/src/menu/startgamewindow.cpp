@@ -174,10 +174,8 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
         abortButton.setSecondaryTexture(abortTextureClicked);
         abortButton.setFlags(TextureButton::NormalButton | TextureButton::OnClick);
         widgets.push_back(std::make_tuple(&abortButton, abortButtonGad->Pos.x, abortButtonGad->Pos.y));
-        // if (campaign.game_size() > 0)
         missionLabel->setCaption(this->singleGame.missiontext());
         {
-            // missionLabel->setCaption(this->campaign.game(0).missiontext());
             for (int i = 0; i < 5; i++)
             {
                 auto& missionSelectButton = wdg<TextureButton>(std::get<1>(missionSelect[i]).get(), [this, i, &slider] {
@@ -212,10 +210,6 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
                 missionSelectLabels.push_back(&missionSelectLabel);
             }
         }
-        // else
-        // {
-        //     missionLabel->setCaption(this->singleGame.missiontext());
-        // }
     }
     performLayout(renderer);
     Redraw();
@@ -224,13 +218,15 @@ StartGameWindow::StartGameWindow(SDL_Renderer* renderer, SDL_Window* pwindow, in
 void StartGameWindow::SetGame(const GamesPb::SingleGame& game)
 {
     singleGame = game;
+    missionLabel->setCaption(this->singleGame.missiontext());
 }
 
 void StartGameWindow::SetGame(const GamesPb::Campaign& game)
 {
     campaign = game;
-    if (campaign.game_size() > 0)
+    if (campaign.game_size() >= 0)
     {
+        missionLabel->setCaption(this->campaign.game(0).missiontext());
         missionSelectButtons[0]->setPushed(true);
         singleGame = campaign.game(0);
         std::cout << "[INFO] Setting campaign " + campaign.name() + ". Missions: " << campaign.game_size() << std::endl;
