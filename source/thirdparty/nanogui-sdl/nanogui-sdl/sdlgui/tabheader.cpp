@@ -169,17 +169,22 @@ void TabHeader::TabButton::drawInactiveBorderAt(SDL_Renderer *renderer, const Ve
 
     SDL_Color c = color.toSdlColor();
     SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
-    SDL_Rect r{ xPos + offset, yPos + offset, width - offset, height - offset };
+    SDL_Rect r{
+      static_cast<int>(xPos + offset),
+      static_cast<int>(yPos + offset),
+      static_cast<int>(width - offset),
+      static_cast<int>(height - offset)
+    };
     SDL_RenderDrawRect(renderer, &r);
 }
 
 
 TabHeader::TabHeader(Widget* parent, const std::string& font)
-    : Widget(parent), mFont(font) 
+    : Widget(parent), mFont(font)
 {
 }
 
-void TabHeader::setActiveTab(int tabIndex) 
+void TabHeader::setActiveTab(int tabIndex)
 {
     assert(tabIndex < tabCount());
     mActiveTab = tabIndex;
@@ -187,29 +192,29 @@ void TabHeader::setActiveTab(int tabIndex)
         mCallback(tabIndex);
 }
 
-int TabHeader::activeTab() const 
+int TabHeader::activeTab() const
 {
     return mActiveTab;
 }
 
-bool TabHeader::isTabVisible(int index) const 
+bool TabHeader::isTabVisible(int index) const
 {
     return index >= mVisibleStart && index < mVisibleEnd;
 }
 
-void TabHeader::addTab(const std::string & label) 
+void TabHeader::addTab(const std::string & label)
 {
     addTab(tabCount(), label);
 }
 
-void TabHeader::addTab(int index, const std::string &label) 
+void TabHeader::addTab(int index, const std::string &label)
 {
     assert(index <= tabCount());
     mTabButtons.insert(std::next(mTabButtons.begin(), index), TabButton(*this, label));
     setActiveTab(index);
 }
 
-int TabHeader::removeTab(const std::string &label) 
+int TabHeader::removeTab(const std::string &label)
 {
     auto element = std::find_if(mTabButtons.begin(), mTabButtons.end(),
                                 [&](const TabButton& tb) { return label == tb.label(); });
@@ -222,7 +227,7 @@ int TabHeader::removeTab(const std::string &label)
     return index;
 }
 
-void TabHeader::removeTab(int index) 
+void TabHeader::removeTab(int index)
 {
     assert(index < tabCount());
     mTabButtons.erase(std::next(mTabButtons.begin(), index));
@@ -230,13 +235,13 @@ void TabHeader::removeTab(int index)
         setActiveTab(index - 1);
 }
 
-const std::string& TabHeader::tabLabelAt(int index) const 
+const std::string& TabHeader::tabLabelAt(int index) const
 {
     assert(index < tabCount());
     return mTabButtons[index].label();
 }
 
-int TabHeader::tabIndex(const std::string &label) 
+int TabHeader::tabIndex(const std::string &label)
 {
     auto it = std::find_if(mTabButtons.begin(), mTabButtons.end(),
                            [&](const TabButton& tb) { return label == tb.label(); });
@@ -245,7 +250,7 @@ int TabHeader::tabIndex(const std::string &label)
     return it - mTabButtons.begin();
 }
 
-void TabHeader::ensureTabVisible(int index) 
+void TabHeader::ensureTabVisible(int index)
 {
     auto visibleArea = visibleButtonArea();
     auto visibleWidth = visibleArea.second.x - visibleArea.first.x;
@@ -258,24 +263,24 @@ void TabHeader::ensureTabVisible(int index)
     auto goal = tabIterator(index);
 
     // Reach the goal tab with the visible range.
-    if (goal < first) 
+    if (goal < first)
     {
-        do 
+        do
         {
             --first;
             visibleWidth += first->size().x;
-        } 
+        }
         while (goal < first);
 
-        while (allowedVisibleWidth < visibleWidth) 
+        while (allowedVisibleWidth < visibleWidth)
         {
             --last;
             visibleWidth -= last->size().x;
         }
     }
-    else if (goal >= last) 
+    else if (goal >= last)
     {
-        do 
+        do
         {
             visibleWidth += last->size().x;
             ++last;
