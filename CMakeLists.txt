@@ -10,6 +10,9 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 # Configure CMake environment
 #
 
+# Generates compile_commands.json, often consumed by IDEs.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Register general cmake commands
 include(cmake/Custom.cmake)
 
