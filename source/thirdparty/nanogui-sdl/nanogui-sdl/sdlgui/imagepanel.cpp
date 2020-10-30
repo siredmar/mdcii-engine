@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(sdlgui)
 
 ImagePanel::ImagePanel(Widget *parent)
     : Widget(parent), mThumbSize(64), mSpacing(10), mMargin(10),
-  mMouseIndex(-1) 
+  mMouseIndex(-1)
 {
 }
 
@@ -41,14 +41,14 @@ int ImagePanel::indexForPosition(const Vector2i &p) const
 }
 
 bool ImagePanel::mouseMotionEvent(const Vector2i &p, const Vector2i & /* rel */,
-                              int /* button */, int /* modifiers */) 
+                              int /* button */, int /* modifiers */)
 {
     mMouseIndex = indexForPosition(p);
     return true;
 }
 
 bool ImagePanel::mouseButtonEvent(const Vector2i &p, int /* button */, bool down,
-                                  int /* modifiers */) 
+                                  int /* modifiers */)
 {
     int index = indexForPosition(p);
     if (index >= 0 && mCallback && down)
@@ -65,7 +65,7 @@ Vector2i ImagePanel::preferredSize(SDL_Renderer *) const
     };
 }
 
-void ImagePanel::draw(SDL_Renderer* renderer) 
+void ImagePanel::draw(SDL_Renderer* renderer)
 {
   Vector2i grid = gridSize();
 
@@ -75,7 +75,7 @@ void ImagePanel::draw(SDL_Renderer* renderer)
     PntRect clip = getAbsoluteCliprect();
     SDL_Rect clipRect = pntrect2srect(clip);
 
-    for (size_t i=0; i<mImages.size(); ++i) 
+    for (size_t i=0; i<mImages.size(); ++i)
     {
       Vector2i p = Vector2i(mMargin, mMargin) + Vector2i((int) i % grid.x, (int) i / grid.x) * (mThumbSize + mSpacing);
         p += Vector2i(ax, ay);
@@ -83,14 +83,14 @@ void ImagePanel::draw(SDL_Renderer* renderer)
         int imgh = mImages[i].h;
 
         float iw, ih, ix, iy;
-        if (imgw < imgh) 
+        if (imgw < imgh)
         {
             iw = mThumbSize;
             ih = iw * (float)imgh / (float)imgw;
             ix = 0;
             iy = -(ih - mThumbSize) * 0.5f;
-        } 
-        else 
+        }
+        else
         {
             ih = mThumbSize;
             iw = ih * (float)imgw / (float)imgh;
@@ -111,7 +111,12 @@ void ImagePanel::draw(SDL_Renderer* renderer)
           SDL_RenderFillRect(renderer, &shadowPaintRect);
         }
 
-        SDL_Rect imgPaintRect{ p.x + ix, p.y + iy, iw, ih };
+        SDL_Rect imgPaintRect{
+          static_cast<int>(p.x + ix),
+          static_cast<int>(p.y + iy),
+          static_cast<int>(iw),
+          static_cast<int>(ih)
+        };
         SDL_Rect imgSrcRect{ 0, 0, imgw, imgh };
         PntRect imgrect = clip_rects(srect2pntrect(imgPaintRect), clip);
         imgPaintRect.w = imgrect.x2 - imgrect.x1;

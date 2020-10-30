@@ -87,7 +87,12 @@ PntRect clip_rects(PntRect a, const PntRect& b)
 
 SDL_Color Color::toSdlColor() const
 {
-  SDL_Color color{ r() * 255, g() * 255, b() * 255, a() * 255 };
+  SDL_Color color{
+    static_cast<Uint8>(r() * 255),
+    static_cast<Uint8>(g() * 255),
+    static_cast<Uint8>(b() * 255),
+    static_cast<Uint8>(a() * 255)
+  };
   return color;
 }
 
