@@ -57,12 +57,12 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "
   endif()
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+#set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 find_package(SDL2 REQUIRED)
-find_package(SDL2IMAGE REQUIRED)
-find_package(SDL2TTF REQUIRED)
-# 
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+#
 # Library name and options
 # 
 
@@ -261,8 +261,8 @@ target_include_directories(${target}
 target_link_libraries(${target}
     PRIVATE
     ${SDL2_LIBRARY}
-    ${SDL2TTF_LIBRARY}
-    ${SDL2IMAGE_LIBRARY}
+    ${SDL2_TTF_LIBRARY}
+    ${SDL2_IMAGE_LIBRARY}
     PUBLIC
     ${DEFAULT_LIBRARIES}
     INTERFACE
@@ -359,12 +359,12 @@ add_executable(nanogui-sdl-example1 ${CMAKE_CURRENT_SOURCE_DIR}/nanogui-sdl/exam
 set_target_properties(
     nanogui-sdl-example1 PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-target_link_libraries(nanogui-sdl-example1 nanogui-sdl ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+target_link_libraries(nanogui-sdl-example1 nanogui-sdl ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY})
 
 add_executable(nanogui-sdl-twoscreens ${CMAKE_CURRENT_SOURCE_DIR}/nanogui-sdl/twoscreens.cpp )
 set_target_properties(
     nanogui-sdl-twoscreens PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-target_link_libraries(nanogui-sdl-twoscreens nanogui-sdl ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+target_link_libraries(nanogui-sdl-twoscreens nanogui-sdl ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY})
 
 
