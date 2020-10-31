@@ -81,7 +81,7 @@ int TextCod::GetSectionSize(const std::string& name)
 std::string TextCod::GetValue(const std::string& section, int index)
 {
     auto s = GetSection(section);
-    if (index >= s->value_size())
+    if (index > s->value_size())
     {
         throw std::string("[ERR] TextCod::GetValue index out of boundaries");
     }
@@ -93,7 +93,7 @@ void TextCod::Parse()
     for (auto& line : codTxt)
     {
         // find the begin of a new section and add a new group
-        if (IsSubstring(line, "[END]") || IsSubstring(line, "--------------------------------------------------"))
+        if (IsSubstring(line, "[END]") || RegexMatch("[-]+[\\s]*[-]*", line).size() > 0)
         {
             continue;
         }
