@@ -64,6 +64,11 @@ Scenarios::Scenarios(const std::string& basepath, const std::string& fileEnding)
                         if (missionNumber > 0)
                         {
                             int protoCampaignIndex = CampagneIndex(RemoveDigits(fs::path(s).stem()));
+                            if (campaignNumber ==  -1)
+                            {
+                                std::cout << "[INFO] Skipping, because no valid scene campaign: " << filename << std::endl;
+                                continue;
+                            }
                             campaignNumber = gamelist.campaign(protoCampaignIndex).number();
                         }
                         if (campaignNumber == -1)
