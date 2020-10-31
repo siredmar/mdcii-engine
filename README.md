@@ -34,22 +34,22 @@ See this video for a short demonstration of an earlier stage
 
 [![mdcii youtube playlist](http://img.youtube.com/vi/1Nw7DcvG0gk/0.jpg)](https://www.youtube.com/playlist?list=PLsCp-i-X4SH-TQPoUgN8kicQza2BJ5K0h)
 
-## How to build
+## How to build (currently only debug build!)
 
 Clone the repo
 
-    mkdir build
-    cd build
-    cmake ..
-    make -j8
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_CXX_FLAGS="-Wno-error=deprecated-copy" -DCMAKE_BUILD_TYPE=Debug ..
+    $ make -j$(nproc)
 
-The main program is called `mdcii-sdltest`.
+The main program is called `mdcii-sdltestd`.
 
 ## How to run the game
 
 The game uses the original files from your Anno 1602/1602 AD installation.
 
-    $ ./mdcii-sdltest -p <path-to-1602-ad-installation>
+    $ ./mdcii-sdltestd -p <path-to-1602-ad-installation>
 
 ## License
 
