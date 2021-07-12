@@ -14,8 +14,8 @@ Clone the repository somewhere
 
 Go to the projects root directory
 
-    cd /projects/mdcii-engine
-    docker build --tag mdcii-builder -f docker/Dockerfile .
+    cd /projects/mdcii-engine/docker
+    docker build --tag mdcii-builder .
 
 ## Building mdcii with the builder image
 

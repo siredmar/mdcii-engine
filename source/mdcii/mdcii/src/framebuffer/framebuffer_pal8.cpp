@@ -54,10 +54,11 @@ void FramebufferPal8::DrawBshImageFull(BshImage& image, int x, int y)
         else
         {
             target += ch;
-
-            for (ch = *(quelle++); ch > 0; ch--)
+            uint8_t p = *(quelle++);
+            for (ch = p; ch > 0; ch--)
             {
-                *(target++) = *(quelle++);
+                uint8_t data =  *(quelle++);
+                *(target++) = data;
             }
         }
     }
