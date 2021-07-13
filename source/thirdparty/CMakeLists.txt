@@ -1,2 +1,0 @@
-add_subdirectory(nanogui-sdl)
-add_subdirectory(PlatformFolders)

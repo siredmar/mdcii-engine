@@ -1,6 +1,7 @@
 package bsh
 
 import (
+	"os"
 	"testing"
 
 	"github.com/siredmar/mdcii-engine/pkg/palette"
@@ -58,6 +59,8 @@ func TestNewPng(t *testing.T) {
 		Bsh:     bsh,
 		Palette: palette,
 	}
-	err = b.Convert(0, "image.png")
+	err = b.Convert(1, "image.png")
+	assert.Nil(err)
+	err = os.Remove("image.png")
 	assert.Nil(err)
 }
