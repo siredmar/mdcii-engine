@@ -54,7 +54,7 @@ private:
 
     // Constants related functions
     int ConstantExists(const std::string& key);
-    cod_pb::Variable GetValue(const std::string& key, const std::string& value, bool isMath, cod_pb::Variables variables);
+    cod_pb::Variable GetValue(const std::string& key, const std::string& value, bool isMath, cod_pb::Variables variables, bool relative);
 
     // Variables related functions
     int ExistsInCurrentObject(const std::string& variableName);

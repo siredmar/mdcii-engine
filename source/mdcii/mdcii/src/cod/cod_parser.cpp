@@ -106,7 +106,6 @@ void CodParser::ParseFile()
     {
         std::string line = codTxt[lineIndex];
         int spaces = CountFrontSpaces(line);
-
         if (IsSubstring(line, "Nahrung:") || IsSubstring(line, "Soldat:") || IsSubstring(line, "Turm:"))
         {
             // TODO : skipped for now
@@ -119,6 +118,7 @@ void CodParser::ParseFile()
             if (result.size() > 0)
             {
                 bool isMath = IsSubstring(result[3], "+");
+                std::string relative = result[1];
                 std::string key = result[2];
                 std::string value = result[3];
 
@@ -143,7 +143,7 @@ void CodParser::ParseFile()
                     }
                 }
                 else
-                // example: 'IDHANDW =   20501'
+                // example: 'IDHANDW =   20501' or 'ID = VALUE+20' or '@GFX = +112'
                 {
                     int i = ConstantExists(key);
                     cod_pb::Variable* variable;
@@ -155,7 +155,7 @@ void CodParser::ParseFile()
                     {
                         variable = constants.add_variable();
                     }
-                    *variable = GetValue(key, value, isMath, constants);
+                    *variable = GetValue(key, value, isMath, constants, relative == "@");
                 }
                 continue;
             }
@@ -659,73 +659,93 @@ int CodParser::ConstantExists(const std::string& key)
     return -1;
 }
 
-cod_pb::Variable CodParser::GetValue(const std::string& key, const std::string& value, bool isMath, cod_pb::Variables variables)
+cod_pb::Variable CodParser::GetValue(const std::string& key, const std::string& value, bool isMath, cod_pb::Variables variables, bool relative = false)
 {
     cod_pb::Variable ret;
     ret.set_name(key);
     if (isMath == true)
     {
-        // Searching for some characters followed by a + or - sign and some digits.
-        // example: VALUE+20
-        std::vector<std::string> result = RegexSearch("(\\w+)(\\+|-)(\\d+)", value);
-        if (result.size() > 0)
+        std::string constant;
+        std::string operation;
+        std::string number;
+        if (relative == false)
         {
-            cod_pb::Variable oldValue;
-            int i = ConstantExists(result[1]);
-            if (i != -1)
+            // Searching for some characters followed by a + or - sign and some digits.
+            // example: VALUE+20
+            std::vector<std::string> result = RegexSearch("(\\w+)(\\+|-)(\\d+)", value);
+            if (result.size() > 0)
             {
-                oldValue = variables.variable(i);
+                constant = result[1];
+                operation = result[2];
+                number = result[3];
+            }
+        }
+        else
+        {
+            // Example '+20'
+            std::vector<std::string> result = RegexSearch("(\\+|-)(\\d+)", value);
+            if (result.size() > 0)
+            {
+                constant = key;
+                operation = result[1];
+                number = result[2];
+            }
+        }
+        cod_pb::Variable oldValue;
+        int i = ConstantExists(constant);
+        if (i != -1)
+        {
+            oldValue = variables.variable(i);
+        }
+        else
+        {
+            oldValue.set_value_int(0);
+        }
+
+        if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueString)
+        {
+            if (oldValue.value_string() == "RUINE_KONTOR_1")
+            {
+                // TODO
+                oldValue.set_value_int(424242);
+            }
+        }
+        if (operation == "+")
+        {
+            if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
+            {
+                ret.set_value_int(oldValue.value_int() + std::stoi(number));
+                return ret;
+            }
+            else if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
+            {
+                ret.set_value_int(oldValue.value_float() + std::stof(number));
+                return ret;
             }
             else
             {
-                oldValue.set_value_int(0);
+                std::string o = oldValue.value_string();
+                ret.set_value_int(std::stoi(o) + std::stoi(number));
+                return ret;
             }
+        }
 
-            if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueString)
+        if (operation == "-")
+        {
+            if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
             {
-                if (oldValue.value_string() == "RUINE_KONTOR_1")
-                {
-                    // TODO
-                    oldValue.set_value_int(424242);
-                }
+                ret.set_value_int(oldValue.value_int() - std::stoi(number));
+                return ret;
             }
-            if (result[2] == "+")
+            else if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
             {
-                if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
-                {
-                    ret.set_value_int(oldValue.value_int() + std::stoi(result[3]));
-                    return ret;
-                }
-                else if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
-                {
-                    ret.set_value_int(oldValue.value_float() + std::stof(result[3]));
-                    return ret;
-                }
-                else
-                {
-                    std::string o = oldValue.value_string();
-                    ret.set_value_int(std::stoi(o) + std::stoi(result[3]));
-                    return ret;
-                }
+                ret.set_value_int(oldValue.value_float() - std::stof(number));
+                return ret;
             }
-
-            if (result[2] == "-")
+            else
             {
-                if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueInt)
-                {
-                    ret.set_value_int(oldValue.value_int() - std::stoi(result[3]));
-                    return ret;
-                }
-                else if (oldValue.Value_case() == cod_pb::Variable::ValueCase::kValueFloat)
-                {
-                    ret.set_value_int(oldValue.value_float() - std::stof(result[3]));
-                    return ret;
-                }
-                else
-                {
-                    ret.set_value_int(std::stoi(oldValue.value_string()) - std::stoi(result[3]));
-                    return ret;
-                }
+                ret.set_value_int(std::stoi(oldValue.value_string()) - std::stoi(number));
+                return ret;
             }
         }
     }
