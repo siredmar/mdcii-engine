@@ -1,0 +1,21 @@
+IDWOHN = 10000
+GFXWOHN = IDWOHN+100
+
+  Objekt: TEST
+    @Nummer:    +1
+    BASE =      Nummer
+    Id:         IDWOHN+0
+    Gfx:        GFXWOHN+0
+		
+    @Nummer:    +1    
+    BASE =      Nummer
+    GFXNR =     GFXWOHN+80
+    Id:         IDWOHN+1
+    Gfx:        GFXNR
+  
+    @Nummer:    +1    
+    BASE =      Nummer
+    @GFXNR =    +10
+    Id:         IDWOHN+2
+    Gfx:        GFXNR
+  EndObj;
