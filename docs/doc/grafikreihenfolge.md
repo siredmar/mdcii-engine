@@ -1,7 +1,7 @@
 # Graphic sequence
 
 A visualization of the sequence of graphics for buildings with a size of more than one field follows.
-In addition, the respective coordinates of the individual tiles are shown relative to the start (field no. 1).
+In addition, the respective coordinates of the individual tiles are shown relative to the origin (field no. 1).
 
 ## 2x2
 
@@ -97,6 +97,37 @@ In addition, the respective coordinates of the individual tiles are shown relati
     y     1       5       9      x
               4       8
                   7
+
+## 3x4
+
+### Rotation 0
+
+    1  2  3  4
+    5  6  7  8
+    9 10 11 12
+
+                0       0
+            1       1       1
+        2       5       2       2
+    y       9       6       3       3
+               10       7       4       x
+                   11       8
+                       12
+
+### Rotation 1
+
+     9 5 1
+    10 6 2
+    11 7 3
+    12 8 4
+
+                    0       -2
+                1       9       -1
+            2      10        5       0
+        3      11       6        1       x
+    y      12       7        2
+                8       3
+                    4
 
 ## 5x7
 
