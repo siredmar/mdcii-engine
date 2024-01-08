@@ -32,6 +32,7 @@ func (c *Cod) handleConstants(line string) (bool, error) {
 	line = strings.ReplaceAll(line, " ", "")
 	matches := regexSearch(`(@?)(\w+)\s*=\s*((?:\.+\d+|\+|\w+)+)`, line)
 	if len(matches) > 0 {
+		relative := matches[0] == "@"
 		isMath := strings.Contains(matches[2], "+")
 		constant := constantType{
 			key:   matches[1],
@@ -60,8 +61,9 @@ func (c *Cod) handleConstants(line string) (bool, error) {
 			// FOO = MYSTRING
 			// FOO = 3.14
 			// FOO = BAR+100
+			// @FOO = +112
 			i := c.constantExists(constant.key)
-			variable, err := c.getValue(constant.key, constant.value, isMath)
+			variable, err := c.getValue(constant.key, constant.value, isMath, relative)
 			if err != nil {
 				return true, err
 			}
@@ -137,112 +139,125 @@ func (c *Cod) constantNumberAssignment(constant *constantType) {
 
 // }
 
-func (c *Cod) getValue(key string, value string, isMath bool) (*Variable, error) {
+func (c *Cod) getValue(key string, value string, isMath bool, relative bool) (*Variable, error) {
 	ret := &Variable{
 		Name:  key,
 		Value: nil,
 	}
-
+	var constant string
+	var operation string
+	var number string
 	if isMath {
-		// Searching for some characters followed by a + or - sign and some digits.
-		// example: VALUE+20
-		matches := regexSearch(`(\w+)(\+|\-)(\d+)`, value)
-		if len(matches) > 0 {
-			key := matches[0]
+		if relative {
+			// Example '+20'
+			matches := regexSearch(`(\+|-)(\d+)`, value)
 			if len(matches) > 0 {
-				oldValue := Variable{
-					Name:  key,
-					Value: nil,
-				}
-				i := c.constantExists(oldValue.Name)
-				if i != -1 {
-					oldValue.Value = c.Intern.constants.Variable[i].Value
-				} else {
-					oldValue.Value = &Variable_ValueInt{
-						ValueInt: 0,
-					}
-				}
-				switch v := oldValue.Value.(type) {
+				constant = key
+				operation = matches[0]
+				number = matches[1]
+			}
+		} else {
+			// Searching for some characters followed by a + or - sign and some digits.
+			// example: VALUE+20
+			matches := regexSearch(`(\w+)(\+|\-)(\d+)`, value)
+			if len(matches) > 0 {
+				constant = matches[0]
+				operation = matches[1]
+				number = matches[2]
+			}
+		}
 
-				// Special case handling for `RUINE_KONTOR_1`
-				case *Variable_ValueString:
-					if v.ValueString == "RUINE_KONTOR_1" {
-						ret.Value = &Variable_ValueInt{
-							ValueInt: 424242,
-						}
-						return ret, nil
-					}
+		oldValue := Variable{
+			Name:  constant,
+			Value: nil,
+		}
+		i := c.constantExists(oldValue.Name)
+		if i != -1 {
+			oldValue.Value = c.Intern.constants.Variable[i].Value
+		} else {
+			oldValue.Value = &Variable_ValueInt{
+				ValueInt: 0,
+			}
+		}
+		switch v := oldValue.Value.(type) {
+
+		// Special case handling for `RUINE_KONTOR_1`
+		case *Variable_ValueString:
+			if v.ValueString == "RUINE_KONTOR_1" {
+				ret.Value = &Variable_ValueInt{
+					ValueInt: 424242,
 				}
-				if matches[1] == "+" {
-					switch v := oldValue.Value.(type) {
-					case *Variable_ValueInt:
-						i, err := strconv.Atoi(matches[2])
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueInt{
-							ValueInt: v.ValueInt + int32(i),
-						}
-						return ret, nil
-					case *Variable_ValueFloat:
-						i, err := strconv.ParseFloat(matches[2], 64)
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueFloat{
-							ValueFloat: v.ValueFloat + float32(i),
-						}
-						return ret, nil
-					case *Variable_ValueString:
-						i, err := strconv.Atoi(matches[2])
-						if err != nil {
-							return ret, err
-						}
-						old, err := strconv.Atoi(v.ValueString)
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueInt{
-							ValueInt: int32(old) + int32(i),
-						}
-						return ret, nil
-					}
+				return ret, nil
+			}
+		}
+		if operation == "+" {
+			switch v := oldValue.Value.(type) {
+			case *Variable_ValueInt:
+				i, err := strconv.Atoi(number)
+				if err != nil {
+					return ret, err
 				}
-				if matches[1] == "-" {
-					switch v := oldValue.Value.(type) {
-					case *Variable_ValueInt:
-						i, err := strconv.Atoi(matches[2])
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueInt{
-							ValueInt: v.ValueInt - int32(i),
-						}
-						return ret, nil
-					case *Variable_ValueFloat:
-						i, err := strconv.ParseFloat(matches[2], 64)
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueFloat{
-							ValueFloat: v.ValueFloat - float32(i),
-						}
-						return ret, nil
-					case *Variable_ValueString:
-						i, err := strconv.Atoi(matches[2])
-						if err != nil {
-							return ret, err
-						}
-						old, err := strconv.Atoi(v.ValueString)
-						if err != nil {
-							return ret, err
-						}
-						ret.Value = &Variable_ValueInt{
-							ValueInt: int32(old) - int32(i),
-						}
-						return ret, nil
-					}
+				ret.Value = &Variable_ValueInt{
+					ValueInt: v.ValueInt + int32(i),
 				}
+				return ret, nil
+			case *Variable_ValueFloat:
+				i, err := strconv.ParseFloat(number, 64)
+				if err != nil {
+					return ret, err
+				}
+				ret.Value = &Variable_ValueFloat{
+					ValueFloat: v.ValueFloat + float32(i),
+				}
+				return ret, nil
+			case *Variable_ValueString:
+				i, err := strconv.Atoi(number)
+				if err != nil {
+					return ret, err
+				}
+				old, err := strconv.Atoi(v.ValueString)
+				if err != nil {
+					return ret, err
+				}
+				ret.Value = &Variable_ValueInt{
+					ValueInt: int32(old) + int32(i),
+				}
+				return ret, nil
+			}
+		}
+		if operation == "-" {
+			switch v := oldValue.Value.(type) {
+			case *Variable_ValueInt:
+				i, err := strconv.Atoi(number)
+				if err != nil {
+					return ret, err
+				}
+				ret.Value = &Variable_ValueInt{
+					ValueInt: v.ValueInt - int32(i),
+				}
+				return ret, nil
+			case *Variable_ValueFloat:
+				i, err := strconv.ParseFloat(number, 64)
+				if err != nil {
+					return ret, err
+				}
+				ret.Value = &Variable_ValueFloat{
+					ValueFloat: v.ValueFloat - float32(i),
+				}
+				return ret, nil
+			case *Variable_ValueString:
+				i, err := strconv.Atoi(number)
+				if err != nil {
+					return ret, err
+				}
+				old, err := strconv.Atoi(v.ValueString)
+				if err != nil {
+					return ret, err
+				}
+				ret.Value = &Variable_ValueInt{
+					ValueInt: int32(old) - int32(i),
+				}
+				return ret, nil
 			}
 		}
 	}

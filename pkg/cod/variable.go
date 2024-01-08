@@ -80,10 +80,6 @@ func (c *Cod) handleVariable(line string, spaces int) (bool, error) {
 // relative array assignment, examples:
 // example: '@Pos:       +0, +42'
 func (c *Cod) handleVariableRelativeArray(line string) (bool, error) {
-	if strings.Contains(line, "Pos:X") {
-		fmt.Println("here")
-	}
-
 	line = strings.ReplaceAll(line, " ", "")
 	if matches := regexSearch(`@(\w+):.*(,)`, line); len(matches) > 0 {
 		name := matches[0]
@@ -108,15 +104,28 @@ func (c *Cod) handleVariableRelativeArray(line string) (bool, error) {
 
 		index := c.ExistsInCurrentObject(name)
 		currentArrayValues := []int{}
+		if index != -1 {
+			c.Intern.currentObject.Variables.Variable[index].Value.(*Variable_ValueArray).ValueArray.Value = []*Value{}
+		} else {
+			newVar := Variable{
+				Name: name,
+				Value: &Variable_ValueArray{
+					ValueArray: &ArrayValue{
+						Value: []*Value{},
+					},
+				},
+			}
+			c.Intern.currentObject.Variables.Variable = append(c.Intern.currentObject.Variables.Variable, &newVar)
+			index = len(c.Intern.currentObject.Variables.Variable) - 1
+		}
 		for i := 0; i < len(offsets); i++ {
 			var currentValue int
 			if index != -1 {
 				if _, ok := c.Intern.variableNumbersArray[name]; ok {
 					currentValue = c.Intern.variableNumbersArray[name][i]
 					currentValue = calculateOperation(currentValue, "+", offsets[i])
-					c.Intern.currentObject.Variables.Variable[i].Value = &Variable_ValueInt{
-						ValueInt: int32(currentValue),
-					}
+					// append value to c.Intern.currentObject.Variables.Variable[index].Value that is type Variable_ValueArray
+					c.Intern.currentObject.Variables.Variable[index].Value.(*Variable_ValueArray).ValueArray.Value = append(c.Intern.currentObject.Variables.Variable[index].Value.(*Variable_ValueArray).ValueArray.Value, &Value{Value: &Value_ValueInt{ValueInt: int32(currentValue)}})
 				} else {
 					return true, fmt.Errorf("no current object")
 				}
@@ -244,7 +253,7 @@ const (
 func checkType(s string) CodValueType {
 	intRegex := regexp.MustCompile(`^[-|+]?[0-9]+$`)
 	floatRegex := regexp.MustCompile(`^[-|+]?[0-9]+\.[0-9]+$`)
-	keyValueRegex := regexp.MustCompile(`^([A-Z\-_a-z]+),\s*((-?\d+(\.\d+)?)|[a-zA-Z_\-]+)$`)
+	keyValueRegex := regexp.MustCompile(`^([A-Z\-_a-z]+),\s*((-?\d+(\.\d+)?)+)$`)
 
 	if intRegex.MatchString(s) {
 		return INT

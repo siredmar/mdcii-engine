@@ -8,7 +8,6 @@ message KeyValue {
   oneof Value {
     int32 value_int = 2;
     float value_float = 3;
-    string value_string = 4;
   }
 }
 

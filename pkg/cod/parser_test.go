@@ -103,7 +103,7 @@ func TestGetValueConstantNotExists(t *testing.T) {
 			constants:            Variables{},
 		},
 	}
-	v, err := cod.getValue("FOO", "BAR+5", true)
+	v, err := cod.getValue("FOO", "BAR+5", true, false)
 	assert.Nil(err)
 	assert.Equal(&Variable_ValueInt{ValueInt: 5}, v.Value)
 
@@ -133,10 +133,10 @@ func TestGetValueConstantExists(t *testing.T) {
 			Value: &Variable_ValueInt{ValueInt: 100},
 		},
 	)
-	v, err := cod.getValue("FOO", "BAR+5", true)
+	v, err := cod.getValue("FOO", "BAR+5", true, false)
 	assert.Nil(err)
 	assert.Equal(&Variable_ValueInt{ValueInt: 106}, v.Value)
-	v, err = cod.getValue("FOO", "BAZ-5", true)
+	v, err = cod.getValue("FOO", "BAZ-5", true, false)
 	assert.Nil(err)
 	assert.Equal(&Variable_ValueInt{ValueInt: 95}, v.Value)
 }

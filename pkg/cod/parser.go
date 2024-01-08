@@ -9,9 +9,6 @@ func (c *Cod) Parse() error {
 	for _, rawLine := range c.Lines {
 		spaces := rawLine.Spaces
 		line := strings.ReplaceAll(rawLine.Line, " ", "")
-		if strings.Contains(line, "Pos:X,Y+56") {
-			fmt.Println("found object")
-		}
 		if strings.Contains(line, "Nahrung:") || strings.Contains(line, "Soldat:") || strings.Contains(line, "Turm:") {
 			continue
 		}
