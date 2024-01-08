@@ -238,16 +238,20 @@ const (
 	INT CodValueType = iota
 	FLOAT
 	STRING
+	KEYVALUE
 )
 
 func checkType(s string) CodValueType {
 	intRegex := regexp.MustCompile(`^[-|+]?[0-9]+$`)
 	floatRegex := regexp.MustCompile(`^[-|+]?[0-9]+\.[0-9]+$`)
+	keyValueRegex := regexp.MustCompile(`^([A-Z\-_a-z]+),\s*((-?\d+(\.\d+)?)|[a-zA-Z_\-]+)$`)
 
 	if intRegex.MatchString(s) {
 		return INT
 	} else if floatRegex.MatchString(s) {
 		return FLOAT
+	} else if keyValueRegex.MatchString(s) {
+		return KEYVALUE
 	} else {
 		return STRING
 	}

@@ -46,7 +46,7 @@ func (c *Cod) handleArray(line string) (bool, error) {
 // 	}
 // }
 
-// example: 'Var: 1, 2, 3'
+// example: 'Var: 1, 2, 3' and KeyValue Pairs like `Var: foo, bar`
 func (c *Cod) handleStandardArray(line string) (bool, error) {
 	line = strings.ReplaceAll(line, " ", "")
 	if strings.Contains(line, "Objekt") {
@@ -54,64 +54,78 @@ func (c *Cod) handleStandardArray(line string) (bool, error) {
 	}
 	if matches := regexSearch(`(\w+)\s*:\s*(.+)`, line); len(matches) > 0 {
 		name := matches[0]
+		valueRaw := matches[1]
 		// if c.Intern.objectStack.Size() == 0 {
 		// 	c.Intern.unparsedLines = append(c.Intern.unparsedLines, line)
 		// 	return false, nil
 		// }
 		currentArrayValues := []int{}
-		values := strings.Split(matches[1], ",")
-		// for _, e := range values {
-		// 	e = strings.TrimSpace(e)
-		// }
+		values := strings.Split(valueRaw, ",")
 		varExists := c.ExistsInCurrentObject(name)
 		variable := c.CreateOrReuseVariable(name)
-		// if variable.Name == "" {
-		// 	// variable.Value = &Variable_ValueArray{}
-		// }
 		variable.Name = name
-
+		keyValue := false
+		if checkType(valueRaw) == KEYVALUE {
+			keyValue = true
+		}
 		if varExists == -1 {
 			variable.Value = &Variable_ValueArray{}
 			variable.Value.(*Variable_ValueArray).ValueArray = &ArrayValue{}
 			variable.Value.(*Variable_ValueArray).ValueArray.Value = []*Value{}
 		} else {
-			// clear array if varExists != -1
-			variable.Value.(*Variable_ValueArray).ValueArray.Value = []*Value{}
+			if !keyValue {
+				variable.Value.(*Variable_ValueArray).ValueArray.Value = []*Value{}
+			}
 		}
 
 		arr := variable.Value.(*Variable_ValueArray).ValueArray
-
-		// TODO: Add use case: 'arr: x, y+56'
-		for _, v := range values {
-			if checkType(v) == INT {
-				arr.Value = append(arr.Value, &Value{Value: &Value_ValueInt{ValueInt: int32(Atoi(v))}})
-				currentArrayValues = append(currentArrayValues, Atoi(v))
-			} else if checkType(v) == FLOAT {
-				f, err := strconv.ParseFloat(v, 32)
+		// Handle KeyValue Pairs
+		// Example: 'Var: foo, bar'
+		if keyValue {
+			if checkType(values[1]) != STRING {
+				arr.Value = append(arr.Value, &Value{Value: &Value_ValueKeyValue{ValueKeyValue: &KeyValue{Key: values[0], Value: &KeyValue_ValueString{ValueString: values[1]}}}})
+			} else if checkType(values[1]) == INT {
+				arr.Value = append(arr.Value, &Value{Value: &Value_ValueKeyValue{ValueKeyValue: &KeyValue{Key: values[0], Value: &KeyValue_ValueInt{ValueInt: int32(Atoi(values[1]))}}}})
+			} else if checkType(values[1]) == FLOAT {
+				f, err := strconv.ParseFloat(values[1], 32)
 				if err != nil {
 					return true, err
 				}
-				arr.Value = append(arr.Value, &Value{Value: &Value_ValueFloat{ValueFloat: float32(f)}})
-			} else {
-				i := c.constantExists(v)
-				if i != -1 {
-					variable := c.GetVariableFromConstants(v)
-					if variable.Value != nil {
-						if variable.GetValueInt() != 0 {
-							arr.Value = append(arr.Value, &Value{Value: &Value_ValueInt{ValueInt: variable.GetValueInt()}})
-							currentArrayValues = append(currentArrayValues, int(variable.GetValueInt()))
-						} else if variable.GetValueFloat() != 0 {
-							arr.Value = append(arr.Value, &Value{Value: &Value_ValueFloat{ValueFloat: variable.GetValueFloat()}})
-						} else {
-							arr.Value = append(arr.Value, &Value{Value: &Value_ValueString{ValueString: variable.GetValueString()}})
-						}
+				arr.Value = append(arr.Value, &Value{Value: &Value_ValueKeyValue{ValueKeyValue: &KeyValue{Key: values[0], Value: &KeyValue_ValueFloat{ValueFloat: float32(f)}}}})
+			}
+		} else {
+			// TODO: Add use case: 'arr: x, y+56'
+			for _, v := range values {
+				if checkType(v) == INT {
+					arr.Value = append(arr.Value, &Value{Value: &Value_ValueInt{ValueInt: int32(Atoi(v))}})
+					currentArrayValues = append(currentArrayValues, Atoi(v))
+				} else if checkType(v) == FLOAT {
+					f, err := strconv.ParseFloat(v, 32)
+					if err != nil {
+						return true, err
 					}
+					arr.Value = append(arr.Value, &Value{Value: &Value_ValueFloat{ValueFloat: float32(f)}})
 				} else {
-					arr.Value = append(arr.Value, &Value{Value: &Value_ValueString{ValueString: v}})
+					i := c.constantExists(v)
+					if i != -1 {
+						variable := c.GetVariableFromConstants(v)
+						if variable.Value != nil {
+							if variable.GetValueInt() != 0 {
+								arr.Value = append(arr.Value, &Value{Value: &Value_ValueInt{ValueInt: variable.GetValueInt()}})
+								currentArrayValues = append(currentArrayValues, int(variable.GetValueInt()))
+							} else if variable.GetValueFloat() != 0 {
+								arr.Value = append(arr.Value, &Value{Value: &Value_ValueFloat{ValueFloat: variable.GetValueFloat()}})
+							} else {
+								arr.Value = append(arr.Value, &Value{Value: &Value_ValueString{ValueString: variable.GetValueString()}})
+							}
+						}
+					} else {
+						arr.Value = append(arr.Value, &Value{Value: &Value_ValueString{ValueString: v}})
+					}
 				}
 			}
+			c.Intern.variableNumbersArray[name] = currentArrayValues
 		}
-		c.Intern.variableNumbersArray[name] = currentArrayValues
 		return true, nil
 	}
 	return false, nil

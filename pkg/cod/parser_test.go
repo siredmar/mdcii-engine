@@ -22,9 +22,9 @@ func TestReadLines1(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0]))
-	assert.Equal("followed by a new line", string(bytes[1]))
-	assert.Equal("fin", string(bytes[2]))
+	assert.Equal("this is a test", string(bytes[0].Line))
+	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("fin", string(bytes[2].Line))
 }
 
 func TestReadLines2(t *testing.T) {
@@ -33,8 +33,8 @@ func TestReadLines2(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0]))
-	assert.Equal("followed by a new line", string(bytes[1]))
+	assert.Equal("this is a test", string(bytes[0].Line))
+	assert.Equal("followed by a new line", string(bytes[1].Line))
 }
 
 func TestReadLines3(t *testing.T) {
@@ -43,7 +43,7 @@ func TestReadLines3(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0]))
+	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0].Line))
 }
 
 func TestReadLines4(t *testing.T) {
@@ -52,8 +52,8 @@ func TestReadLines4(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0]))
-	assert.Equal("fin", string(bytes[1]))
+	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0].Line))
+	assert.Equal("fin", string(bytes[1].Line))
 }
 
 func TestReadLines5(t *testing.T) {
@@ -62,9 +62,9 @@ func TestReadLines5(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0]))
-	assert.Equal("followed by a new line", string(bytes[1]))
-	assert.Equal("fin", string(bytes[2]))
+	assert.Equal("this is a test", string(bytes[0].Line))
+	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("fin", string(bytes[2].Line))
 }
 
 func TestReadLines6(t *testing.T) {
@@ -73,9 +73,9 @@ func TestReadLines6(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0]))
-	assert.Equal("followed by a new line", string(bytes[1]))
-	assert.Equal("fin", string(bytes[2]))
+	assert.Equal("this is a test", string(bytes[0].Line))
+	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("fin", string(bytes[2].Line))
 }
 
 func TestCountFrontSpaces(t *testing.T) {
@@ -95,7 +95,7 @@ func TestCountFrontSpaces(t *testing.T) {
 func TestGetValueConstantNotExists(t *testing.T) {
 	assert := assert.New(t)
 	cod := Cod{
-		Lines:   []string{},
+		Lines:   []LineType{},
 		Objects: Objects{},
 		Intern: CodIntern{
 			variableNumbers:      map[string]int{},
@@ -112,7 +112,7 @@ func TestGetValueConstantNotExists(t *testing.T) {
 func TestGetValueConstantExists(t *testing.T) {
 	assert := assert.New(t)
 	cod := Cod{
-		Lines:   []string{},
+		Lines:   []LineType{},
 		Objects: Objects{},
 		Intern: CodIntern{
 			variableNumbers:      map[string]int{},
@@ -158,7 +158,15 @@ func TestParseRelativeAssignment(t *testing.T) {
 	})
 
 	cod := Cod{
-		Lines:   []string{"@A: +10", "@FOO: +2,+5"},
+		Lines: []LineType{{
+			Line:   "FOO[0] = 100",
+			Spaces: 0,
+		},
+			{
+				Line:   "@FOO: +2,+5",
+				Spaces: 0,
+			},
+		},
 		Objects: Objects{},
 		Intern: CodIntern{
 			variableNumbers:      map[string]int{"A": 10},
@@ -181,7 +189,32 @@ func TestParseConstantAssignment(t *testing.T) {
 	objectStack := NewStack()
 
 	cod := Cod{
-		Lines:   []string{"FOO = BAR", "BAR=FOO", "A = 5000", "B = VARIABLE+10", "C = A + 10", "D = 3.14"},
+		Lines: []LineType{
+			{
+				Line:   "FOO = BAR",
+				Spaces: 0,
+			},
+			{
+				Line:   "BAR=FOO",
+				Spaces: 0,
+			},
+			{
+				Line:   "A = 5000",
+				Spaces: 0,
+			},
+			{
+				Line:   "B = VARIABLE+10",
+				Spaces: 0,
+			},
+			{
+				Line:   "C = A + 10",
+				Spaces: 0,
+			},
+			{
+				Line:   "D = 3.14",
+				Spaces: 0,
+			},
+		},
 		Objects: Objects{},
 		Intern: CodIntern{
 			variableNumbers:      map[string]int{},

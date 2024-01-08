@@ -3,11 +3,21 @@ syntax = "proto3";
 package cod;
 option go_package = "github.com/siredmar/mdcii-engine/pkg/cod";
 
+message KeyValue {
+  string key = 1;
+  oneof Value {
+    int32 value_int = 2;
+    float value_float = 3;
+    string value_string = 4;
+  }
+}
+
 message Value {
   oneof Value {
     int32 value_int = 1;
     float value_float = 2;
     string value_string = 3;
+    KeyValue value_key_value = 4;
   }
 }
 
@@ -20,6 +30,7 @@ message Variable {
     float value_float = 3;
     string value_string = 4;
     ArrayValue value_array = 5;
+    KeyValue value_key_value = 6;
   }
 }
 
