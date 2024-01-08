@@ -61,7 +61,7 @@ func ParseBsh(data []byte) ([]Image, error) {
 
 	imageOffsets := []int{}
 	for i := BSH_HEADER_LENGTH; i < BSH_HEADER_LENGTH+header.NumberOfImages*4; i = i + 4 {
-		offset := ToInt(data[i:i+4]) + BSH_HEADER_LENGTH
+		offset := toInt(data[i:i+4]) + BSH_HEADER_LENGTH
 		imageOffsets = append(imageOffsets, offset)
 	}
 	imageHeaderSizeU, err := structex.Size(imageHeaderRaw{})
@@ -89,7 +89,7 @@ func ParseBsh(data []byte) ([]Image, error) {
 	return images, nil
 }
 
-func ToInt(fourBytes []byte) int {
+func toInt(fourBytes []byte) int {
 	return int(fourBytes[3])<<24 |
 		int(fourBytes[2])<<16 |
 		int(fourBytes[1])<<8 |

@@ -54,12 +54,12 @@ func TestNewPng(t *testing.T) {
 
 	palette, err := palette.ParsePalette(paletteData)
 	assert.Nil(err)
-	assert.Len(bsh, 3)
+	assert.Len(bsh, 10)
 	b := BshPng{
 		Bsh:     bsh,
 		Palette: palette,
 	}
-	err = b.Convert(1, "image.png")
+	err = b.Convert(0, "image.png")
 	assert.Nil(err)
 	err = os.Remove("image.png")
 	assert.Nil(err)

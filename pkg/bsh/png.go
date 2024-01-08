@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"os"
 
 	"github.com/siredmar/mdcii-engine/pkg/palette"
@@ -17,7 +16,7 @@ type BshPng struct {
 }
 
 func NewPng(file string, palette *palette.Palette) (*BshPng, error) {
-	b, err := ioutil.ReadFile(file)
+	b, err := os.ReadFile(file)
 	if err != nil {
 		return &BshPng{}, err
 	}

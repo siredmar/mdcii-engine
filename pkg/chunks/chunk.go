@@ -1,18 +1,46 @@
 package chunks
 
 import (
-	"bytes"
-	"io/ioutil"
+	"errors"
+	"io"
+	"os"
 
-	"github.com/HewlettPackard/structex"
+	"github.com/ghostiam/binstruct"
 )
+
+func (d *chunkRaw) NullTerminatedString(r binstruct.Reader) (string, error) {
+	var b []byte
+
+	var readCount int32
+	for {
+		readByte, err := r.ReadByte()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+
+		readCount++
+
+		if readByte == 0x00 {
+			break
+		}
+
+		b = append(b, readByte)
+	}
+
+	// d.IdLen -= readCount
+
+	return string(b), nil
+}
 
 const CHUNK_HEADER_OFFSET uint32 = 20
 
 type chunkRaw struct {
-	Id     [16]byte
-	Length uint32
-	Data   []byte
+	Id     []uint8 `bin:"len:16"`
+	Length uint32  `bin:"len:4"`
+	Data   []uint8 `bin:"len:Length"`
 }
 
 type Chunk struct {
@@ -22,36 +50,36 @@ type Chunk struct {
 }
 
 func ParseChunks(data []byte) ([]*Chunk, error) {
-	chunks := []*Chunk{}
+	var chunks = []*Chunk{}
 	currentIndex := 0
-	var chunksLength int = 0
+	// var chunksLength int = 0
 	for currentIndex < len(data) {
 		c, err := NewChunk(data[currentIndex:])
 		if err != nil {
 			return nil, err
 		}
 		chunks = append(chunks, c)
-		currentChunkLength := c.Length
-		chunksLength += currentChunkLength
-		currentIndex += int(CHUNK_HEADER_OFFSET) + chunksLength
+		// currentChunkLength := c.Length
+		// chunksLength += currentChunkLength
+		currentIndex += int(CHUNK_HEADER_OFFSET) + c.Length
 	}
 
 	return chunks, nil
 }
 
-func ReadChunks(file string) ([]byte, error) {
-
-	b, err := ioutil.ReadFile(file)
+func NewChunksFromFile(path string) ([]*Chunk, error) {
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return b, err
+	return ParseChunks(b)
 }
 
 func NewChunk(data []byte) (*Chunk, error) {
-	chRaw := &chunkRaw{}
+	chRaw := chunkRaw{}
 
-	if err := structex.Decode(bytes.NewReader(data), chRaw); err != nil {
+	err := binstruct.UnmarshalLE(data, &chRaw)
+	if err != nil {
 		return &Chunk{}, err
 	}
 
@@ -75,4 +103,13 @@ func NewChunk(data []byte) (*Chunk, error) {
 		Data:   d,
 	}
 	return ch, nil
+}
+
+func FindChunkById(chunks []*Chunk, id string) (*Chunk, error) {
+	for _, chunk := range chunks {
+		if chunk.Id == id {
+			return chunk, nil
+		}
+	}
+	return nil, errors.New("chunk not found")
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Deers struct {
-	deers []deerData
+	Deers []deerData
 }
 
 type deerData struct {
@@ -15,7 +15,7 @@ type deerData struct {
 	PosX         uint `bitfield:"8"`
 	PosY         uint `bitfield:"8"`
 	TimeCnt      uint `bitfield:"32"`
-	Reserved     int  `bitfield:"8"`
+	Reserved     int  `bitfield:"8,reserved"`
 }
 
 func NewDeer(c *Chunk) (*Deers, error) {
@@ -31,7 +31,7 @@ func NewDeer(c *Chunk) (*Deers, error) {
 		if err := structex.Decode(bytes.NewReader(deerData), d); err != nil {
 			return &Deers{}, err
 		}
-		deers.deers = append(deers.deers, *d)
+		deers.Deers = append(deers.Deers, *d)
 	}
 
 	return deers, nil

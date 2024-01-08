@@ -28,9 +28,9 @@ func TestParseBsh(t *testing.T) {
 
 }
 
-func TestTestToInt(t *testing.T) {
+func TestTesttoInt(t *testing.T) {
 	assert := assert.New(t)
 	data := []byte{0x11, 0x22, 0x33, 0x44}
-	i := ToInt(data)
+	i := toInt(data)
 	assert.Equal(i, 0x44332211)
 }

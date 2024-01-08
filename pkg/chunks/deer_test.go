@@ -14,8 +14,8 @@ func TestDeer(t *testing.T) {
 	assert.Nil(err)
 	deers, err := NewDeer(chunk)
 	assert.Nil(err)
-	assert.Equal(deers.deers[0].IslandNumber, uint(7))
-	assert.Equal(deers.deers[1].IslandNumber, uint(7))
-	assert.Equal(deers.deers[2].IslandNumber, uint(7))
-	assert.Equal(deers.deers[3].IslandNumber, uint(7))
+	assert.Equal(deers.Deers[0].IslandNumber, uint(7))
+	assert.Equal(deers.Deers[1].IslandNumber, uint(7))
+	assert.Equal(deers.Deers[2].IslandNumber, uint(7))
+	assert.Equal(deers.Deers[3].IslandNumber, uint(7))
 }
