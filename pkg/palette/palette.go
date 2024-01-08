@@ -2,7 +2,7 @@ package palette
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 const PALETTE_FILE = "stadtfld.col"
@@ -20,7 +20,7 @@ type Palette struct {
 }
 
 func NewPalette(file string) (*Palette, error) {
-	f, err := ioutil.ReadFile(file)
+	f, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

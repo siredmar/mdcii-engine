@@ -1,0 +1,51 @@
+VARIABLEA = 5000
+
+  Objekt: TEST
+
+    Nummer: 0
+    Vara: VARIABLEA
+    Varb: 999
+    Objekt: ASDF
+        var: 1, 2
+    EndObj;
+    ObjFill: 0, 3
+
+    Nummer: 0
+    Vara: VARIABLEA
+    Varb: 1000
+
+    @Nummer: +1
+    Vara: VARIABLEA+10
+    @Varb: +1
+
+    @Nummer: +1
+    Vara: VARIABLEA+20
+    @Varb: +1
+
+
+  EndObj;
+
+  Objekt: A
+
+    Nummer: 0
+    OBJ = Nummer
+    a: 10
+    b: 20
+    Arr: 1, 2, 3
+    Objekt: QWERT
+        c: 30, 40
+    EndObj;
+
+    @Nummer: +1
+    ObjFill: OBJ
+    @a: +1
+    @b: +1
+    ArrMath: 10-Arr[0], 11-Arr[1], 12-Arr[2]
+
+    @Nummer: +1
+    a: 1
+    b: 0
+    Arr: 10, 20, 30
+    ArrMath: 9+Arr[0], 8+Arr[1], 7+Arr[2]
+
+  EndObj;
