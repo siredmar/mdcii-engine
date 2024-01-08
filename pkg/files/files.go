@@ -2,7 +2,6 @@ package files
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -108,7 +107,6 @@ func (f *Files) FindPathForFile(file string) (string, error) {
 	for _, t := range f.Tree {
 		treeFile := strings.ToLower(t)
 		if strings.Contains(treeFile, lcaseFile) {
-			fmt.Printf("[INFO] Path found [%s]: %s\n", file, t)
 			return t, nil
 		}
 	}

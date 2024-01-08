@@ -18,8 +18,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/siredmar/mdcii-engine/pkg/cod"
+	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -47,6 +49,15 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
+		absPath, err := filepath.Abs(codFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		dirPath := filepath.Dir(absPath)
+
+		files.CreateInstance(dirPath)
 		codParser, err := cod.NewCod(codFile, decrypt)
 		if err != nil {
 			fmt.Println(err)

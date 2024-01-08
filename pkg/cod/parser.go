@@ -6,18 +6,30 @@ import (
 )
 
 func (c *Cod) Parse() error {
-	for _, rawLine := range c.Lines {
+	for linenumber, rawLine := range c.Lines {
 		spaces := rawLine.Spaces
 		line := strings.ReplaceAll(rawLine.Line, " ", "")
 		if strings.Contains(line, "Nahrung:") || strings.Contains(line, "Soldat:") || strings.Contains(line, "Turm:") {
 			continue
 		}
+
+		// include directive, examples:
+		// Include: "include/objekte.inc"
+		ok, err := c.handleInclude(line, linenumber)
+		if ok {
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+			continue
+		}
+
 		// constant assignment, examples:
 		// VARIABLEA = 5000
 		// VARIABLEB = Nummer
 		// Nummer = 1000
 		// FOO = BAR+100
-		ok, err := c.handleConstants(line)
+		ok, err = c.handleConstants(line)
 		if ok {
 			if err != nil {
 				fmt.Println(err)
