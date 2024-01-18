@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/RaniSputnik/lovepac v0.0.0-20220213210906-b8a6a29d7959 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/ebitengine/purego v0.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
