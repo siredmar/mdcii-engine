@@ -1,5 +1,11 @@
 package chunks
 
+import (
+	"log"
+
+	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+)
+
 const (
 	IslandHouseFieldSize = 8
 )
@@ -22,6 +28,7 @@ type IslandHouse struct {
 	Fields      []Field
 	rawElements int
 	rawFields   []Field
+	buildings   *buildings.Buildings
 }
 
 type IslandDimensions struct {
@@ -29,13 +36,13 @@ type IslandDimensions struct {
 	Height int
 }
 
-func NewIslandHouse(c *Chunk, size IslandDimensions) (*IslandHouse, error) {
-
+func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*IslandHouse, error) {
 	islandhouse := &IslandHouse{
 		size:        size,
 		rawElements: c.Length / IslandHouseFieldSize,
 		Fields:      make([]Field, 0),
 		rawFields:   make([]Field, 0),
+		buildings:   b,
 	}
 
 	for i := 0; i < c.Length; i = i + IslandHouseFieldSize {
@@ -87,13 +94,39 @@ func (i *IslandHouse) finalize() {
 		if tile.Posx >= i.size.Width || tile.Posy >= i.size.Height {
 			continue
 		}
-		// todo: buildings->GetHouse(tile.Id)
-		// {} else 		// { // no building found for tile ID, so it's a normal tile
-		i.Fields[tile.Posy*i.size.Width+tile.Posx] = tile
-		i.Fields[tile.Posy*i.size.Width+tile.Posx].Posx = 0
-		i.Fields[tile.Posy*i.size.Width+tile.Posx].Posy = 0
 
-		// }
+		info, err := i.buildings.GetBuilding(tile.Id)
+		if err != nil {
+			log.Println(err)
+			i.Fields[tile.Posy*i.size.Width+tile.Posx] = tile
+			i.Fields[tile.Posy*i.size.Width+tile.Posx].Posx = 0
+			i.Fields[tile.Posy*i.size.Width+tile.Posx].Posy = 0
+			continue
+		}
 
+		elementWidth := 0
+		elementHeight := 0
+		if tile.Orientation%2 == 0 {
+			elementHeight = info.Size.H
+			elementWidth = info.Size.W
+		} else {
+			elementHeight = info.Size.W
+			elementWidth = info.Size.H
+		}
+		for y := 0; y < elementHeight; y++ {
+			for x := 0; x < elementWidth; x++ {
+				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)] = tile
+				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)].Posx = x
+				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)].Posy = y
+			}
+		}
 	}
+}
+
+func (i *IslandHouse) Get(x, y int) Field {
+	return i.Fields[y*i.size.Width+x]
+}
+
+func (i *IslandHouse) Size() int {
+	return len(i.Fields)
 }

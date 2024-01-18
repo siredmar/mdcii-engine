@@ -4,6 +4,7 @@ import (
 	"os"
 
 	chunks "github.com/siredmar/mdcii-engine/pkg/chunks"
+	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	files "github.com/siredmar/mdcii-engine/pkg/files"
 )
 
@@ -47,7 +48,7 @@ func (p *GamParser) LoadData(data []byte) error {
 	return nil
 }
 
-func (p *GamParser) Parse() error {
+func (p *GamParser) Parse(b *buildings.Buildings) error {
 	chunksList, err := chunks.ParseChunks(p.Data)
 	if err != nil {
 		return err
@@ -56,7 +57,7 @@ func (p *GamParser) Parse() error {
 	for _, chunk := range chunksList {
 		switch chunk.Id {
 		case "INSEL5":
-			i, err := chunks.NewIsland5(chunk)
+			i, err := chunks.NewIsland5(chunk, b)
 			if err != nil {
 				return err
 			}
@@ -80,7 +81,7 @@ func (p *GamParser) Parse() error {
 			i, err := chunks.NewIslandHouse(chunk, chunks.IslandDimensions{
 				Width:  currentIsland5.Width,
 				Height: currentIsland5.Height,
-			})
+			}, b)
 			if err != nil {
 				return err
 			}

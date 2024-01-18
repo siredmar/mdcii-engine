@@ -18,7 +18,7 @@ func TestNewGamParser(t *testing.T) {
 	assert.Nil(t, err)
 	err = p.LoadPath("/home/armin/spiele/anno1602/szenes/Tutorial1.szs")
 	assert.Nil(t, err)
-	err = p.Parse()
+	err = p.Parse(nil)
 	assert.Nil(t, err)
 
 	// TODO: Add more tests for valid paths and expected outputs
@@ -108,6 +108,6 @@ func TestInsel5Inselhaus(t *testing.T) {
 	assert.NotNil(t, p)
 	err = p.LoadData(chunk)
 	assert.NoError(t, err)
-	err = p.Parse()
+	err = p.Parse(nil)
 	assert.NoError(t, err)
 }

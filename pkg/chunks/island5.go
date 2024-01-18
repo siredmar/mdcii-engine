@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/HewlettPackard/structex"
+	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 )
 
@@ -49,10 +50,11 @@ type layers struct {
 
 type Island5 struct {
 	island5Data
-	layers layers
+	layers    layers
+	buildings *buildings.Buildings
 }
 
-func NewIsland5(c *Chunk) (*Island5, error) {
+func NewIsland5(c *Chunk, b *buildings.Buildings) (*Island5, error) {
 	islandSizeU, err := structex.Size(island5Data{})
 	islandSize := int(islandSizeU)
 	if err != nil {
@@ -71,6 +73,7 @@ func NewIsland5(c *Chunk) (*Island5, error) {
 			final:       make([]*IslandHouse, 0),
 			islandHouse: make([]*IslandHouse, 0),
 		},
+		buildings: b,
 	}, nil
 }
 
@@ -113,7 +116,7 @@ func (i *Island5) Finalize() error {
 		if err != nil {
 			return err
 		}
-		inselHouse, err := NewIslandHouse(foundIslandHouseChunk, IslandDimensions{i.Width, i.Height})
+		inselHouse, err := NewIslandHouse(foundIslandHouseChunk, IslandDimensions{i.Width, i.Height}, i.buildings)
 		if err != nil {
 			return err
 		}
@@ -146,4 +149,25 @@ func (i *Island5) Finalize() error {
 	i.layers.bottom = i.layers.final[0]
 	i.layers.top = i.layers.final[1]
 	return nil
+}
+
+func (i *Island5) TerrainTile(x, y int) Field {
+	h := i.layers.top.Get(x, y)
+	if h.Id == 0xFFFF {
+		h = i.layers.bottom.Get(x, y)
+	}
+
+	xp := h.Posx
+	yp := h.Posy
+	if yp > y || xp > x {
+		return h
+	}
+
+	h = i.layers.top.Get(x-xp, y-yp)
+	if h.Id == 0xFFFF {
+		h = i.layers.bottom.Get(x-xp, y-yp)
+	}
+	h.Posx = xp
+	h.Posy = yp
+	return h
 }

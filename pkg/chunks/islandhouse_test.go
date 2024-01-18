@@ -29,7 +29,7 @@ func TestIslandHouse(t *testing.T) {
 	}
 	chunk, err := NewChunk(data)
 	assert.Nil(err)
-	islandhouse, err := NewIslandHouse(chunk, IslandDimensions{64, 64})
+	islandhouse, err := NewIslandHouse(chunk, IslandDimensions{64, 64}, nil)
 	assert.Nil(err)
 	assert.NotNil(islandhouse)
 	assert.Len(islandhouse.Fields, islandhouse.size.Height*islandhouse.size.Width)
