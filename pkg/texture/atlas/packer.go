@@ -3,8 +3,6 @@ package atlas
 import (
 	"fmt"
 	"math"
-
-	uuid "github.com/google/uuid"
 )
 
 func (p *MaxRectsPacker) findFreeRect(rectWidth, rectHeight int) (Rect, int, error) {
@@ -37,14 +35,6 @@ func (p *MaxRectsPacker) Pack(rectWidth, rectHeight int) (Rect, error) {
 	// Split the free rectangle into two new rectangles (remaining free space)
 	p.splitFreeRect(index, rectWidth, rectHeight)
 
-	// // Add the packed rectangle to the occupied list
-	// p.OccupiedRects = append(p.OccupiedRects, Rect{
-	// 	X:      bestRect.X,
-	// 	Y:      bestRect.Y,
-	// 	Width:  rectWidth,
-	// 	Height: rectHeight,
-	// })
-
 	return Rect{X: bestRect.X, Y: bestRect.Y, Width: rectWidth, Height: rectHeight}, nil
 }
 
@@ -67,10 +57,6 @@ func (p *MaxRectsPacker) splitFreeRect(index, rectWidth, rectHeight int) {
 			Y:      freeRect.Y,
 			Width:  freeRect.Width - rectWidth,
 			Height: rectHeight,
-			UUID:   uuid.New().String(),
-		}
-		if newRect.X == 0 && newRect.Y == 1313 && newRect.Width == 1024 && newRect.Height == 68 {
-			fmt.Println("newRect:", newRect)
 		}
 		if newRect.Width >= 64 && newRect.Height >= 31 {
 			p.FreeRects = append(p.FreeRects, newRect)
@@ -84,10 +70,6 @@ func (p *MaxRectsPacker) splitFreeRect(index, rectWidth, rectHeight int) {
 			Y:      freeRect.Y + rectHeight,
 			Width:  freeRect.Width,
 			Height: freeRect.Height - rectHeight,
-			UUID:   uuid.New().String(),
-		}
-		if newRect.X == 0 && newRect.Y == 1313 && newRect.Width == 1024 && newRect.Height == 68 {
-			fmt.Println("newRect:", newRect)
 		}
 		if newRect.Width >= 64 && newRect.Height >= 31 {
 			p.FreeRects = append(p.FreeRects, newRect)
@@ -98,14 +80,12 @@ func (p *MaxRectsPacker) splitFreeRect(index, rectWidth, rectHeight int) {
 // Rect represents a rectangular region
 type Rect struct {
 	X, Y, Width, Height int
-	UUID                string
 }
 
 // MaxRectsPacker represents a texture atlas packer using the maximal rectangles algorithm
 type MaxRectsPacker struct {
 	Width, Height int
 	FreeRects     []Rect
-	// OccupiedRects []Rect
 }
 
 // NewMaxRectsPacker creates a new MaxRectsPacker
@@ -114,7 +94,7 @@ func NewMaxRectsPacker(width, height int) *MaxRectsPacker {
 		Width:  width,
 		Height: height,
 		FreeRects: []Rect{
-			Rect{0, 0, width, height, uuid.New().String()},
+			Rect{0, 0, width, height},
 		},
 	}
 }

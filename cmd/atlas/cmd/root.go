@@ -55,8 +55,8 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		fmt.Println(files)
-		atlasWidth := 1024
-		atlasHeight := 1024
+		atlasWidth := 4096
+		atlasHeight := 4096
 		filenames := []string{}
 		for _, file := range files {
 			if !file.IsDir() {
@@ -66,16 +66,13 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		atlas, err := atlas.CreateTextureAtlas(filenames, atlasWidth, atlasHeight, atlas.WithSkipFileEnding())
+		atlas, err := atlas.CreateTextureAtlas(filenames, atlasWidth, atlasHeight, atlas.WithSkipFileEnding(), atlas.WithName("texture-atlas"))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
 		}
 
-		// Export the texture atlas to JSON and PNG files
-		exportJSONFilename := "texture_atlas.json"
-		exportPNGFilename := "texture_atlas.png"
-		if err := atlas.Export(exportJSONFilename, exportPNGFilename); err != nil {
+		if err := atlas.Export(); err != nil {
 			fmt.Println("Error exporting texture atlas:", err)
 			return
 		}
