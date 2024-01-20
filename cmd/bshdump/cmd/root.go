@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,11 +44,7 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		palette, err := palette.NewPalette(palFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		b, err := bsh.NewPng(bshFile, palette)
+		b, err := bsh.NewPng(bshFile, &palette.DefaultPalette)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -93,6 +89,5 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringVarP(&outputFolder, "output", "o", ".", "Output folder for images (default: .)")
 	rootCmd.Flags().StringVarP(&bshFile, "bsh", "b", "stadtfld.bsh", "BSH file input")
-	rootCmd.Flags().StringVarP(&palFile, "pal", "p", "stadtfld.col", "palette file input")
 	rootCmd.Flags().StringVarP(&index, "index", "i", "all", "index (default: all)")
 }
