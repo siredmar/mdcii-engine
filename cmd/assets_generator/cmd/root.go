@@ -21,9 +21,11 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
-	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	files "github.com/siredmar/mdcii-engine/pkg/files"
+	"github.com/siredmar/mdcii-engine/pkg/palette"
+	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/spf13/viper"
 )
 
@@ -40,13 +42,12 @@ var rootCmd = &cobra.Command{
 	Use: "assets_generator",
 	Run: func(cmd *cobra.Command, args []string) {
 		f := files.CreateInstance(inputDir)
-		p, err := f.FindPathForFile("haeuser.cod")
+		haeuserCodPath, err := f.FindPathForFile("haeuser.cod")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(p)
-		buildingsCod, err := cod.NewCod(p, true)
+		buildingsCod, err := cod.NewCod(haeuserCodPath, true)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -57,11 +58,76 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		b, err := buildings.NewBuildings(buildingsCod)
+		mgfxStadtfldBshPath, err := files.Instance().FindPathForFile("mgfx/stadtfld.bsh")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		sgfxStadtfldBshPath, err := files.Instance().FindPathForFile("sgfx/stadtfld.bsh")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		gfxStadtfldBshPath, err := files.Instance().FindPathForFile("gfx/stadtfld.bsh")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		mgfxStadtfldBsh, err := bsh.NewPng(mgfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		mgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = mgfxAtlas.Export(outputDir)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		sgfxStadtfldBsh, err := bsh.NewPng(sgfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		sgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = sgfxAtlas.Export(outputDir)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		gfxStadtfldBsh, err := bsh.NewPng(gfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = gfxAtlas.Export(outputDir)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		// b, err := buildings.NewBuildings(buildingsCod)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	os.Exit(1)
+		// }
+
+		// mgfxBsh := bsh.NewPng()
 		// todo: dump stadtfld mgfx, sgfx and gfx bsh files
 		// todo: create texture atlas for each bsh file
 		// atlas, err := atlas.CreateTextureAtlas()
@@ -75,7 +141,6 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 }
 
 func init() {

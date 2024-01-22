@@ -53,7 +53,7 @@ var rootCmd = &cobra.Command{
 			if err != nil {
 				log.Fatal(err)
 			}
-			err = b.Convert(i, fmt.Sprintf("%s/%d.png", outputFolder, i))
+			err = b.Export(i, fmt.Sprintf("%s/%d.png", outputFolder, i))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -66,7 +66,7 @@ var rootCmd = &cobra.Command{
 				wg.Add(1)
 				go func(start int, stop int, c int, wg *sync.WaitGroup) {
 					for i := range b.Bsh[start:stop] {
-						err = b.Convert(i+c*numberPerRoutine, fmt.Sprintf("%s/%d.png", outputFolder, i+c*numberPerRoutine))
+						err = b.Export(i+c*numberPerRoutine, fmt.Sprintf("%s/%d.png", outputFolder, i+c*numberPerRoutine))
 						if err != nil {
 							log.Fatal(err)
 						}

@@ -58,9 +58,9 @@ func (p *MaxRectsPacker) splitFreeRect(index, rectWidth, rectHeight int) {
 			Width:  freeRect.Width - rectWidth,
 			Height: rectHeight,
 		}
-		if newRect.Width >= 64 && newRect.Height >= 31 {
-			p.FreeRects = append(p.FreeRects, newRect)
-		}
+		// if newRect.Width >= 64 && newRect.Height >= 31 {
+		p.FreeRects = append(p.FreeRects, newRect)
+		// }
 	}
 
 	// Split the free rectangle vertically if there's enough space
@@ -71,9 +71,9 @@ func (p *MaxRectsPacker) splitFreeRect(index, rectWidth, rectHeight int) {
 			Width:  freeRect.Width,
 			Height: freeRect.Height - rectHeight,
 		}
-		if newRect.Width >= 64 && newRect.Height >= 31 {
-			p.FreeRects = append(p.FreeRects, newRect)
-		}
+		// if newRect.Width >= 64 && newRect.Height >= 31 {
+		p.FreeRects = append(p.FreeRects, newRect)
+		// }
 	}
 }
 

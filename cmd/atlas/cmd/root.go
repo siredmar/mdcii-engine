@@ -54,7 +54,6 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(files)
 		atlasWidth := 4096
 		atlasHeight := 4096
 		filenames := []string{}
@@ -65,8 +64,9 @@ var rootCmd = &cobra.Command{
 				}
 			}
 		}
+		fmt.Println(filenames)
 
-		atlas, err := atlas.CreateTextureAtlas(filenames, atlasWidth, atlasHeight, atlas.WithSkipFileEnding(), atlas.WithName("texture-atlas"))
+		atlas, err := atlas.CreateTextureAtlas(atlasWidth, atlasHeight, atlas.WithSkipFileEnding(), atlas.WithName("texture-atlas"), atlas.WithFiles(filenames))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
