@@ -24,7 +24,6 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	files "github.com/siredmar/mdcii-engine/pkg/files"
-	"github.com/siredmar/mdcii-engine/pkg/palette"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/spf13/viper"
 )
@@ -73,49 +72,49 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		mgfxStadtfldBsh, err := bsh.NewPng(mgfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
+		mgfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(mgfxStadtfldBshPath), bsh.WithConvertAll())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		mgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
+		mgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = mgfxAtlas.Export(outputDir)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		sgfxStadtfldBsh, err := bsh.NewPng(sgfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		sgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		err = sgfxAtlas.Export(outputDir)
+		err = mgfxAtlas.Export()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		gfxStadtfldBsh, err := bsh.NewPng(gfxStadtfldBshPath, &palette.DefaultPalette, bsh.WithConvertAll())
+		sgfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(sgfxStadtfldBshPath), bsh.WithConvertAll())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		sgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = gfxAtlas.Export(outputDir)
+		err = sgfxAtlas.Export()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		gfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(gfxStadtfldBshPath), bsh.WithConvertAll())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = gfxAtlas.Export()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -24,7 +24,6 @@ import (
 	"sync"
 
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
-	"github.com/siredmar/mdcii-engine/pkg/palette"
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +43,7 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		b, err := bsh.NewPng(bshFile, &palette.DefaultPalette)
+		b, err := bsh.NewPng(bsh.WithFile(bshFile))
 		if err != nil {
 			log.Fatal(err)
 		}

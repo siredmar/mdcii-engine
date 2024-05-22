@@ -91,10 +91,8 @@ type MaxRectsPacker struct {
 // NewMaxRectsPacker creates a new MaxRectsPacker
 func NewMaxRectsPacker(width, height int) *MaxRectsPacker {
 	return &MaxRectsPacker{
-		Width:  width,
-		Height: height,
-		FreeRects: []Rect{
-			Rect{0, 0, width, height},
-		},
+		Width:     width,
+		Height:    height,
+		FreeRects: []Rect{{0, 0, width, height}},
 	}
 }

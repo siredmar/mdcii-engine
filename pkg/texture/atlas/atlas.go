@@ -21,6 +21,7 @@ type TextureAtlas struct {
 	OptionKeyToUpper     bool                   `json:"-"`
 	imagesToLoad         map[string]image.Image `json:"-"`
 	filesToLoad          []string               `json:"-"`
+	outputDir            string                 `json:"-"`
 }
 
 type AtlasMeta struct {
@@ -76,6 +77,12 @@ func WithFiles(files []string) TextureAtlasOption {
 	}
 }
 
+func WithOutputDir(outputDir string) TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.outputDir = outputDir
+	}
+}
+
 // CreateTextureAtlas creates a texture atlas from a list of image filenames
 func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption) (*TextureAtlas, error) {
 	atlas := &TextureAtlas{
@@ -88,6 +95,7 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption)
 		},
 		imagesToLoad: make(map[string]image.Image),
 		filesToLoad:  []string{},
+		outputDir:    ".",
 	}
 
 	// Loop through each option
@@ -158,22 +166,22 @@ func (a *TextureAtlas) exportPNG(filename string, img *image.RGBA) error {
 }
 
 // Export saves the texture atlas and its metadata as a JSON file and a PNG file
-func (a *TextureAtlas) Export(outputDir string) error {
-	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+func (a *TextureAtlas) Export() error {
+	if _, err := os.Stat(a.outputDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(a.outputDir, os.ModePerm); err != nil {
 			return err
 		}
 	}
 
 	for i, img := range a.Images {
-		err := a.exportPNG(fmt.Sprintf("%s/%s-%04d.png", outputDir, a.AtlasMeta.Name, i), img)
+		err := a.exportPNG(fmt.Sprintf("%s/%s-%04d.png", a.outputDir, a.AtlasMeta.Name, i), img)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Save metadata to JSON file
-	exportJSONFile, err := os.Create(fmt.Sprintf("%s/%s.json", outputDir, a.AtlasMeta.Name))
+	exportJSONFile, err := os.Create(fmt.Sprintf("%s/%s.json", a.outputDir, a.AtlasMeta.Name))
 	if err != nil {
 		return err
 	}

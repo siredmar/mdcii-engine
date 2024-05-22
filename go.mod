@@ -7,9 +7,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/ebitenui/ebitenui v0.5.5
 	github.com/ghostiam/binstruct v1.3.2
-	github.com/google/uuid v1.1.2
 	github.com/hajimehoshi/ebiten/v2 v2.6.3
-	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1

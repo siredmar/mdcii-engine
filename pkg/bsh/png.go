@@ -65,30 +65,64 @@ func WithOutputName(name string) PngOption {
 	}
 }
 
-func NewPng(file string, palette *palette.Palette, opts ...PngOption) (*BshPng, error) {
-	b, err := os.ReadFile(file)
-	if err != nil {
-		return &BshPng{}, err
+func WithPalette(palette *palette.Palette) PngOption {
+	return func(h *BshPng) {
+		h.Palette = palette
 	}
-	bsh, err := ParseBsh(b)
-	if err != nil {
-		return &BshPng{}, err
+}
+
+func WithFile(file string) PngOption {
+	return func(h *BshPng) {
+		b, err := os.ReadFile(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bsh, err := ParseBsh(b)
+		if err != nil {
+			log.Fatal(err)
+		}
+		h.Bsh = bsh
 	}
+}
+
+func WithBshImages(bsh []Image) PngOption {
+	return func(h *BshPng) {
+		h.Bsh = bsh
+	}
+}
+
+func WithBshChunk(chunk []byte) PngOption {
+	return func(h *BshPng) {
+		bsh, err := ParseBsh(chunk)
+		if err != nil {
+			log.Fatal(err)
+		}
+		h.Bsh = bsh
+	}
+}
+
+func NewPng(opts ...PngOption) (*BshPng, error) {
+
 	bshPng := &BshPng{
-		Bsh:             bsh,
 		Images:          map[string]image.Image{},
-		Palette:         palette,
+		Palette:         &palette.DefaultPalette,
 		convertIndex:    []int{},
 		outputDirectory: ".",
 		outputName:      "",
 		exportToPng:     false,
 	}
-
+	// Loop through each option
 	for _, opt := range opts {
 		opt(bshPng)
 	}
+	convertIndexMax := len(bshPng.Bsh)
+	if len(bshPng.convertIndex) == 0 {
+		for index := 0; index < convertIndexMax; index++ {
+			bshPng.convertIndex = append(bshPng.convertIndex, index)
+		}
+	}
 	for _, img := range bshPng.convertIndex {
-		err := bshPng.Draw(img)
+		err := bshPng.Parse(img)
 		if err != nil {
 			return &BshPng{}, err
 		}
@@ -101,7 +135,7 @@ func NewPng(file string, palette *palette.Palette, opts ...PngOption) (*BshPng, 
 	return bshPng, nil
 }
 
-func (bsh *BshPng) Draw(index int) error {
+func (bsh *BshPng) Parse(index int) error {
 	if bsh.Bsh[index].Header.Type != 1 {
 		return fmt.Errorf("Image is not of type 1")
 	}
