@@ -115,6 +115,9 @@ func (c *Cod) handleVariableRelativeArray(line string) (bool, error) {
 					},
 				},
 			}
+			if c.Intern.currentObject.Variables == nil {
+				c.Intern.currentObject.Variables = &Variables{}
+			}
 			c.Intern.currentObject.Variables.Variable = append(c.Intern.currentObject.Variables.Variable, &newVar)
 			index = len(c.Intern.currentObject.Variables.Variable) - 1
 		}
@@ -268,10 +271,12 @@ func checkType(s string) CodValueType {
 
 func (c *Cod) ExistsInCurrentObject(variablename string) int {
 	if c.Intern.currentObject != nil {
-		// Check if variable already exists in currentObject (e.g. copied from ObjFill)
-		for index, v := range c.Intern.currentObject.Variables.Variable {
-			if v.Name == variablename {
-				return index
+		if c.Intern.currentObject.Variables != nil {
+			// Check if variable already exists in currentObject (e.g. copied from ObjFill)
+			for index, v := range c.Intern.currentObject.Variables.Variable {
+				if v.Name == variablename {
+					return index
+				}
 			}
 		}
 	}

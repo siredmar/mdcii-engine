@@ -418,3 +418,11 @@ func GetObjectKindGfxMap(m []*Building) map[Kind][]int {
 
 	return result
 }
+
+func (b *Building) IsRotatable() bool {
+	return b.Rotate > 0
+}
+
+func (b *Building) IsBig() bool {
+	return b.Size.W > 1 || b.Size.H > 1
+}

@@ -42,16 +42,16 @@ type island5Data struct {
 }
 
 type layers struct {
-	top         *IslandHouse
-	bottom      *IslandHouse
-	final       []*IslandHouse
-	islandHouse []*IslandHouse
+	Top         *IslandHouse   `json:"top"`
+	Bottom      *IslandHouse   `json:"bottom"`
+	Final       []*IslandHouse `json:"final"`
+	IslandHouse []*IslandHouse `json:"islandHouse"`
 }
 
 type Island5 struct {
 	island5Data
-	layers    layers
-	buildings *buildings.Buildings
+	Layers    layers               `json:"layers"`
+	Buildings *buildings.Buildings `json:"-"`
 }
 
 func NewIsland5(c *Chunk, b *buildings.Buildings) (*Island5, error) {
@@ -67,18 +67,18 @@ func NewIsland5(c *Chunk, b *buildings.Buildings) (*Island5, error) {
 	}
 	return &Island5{
 		island5Data: *i,
-		layers: layers{
-			top:         nil,
-			bottom:      nil,
-			final:       make([]*IslandHouse, 0),
-			islandHouse: make([]*IslandHouse, 0),
+		Layers: layers{
+			Top:         nil,
+			Bottom:      nil,
+			Final:       make([]*IslandHouse, 0),
+			IslandHouse: make([]*IslandHouse, 0),
 		},
-		buildings: b,
+		Buildings: b,
 	}, nil
 }
 
 func (i *Island5) AddIslandHouse(house IslandHouse) {
-	i.layers.islandHouse = append(i.layers.islandHouse, &house)
+	i.Layers.IslandHouse = append(i.Layers.IslandHouse, &house)
 }
 
 func (i *Island5) IslandFileName() string {
@@ -100,7 +100,7 @@ func (i *Island5) SetIslandFile(fileNumber int) {
 
 func (i *Island5) Finalize() error {
 	// island is unmodified, load bottom islandHouse from island file
-	if i.ModifiedFlag == ModifiedFalse && len(i.layers.islandHouse) <= 1 {
+	if i.ModifiedFlag == ModifiedFalse && len(i.Layers.IslandHouse) <= 1 {
 		// load the unmodified bottom layer from the island .scp file
 		islandFile := i.IslandFileName()
 		f := files.Instance()
@@ -116,45 +116,45 @@ func (i *Island5) Finalize() error {
 		if err != nil {
 			return err
 		}
-		inselHouse, err := NewIslandHouse(foundIslandHouseChunk, IslandDimensions{i.Width, i.Height}, i.buildings)
+		inselHouse, err := NewIslandHouse(foundIslandHouseChunk, IslandDimensions{i.Width, i.Height}, i.Buildings)
 		if err != nil {
 			return err
 		}
-		i.layers.islandHouse = append(i.layers.islandHouse, inselHouse)
+		i.Layers.IslandHouse = append(i.Layers.IslandHouse, inselHouse)
 
-		if len(i.layers.islandHouse) == 2 {
-			i.layers.final = append(i.layers.final, i.layers.islandHouse[0])
-			i.layers.final = append(i.layers.final, i.layers.islandHouse[1])
+		if len(i.Layers.IslandHouse) == 2 {
+			i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[0])
+			i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[1])
 		}
 
 		// there is only one islandHouse chunk present, this is the bot layer
-		if len(i.layers.islandHouse) == 1 {
-			i.layers.final = append(i.layers.final, i.layers.islandHouse[0])
+		if len(i.Layers.IslandHouse) == 1 {
+			i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[0])
 			// create empty top
 			empty := NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
-			i.layers.final = append(i.layers.final, empty)
+			i.Layers.Final = append(i.Layers.Final, empty)
 		}
 	} else {
 		// the island is modified, first chunk is bottom
-		i.layers.final = append(i.layers.final, i.layers.islandHouse[0])
+		i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[0])
 		// a possible second chunk is top
-		if len(i.layers.islandHouse) == 2 {
-			i.layers.final = append(i.layers.final, i.layers.islandHouse[1])
+		if len(i.Layers.IslandHouse) == 2 {
+			i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[1])
 		} else {
 			// create empty top
 			empty := NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
-			i.layers.final = append(i.layers.final, empty)
+			i.Layers.Final = append(i.Layers.Final, empty)
 		}
 	}
-	i.layers.bottom = i.layers.final[0]
-	i.layers.top = i.layers.final[1]
+	i.Layers.Bottom = i.Layers.Final[0]
+	i.Layers.Top = i.Layers.Final[1]
 	return nil
 }
 
 func (i *Island5) TerrainTile(x, y int) Field {
-	h := i.layers.top.Get(x, y)
+	h := i.Layers.Top.Get(x, y)
 	if h.Id == 0xFFFF {
-		h = i.layers.bottom.Get(x, y)
+		h = i.Layers.Bottom.Get(x, y)
 	}
 
 	xp := h.Posx
@@ -163,9 +163,9 @@ func (i *Island5) TerrainTile(x, y int) Field {
 		return h
 	}
 
-	h = i.layers.top.Get(x-xp, y-yp)
+	h = i.Layers.Top.Get(x-xp, y-yp)
 	if h.Id == 0xFFFF {
-		h = i.layers.bottom.Get(x-xp, y-yp)
+		h = i.Layers.Bottom.Get(x-xp, y-yp)
 	}
 	h.Posx = xp
 	h.Posy = yp

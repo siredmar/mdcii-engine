@@ -22,8 +22,8 @@ func TestReadLines1(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0].Line))
-	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("thisisatest", string(bytes[0].Line))
+	assert.Equal("followedbyanewline", string(bytes[1].Line))
 	assert.Equal("fin", string(bytes[2].Line))
 }
 
@@ -33,8 +33,8 @@ func TestReadLines2(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0].Line))
-	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("thisisatest", string(bytes[0].Line))
+	assert.Equal("followedbyanewline", string(bytes[1].Line))
 }
 
 func TestReadLines3(t *testing.T) {
@@ -43,7 +43,7 @@ func TestReadLines3(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0].Line))
+	assert.Equal("thisisatestfollowedbyanewline", string(bytes[0].Line))
 }
 
 func TestReadLines4(t *testing.T) {
@@ -52,7 +52,7 @@ func TestReadLines4(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test\rfollowed by a new line", string(bytes[0].Line))
+	assert.Equal("thisisatestfollowedbyanewline", string(bytes[0].Line))
 	assert.Equal("fin", string(bytes[1].Line))
 }
 
@@ -62,8 +62,8 @@ func TestReadLines5(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0].Line))
-	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("thisisatest", string(bytes[0].Line))
+	assert.Equal("followedbyanewline", string(bytes[1].Line))
 	assert.Equal("fin", string(bytes[2].Line))
 }
 
@@ -73,8 +73,8 @@ func TestReadLines6(t *testing.T) {
 	bytes, err := readLines([]byte(data))
 	assert.Nil(err)
 
-	assert.Equal("this is a test", string(bytes[0].Line))
-	assert.Equal("followed by a new line", string(bytes[1].Line))
+	assert.Equal("thisisatest", string(bytes[0].Line))
+	assert.Equal("followedbyanewline", string(bytes[1].Line))
 	assert.Equal("fin", string(bytes[2].Line))
 }
 

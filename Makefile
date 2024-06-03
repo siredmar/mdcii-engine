@@ -26,5 +26,17 @@ test:
 clean:
 	rm -rf ${BIN_DIR}/bshdump
 
+.PHONY: bin
+bin:
+	mkdir -p ${BIN_DIR}
+
+.PHONY: assets_generator
+assets_generator: bin
+	go build -o ${BIN_DIR}/assets_generator cmd/assets_generator/main.go
+
+.PHONY: mdcii
+mdcii: bin
+	go build -o ${BIN_DIR}/mdcii cmd/mdcii/main.go
+
 .PHONY: check test clean
 

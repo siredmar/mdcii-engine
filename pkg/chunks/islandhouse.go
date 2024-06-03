@@ -24,11 +24,11 @@ type Field struct {
 }
 
 type IslandHouse struct {
-	size        IslandDimensions
-	Fields      []Field
-	rawElements int
-	rawFields   []Field
-	buildings   *buildings.Buildings
+	Size        IslandDimensions     `json:"size"`
+	Fields      []Field              `json:"fields"`
+	RawElements int                  `json:"-"`
+	RawFields   []Field              `json:"-"`
+	Buildings   *buildings.Buildings `json:"-"`
 }
 
 type IslandDimensions struct {
@@ -38,11 +38,11 @@ type IslandDimensions struct {
 
 func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*IslandHouse, error) {
 	islandhouse := &IslandHouse{
-		size:        size,
-		rawElements: c.Length / IslandHouseFieldSize,
+		Size:        size,
+		RawElements: c.Length / IslandHouseFieldSize,
 		Fields:      make([]Field, 0),
-		rawFields:   make([]Field, 0),
-		buildings:   b,
+		RawFields:   make([]Field, 0),
+		Buildings:   b,
 	}
 
 	for i := 0; i < c.Length; i = i + IslandHouseFieldSize {
@@ -63,7 +63,7 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 			Reserved:       int((bits >> 26) & ((1 << 6) - 1)),
 		}
 
-		islandhouse.rawFields = append(islandhouse.rawFields, *field)
+		islandhouse.RawFields = append(islandhouse.RawFields, *field)
 	}
 	islandhouse.finalize()
 	return islandhouse, nil
@@ -72,61 +72,63 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 func NewEmptyIslandHouse(size IslandDimensions) *IslandHouse {
 	i := &IslandHouse{
 		Fields: make([]Field, size.Width*size.Height),
-		size:   size,
+		Size:   size,
 	}
 	i.finalize()
 	return i
 }
 
 func (i *IslandHouse) finalize() {
-	i.Fields = make([]Field, i.size.Height*i.size.Width)
-	for y := 0; y < i.size.Height; y++ {
-		for x := 0; x < i.size.Width; x++ {
+	i.Fields = make([]Field, i.Size.Height*i.Size.Width)
+	for y := 0; y < i.Size.Height; y++ {
+		for x := 0; x < i.Size.Width; x++ {
 			// Setting default ID meaning 'tile not set'. This gets overwritten later on if on this x,y, position is a valid tile
-			i.Fields[y*i.size.Width+x].Id = 0xFFFF
+			i.Fields[y*i.Size.Width+x].Id = 0xFFFF
 		}
 	}
 	// Now iterate through the passed 'data'. This is the read chunk containing one layer. The layer might contain the bare island
 	// or some houses. So it's checked if on the position is a valid field. This step is done to make it easier to calculate
 	// graphic indexes for elements bigger than 1,1. The 'posx' and 'posy' fields are used to store the fields partly position if bigger
 	// than 1,1 because the position is also given via the array index. So no information is being lost if overwriting 'posx' and 'posy'.
-	for _, tile := range i.rawFields {
-		if tile.Posx >= i.size.Width || tile.Posy >= i.size.Height {
+	for _, tile := range i.RawFields {
+		if tile.Posx >= i.Size.Width || tile.Posy >= i.Size.Height {
 			continue
 		}
-
-		info, err := i.buildings.GetBuilding(tile.Id)
-		if err != nil {
-			log.Println(err)
-			i.Fields[tile.Posy*i.size.Width+tile.Posx] = tile
-			i.Fields[tile.Posy*i.size.Width+tile.Posx].Posx = 0
-			i.Fields[tile.Posy*i.size.Width+tile.Posx].Posy = 0
-			continue
-		}
-
 		elementWidth := 0
 		elementHeight := 0
-		if tile.Orientation%2 == 0 {
-			elementHeight = info.Size.H
-			elementWidth = info.Size.W
-		} else {
-			elementHeight = info.Size.W
-			elementWidth = info.Size.H
+		if i.Buildings != nil {
+			info, err := i.Buildings.GetBuilding(tile.Id)
+			if err != nil {
+				log.Println(err)
+				i.Fields[tile.Posy*i.Size.Width+tile.Posx] = tile
+				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Posx = 0
+				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Posy = 0
+				continue
+			} else {
+				if tile.Orientation%2 == 0 {
+					elementHeight = info.Size.H
+					elementWidth = info.Size.W
+				} else {
+					elementHeight = info.Size.W
+					elementWidth = info.Size.H
+				}
+			}
+
 		}
-		for y := 0; y < elementHeight; y++ {
-			for x := 0; x < elementWidth; x++ {
-				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)] = tile
-				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)].Posx = x
-				i.Fields[(tile.Posy+y)*i.size.Width+(tile.Posx+x)].Posy = y
+		for y := 0; y < elementHeight && tile.Posy+y < i.Size.Height; y++ {
+			for x := 0; x < elementWidth && tile.Posx+x < i.Size.Width; x++ {
+				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)] = tile
+				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)].Posx = x
+				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)].Posy = y
 			}
 		}
 	}
 }
 
 func (i *IslandHouse) Get(x, y int) Field {
-	return i.Fields[y*i.size.Width+x]
+	return i.Fields[y*i.Size.Width+x]
 }
 
-func (i *IslandHouse) Size() int {
+func (i *IslandHouse) GetSize() int {
 	return len(i.Fields)
 }
