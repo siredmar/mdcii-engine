@@ -15,7 +15,7 @@ import (
 type TextureAtlas struct {
 	Images               []*image.RGBA          `json:"-"`
 	AtlasMeta            AtlasMeta              `json:"atlasMeta"`
-	ImagesMeta           map[string]ImageMeta   `json:"imageMeta"`
+	ImagesMeta           map[int]ImageMeta      `json:"imageMeta"`
 	OptionSkipFileEnding bool                   `json:"-"`
 	OptionKeyToLower     bool                   `json:"-"`
 	OptionKeyToUpper     bool                   `json:"-"`
@@ -87,7 +87,7 @@ func WithOutputDir(outputDir string) TextureAtlasOption {
 func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption) (*TextureAtlas, error) {
 	atlas := &TextureAtlas{
 		Images:     []*image.RGBA{image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight))},
-		ImagesMeta: make(map[string]ImageMeta),
+		ImagesMeta: make(map[int]ImageMeta),
 		AtlasMeta: AtlasMeta{
 			Width:  atlasWidth,
 			Height: atlasHeight,
@@ -127,7 +127,7 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption)
 	}
 
 	packer := NewMaxRectsPacker(atlasWidth, atlasHeight)
-	for key, img := range atlas.imagesToLoad {
+	for _, img := range atlas.imagesToLoad {
 	rewind:
 		rect, err := packer.Pack(img.Bounds().Dx(), img.Bounds().Dy())
 		if err != nil {
@@ -140,7 +140,7 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption)
 		dstRect := image.Rect(rect.X, rect.Y, rect.X+rect.Width, rect.Y+rect.Height)
 
 		draw.Draw(atlas.Images[currentAtlasIndex], dstRect, img, img.Bounds().Min, draw.Over)
-		atlas.ImagesMeta[key] = ImageMeta{
+		atlas.ImagesMeta[currentAtlasIndex] = ImageMeta{
 			ImageIndex: currentAtlasIndex,
 			X:          rect.X,
 			Y:          rect.Y,
