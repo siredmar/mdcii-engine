@@ -20,7 +20,7 @@ type Field struct {
 	CityNumber     int // the city the field is part of
 	RandomNumber   int // random number, what for?
 	PlayerNumber   int // the player that occupies this field
-	Reserved       int // is this field empty?
+	Reserved       int // is this field empty? always 51?
 }
 
 type IslandHouse struct {
@@ -62,7 +62,6 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 			PlayerNumber:   int((bits >> 22) & ((1 << 4) - 1)),
 			Reserved:       int((bits >> 26) & ((1 << 6) - 1)),
 		}
-
 		islandhouse.RawFields = append(islandhouse.RawFields, *field)
 	}
 	islandhouse.finalize()

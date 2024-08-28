@@ -1,7 +1,6 @@
 package tiles
 
 type Tile interface {
-	// Render()
 	Render()
 	CalculateGfxValues()
 }

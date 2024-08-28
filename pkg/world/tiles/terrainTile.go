@@ -4,7 +4,9 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	errors "github.com/siredmar/mdcii-engine/pkg/errors"
 	math "github.com/siredmar/mdcii-engine/pkg/math"
-	rotation "github.com/siredmar/mdcii-engine/pkg/world/rotation"
+	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
+	"github.com/siredmar/mdcii-engine/pkg/world/elevations"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 )
 
 type TerrainTile struct {
@@ -16,6 +18,7 @@ type TerrainTile struct {
 	Gfx           []int               `json:"gfx"`
 	Frame         int                 `json:"frame"`
 	RenderIndices []int
+	Sprite        sprites.Sprite
 }
 
 type TerrainTileOption func(*TerrainTile)
@@ -26,7 +29,7 @@ func WithTileType(tileType TileType) func(*TerrainTile) {
 	}
 }
 
-func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Building, tileType TileType, opts []TerrainTileOption) *TerrainTile {
+func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Building, sprites *sprites.Sprites, opts ...TerrainTileOption) *TerrainTile {
 	t := &TerrainTile{
 		Rotation:      r,
 		X:             x,
@@ -40,6 +43,9 @@ func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Build
 	for _, opt := range opts {
 		opt(t)
 	}
+	t.CalculateGfxValues()
+	t.CalcRenderPositions(building.Size.W, building.Size.H)
+	t.Sprite = sprites.Sprites[t.Gfx[t.Rotation]]
 	return t
 }
 
@@ -51,6 +57,10 @@ func (t *TerrainTile) CalculateGfxValues() {
 			t.Gfx = append(t.Gfx, gfx0+(1*t.Building.Rotate))
 			t.Gfx = append(t.Gfx, gfx0+(2*t.Building.Rotate))
 			t.Gfx = append(t.Gfx, gfx0+(3*t.Building.Rotate))
+		} else {
+			t.Gfx = append(t.Gfx, gfx0)
+			t.Gfx = append(t.Gfx, gfx0)
+			t.Gfx = append(t.Gfx, gfx0)
 		}
 		if t.Building.IsBig() {
 			for i, gfx := range t.Gfx {
@@ -90,11 +100,11 @@ func (t *TerrainTile) HasBuildingAboveWaterAndCoast() bool {
 	return t.Building != nil && t.Building.PositionOffset > 0
 }
 
-func (t *TerrainTile) GetRenderIndex(x, y, width, height int, r rotation.Rotation) int {
-	errors.MDCII_ASSERT(x >= 0 && x < width, "[Tile::GetRenderIndex()] Invalid x position given.")
-	errors.MDCII_ASSERT(y >= 0 && y < height, "[Tile::GetRenderIndex()] Invalid y position given.")
+func (t *TerrainTile) GetRenderIndex(width, height int, r rotation.Rotation) int {
+	errors.MDCII_ASSERT(t.X >= 0 && t.X < width, "[Tile::GetRenderIndex()] Invalid x position given.")
+	errors.MDCII_ASSERT(t.Y >= 0 && t.Y < height, "[Tile::GetRenderIndex()] Invalid y position given.")
 
-	posX, posY := rotation.RotatePosition(x, y, width, height, r)
+	posX, posY := rotation.RotatePosition(t.X, t.Y, width, height, r)
 
 	if r == rotation.DEG0 || r == rotation.DEG180 {
 		return posY*width + posX
@@ -105,8 +115,33 @@ func (t *TerrainTile) GetRenderIndex(x, y, width, height int, r rotation.Rotatio
 
 func (t *TerrainTile) CalcRenderPositions(width, height int) {
 	t.RenderIndices = make([]int, 4)
-	t.RenderIndices[0] = t.GetRenderIndex(t.X, t.Y, width, height, rotation.DEG0)
-	t.RenderIndices[1] = t.GetRenderIndex(t.X, t.Y, width, height, rotation.DEG90)
-	t.RenderIndices[2] = t.GetRenderIndex(t.X, t.Y, width, height, rotation.DEG180)
-	t.RenderIndices[3] = t.GetRenderIndex(t.X, t.Y, width, height, rotation.DEG270)
+	t.RenderIndices[0] = t.GetRenderIndex(width, height, rotation.DEG0)
+	t.RenderIndices[1] = t.GetRenderIndex(width, height, rotation.DEG90)
+	t.RenderIndices[2] = t.GetRenderIndex(width, height, rotation.DEG180)
+	t.RenderIndices[3] = t.GetRenderIndex(width, height, rotation.DEG270)
+}
+
+func (t *TerrainTile) CalcOffset() float32 {
+	var offset float32 = 0.0
+
+	// zoomInt := int(magic_enum.EnumInteger(atlas.world.Camera.Zoom))
+	zoom := 2
+	tileHeight := 0
+	// tileHeight := atlas.getTileHeight(atlas.world.Camera.Zoom)
+
+	// gfxHeight := t.heights[zoomInt][tGfx]
+
+	// if atlas.world.Camera.Zoom == world.ZoomGFX {
+	tileHeight = 31
+	// }
+
+	if t.Sprite.Height > tileHeight {
+		offset = float32(t.Sprite.Height) - float32(tileHeight)
+	}
+
+	if t.HasBuildingAboveWaterAndCoast() {
+		offset += elevations.Elevations[zoom]
+	}
+
+	return offset
 }

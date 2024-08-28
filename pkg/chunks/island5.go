@@ -141,13 +141,22 @@ func (i *Island5) Finalize() error {
 		if len(i.Layers.IslandHouse) == 2 {
 			i.Layers.Final = append(i.Layers.Final, i.Layers.IslandHouse[1])
 		} else {
-			// create empty top
+			// create empty as bottom
 			empty := NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
-			i.Layers.Final = append(i.Layers.Final, empty)
+			i.Layers.Final = append([]*IslandHouse{empty}, i.Layers.Final...)
 		}
 	}
-	i.Layers.Bottom = i.Layers.Final[0]
-	i.Layers.Top = i.Layers.Final[1]
+	// merge layers. Ignore fields that are t.Id == 0xFFFF
+	i.Layers.Top = NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
+	for y := 0; y < i.Height; y++ {
+		for x := 0; x < i.Width; x++ {
+			if i.Layers.Final[0].Fields[y*i.Width+x].Id != 0xFFFF {
+				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[0].Fields[y*i.Width+x]
+			} else {
+				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[1].Fields[y*i.Width+x]
+			}
+		}
+	}
 	return nil
 }
 

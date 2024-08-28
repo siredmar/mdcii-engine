@@ -13,15 +13,15 @@ import (
 
 // TextureAtlas represents a texture atlas containing multiple images
 type TextureAtlas struct {
-	Images               []*image.RGBA          `json:"-"`
-	AtlasMeta            AtlasMeta              `json:"atlasMeta"`
-	ImagesMeta           map[int]ImageMeta      `json:"imageMeta"`
-	OptionSkipFileEnding bool                   `json:"-"`
-	OptionKeyToLower     bool                   `json:"-"`
-	OptionKeyToUpper     bool                   `json:"-"`
-	imagesToLoad         map[string]image.Image `json:"-"`
-	filesToLoad          []string               `json:"-"`
-	outputDir            string                 `json:"-"`
+	Images               []*image.RGBA                `json:"-"`
+	AtlasMeta            AtlasMeta                    `json:"atlasMeta"`
+	ImagesMeta           map[int]map[string]ImageMeta `json:"imageMeta"`
+	OptionSkipFileEnding bool                         `json:"-"`
+	OptionKeyToLower     bool                         `json:"-"`
+	OptionKeyToUpper     bool                         `json:"-"`
+	imagesToLoad         map[string]image.Image       `json:"-"`
+	filesToLoad          []string                     `json:"-"`
+	outputDir            string                       `json:"-"`
 }
 
 type AtlasMeta struct {
@@ -87,7 +87,7 @@ func WithOutputDir(outputDir string) TextureAtlasOption {
 func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption) (*TextureAtlas, error) {
 	atlas := &TextureAtlas{
 		Images:     []*image.RGBA{image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight))},
-		ImagesMeta: make(map[int]ImageMeta),
+		ImagesMeta: make(map[int]map[string]ImageMeta),
 		AtlasMeta: AtlasMeta{
 			Width:  atlasWidth,
 			Height: atlasHeight,
@@ -127,7 +127,7 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption)
 	}
 
 	packer := NewMaxRectsPacker(atlasWidth, atlasHeight)
-	for _, img := range atlas.imagesToLoad {
+	for i, img := range atlas.imagesToLoad {
 	rewind:
 		rect, err := packer.Pack(img.Bounds().Dx(), img.Bounds().Dy())
 		if err != nil {
@@ -140,7 +140,10 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, opts ...TextureAtlasOption)
 		dstRect := image.Rect(rect.X, rect.Y, rect.X+rect.Width, rect.Y+rect.Height)
 
 		draw.Draw(atlas.Images[currentAtlasIndex], dstRect, img, img.Bounds().Min, draw.Over)
-		atlas.ImagesMeta[currentAtlasIndex] = ImageMeta{
+		if atlas.ImagesMeta[currentAtlasIndex] == nil {
+			atlas.ImagesMeta[currentAtlasIndex] = map[string]ImageMeta{}
+		}
+		atlas.ImagesMeta[currentAtlasIndex][i] = ImageMeta{
 			ImageIndex: currentAtlasIndex,
 			X:          rect.X,
 			Y:          rect.Y,
@@ -201,6 +204,10 @@ func (a *TextureAtlas) Export() error {
 
 // loadImage loads an image from the specified file path
 func loadImage(filename string) (image.Image, error) {
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get absolute path: %v", err)
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open image file: %v", err)

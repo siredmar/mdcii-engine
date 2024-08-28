@@ -1,6 +1,6 @@
 module github.com/siredmar/mdcii-engine
 
-go 1.21
+go 1.22
 
 require (
 	github.com/HewlettPackard/structex v1.0.2

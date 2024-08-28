@@ -3,6 +3,8 @@ package game
 import (
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
 
 	"image/color"
 
@@ -11,6 +13,12 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	ebitenutil "github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/siredmar/mdcii-engine/pkg/bsh"
+	"github.com/siredmar/mdcii-engine/pkg/cod"
+	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+	"github.com/siredmar/mdcii-engine/pkg/files"
+	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
+	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
 )
 
 // Game is an isometric demo game.
@@ -29,10 +37,93 @@ type Game struct {
 }
 
 // NewGame returns a new isometric demo Game.
-func NewGame() (*Game, error) {
-	buttonImage := loadButtonImage()
-	buttonIcon := loadButtonIcon()
+func NewGame(path string, gamfile string) (*Game, error) {
 
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	dirPath := filepath.Dir(absPath)
+
+	files.CreateInstance(dirPath)
+	buildingsCodPath, err := files.Instance().FindPathForFile("haeuser.cod")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	haeuserCod, err := cod.NewCod(buildingsCodPath, true)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = haeuserCod.Parse()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	buildings, err := buildings.NewBuildings(haeuserCod)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	// // jsonBytes, err := json.MarshalIndent(buildings.GetBuildings(), "", "    ")
+	// // if err != nil {
+	// // 	fmt.Println(err)
+	// // 	os.Exit(1)
+	// // }
+
+	// gamParser, err := gam.NewParser()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// err = gamParser.LoadPath(gamfile)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// err = gamParser.Parse(buildings)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+
+	gfxStadtfldBshPath, err := files.Instance().FindPathForFile("gfx/stadtfld.bsh")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	gfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(gfxStadtfldBshPath), bsh.WithConvertAll())
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// // convert to json gamParser.Islands5[0
+	// jsonBytes, err := json.MarshalIndent(gamParser.Islands5[0], "", "    ")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	// fmt.Println(string(jsonBytes))
+	gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	gfxSprites, err := sprites.NewSprites(gfxAtlas)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	buttonImage := loadButtonImage()
+	// buttonIcon := loadButtonIcon()
+	buttonIcon := gfxSprites.Sprites["123"].Image
 	// construct a new container that serves as the root of the UI hierarchy
 	rootContainer := widget.NewContainer(
 		// the container will use a plain color as its background

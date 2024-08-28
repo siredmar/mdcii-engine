@@ -1,4 +1,4 @@
-package roration
+package rotation
 
 import (
 	"errors"
@@ -80,4 +80,16 @@ func (r Rotation) Add(other Rotation) (Rotation, error) {
 func (r Rotation) Subtract(other Rotation) (Rotation, error) {
 	result := (int(r) - int(other) + int(len([]Rotation{DEG0, DEG90, DEG180, DEG270}))) % int(len([]Rotation{DEG0, DEG90, DEG180, DEG270}))
 	return IntToRotation(result)
+}
+
+func CartesianToIso(x, y float64, tileSize int) (float64, float64) {
+	rx := (x - y) * float64(tileSize/2)
+	ry := (x + y) * float64(tileSize/4)
+	return rx, ry
+}
+
+func IsoToCartesian(x, y float64, tileSize int) (float64, float64) {
+	rx := (x/float64(tileSize/2) + y/float64(tileSize/4)) / 2
+	ry := (y/float64(tileSize/4) - (x / float64(tileSize/2))) / 2
+	return rx, ry
 }

@@ -1,3 +1,3 @@
 package render
 
-func RenderTerrainTile(/* world, island*,/)
+// func RenderTerrainTile(/* world, island*,/)

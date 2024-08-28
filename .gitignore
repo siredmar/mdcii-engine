@@ -1,5 +1,4 @@
 *.json
-*.png
 out
 __debug_*
 \.vscode/

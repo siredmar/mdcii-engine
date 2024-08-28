@@ -2,6 +2,9 @@ package sprites
 
 import (
 	"image"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
@@ -23,21 +26,29 @@ func NewSprites(a *atlas.TextureAtlas) (*Sprites, error) {
 		Sprites: make(map[int]Sprite),
 	}
 
-	for i, png := range a.Images {
-		img := ebiten.NewImageFromImage(png.SubImage(image.Rectangle{
-			Min: image.Point{
-				X: 0,
-				Y: 0,
-			},
-			Max: image.Point{
-				X: a.ImagesMeta[i].Width,
-				Y: 0,
-			},
-		}))
-		s.Sprites[i] = Sprite{
-			Width:  a.ImagesMeta[i].Width,
-			Height: a.ImagesMeta[i].Height,
-			Image:  img,
+	for atlasImageIndex, png := range a.Images {
+		for i, sub := range a.ImagesMeta[atlasImageIndex] {
+			img := ebiten.NewImageFromImage(png.SubImage(image.Rectangle{
+				Min: image.Point{
+					X: sub.X,
+					Y: sub.Y,
+				},
+				Max: image.Point{
+					X: sub.X + sub.Width,
+					Y: sub.Y + sub.Height,
+				},
+			}))
+			file := strings.TrimSuffix(filepath.Base(i), filepath.Ext(i))
+			index, err := strconv.Atoi(file)
+			if err != nil {
+				return nil, err
+			}
+
+			s.Sprites[index] = Sprite{
+				Width:  sub.Width,
+				Height: sub.Height,
+				Image:  img,
+			}
 		}
 	}
 
