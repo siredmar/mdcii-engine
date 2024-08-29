@@ -426,3 +426,7 @@ func (b *Building) IsRotatable() bool {
 func (b *Building) IsBig() bool {
 	return b.Size.W > 1 || b.Size.H > 1
 }
+
+func (b *Building) GetKind() string {
+	return b.Kind.String()
+}

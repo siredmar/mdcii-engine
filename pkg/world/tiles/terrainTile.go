@@ -1,12 +1,14 @@
 package tiles
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	errors "github.com/siredmar/mdcii-engine/pkg/errors"
 	math "github.com/siredmar/mdcii-engine/pkg/math"
 	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
-	"github.com/siredmar/mdcii-engine/pkg/world/elevations"
+	"github.com/siredmar/mdcii-engine/pkg/world/camera"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
+	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 )
 
 type TerrainTile struct {
@@ -17,8 +19,9 @@ type TerrainTile struct {
 	TileType      TileType            `json:"tileType"`
 	Gfx           []int               `json:"gfx"`
 	Frame         int                 `json:"frame"`
-	RenderIndices []int
-	Sprite        sprites.Sprite
+	RenderIndices []int               `json:"renderIndices"`
+	Sprites       map[int]sprites.Sprite
+	op            *ebiten.DrawImageOptions
 }
 
 type TerrainTileOption func(*TerrainTile)
@@ -29,7 +32,7 @@ func WithTileType(tileType TileType) func(*TerrainTile) {
 	}
 }
 
-func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Building, sprites *sprites.Sprites, opts ...TerrainTileOption) *TerrainTile {
+func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Building, s *sprites.Sprites, opts ...TerrainTileOption) *TerrainTile {
 	t := &TerrainTile{
 		Rotation:      r,
 		X:             x,
@@ -39,13 +42,24 @@ func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Build
 		Gfx:           []int{},
 		Frame:         0,
 		RenderIndices: []int{},
+		op:            &ebiten.DrawImageOptions{},
+		Sprites:       map[int]sprites.Sprite{},
 	}
 	for _, opt := range opts {
 		opt(t)
 	}
+
+	// building := g.buildings.Buildings[t.Id]
+	// 		tile := tiles.NewTerrainTile(rotation.Rotation(t.Orientation), t.Posx, t.Posy, g.buildings.Buildings[t.Id], g.gfxSprites)
+
 	t.CalculateGfxValues()
 	t.CalcRenderPositions(building.Size.W, building.Size.H)
-	t.Sprite = sprites.Sprites[t.Gfx[t.Rotation]]
+	t.Sprites = s.Sprites
+	// add gfx indices for each rotation for this tile
+	// for _, i := range t.Gfx {
+	// 	spriteIndex := i
+	// 	t.Sprites = append(t.Sprites, s.Sprites[spriteIndex])
+	// }
 	return t
 }
 
@@ -76,7 +90,7 @@ func (tile *TerrainTile) HasBuilding() bool {
 	return tile.Building != nil
 }
 
-func (tile *TerrainTile) AdjustGfxForBigBuildings(t_gfx int) int {
+func (tile *TerrainTile) AdjustGfxForBigBuildings(gfx int) int {
 	errors.MDCII_ASSERT(tile.HasBuilding(), "[TerrainTile::AdjustGfxForBigBuildings()] nil")
 
 	// default: orientation 0
@@ -92,8 +106,8 @@ func (tile *TerrainTile) AdjustGfxForBigBuildings(t_gfx int) int {
 	}
 
 	offset := rp.Y*tile.Building.Size.W + rp.X
-	t_gfx += offset
-	return t_gfx
+	gfx += offset
+	return gfx
 }
 
 func (t *TerrainTile) HasBuildingAboveWaterAndCoast() bool {
@@ -101,8 +115,8 @@ func (t *TerrainTile) HasBuildingAboveWaterAndCoast() bool {
 }
 
 func (t *TerrainTile) GetRenderIndex(width, height int, r rotation.Rotation) int {
-	errors.MDCII_ASSERT(t.X >= 0 && t.X < width, "[Tile::GetRenderIndex()] Invalid x position given.")
-	errors.MDCII_ASSERT(t.Y >= 0 && t.Y < height, "[Tile::GetRenderIndex()] Invalid y position given.")
+	// errors.MDCII_ASSERT(t.X >= 0 && t.X < width, "[Tile::GetRenderIndex()] Invalid x position given.")
+	// errors.MDCII_ASSERT(t.Y >= 0 && t.Y < height, "[Tile::GetRenderIndex()] Invalid y position given.")
 
 	posX, posY := rotation.RotatePosition(t.X, t.Y, width, height, r)
 
@@ -121,27 +135,60 @@ func (t *TerrainTile) CalcRenderPositions(width, height int) {
 	t.RenderIndices[3] = t.GetRenderIndex(width, height, rotation.DEG270)
 }
 
-func (t *TerrainTile) CalcOffset() float32 {
+func (t *TerrainTile) CalcOffset(r rotation.Rotation) float32 {
 	var offset float32 = 0.0
 
 	// zoomInt := int(magic_enum.EnumInteger(atlas.world.Camera.Zoom))
-	zoom := 2
-	tileHeight := 0
+	// tileHeight := 0
 	// tileHeight := atlas.getTileHeight(atlas.world.Camera.Zoom)
 
 	// gfxHeight := t.heights[zoomInt][tGfx]
 
 	// if atlas.world.Camera.Zoom == world.ZoomGFX {
-	tileHeight = 31
+
+	tileHeight := zoom.TileHeight()
+	// tileHeight = 31
 	// }
 
-	if t.Sprite.Height > tileHeight {
-		offset = float32(t.Sprite.Height) - float32(tileHeight)
+	h := t.Sprites[t.Gfx[t.Rotation]].Height
+	if h > tileHeight {
+		offset = float32(h) - float32(tileHeight)
 	}
 
 	if t.HasBuildingAboveWaterAndCoast() {
-		offset += elevations.Elevations[zoom]
+		offset += zoom.Elevation()
 	}
 
 	return offset
+}
+
+func (t *TerrainTile) Render(r rotation.Rotation, screen *ebiten.Image) error {
+	// if g.tileInfoX == x && g.tileInfoY == y {
+	// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Tile: %d, X: %d, Y: %d, Orientation: %d, GFX: %d, PosOffset: %d", t.Id, x, y, t.Orientation, tile.Gfx[tile.Rotation], building.PositionOffset), 0, 40)
+	// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Type: %s", building.Kind.String()), 0, 60)
+	// }
+	camera := camera.GetCamera()
+	xi, yi := rotation.CartesianToIso(float64(t.X), float64(t.Y), zoom.TileSize())
+	t.op.GeoM.Reset()
+	//Translate for isometric
+	t.op.GeoM.Translate(float64(xi), float64(yi))
+	// Translate for tile offset
+	t.op.GeoM.Translate(0, -float64(t.CalcOffset(r)))
+	//Scale for camera zoom
+	t.op.GeoM.Scale(camera.Zoom, camera.Zoom)
+	//Translate for center of screen offset
+	// op.GeoM.Translate(float64(g.windowWidth/2.0), float64(g.windowHeight/2.0))
+	//Translate for camera position
+	t.op.GeoM.Translate(-camera.X, camera.Y)
+	// gridOp := &ebiten.DrawImageOptions{}
+	// gridOp.GeoM.Translate(float64(xi), float64(yi))
+	// gridOp.GeoM.Scale(g.Camera.Zoom, g.Camera.Zoom)
+	// gridOp.GeoM.Translate(float64(g.windowWidth/2.0), float64(g.windowHeight/2.0))
+	// gridOp.GeoM.Translate(-g.Camera.X, g.Camera.Y)
+
+	img := t.Sprites[t.Gfx[t.Rotation]].Image
+	// img := t.Sprites.Sprites[t.Gfx[t.Rotation]].Image
+	// img := t.Sprites[t.Rotation].Image
+	screen.DrawImage(img, t.op)
+	return nil
 }

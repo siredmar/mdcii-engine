@@ -1,7 +1,37 @@
 package buildings
 
+import "slices"
+
 // Enum values for Kind
 type Kind string
+
+func (k Kind) String() string {
+	return string(k)
+}
+
+var (
+	KindsCoast = []Kind{
+		KindBeachMouth,
+		KindBeach,
+		KindBeachCornerI,
+		KindBeachCornerII,
+		KindBeachCornerIII,
+		KindSlope,
+	}
+	KindsSea = []Kind{
+		KindSea,
+		KindEstuary,
+		KindSurf,
+	}
+)
+
+func (k Kind) IsCoast() bool {
+	return slices.Contains(KindsCoast, k)
+}
+
+func (k Kind) IsWater() bool {
+	return slices.Contains(KindsSea, k)
+}
 
 const (
 	KindUnset          Kind = "Unset"

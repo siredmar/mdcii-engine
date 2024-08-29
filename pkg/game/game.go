@@ -17,29 +17,58 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/files"
+	"github.com/siredmar/mdcii-engine/pkg/gam"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
+	"github.com/siredmar/mdcii-engine/pkg/world/camera"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 )
 
-// Game is an isometric demo game.
-type Game struct {
-	width      int
-	height     int
-	camX       float64
-	camY       float64
-	camScale   float64
-	camScaleTo float64
-	mousePanX  int
-	mousePanY  int
-	offscreen  *ebiten.Image
+type Config struct {
+	GamePath     string
+	GamFile      string
+	WindowWidth  int
+	WindowHeight int
+}
 
-	ui *ebitenui.UI
+type Game struct {
+	Config         *Config
+	tileSize       int
+	gfxSprites     *sprites.Sprites
+	gridSprites    *sprites.Sprites
+	gam            *gam.GamParser
+	buildings      *buildings.Buildings
+	cameraRotation rotation.Rotation
+	ScreenWidth    int
+	ScreenHeight   int
+	Camera         *camera.Camera
+	buffer         *ebiten.Image
+	op             *ebiten.DrawImageOptions
+	drawToBuffer   bool
+	tileInfoX      int
+	tileInfoY      int
+	gKeyDebounce   int
 }
 
 // NewGame returns a new isometric demo Game.
-func NewGame(path string, gamfile string) (*Game, error) {
+func NewGame(c *Config) (*Game, error) {
+	&Game{
+		tileSize:       TileSize,
+		gfxSprites:     gfxSprites,
+		gridSprites:    gridSprites,
+		gam:            gamParser,
+		buildings:      buildings,
+		op:             &ebiten.DrawImageOptions{},
+		cameraRotation: rotation.DEG0,
+		buffer:         ebiten.NewImage(ScreenWidth, ScreenHeight),
+		Camera:         camera.NewCamera(-float64(ScreenWidth/2), -float64(ScreenHeight/2), 500, 1, 1.2),
+		drawToBuffer:   true,
+		tileInfoX:      0,
+		tileInfoY:      0,
+		gKeyDebounce:   0,
+	}
 
-	absPath, err := filepath.Abs(path)
+	absPath, err := filepath.Abs(c.GamePath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

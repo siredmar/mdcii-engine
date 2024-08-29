@@ -25,6 +25,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
+	"github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/files"
@@ -32,8 +33,8 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
 	"github.com/siredmar/mdcii-engine/pkg/world/camera"
+	island "github.com/siredmar/mdcii-engine/pkg/world/island/v1alpha1"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
-	"github.com/siredmar/mdcii-engine/pkg/world/tiles"
 	"github.com/spf13/cobra"
 
 	"github.com/spf13/viper"
@@ -158,7 +159,7 @@ var rootCmd = &cobra.Command{
 
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 		ebiten.SetWindowTitle("islandpng")
-		if err := ebiten.RunGame(&Game{
+		game := &Game{
 			windowWidth:    ScreenWidth,
 			windowHeight:   ScreenHeight,
 			tileSize:       TileSize,
@@ -174,7 +175,16 @@ var rootCmd = &cobra.Command{
 			tileInfoX:      0,
 			tileInfoY:      0,
 			gKeyDebounce:   0,
-		}); err != nil {
+			islandToLoad:   gamParser.Islands5[0],
+			island:         nil,
+		}
+		game.island, err = island.NewIsland(island.WithChunk(game.gfxSprites, game.buildings, gamParser.Islands5[0]))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		if err := ebiten.RunGame(game); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -198,6 +208,8 @@ type Game struct {
 	tileInfoX      int
 	tileInfoY      int
 	gKeyDebounce   int
+	islandToLoad   *chunks.Island5
+	island         *island.Island
 }
 
 func (g *Game) Update() error {
@@ -284,43 +296,49 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // }
 
 func (g *Game) render(screen *ebiten.Image) {
-	for y := range g.gam.Islands5[0].Height {
-		for x := range g.gam.Islands5[0].Width {
-			t := g.gam.Islands5[0].Layers.Top.Fields[y*g.gam.Islands5[0].Width+x]
-			if t.Id == 65535 || t.Id == 102 {
-				continue
-			}
-			if t.Id == 1201 {
-				fmt.Println("found 1201")
-			}
-			building := g.buildings.Buildings[t.Id]
-			tile := tiles.NewTerrainTile(rotation.Rotation(t.Orientation), t.Posx, t.Posy, g.buildings.Buildings[t.Id], g.gfxSprites)
-			if g.tileInfoX == x && g.tileInfoY == y {
-				ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Tile: %d, X: %d, Y: %d, Orientation: %d, GFX: %d, PosOffset: %d", t.Id, x, y, t.Orientation, tile.Gfx[tile.Rotation], building.PositionOffset), 0, 40)
-			}
+	g.island.Render(rotation.DEG0, screen)
+	// for y := range g.gam.Islands5[0].Height {
+	// 	for x := range g.gam.Islands5[0].Width {
+	// 		t := g.gam.Islands5[0].Layers.Top.Fields[y*g.gam.Islands5[0].Width+x]
+	// 		if t.Id == 65535 || t.Id == 102 {
+	// 			continue
+	// 		}
+	// 		if t.Id == 1201 {
+	// 			fmt.Println("found 1201")
+	// 		}
+	// 		building := g.buildings.Buildings[t.Id]
+	// 		tile := tiles.NewTerrainTile(rotation.Rotation(t.Orientation), t.Posx, t.Posy, g.buildings.Buildings[t.Id], g.gfxSprites)
+	// 		if g.tileInfoX == x && g.tileInfoY == y {
+	// 			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Tile: %d, X: %d, Y: %d, Orientation: %d, GFX: %d, PosOffset: %d", t.Id, x, y, t.Orientation, tile.Gfx[tile.Rotation], building.PositionOffset), 0, 40)
+	// 			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Type: %s", building.Kind.String()), 0, 60)
+	// 		}
 
-			xi, yi := rotation.CartesianToIso(float64(x), float64(y), g.tileSize)
-			g.op.GeoM.Reset()
-			//Translate for isometric
-			g.op.GeoM.Translate(float64(xi), float64(yi))
-			// Translate for tile offset
-			g.op.GeoM.Translate(0, -float64(tile.CalcOffset()))
-			//Scale for camera zoom
-			g.op.GeoM.Scale(g.Camera.Zoom, g.Camera.Zoom)
-			//Translate for center of screen offset
-			g.op.GeoM.Translate(float64(g.windowWidth/2.0), float64(g.windowHeight/2.0))
-			gridOp := g.op
-			//Translate for camera position
-			g.op.GeoM.Translate(-g.Camera.X, g.Camera.Y)
+	// 		xi, yi := rotation.CartesianToIso(float64(x), float64(y), g.tileSize)
+	// 		g.op.GeoM.Reset()
+	// 		//Translate for isometric
+	// 		g.op.GeoM.Translate(float64(xi), float64(yi))
+	// 		// Translate for tile offset
+	// 		g.op.GeoM.Translate(0, -float64(tile.CalcOffset()))
+	// 		//Scale for camera zoom
+	// 		g.op.GeoM.Scale(g.Camera.Zoom, g.Camera.Zoom)
+	// 		//Translate for center of screen offset
+	// 		g.op.GeoM.Translate(float64(g.windowWidth/2.0), float64(g.windowHeight/2.0))
+	// 		//Translate for camera position
+	// 		g.op.GeoM.Translate(-g.Camera.X, g.Camera.Y)
+	// 		// gridOp := &ebiten.DrawImageOptions{}
+	// 		// gridOp.GeoM.Translate(float64(xi), float64(yi))
+	// 		// gridOp.GeoM.Scale(g.Camera.Zoom, g.Camera.Zoom)
+	// 		// gridOp.GeoM.Translate(float64(g.windowWidth/2.0), float64(g.windowHeight/2.0))
+	// 		// gridOp.GeoM.Translate(-g.Camera.X, g.Camera.Y)
 
-			img := g.gfxSprites.Sprites[tile.Gfx[tile.Rotation]].Image
-			screen.DrawImage(img, g.op)
-			if GridEnable {
-				screen.DrawImage(g.gridSprites.Sprites[0].Image, gridOp)
-			}
+	// 		img := g.gfxSprites.Sprites[tile.Gfx[tile.Rotation]].Image
+	// 		screen.DrawImage(img, g.op)
+	// 		// if GridEnable {
+	// 		// 	screen.DrawImage(g.gridSprites.Sprites[0].Image, gridOp)
+	// 		// }
 
-		}
-	}
+	// 	}
+	// }
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
