@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/chunks"
@@ -74,12 +75,16 @@ func WithChunk(gfxSprites *sprites.Sprites, b *buildings.Buildings, c *chunks.Is
 		i.Number = c.IslandNumber
 		i.Climate = Climate(c.Climate)
 		for y := range i.Height {
+			// fmt.Println("")
 			for x := range i.Width {
 				t := c.Layers.Top.Fields[y*i.Width+x]
 				if t.Id == 65535 || t.Id == 102 {
 					continue
 				}
-
+				if x != t.Posx || y != t.Posy {
+					fmt.Printf("Error: x: %d, y: %d, PosX: %d, PosY: %d\n", x, y, t.Posx, t.Posy)
+				}
+				// fmt.Printf("%d ", rotation.Rotation(t.Orientation))
 				// t := g.gam.Islands5[0].Layers.Top.Fields[y*g.gam.Islands5[0].Width+x]
 				// // 		if t.Id == 65535 || t.Id == 102 {
 				// // 			continue
@@ -119,16 +124,16 @@ func NewIsland(opts ...Option) (*Island, error) {
 }
 
 func (i *Island) Render(r rotation.Rotation, screen *ebiten.Image) error {
-	for _, t := range i.Water {
-		if err := t.Render(r, screen); err != nil {
-			return err
-		}
-	}
-	for _, t := range i.Coast {
-		if err := t.Render(r, screen); err != nil {
-			return err
-		}
-	}
+	// for _, t := range i.Water {
+	// 	if err := t.Render(r, screen); err != nil {
+	// 		return err
+	// 	}
+	// }
+	// for _, t := range i.Coast {
+	// 	if err := t.Render(r, screen); err != nil {
+	// 		return err
+	// 	}
+	// }
 	for _, t := range i.Terrain {
 		if err := t.Render(r, screen); err != nil {
 			return err

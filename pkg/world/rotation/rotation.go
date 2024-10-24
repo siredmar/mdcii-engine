@@ -14,6 +14,21 @@ const (
 	DEG270
 )
 
+func (r Rotation) String() string {
+	switch r {
+	case DEG0:
+		return "DEG0"
+	case DEG90:
+		return "DEG90"
+	case DEG180:
+		return "DEG180"
+	case DEG270:
+		return "DEG270"
+	default:
+		return "UNKNOWN"
+	}
+}
+
 // Increment increments the rotation value
 func (r *Rotation) Increment() {
 	if *r == DEG270 {

@@ -1,6 +1,7 @@
 package chunks
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
@@ -11,16 +12,18 @@ const (
 )
 
 type Field struct {
-	Id             int // tile gaphic ID, see haeuser.cod for referene
-	Posx           int // position on island
-	Posy           int // position on island
-	Orientation    int // orientation
-	AnimationCount int // animation step for tile
-	IslandNumber   int // the island the field is part of
-	CityNumber     int // the city the field is part of
-	RandomNumber   int // random number, what for?
-	PlayerNumber   int // the player that occupies this field
-	Reserved       int // is this field empty? always 51?
+	Id             int `json:"id"`        // tile gaphic ID, see haeuser.cod for referene
+	Posx           int `json:"pos_x"`     // position on island
+	Posy           int `json:"pos_y"`     // position on island
+	X              int `json:"x"`         // X position within the building
+	Y              int `json:"y"`         // Y position within the building
+	Orientation    int `json:"rotation"`  // orientation
+	AnimationCount int `json:"animation"` // animation step for tile
+	IslandNumber   int `json:"island"`    // the island the field is part of
+	CityNumber     int `json:"city"`      // the city the field is part of
+	RandomNumber   int `json:"random"`    // random number, what for?
+	PlayerNumber   int `json:"player"`    // the player that occupies this field
+	Reserved       int `json:"reserved"`  // is this field empty? always 51?
 }
 
 type IslandHouse struct {
@@ -61,6 +64,8 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 			RandomNumber:   int((bits >> 17) & ((1 << 5) - 1)),
 			PlayerNumber:   int((bits >> 22) & ((1 << 4) - 1)),
 			Reserved:       int((bits >> 26) & ((1 << 6) - 1)),
+			X:              0,
+			Y:              0,
 		}
 		islandhouse.RawFields = append(islandhouse.RawFields, *field)
 	}
@@ -100,8 +105,8 @@ func (i *IslandHouse) finalize() {
 			if err != nil {
 				log.Println(err)
 				i.Fields[tile.Posy*i.Size.Width+tile.Posx] = tile
-				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Posx = 0
-				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Posy = 0
+				i.Fields[tile.Posy*i.Size.Width+tile.Posx].X = 0
+				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Y = 0
 				continue
 			} else {
 				if tile.Orientation%2 == 0 {
@@ -112,13 +117,17 @@ func (i *IslandHouse) finalize() {
 					elementWidth = info.Size.H
 				}
 			}
-
+		}
+		if elementWidth > 1 || elementHeight > 1 {
+			fmt.Println("Element bigger than 1,1")
 		}
 		for y := 0; y < elementHeight && tile.Posy+y < i.Size.Height; y++ {
 			for x := 0; x < elementWidth && tile.Posx+x < i.Size.Width; x++ {
-				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)] = tile
-				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)].Posx = x
-				i.Fields[(tile.Posy+y)*i.Size.Width+(tile.Posx+x)].Posy = y
+				index := (tile.Posy+y)*i.Size.Width + (tile.Posx + x)
+				i.Fields[index] = tile
+				i.Fields[index].X = x
+				i.Fields[index].Y = y
+				fmt.Println(i.Fields[index])
 			}
 		}
 	}

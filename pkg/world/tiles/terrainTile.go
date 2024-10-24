@@ -12,9 +12,11 @@ import (
 )
 
 type TerrainTile struct {
-	Rotation      rotation.Rotation   `json:"rotation"`
-	X             int                 `json:"x"`
-	Y             int                 `json:"y"`
+	Rotation rotation.Rotation `json:"rotation"`
+	// PosX position of tile in X relative to the island
+	PosX int `json:"x"`
+	// PosY position of tile in Y relative to the island
+	PosY          int                 `json:"y"`
 	Building      *buildings.Building `json:"building"`
 	TileType      TileType            `json:"tileType"`
 	Gfx           []int               `json:"gfx"`
@@ -22,6 +24,8 @@ type TerrainTile struct {
 	RenderIndices []int               `json:"renderIndices"`
 	Sprites       map[int]sprites.Sprite
 	op            *ebiten.DrawImageOptions
+	X             int // X coordinates within the building in X
+	Y             int // Y coordinates within the building in Y
 }
 
 type TerrainTileOption func(*TerrainTile)
@@ -35,8 +39,8 @@ func WithTileType(tileType TileType) func(*TerrainTile) {
 func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Building, s *sprites.Sprites, opts ...TerrainTileOption) *TerrainTile {
 	t := &TerrainTile{
 		Rotation:      r,
-		X:             x,
-		Y:             y,
+		PosX:          x,
+		PosY:          y,
 		Building:      building,
 		TileType:      TerrainTypeNone,
 		Gfx:           []int{},
@@ -44,15 +48,17 @@ func NewTerrainTile(r rotation.Rotation, x int, y int, building *buildings.Build
 		RenderIndices: []int{},
 		op:            &ebiten.DrawImageOptions{},
 		Sprites:       map[int]sprites.Sprite{},
+		X:             0,
+		Y:             0,
 	}
 	for _, opt := range opts {
 		opt(t)
 	}
-
 	// building := g.buildings.Buildings[t.Id]
 	// 		tile := tiles.NewTerrainTile(rotation.Rotation(t.Orientation), t.Posx, t.Posy, g.buildings.Buildings[t.Id], g.gfxSprites)
-
-	t.CalculateGfxValues()
+	if t.Building != nil {
+		t.CalculateGfxValues()
+	}
 	t.CalcRenderPositions(building.Size.W, building.Size.H)
 	t.Sprites = s.Sprites
 	// add gfx indices for each rotation for this tile
@@ -68,9 +74,12 @@ func (t *TerrainTile) CalculateGfxValues() {
 		gfx0 := t.Building.Gfx
 		t.Gfx = append(t.Gfx, gfx0)
 		if t.Building.IsRotatable() {
-			t.Gfx = append(t.Gfx, gfx0+(1*t.Building.Rotate))
-			t.Gfx = append(t.Gfx, gfx0+(2*t.Building.Rotate))
-			t.Gfx = append(t.Gfx, gfx0+(3*t.Building.Rotate))
+			// t.Gfx = append(t.Gfx, gfx0+(1*t.Building.Rotate))
+			// t.Gfx = append(t.Gfx, gfx0+(2*t.Building.Rotate))
+			// t.Gfx = append(t.Gfx, gfx0+(3*t.Building.Rotate))
+			t.Gfx = append(t.Gfx, gfx0+(1*t.Building.Rotate)+1)
+			t.Gfx = append(t.Gfx, gfx0+(2*t.Building.Rotate)+1)
+			t.Gfx = append(t.Gfx, gfx0+(3*t.Building.Rotate)+1)
 		} else {
 			t.Gfx = append(t.Gfx, gfx0)
 			t.Gfx = append(t.Gfx, gfx0)
@@ -107,6 +116,7 @@ func (tile *TerrainTile) AdjustGfxForBigBuildings(gfx int) int {
 
 	offset := rp.Y*tile.Building.Size.W + rp.X
 	gfx += offset
+	// tile.Gfx += offset
 	return gfx
 }
 
@@ -162,18 +172,35 @@ func (t *TerrainTile) CalcOffset(r rotation.Rotation) float32 {
 	return offset
 }
 
-func (t *TerrainTile) Render(r rotation.Rotation, screen *ebiten.Image) error {
+type Info struct {
+	TileType TileType
+	Building *buildings.Building
+	X, Y     int
+	Rotation rotation.Rotation
+}
+
+func (t *TerrainTile) GetInfo() Info {
+	return Info{
+		TileType: t.TileType,
+		Building: t.Building,
+		X:        t.PosX,
+		Y:        t.PosY,
+		Rotation: t.Rotation,
+	}
+}
+
+func (t *TerrainTile) Render(globalRotation rotation.Rotation, screen *ebiten.Image) error {
 	// if g.tileInfoX == x && g.tileInfoY == y {
 	// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Tile: %d, X: %d, Y: %d, Orientation: %d, GFX: %d, PosOffset: %d", t.Id, x, y, t.Orientation, tile.Gfx[tile.Rotation], building.PositionOffset), 0, 40)
 	// 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Type: %s", building.Kind.String()), 0, 60)
 	// }
 	camera := camera.GetCamera()
-	xi, yi := rotation.CartesianToIso(float64(t.X), float64(t.Y), zoom.TileSize())
+	xi, yi := rotation.CartesianToIso(float64(t.PosX), float64(t.PosY), zoom.TileSize())
 	t.op.GeoM.Reset()
 	//Translate for isometric
 	t.op.GeoM.Translate(float64(xi), float64(yi))
 	// Translate for tile offset
-	t.op.GeoM.Translate(0, -float64(t.CalcOffset(r)))
+	t.op.GeoM.Translate(0, -float64(t.CalcOffset(globalRotation)))
 	//Scale for camera zoom
 	t.op.GeoM.Scale(camera.Zoom, camera.Zoom)
 	//Translate for center of screen offset

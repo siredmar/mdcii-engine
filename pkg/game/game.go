@@ -53,19 +53,18 @@ type Game struct {
 // NewGame returns a new isometric demo Game.
 func NewGame(c *Config) (*Game, error) {
 	&Game{
-		tileSize:       TileSize,
-		gfxSprites:     gfxSprites,
-		gridSprites:    gridSprites,
-		gam:            gamParser,
-		buildings:      buildings,
-		op:             &ebiten.DrawImageOptions{},
-		cameraRotation: rotation.DEG0,
-		buffer:         ebiten.NewImage(ScreenWidth, ScreenHeight),
-		Camera:         camera.NewCamera(-float64(ScreenWidth/2), -float64(ScreenHeight/2), 500, 1, 1.2),
-		drawToBuffer:   true,
-		tileInfoX:      0,
-		tileInfoY:      0,
-		gKeyDebounce:   0,
+		tileSize:     TileSize,
+		gfxSprites:   gfxSprites,
+		gridSprites:  gridSprites,
+		gam:          gamParser,
+		buildings:    buildings,
+		op:           &ebiten.DrawImageOptions{},
+		buffer:       ebiten.NewImage(ScreenWidth, ScreenHeight),
+		Camera:       camera.NewCamera(-float64(ScreenWidth/2), -float64(ScreenHeight/2), 500, 1, 1.2),
+		drawToBuffer: true,
+		tileInfoX:    0,
+		tileInfoY:    0,
+		gKeyDebounce: 0,
 	}
 
 	absPath, err := filepath.Abs(c.GamePath)

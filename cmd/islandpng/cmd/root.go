@@ -160,23 +160,22 @@ var rootCmd = &cobra.Command{
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 		ebiten.SetWindowTitle("islandpng")
 		game := &Game{
-			windowWidth:    ScreenWidth,
-			windowHeight:   ScreenHeight,
-			tileSize:       TileSize,
-			gfxSprites:     gfxSprites,
-			gridSprites:    gridSprites,
-			gam:            gamParser,
-			buildings:      buildings,
-			op:             &ebiten.DrawImageOptions{},
-			cameraRotation: rotation.DEG0,
-			buffer:         ebiten.NewImage(ScreenWidth, ScreenHeight),
-			Camera:         camera.NewCamera(-float64(ScreenWidth/2), -float64(ScreenHeight/2), 500, 1, 1.2),
-			drawToBuffer:   true,
-			tileInfoX:      0,
-			tileInfoY:      0,
-			gKeyDebounce:   0,
-			islandToLoad:   gamParser.Islands5[0],
-			island:         nil,
+			windowWidth:  ScreenWidth,
+			windowHeight: ScreenHeight,
+			tileSize:     TileSize,
+			gfxSprites:   gfxSprites,
+			gridSprites:  gridSprites,
+			gam:          gamParser,
+			buildings:    buildings,
+			op:           &ebiten.DrawImageOptions{},
+			buffer:       ebiten.NewImage(ScreenWidth, ScreenHeight),
+			Camera:       camera.NewCamera(-float64(ScreenWidth/2), -float64(ScreenHeight/2), 500, 1, 1.2),
+			drawToBuffer: true,
+			tileInfoX:    0,
+			tileInfoY:    0,
+			gKeyDebounce: 0,
+			islandToLoad: gamParser.Islands5[0],
+			island:       nil,
 		}
 		game.island, err = island.NewIsland(island.WithChunk(game.gfxSprites, game.buildings, gamParser.Islands5[0]))
 		if err != nil {
@@ -191,25 +190,24 @@ var rootCmd = &cobra.Command{
 }
 
 type Game struct {
-	windowWidth    int
-	windowHeight   int
-	tileSize       int
-	gfxSprites     *sprites.Sprites
-	gridSprites    *sprites.Sprites
-	gam            *gam.GamParser
-	buildings      *buildings.Buildings
-	cameraRotation rotation.Rotation
-	ScreenWidth    int
-	ScreenHeight   int
-	Camera         *camera.Camera
-	buffer         *ebiten.Image
-	op             *ebiten.DrawImageOptions
-	drawToBuffer   bool
-	tileInfoX      int
-	tileInfoY      int
-	gKeyDebounce   int
-	islandToLoad   *chunks.Island5
-	island         *island.Island
+	windowWidth  int
+	windowHeight int
+	tileSize     int
+	gfxSprites   *sprites.Sprites
+	gridSprites  *sprites.Sprites
+	gam          *gam.GamParser
+	buildings    *buildings.Buildings
+	ScreenWidth  int
+	ScreenHeight int
+	Camera       *camera.Camera
+	buffer       *ebiten.Image
+	op           *ebiten.DrawImageOptions
+	drawToBuffer bool
+	tileInfoX    int
+	tileInfoY    int
+	gKeyDebounce int
+	islandToLoad *chunks.Island5
+	island       *island.Island
 }
 
 func (g *Game) Update() error {
@@ -234,6 +232,20 @@ func (g *Game) Update() error {
 		g.gKeyDebounce++
 		if g.gKeyDebounce > 4 {
 			GridEnable = !GridEnable
+			g.gKeyDebounce = 0
+		}
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		g.gKeyDebounce++
+		if g.gKeyDebounce > 6 {
+			g.Camera.RotateRight()
+			g.gKeyDebounce = 0
+		}
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyL) {
+		g.gKeyDebounce++
+		if g.gKeyDebounce > 6 {
+			g.Camera.RotateLeft()
 			g.gKeyDebounce = 0
 		}
 	}
@@ -282,6 +294,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.buffer, nil)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %f, FPS %f", ebiten.ActualTPS(), ebiten.ActualFPS()))
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Camera: X: %f, Y: %f, Zoom: %f", g.Camera.X, g.Camera.Y, g.Camera.Zoom), 0, 20)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Rotation: %s", g.Camera.CurrentRotation().String()), 0, 30)
 
 	// g.lastMousePosX = mx
 	// g.lastMousePosY = my
@@ -296,7 +309,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // }
 
 func (g *Game) render(screen *ebiten.Image) {
-	g.island.Render(rotation.DEG0, screen)
+	err := g.island.Render(g.Camera.CurrentRotation(), screen)
+	if err != nil {
+		fmt.Println(err)
+	}
 	// for y := range g.gam.Islands5[0].Height {
 	// 	for x := range g.gam.Islands5[0].Width {
 	// 		t := g.gam.Islands5[0].Layers.Top.Fields[y*g.gam.Islands5[0].Width+x]
