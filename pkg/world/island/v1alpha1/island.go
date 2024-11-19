@@ -69,11 +69,15 @@ type Island struct {
 type Option func(*Island)
 
 func WithChunk(gfxSprites *sprites.Sprites, b *buildings.Buildings, c *chunks.Island5) Option {
-	return func(i *Island) {
+	return func(*Island) {
+		i := &Island{}
+
 		i.Width = c.Width
 		i.Height = c.Height
 		i.Number = c.IslandNumber
 		i.Climate = Climate(c.Climate)
+		i.Terrain = make([]*tiles.TerrainTile, i.Width*i.Height)
+
 		for y := range i.Height {
 			// fmt.Println("")
 			for x := range i.Width {
@@ -105,7 +109,8 @@ func WithChunk(gfxSprites *sprites.Sprites, b *buildings.Buildings, c *chunks.Is
 				// 	continue
 				// }
 
-				i.Terrain = append(i.Terrain, tile)
+				i.Terrain[x+y*i.Width] = tile
+				// i.Terrain = append(i.Terrain, tile)
 			}
 		}
 	}
