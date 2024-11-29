@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
@@ -121,10 +122,14 @@ var rootCmd = &cobra.Command{
 			drawToBuffer:   true,
 
 			Building: &Building{
-				BaseIndex: building.Gfx, // Basisindex im Texture-Atlas (z. B. Key im Images-Map)
-				Rotation:  rotation,     // Startrotation
-				X:         100,          // Startposition auf dem Bildschirm
-				Y:         150,
+				BaseIndexSaved:       building.Gfx, // Basisindex im Texture-Atlas (z. B. Key im Images-Map)
+				BaseIndex:            building.Gfx, // Basisindex im Texture-Atlas (z. B. Key im Images-Map)
+				Rotation:             rotation,     // Startrotation
+				X:                    100,          // Startposition auf dem Bildschirm
+				Y:                    150,
+				AnimationSteps:       building.AnimationAmount, // Anzahl der Animationsschritte
+				CurrentAnimationStep: 0,                        // Aktueller Animationsschritt
+				AnimationAdd:         building.AnimationAdd,
 			},
 		}
 
@@ -136,27 +141,32 @@ var rootCmd = &cobra.Command{
 
 // Building enthält die Informationen eines Gebäudes
 type Building struct {
-	BaseIndex int // Startindex im Texture-Atlas (Key in der Map)
-	Rotation  int // Aktuelle Rotation (0–3)
-	X, Y      int // Startposition auf dem Bildschirm
+	BaseIndexSaved       int // Basisindex im Texture-Atlas (z. B. Key im Images-Map)
+	BaseIndex            int // Startindex im Texture-Atlas (Key in der Map)
+	Rotation             int // Aktuelle Rotation (0–3)
+	X, Y                 int // Startposition auf dem Bildschirm
+	AnimationSteps       int // Anzahl der Animationsschritte
+	CurrentAnimationStep int // Aktueller Animationsschritt
+	AnimationAdd         int // Additionsindex für die Animation
 }
 
 type Game struct {
-	windowWidth    int
-	windowHeight   int
-	tileSize       int
-	building       *buildings.Building
-	step           int
-	rotation       int
-	mapping        *mapping.Building
-	gfxStadtfldBsh *bsh.BshPng
-	buildings      *buildings.Buildings
-	ScreenWidth    int
-	ScreenHeight   int
-	buffer         *ebiten.Image
-	op             *ebiten.DrawImageOptions
-	drawToBuffer   bool
-	Building       *Building
+	windowWidth      int
+	windowHeight     int
+	tileSize         int
+	building         *buildings.Building
+	step             int
+	rotation         int
+	mapping          *mapping.Building
+	gfxStadtfldBsh   *bsh.BshPng
+	buildings        *buildings.Buildings
+	ScreenWidth      int
+	ScreenHeight     int
+	buffer           *ebiten.Image
+	op               *ebiten.DrawImageOptions
+	drawToBuffer     bool
+	Building         *Building
+	lastKeyPressTime time.Time
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -190,41 +200,6 @@ var (
 	}
 )
 
-// func (g *Game) DrawIsometricGrid(screen *ebiten.Image) {
-// 	tileWidth := 64  // Breite eines Tiles in Pixel
-// 	tileHeight := 32 // Höhe eines Tiles in Pixel
-
-// 	// Mitte des Bildschirms
-// 	centerX := g.windowWidth / 2
-// 	centerY := g.windowHeight / 2
-
-// 	// Vertikale Linien (von links oben nach rechts unten)
-// 	for x := -g.windowHeight / tileHeight; x <= g.windowWidth/tileWidth; x++ {
-// 		startX := float32(centerX + x*tileWidth/2)
-// 		startY := float32(centerY + x*tileHeight/2)
-// 		endX := float32(startX - float32(g.windowHeight))
-// 		endY := float32(startY + float32(g.windowHeight))
-
-// 		vector.StrokeLine(screen, startX, startY, endX, endY, 1, color.RGBA{0, 255, 0, 255}, true)
-// 	}
-
-// 	// Horizontale Linien (von links unten nach rechts oben)
-// 	for y := -g.windowWidth / tileWidth; y <= g.windowHeight/tileHeight; y++ {
-// 		startX := float32(centerX + y*tileWidth/2)
-// 		startY := float32(centerY - y*tileHeight/2)
-// 		endX := float32(startX + float32(g.windowWidth))
-// 		endY := float32(startY + float32(g.windowWidth/2))
-
-// 		vector.StrokeLine(screen, startX, startY, endX, endY, 1, color.RGBA{0, 255, 255, 255}, true)
-// 	}
-// }
-
-// func PrintGrid(dst *ebiten.Image, x1, y1 float64, color color.Color, tileSize int) {
-// 	x1i, y1i := rot.CartesianToIso(float64(x1), float64(y1), tileSize)
-// 	x2i, y2i := rot.CartesianToIso(float64(x1+float64(tileSize)), y1+float64(tileSize), tileSize)
-
-//		vector.StrokeLine(dst, float32(x1i), float32(y1i), float32(x2i), float32(y2i), 1, color, false)
-//	}
 func (g *Game) Draw(screen *ebiten.Image) {
 	offsets := rotationOffsets[g.Building.Rotation]
 
@@ -257,27 +232,37 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func calculateBaseOffsetY(tileHeight, gridTileHeight int) int {
-	// Berechnet die Differenz zwischen der tatsächlichen Höhe des Tiles und der erwarteten Höhe
 	if tileHeight > gridTileHeight {
 		return tileHeight - gridTileHeight
 	}
 	return 0
 }
 
-// Berechnet den Key für die aktuelle Grafik im Texture-Atlas
 func calculateTextureKey(baseIndex int, rotation, tileIndex int) string {
-	// Berechnung: Basisindex + (Rotation * 4) + aktueller Tile-Index
 	return fmt.Sprintf("%d", baseIndex+(rotation*4)+tileIndex)
 }
 
 // Update aktualisiert den Zustand des Spiels pro Frame
 func (g *Game) Update() error {
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.Building.Rotation = (g.Building.Rotation + 3) % 4
-	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.Building.Rotation = (g.Building.Rotation + 1) % 4
-	} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-		os.Exit(0)
+	const debounceDuration = time.Millisecond * 150
+
+	now := time.Now()
+
+	if now.Sub(g.lastKeyPressTime) >= debounceDuration {
+		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+			g.Building.Rotation = (g.Building.Rotation + 3) % 4 // Linksrotation
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+			g.Building.Rotation = (g.Building.Rotation + 1) % 4 // Rechtsrotation
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
+			g.step = (g.step + 1) % g.Building.AnimationSteps
+			add := g.step * g.Building.AnimationAdd
+			g.Building.BaseIndex = g.Building.BaseIndexSaved + add
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+			os.Exit(0)
+		}
 	}
 	return nil
 }
