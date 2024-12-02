@@ -39,6 +39,11 @@ type ImageMeta struct {
 	Height     int `json:"height"`
 }
 
+type Animation struct {
+	Name string `json:"name"`
+	FramesPerRotation
+}
+
 type TextureAtlasOption func(*TextureAtlas)
 
 func WithSkipFileEnding() TextureAtlasOption {
