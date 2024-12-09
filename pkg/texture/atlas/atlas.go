@@ -42,6 +42,8 @@ type TextureAtlas struct {
 	BuildingsCOD         buildingsCOD.Buildings
 	// filesToLoad          []string `json:"-"`
 	outputDir string `json:"-"`
+	indexToId map[int]int
+	idToIndex map[int]int
 	// imagesToLoad         map[string]image.Image   `json:"-"`
 }
 
@@ -166,17 +168,24 @@ func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSi
 		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
 
-		textureKey := fmt.Sprintf("%d", b.BaseIndex+i)
+		// textureKey := fmt.Sprintf("%d", b.BaseIndex+i)
+		textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
+			tilesPerRotation := len(building.RotationOffsets[size][rotation])
+			return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
+		}(b.BaseIndex, b.Rotation, i, b.Size)
+
 		tileImg, ok := a.PNGs.Images[textureKey]
 		if !ok {
 			log.Printf("Texture key %s not found in texture atlas", textureKey)
 			continue
 		}
 
-		baseOffsetY := 0
-		if tileImg.Bounds().Dy() > tileSize.Height {
-			baseOffsetY = tileImg.Bounds().Dy() - tileSize.Height
-		}
+		baseOffsetY := func(tileHeight, gridTileHeight int) int {
+			if tileHeight > gridTileHeight {
+				return tileHeight - gridTileHeight
+			}
+			return 0
+		}(tileImg.Bounds().Dy(), tileHeight)
 
 		draw.Draw(outputImage, image.Rect(screenX, screenY-baseOffsetY, screenX+tileSize.Width, screenY+tileSize.Height),
 			tileImg, image.Point{}, draw.Over)
@@ -242,8 +251,8 @@ func cropImage(img *image.RGBA, rect image.Rectangle) *image.RGBA {
 	return cropped
 }
 
-// CreateTextureAtlas creates a texture atlas from a list of image filenames
-func CreateTextureAtlas(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ...TextureAtlasOption) (*TextureAtlas, error) {
+// New creates a texture atlas from a list of image filenames
+func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ...TextureAtlasOption) (*TextureAtlas, error) {
 
 	atlas := &TextureAtlas{
 		Images:     []*image.RGBA{image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight))},
@@ -257,6 +266,8 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, buildings *buildingsCOD.Bui
 		// imagesToLoad: make(map[string]image.Image),
 		// filesToLoad:  []string{},
 		outputDir: ".",
+		indexToId: make(map[int]int),
+		idToIndex: make(map[int]int),
 	}
 
 	// Loop through each option
@@ -269,6 +280,8 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, buildings *buildingsCOD.Bui
 		if buildingID == 2121 {
 			fmt.Println("Building ID:", buildingID)
 		}
+		// atlas.indexToId[i] = buildingID
+		// atlas.idToIndex[buildingID] = i
 		// rotationsCod := buildingCOD.Rotate
 		// rotations := 4
 		// if rotationsCod == 0 {
@@ -311,7 +324,6 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, buildings *buildingsCOD.Bui
 				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
 					Sprite: img,
 					Metadata: Metadata{
-
 						BuildingID: buildingID,
 						Width:      img.Bounds().Dx(),
 						Height:     img.Bounds().Dy(),
@@ -322,7 +334,11 @@ func CreateTextureAtlas(atlasWidth, atlasHeight int, buildings *buildingsCOD.Bui
 					},
 				})
 				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Time = time.Duration((1000.0 / buildingCOD.AnimationTime) / 60.0)
-
+				if b.AnimationSteps > 0 {
+					b.CurrentAnimationStep = (b.CurrentAnimationStep + 1) % b.AnimationSteps
+					add := b.CurrentAnimationStep * b.AnimationAdd
+					b.BaseIndex = b.BaseIndexSaved + add
+				}
 			}
 			b.Rotation = (b.Rotation + 1) % 4
 		}

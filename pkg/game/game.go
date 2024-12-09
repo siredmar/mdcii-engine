@@ -137,7 +137,7 @@ func NewGame(c *Config) (*Game, error) {
 	// 	os.Exit(1)
 	// }
 	// fmt.Println(string(jsonBytes))
-	gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+	gfxAtlas, err := atlas.New(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

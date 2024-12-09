@@ -77,7 +77,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		mgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
+		mgfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -93,7 +93,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		sgfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
+		sgfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -109,7 +109,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		gfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

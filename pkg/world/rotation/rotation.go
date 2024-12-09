@@ -14,6 +14,8 @@ const (
 	DEG270
 )
 
+var AllRotations = []Rotation{DEG0, DEG90, DEG180, DEG270}
+
 func (r Rotation) String() string {
 	switch r {
 	case DEG0:

@@ -104,7 +104,7 @@ var rootCmd = &cobra.Command{
 		// }
 		// fmt.Println(filenames)
 
-		atlas, err := atlas.CreateTextureAtlas(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return

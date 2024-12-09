@@ -133,13 +133,13 @@ var rootCmd = &cobra.Command{
 		// 	os.Exit(1)
 		// }
 		// fmt.Println(string(jsonBytes))
-		gridAtlas, err := atlas.CreateTextureAtlas(100, 100, atlas.WithName("grid"), atlas.WithFiles([]string{"./assets/gfx/0.png", "./assets/gfx/1.png"}))
+		gridAtlas, err := atlas.New(100, 100, atlas.WithName("grid"), atlas.WithFiles([]string{"./assets/gfx/0.png", "./assets/gfx/1.png"}))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		gfxAtlas, err := atlas.CreateTextureAtlas(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		gfxAtlas, err := atlas.New(4096, 4096, atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

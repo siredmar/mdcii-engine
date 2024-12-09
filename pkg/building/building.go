@@ -1,5 +1,7 @@
 package building
 
+import "image"
+
 type BuildingSizeIdentifier int
 
 const (
@@ -54,6 +56,7 @@ func BuildingSize(w, h int) BuildingSizeIdentifier {
 
 // Building enthält die Informationen eines Gebäudes
 type Building struct {
+	Sprite               image.Image
 	Id                   int
 	BaseIndexSaved       int
 	BaseIndex            int

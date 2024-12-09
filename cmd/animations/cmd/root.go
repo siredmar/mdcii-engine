@@ -41,6 +41,7 @@ import (
 var (
 	gamePath      string
 	buildingIndex int
+	rotationArg   int
 	// buildingParam int
 )
 
@@ -52,6 +53,7 @@ var (
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
+	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
 	// rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 380, "building ID")
 }
 
@@ -104,7 +106,7 @@ var rootCmd = &cobra.Command{
 		atlasWidth := 4096
 		atlasHeight := 4096
 
-		atlas, err := atlas.CreateTextureAtlas(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -127,6 +129,7 @@ var rootCmd = &cobra.Command{
 			count:     0,
 			buildings: buildings,
 			atlas:     atlas,
+			rotation:  rotation.Rotation(rotationArg),
 		}
 		game.buildingId, err = buildings.GetBuildingIdByIndex(game.buildingIndex)
 		if err != nil {
@@ -171,8 +174,14 @@ type Game struct {
 }
 
 var once bool
+var oldRot = 0
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	if oldRot != int(g.rotation) {
+		fmt.Println("Rotation", g.rotation)
+		oldRot = int(g.rotation)
+	}
+
 	// i := g.animation.Frames[g.animation.CurrentFrame]
 	// g.animation = g.animations.Animations[g.buildingId][g.rotation]
 	// if g.animation.Animated {
@@ -191,6 +200,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	options := &ebiten.DrawImageOptions{}
 	options.GeoM.Translate(100, 100)
 	// options.GeoM.Scale(1.5, 1.5)
+	// fmt.Println("Building ID", g.buildingId)
+	// fmt.Println("Rotation", g.rotation)
+	// fmt.Println("Current Frame", g.currentFrame)
+
 	frame := g.animations.Animations[g.buildingId][g.rotation].Frames[g.currentFrame]
 	if !once {
 		g.atlas.ExportPNG("out.png", toRGBA(*frame))
@@ -255,13 +268,22 @@ func (g *Game) Update() error {
 
 	if now.Sub(g.lastKeyPressTime) >= debounceDuration {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+			fmt.Println(int(g.rotation))
 			g.rotation.Increment()
+			fmt.Println(int(g.rotation))
 			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
 			g.lastKeyPressTime = now
 
 		} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+			fmt.Println(int(g.rotation))
 			g.rotation.Decrement()
+			fmt.Println(int(g.rotation))
 			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
+			if g.animations.Animations[g.buildingId][g.rotation].Animated {
+				g.currentFrame = (g.currentFrame + 1) % g.animations.Animations[g.buildingId][g.rotation].Steps
+			}
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyN) {
 			fmt.Println(g.buildingId)
@@ -269,7 +291,7 @@ func (g *Game) Update() error {
 			var err error
 			g.buildingId, err = g.buildings.GetBuildingIdByIndex(g.buildingIndex)
 			if err != nil {
-				log.Fatalf("Error:", err)
+				log.Fatalln("Error:", err)
 			}
 			fmt.Println(g.buildingId)
 			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
@@ -283,7 +305,7 @@ func (g *Game) Update() error {
 			var err error
 			g.buildingId, err = g.buildings.GetBuildingIdByIndex(g.buildingIndex)
 			if err != nil {
-				log.Fatalf("Error:", err)
+				log.Fatalln("Error:", err)
 			}
 			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
 

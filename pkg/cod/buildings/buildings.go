@@ -236,6 +236,15 @@ func (b *Buildings) GetBuildingIdByIndex(index int) (int, error) {
 	return b.BuildingsVector[index].Id, nil
 }
 
+func (b *Buildings) GetBuildingIndexById(id int) (int, error) {
+	for i, building := range b.BuildingsVector {
+		if building.Id == id {
+			return i, nil
+		}
+	}
+	return 0, fmt.Errorf("Building with ID %d not found", id)
+}
+
 func (b *Buildings) GetBuildingByIndex(index int) (*Building, error) {
 	if index < 0 || index >= len(b.BuildingsVector) {
 		return nil, fmt.Errorf("Index %d out of bounds", index)
