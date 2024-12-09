@@ -54,6 +54,7 @@ func BuildingSize(w, h int) BuildingSizeIdentifier {
 
 // Building enthält die Informationen eines Gebäudes
 type Building struct {
+	Id                   int
 	BaseIndexSaved       int
 	BaseIndex            int
 	Rotation             int

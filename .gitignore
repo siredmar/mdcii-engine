@@ -1,3 +1,4 @@
+*.png
 *.json
 out
 __debug_*

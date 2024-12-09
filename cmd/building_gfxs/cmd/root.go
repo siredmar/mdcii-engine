@@ -26,7 +26,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
-	building "github.com/siredmar/mdcii-engine/pkg/building"
+	"github.com/siredmar/mdcii-engine/pkg/building"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
@@ -37,6 +37,7 @@ import (
 
 var (
 	gamePath      string
+	buildingIndex int
 	buildingParam int
 )
 
@@ -49,7 +50,8 @@ var (
 
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
-	rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 381, "building")
+	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", -1, "building index")
+	rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 2121, "building ID")
 }
 
 const (
@@ -103,6 +105,15 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		if buildingIndex == -1 {
+			for i, b := range buildings.BuildingsVector {
+				if b.Id == buildingParam {
+					buildingIndex = i
+					break
+				}
+			}
+		}
+
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 		ebiten.SetWindowTitle("buildings_gfx")
 		game := &Game{
@@ -115,7 +126,7 @@ var rootCmd = &cobra.Command{
 			buffer:         ebiten.NewImage(ScreenWidth, ScreenHeight),
 			drawToBuffer:   true,
 			Building:       nil,
-			buildingId:     buildingParam,
+			buildingId:     buildingIndex,
 		}
 		game.setBuilding(game.buildingId)
 		if err := ebiten.RunGame(game); err != nil {
@@ -170,15 +181,23 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screenX := float64(g.Building.X) + float64(offset[0]-offset[1])*(float64(tileWidth)/2)
 			screenY := float64(g.Building.Y) + float64(offset[0]+offset[1])*(float64(tileHeight)/2)
 
-			textureKey := calculateTextureKey(g.Building.BaseIndex, g.Building.Rotation, i, g.Building.Size)
+			textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
+				tilesPerRotation := len(building.RotationOffsets[size][rotation])
+				return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
+			}(g.Building.BaseIndex, g.Building.Rotation, i, g.Building.Size)
 
 			tileImg, ok := g.gfxStadtfldBsh.Images[textureKey]
 			if !ok {
 				log.Printf("Texture key %s not found in texture atlas", textureKey)
 				continue
 			}
+			baseOffsetY := func(tileHeight, gridTileHeight int) int {
+				if tileHeight > gridTileHeight {
+					return tileHeight - gridTileHeight
+				}
+				return 0
+			}(tileImg.Bounds().Dy(), tileHeight)
 
-			baseOffsetY := calculateBaseOffsetY(tileImg.Bounds().Dy(), tileHeight)
 			ebitenImg := ebiten.NewImageFromImage(tileImg)
 
 			options := &ebiten.DrawImageOptions{}
@@ -189,18 +208,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			g.DrawUsage(screen)
 		}
 	}
-}
-
-func calculateBaseOffsetY(tileHeight, gridTileHeight int) int {
-	if tileHeight > gridTileHeight {
-		return tileHeight - gridTileHeight
-	}
-	return 0
-}
-
-func calculateTextureKey(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
-	tilesPerRotation := len(building.RotationOffsets[size][rotation])
-	return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
 }
 
 func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {

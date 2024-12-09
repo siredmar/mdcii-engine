@@ -18,21 +18,26 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
 	"github.com/spf13/viper"
 
-	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+	"github.com/siredmar/mdcii-engine/pkg/bsh"
+	"github.com/siredmar/mdcii-engine/pkg/cod"
+	"github.com/siredmar/mdcii-engine/pkg/files"
 	atlas "github.com/siredmar/mdcii-engine/pkg/texture/atlas"
+
+	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 )
 
 var cfgFile string
 
 var (
 	outputDir     string
-	inputDir      string
+	gamePath      string
+	inputBSH      string
 	buildingsPath string
 )
 
@@ -40,33 +45,66 @@ var (
 var rootCmd = &cobra.Command{
 	Use: "atlas",
 	Run: func(cmd *cobra.Command, args []string) {
-		b, err := buildings.LazyImport(buildingsPath)
+		absPath, err := filepath.Abs(gamePath)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		m := buildings.GetObjectKindGfxMap(b)
-		fmt.Println(m)
 
-		// filenames := []string{"1.png", "2.png", "3.png"} // Add your filenames here
-		files, err := os.ReadDir(inputDir)
+		dirPath := filepath.Dir(absPath)
+
+		files.CreateInstance(dirPath)
+		buildingsCodPath, err := files.Instance().FindPathForFile("haeuser.cod")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		haeuserCod, err := cod.NewCod(buildingsCodPath, true)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = haeuserCod.Parse()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		buildings, err := buildingsCod.NewBuildings(haeuserCod)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		gfxStadtfldBshPath, err := files.Instance().FindPathForFile("gfx/stadtfld.bsh")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		gfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(gfxStadtfldBshPath), bsh.WithConvertAll())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		// filenames := []string{"1.png", "2.png", "3.png"} // Add your filenames here
+		// files, err := os.ReadDir(inputDir)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	os.Exit(1)
+		// }
 		atlasWidth := 4096
 		atlasHeight := 4096
-		filenames := []string{}
-		for _, file := range files {
-			if !file.IsDir() {
-				if strings.HasSuffix(file.Name(), ".png") {
-					filenames = append(filenames, fmt.Sprintf("%s/%s", inputDir, file.Name()))
-				}
-			}
-		}
-		fmt.Println(filenames)
+		// filenames := []string{}
+		// for _, file := range files {
+		// 	if !file.IsDir() {
+		// 		if strings.HasSuffix(file.Name(), ".png") {
+		// 			filenames = append(filenames, fmt.Sprintf("%s/%s", inputDir, file.Name()))
+		// 		}
+		// 	}
+		// }
+		// fmt.Println(filenames)
 
-		atlas, err := atlas.CreateTextureAtlas(atlasWidth, atlasHeight, atlas.WithSkipFileEnding(), atlas.WithName("texture-atlas"), atlas.WithFiles(filenames))
+		atlas, err := atlas.CreateTextureAtlas(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -97,9 +135,11 @@ func init() {
 	// when this action is called directly.
 
 	// rootCmd.Flags().BoolVarP(&decrypt, "decrypt", "d", false, "decrypt true/false")
-	rootCmd.Flags().StringVarP(&inputDir, "dir", "d", ".", "Input directory")
+	// rootCmd.Flags().StringVarP(&inputDir, "dir", "d", ".", "Input directory")
+	rootCmd.Flags().StringVarP(&gamePath, "game", "g", ".", "game path")
 	rootCmd.Flags().StringVarP(&outputDir, "output", "o", ".", "Output directory")
 	rootCmd.Flags().StringVarP(&buildingsPath, "buildings", "b", "", "Path to buildings file")
+	// rootCmd.Flags().StringVarP(&inputBSH, "bsh", "b", ".", "input BSH")
 }
 
 // initConfig reads in config file and ENV variables if set.

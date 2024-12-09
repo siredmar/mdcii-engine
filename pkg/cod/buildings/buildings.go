@@ -229,6 +229,20 @@ func (b *Buildings) GenerateBuilding(obj *cod.Object) *Building {
 	return &h
 }
 
+func (b *Buildings) GetBuildingIdByIndex(index int) (int, error) {
+	if index < 0 || index >= len(b.BuildingsVector) {
+		return 0, fmt.Errorf("Index %d out of bounds", index)
+	}
+	return b.BuildingsVector[index].Id, nil
+}
+
+func (b *Buildings) GetBuildingByIndex(index int) (*Building, error) {
+	if index < 0 || index >= len(b.BuildingsVector) {
+		return nil, fmt.Errorf("Index %d out of bounds", index)
+	}
+	return b.BuildingsVector[index], nil
+}
+
 // Helper functions to process specific fields
 func (b *Buildings) processId(value int) int {
 	if value == 0 {
@@ -361,13 +375,6 @@ func (b *Buildings) GetBuilding(id int) (*Building, error) {
 		return nil, fmt.Errorf("Building with ID %d not found", id)
 	}
 	return building, nil
-}
-
-func (b *Buildings) GetBuildingByIndex(index int) (*Building, error) {
-	if index < 0 || index >= len(b.BuildingsVector) {
-		return nil, fmt.Errorf("Index %d out of bounds", index)
-	}
-	return b.BuildingsVector[index], nil
 }
 
 func (b *Buildings) GetBuildingsSize() int {
