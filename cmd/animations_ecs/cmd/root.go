@@ -17,9 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"image"
 	"image/color"
-	"image/draw"
 	"log"
 	"os"
 	"path/filepath"
@@ -30,12 +28,17 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/ecs/systems"
+	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/spf13/cobra"
 	"golang.org/x/image/font/basicfont"
+
+	donburi "github.com/yohamta/donburi"
 )
 
 var (
@@ -119,18 +122,51 @@ var rootCmd = &cobra.Command{
 
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 		ebiten.SetWindowTitle("animations")
+
+		w := world.New()
+		// Create an entity and get its Entry
+		entity := w.World.Create(components.AnimationType, components.TileType, components.PositionType)
+		entry := w.World.Entry(entity)
+
+		buildingId, err := buildings.GetBuildingIdByIndex(buildingIndex)
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+
 		game := &Game{
-			windowWidth:  ScreenWidth,
-			windowHeight: ScreenHeight,
-			animations:   ani,
+			world:      w,
+			animations: ani,
 			// animation:    nil,
 			buildingIndex: buildingIndex,
 			// buildingId: id,
-			count:     0,
+			// count:     0,
 			buildings: buildings,
-			atlas:     atlas,
 			rotation:  rotation.Rotation(rotationArg),
+			// entry:     entry,
 		}
+
+		// Set initial values for the Animation component
+		components.AnimationType.Set(entry, &components.Animation{
+			BuildingID: buildingId,
+			Rotation:   game.rotation,
+			Running:    true,
+			Duration:   1,
+			Loop:       true,
+		})
+
+		components.TileType.Set(entry, &components.Tile{
+			BuildingID: buildingId,
+			Rotation:   game.rotation,
+			Image:      nil,
+		})
+
+		components.PositionType.Set(entry, &components.Position{
+			X: 100,
+			Y: 100,
+		})
+
+		game.entry = entry
+
 		game.buildingId, err = buildings.GetBuildingIdByIndex(game.buildingIndex)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -152,99 +188,38 @@ func Execute() {
 }
 
 type Game struct {
-	windowWidth  int
-	windowHeight int
-	animations   *animations.Animations
-	buildings    *buildingsCod.Buildings
-	ScreenWidth  int
-	ScreenHeight int
-	// buffer           *ebiten.Image
-	// op               *ebiten.DrawImageOptions
-	// drawToBuffer     bool
+	world            *world.World
+	animations       *animations.Animations
+	ScreenWidth      int
+	ScreenHeight     int
 	lastKeyPressTime time.Time
 	buildingId       int
 	buildingIndex    int
 	rotation         rotation.Rotation
-	// animation        *animations.Animation
-	lastTime     time.Time
-	count        int
-	currentFrame int
-	atlas        *atlas.TextureAtlas
-	// currentAnimationTime time.Time
+	lastTime         time.Time
+	entry            *donburi.Entry
+	buildings        *buildingsCod.Buildings
 }
-
-var once bool
-var oldRot = 0
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if oldRot != int(g.rotation) {
-		fmt.Println("Rotation", g.rotation)
-		oldRot = int(g.rotation)
-	}
-
-	// i := g.animation.Frames[g.animation.CurrentFrame]
-	// g.animation = g.animations.Animations[g.buildingId][g.rotation]
-	// if g.animation.Animated {
-	// 	if g.animation.Started {
-	// 		if g.animation.Once {
-	// 			if g.animation.CurrentFrame < g.animation.Steps {
-	// 				g.animation.CurrentFrame++
-	// 			}
-	// 		} else {
-	// g.animation.CurrentFrame = (g.animation.CurrentFrame + 1) % g.animation.Steps
-	// if g.animation != nil {
-	// g.currentFrame = (g.count / 5) % g.animation.Steps
-	// }
-
-	// ebitenImg := ebiten.NewImageFromImage(
-	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(100, 100)
-	// options.GeoM.Scale(1.5, 1.5)
-	// fmt.Println("Building ID", g.buildingId)
-	// fmt.Println("Rotation", g.rotation)
-	// fmt.Println("Current Frame", g.currentFrame)
-
-	frame := g.animations.Animations[g.buildingId][g.rotation].Frames[g.currentFrame]
-	// if !once {
-	// 	g.atlas.ExportPNG("out.png", toRGBA(*frame))
-	// 	once = true
-	// }
-	// ebitemImg := ebiten.NewImageFromImage(*frame)
-	screen.DrawImage(frame, options)
-	// }
-	// g.DrawBuildingInfo(screen)
-	// g.DrawUsage(screen)
-	// }
-	// }
+	fmt.Println("Draw")
+	systems.RenderSystem(g.world.World, screen)
 }
 
-func toRGBA(src image.Image) *image.RGBA {
-	// Get the bounds of the source image
-	bounds := src.Bounds()
+// func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
+// 	textColor := color.RGBA{255, 255, 255, 255}
+// 	face := basicfont.Face7x13
 
-	// Create a new RGBA image with the same bounds
-	rgba := image.NewRGBA(bounds)
-
-	// Draw the source image onto the RGBA image
-	draw.Draw(rgba, bounds, src, bounds.Min, draw.Src)
-
-	return rgba
-}
-
-func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
-	textColor := color.RGBA{255, 255, 255, 255}
-	face := basicfont.Face7x13
-
-	b := g.buildings.BuildingsVector[g.buildingId]
-	text.Draw(screen, fmt.Sprintf("Building Id: %d", b.Id), face, 10, 10, textColor)
-	text.Draw(screen, fmt.Sprintf("Building Size: %d,%d", b.Size.W, b.Size.H), face, 10, 20, textColor)
-	text.Draw(screen, fmt.Sprintf("Building Animation Amount: %d", b.AnimationAmount), face, 10, 30, textColor)
-	text.Draw(screen, fmt.Sprintf("Building Animation Add: %d", b.AnimationAdd), face, 10, 40, textColor)
-	text.Draw(screen, fmt.Sprintf("Building Gfx: %d", b.Gfx), face, 10, 50, textColor)
-	// text.Draw(screen, fmt.Sprintf("Building Rotation: %d", g.Building.Rotation), face, 10, 60, textColor)
-	// text.Draw(screen, fmt.Sprintf("Building BaseIndex: %d", g.Building.BaseIndex), face, 10, 70, textColor)
-	// text.Draw(screen, fmt.Sprintf("CurrentAnimationStep: %d", g.Building.CurrentAnimationStep), face, 10, 80, textColor)
-}
+// 	b := g.buildings.BuildingsVector[g.buildingId]
+// 	text.Draw(screen, fmt.Sprintf("Building Id: %d", b.Id), face, 10, 10, textColor)
+// 	text.Draw(screen, fmt.Sprintf("Building Size: %d,%d", b.Size.W, b.Size.H), face, 10, 20, textColor)
+// 	text.Draw(screen, fmt.Sprintf("Building Animation Amount: %d", b.AnimationAmount), face, 10, 30, textColor)
+// 	text.Draw(screen, fmt.Sprintf("Building Animation Add: %d", b.AnimationAdd), face, 10, 40, textColor)
+// 	text.Draw(screen, fmt.Sprintf("Building Gfx: %d", b.Gfx), face, 10, 50, textColor)
+// 	// text.Draw(screen, fmt.Sprintf("Building Rotation: %d", g.Building.Rotation), face, 10, 60, textColor)
+// 	// text.Draw(screen, fmt.Sprintf("Building BaseIndex: %d", g.Building.BaseIndex), face, 10, 70, textColor)
+// 	// text.Draw(screen, fmt.Sprintf("CurrentAnimationStep: %d", g.Building.CurrentAnimationStep), face, 10, 80, textColor)
+// }
 
 func (g *Game) DrawUsage(screen *ebiten.Image) {
 	textColor := color.RGBA{255, 255, 255, 255}
@@ -255,35 +230,46 @@ func (g *Game) DrawUsage(screen *ebiten.Image) {
 }
 
 func (g *Game) Update() error {
-	g.count++
+	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
 
-	const debounceDuration = time.Millisecond * 100
-	// if g.animation == nil {
-	// 	return nil
-	// }
+	const debounceDuration = time.Millisecond * 250
 	now := time.Now()
-	// if time.Duration(g.lastTime.Sub(now)) >= g.animation.FrameDuration {
-	// 	g.animation.CurrentFrame = (g.animation.CurrentFrame + 1) % g.animation.Steps
-	// }
 
 	if now.Sub(g.lastKeyPressTime) >= debounceDuration {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 			fmt.Println(int(g.rotation))
 			g.rotation.Increment()
+			components.AnimationType.Set(g.entry, &components.Animation{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Running:    true,
+				Duration:   1,
+				Loop:       true,
+			})
+			components.TileType.Set(g.entry, &components.Tile{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Image:      nil,
+			})
 			fmt.Println(int(g.rotation))
-			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
 			g.lastKeyPressTime = now
 
 		} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
 			fmt.Println(int(g.rotation))
 			g.rotation.Decrement()
 			fmt.Println(int(g.rotation))
-			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
-			g.lastKeyPressTime = now
-		} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
-			if g.animations.Animations[g.buildingId][g.rotation].Animated {
-				g.currentFrame = (g.currentFrame + 1) % g.animations.Animations[g.buildingId][g.rotation].Steps
-			}
+			components.AnimationType.Set(g.entry, &components.Animation{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Running:    true,
+				Duration:   1,
+				Loop:       true,
+			})
+			components.TileType.Set(g.entry, &components.Tile{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Image:      nil,
+			})
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyN) {
 			fmt.Println(g.buildingId)
@@ -293,8 +279,19 @@ func (g *Game) Update() error {
 			if err != nil {
 				log.Fatalln("Error:", err)
 			}
+			components.AnimationType.Set(g.entry, &components.Animation{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Running:    true,
+				Duration:   1,
+				Loop:       true,
+			})
+			components.TileType.Set(g.entry, &components.Tile{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Image:      nil,
+			})
 			fmt.Println(g.buildingId)
-			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyM) {
 			if g.buildingIndex > 0 {
@@ -307,8 +304,18 @@ func (g *Game) Update() error {
 			if err != nil {
 				log.Fatalln("Error:", err)
 			}
-			// g.animation = g.animations.GetAnimation(g.buildingId, g.rotation)
-
+			components.AnimationType.Set(g.entry, &components.Animation{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Running:    true,
+				Duration:   1,
+				Loop:       true,
+			})
+			components.TileType.Set(g.entry, &components.Tile{
+				BuildingID: g.buildingId,
+				Rotation:   g.rotation,
+				Image:      nil,
+			})
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 			os.Exit(0)

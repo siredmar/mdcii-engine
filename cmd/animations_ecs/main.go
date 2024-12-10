@@ -15,8 +15,8 @@ limitations under the License.
 */
 package main
 
-// import "github.com/siredmar/mdcii-engine/cmd/islandpng/cmd"
+import "github.com/siredmar/mdcii-engine/cmd/animations_ecs/cmd"
 
 func main() {
-	// cmd.Execute()
+	cmd.Execute()
 }
