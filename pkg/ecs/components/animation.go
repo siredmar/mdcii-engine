@@ -1,14 +1,12 @@
 package components
 
 import (
-	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/yohamta/donburi"
 )
 
 type Animation struct {
-	BuildingID   int
-	Rotation     rotation.Rotation
 	CurrentFrame int
+	Count        int
 	Duration     float64
 	CurrentTime  float64
 	Loop         bool

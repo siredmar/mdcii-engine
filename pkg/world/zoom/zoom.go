@@ -14,9 +14,9 @@ var tileSizes = [NrOfZooms]int{
 	16,
 }
 var tileHeights = [NrOfZooms]int{
-	31,
-	15,
-	7,
+	32,
+	16,
+	8,
 }
 
 type Zoom float32

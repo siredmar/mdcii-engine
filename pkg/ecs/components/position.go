@@ -5,7 +5,8 @@ import (
 )
 
 type Position struct {
-	X, Y float64
+	X, Y   float64
+	Offset float64
 }
 
 var (

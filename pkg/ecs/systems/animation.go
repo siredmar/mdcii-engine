@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
@@ -11,37 +13,44 @@ import (
 
 // Define a query using filter.LayoutFilter
 var animationQuery = donburi.NewQuery(
-	filter.Contains(components.AnimationType, components.TileType),
+	filter.Contains(components.BuildingType, components.AnimationType, components.TileType),
 )
 
-func AnimationSystem(world donburi.World, animations *animations.Animations, deltaTime float64) {
+func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime float64) {
 	animationQuery.Each(world, func(entry *donburi.Entry) {
 		// Access the Animation and Tile components
+		building := components.BuildingType.Get(entry)
 		animation := components.AnimationType.Get(entry)
 		if animation.Reset {
 			animation.CurrentTime = 0
 			animation.Reset = false
 		}
+		frames := ani.GetAnimation(building.BuildingID, building.Rotation).Frames
+		tile := components.TileType.Get(entry)
+		if animation.Count > 1 {
+			if animation.Running {
+				// Get animation frames from the atlas
+				// Update animation time
+				animation.CurrentTime += deltaTime
+				fmt.Println("animation.CurrentTime", animation.CurrentTime)
+				fmt.Println("len(frames)", len(frames))
+				fmt.Println("animation.Duration", animation.Duration)
+				frameDuration := animation.Duration / float64(len(frames))
+				fmt.Println("frameDuration", frameDuration)
+				frameIndex := int(animation.CurrentTime / frameDuration)
+				fmt.Println("frameIndex", frameIndex)
+				if animation.Loop {
+					frameIndex %= len(frames)
+				} else if frameIndex >= len(frames) {
+					frameIndex = len(frames) - 1
+				}
 
-		if animation.Running {
-			tile := components.TileType.Get(entry)
-
-			// Get animation frames from the atlas
-			frames := animations.GetAnimation(animation.BuildingID, tile.Rotation).Frames
-			// Update animation time
-			animation.CurrentTime += deltaTime
-			frameDuration := animation.Duration / float64(len(frames))
-			frameIndex := int(animation.CurrentTime / frameDuration)
-
-			if animation.Loop {
-				frameIndex %= len(frames)
-			} else if frameIndex >= len(frames) {
-				frameIndex = len(frames) - 1
+				animation.CurrentFrame = frameIndex
+				// Update the tile's current image
+				tile.Image = frames[frameIndex]
 			}
-
-			animation.CurrentFrame = frameIndex
-			// Update the tile's current image
-			tile.Image = frames[frameIndex]
+			return
 		}
+		tile.Image = frames[0]
 	})
 }

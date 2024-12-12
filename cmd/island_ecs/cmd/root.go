@@ -32,6 +32,7 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/ecs/systems"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
 	"github.com/siredmar/mdcii-engine/pkg/files"
+	"github.com/siredmar/mdcii-engine/pkg/gam"
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
@@ -120,18 +121,39 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
+		gamParser, err := gam.NewParser()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/med24.SCP")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = gamParser.Parse(buildings)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
 		ebiten.SetWindowTitle("animations")
 
 		w := world.New()
 		// Create an entity and get its Entry
-		entity := w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType)
-		entry := w.World.Entry(entity)
+		entity := w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
+		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
+		island := components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+		fmt.Println(island)
+		w.World.Entry(entity)
 
-		buildingId, err := buildings.GetBuildingIdByIndex(buildingIndex)
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
+		fmt.Println(w.World)
+
+		// buildingId, err := buildings.GetBuildingIdByIndex(buildingIndex)
+		// if err != nil {
+		// 	log.Fatalln("Error:", err)
+		// }
 
 		game := &Game{
 			world:      w,
@@ -145,34 +167,34 @@ var rootCmd = &cobra.Command{
 			// entry:     entry,
 		}
 
-		components.BuildingType.Set(entry, &components.Building{
-			BuildingID: buildingId,
-			Rotation:   game.rotation,
-		})
+		// components.BuildingType.Set(entry, &components.Building{
+		// 	BuildingID: buildingId,
+		// 	Rotation:   game.rotation,
+		// })
 
-		// Set initial values for the Animation component
-		components.AnimationType.Set(entry, &components.Animation{
-			Running:  true,
-			Duration: 1,
-			Loop:     true,
-		})
+		// // Set initial values for the Animation component
+		// components.AnimationType.Set(entry, &components.Animation{
+		// 	Running:  true,
+		// 	Duration: 1,
+		// 	Loop:     true,
+		// })
 
-		components.TileType.Set(entry, &components.Tile{
-			Image: nil,
-		})
+		// components.TileType.Set(entry, &components.Tile{
+		// 	Image: nil,
+		// })
 
-		components.PositionType.Set(entry, &components.Position{
-			X: 100,
-			Y: 100,
-		})
+		// components.PositionType.Set(entry, &components.Position{
+		// 	X: 100,
+		// 	Y: 100,
+		// })
 
-		game.entry = entry
+		// game.entry = entry
 
-		game.buildingId, err = buildings.GetBuildingIdByIndex(game.buildingIndex)
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
+		// game.buildingId, err = buildings.GetBuildingIdByIndex(game.buildingIndex)
+		// if err != nil {
+		// 	fmt.Println("Error:", err)
+		// 	return
+		// }
 		// game.animation = game.animations.GetAnimation(buildingParam, rotation.DEG0)
 		if err := ebiten.RunGame(game); err != nil {
 			log.Fatal(err)
@@ -239,10 +261,6 @@ func (g *Game) Update() error {
 		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 			fmt.Println(int(g.rotation))
 			g.rotation.Increment()
-			components.BuildingType.Set(g.entry, &components.Building{
-				BuildingID: g.buildingId,
-				Rotation:   g.rotation,
-			})
 			fmt.Println(int(g.rotation))
 			g.lastKeyPressTime = now
 
@@ -250,40 +268,6 @@ func (g *Game) Update() error {
 			fmt.Println(int(g.rotation))
 			g.rotation.Decrement()
 			fmt.Println(int(g.rotation))
-			components.BuildingType.Set(g.entry, &components.Building{
-				BuildingID: g.buildingId,
-				Rotation:   g.rotation,
-			})
-			g.lastKeyPressTime = now
-		} else if ebiten.IsKeyPressed(ebiten.KeyN) {
-			fmt.Println(g.buildingId)
-			g.buildingIndex = (g.buildingIndex + 1) % len(g.buildings.BuildingsVector)
-			var err error
-			g.buildingId, err = g.buildings.GetBuildingIdByIndex(g.buildingIndex)
-			if err != nil {
-				log.Fatalln("Error:", err)
-			}
-			components.BuildingType.Set(g.entry, &components.Building{
-				BuildingID: g.buildingId,
-				Rotation:   g.rotation,
-			})
-			fmt.Println(g.buildingId)
-			g.lastKeyPressTime = now
-		} else if ebiten.IsKeyPressed(ebiten.KeyM) {
-			if g.buildingIndex > 0 {
-				g.buildingIndex--
-			} else {
-				g.buildingIndex = len(g.buildings.BuildingsVector) - 1
-			}
-			var err error
-			g.buildingId, err = g.buildings.GetBuildingIdByIndex(g.buildingIndex)
-			if err != nil {
-				log.Fatalln("Error:", err)
-			}
-			components.BuildingType.Set(g.entry, &components.Building{
-				BuildingID: g.buildingId,
-				Rotation:   g.rotation,
-			})
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 			os.Exit(0)
