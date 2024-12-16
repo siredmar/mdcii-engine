@@ -126,7 +126,9 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/med24.SCP")
+		err = gamParser.LoadPath("/home/armin/spiele/anno1602/SAVEGAME/lastgame.gam")
+		// err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/LIT02.SCP")
+
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -142,13 +144,13 @@ var rootCmd = &cobra.Command{
 
 		w := world.New()
 		// Create an entity and get its Entry
-		entity := w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
+		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
 		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
-		island := components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
-		fmt.Println(island)
-		w.World.Entry(entity)
+		components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+		// fmt.Println(island)
+		// w.World.Entry(entity)
 
-		fmt.Println(w.World)
+		// fmt.Println(w.World)
 
 		// buildingId, err := buildings.GetBuildingIdByIndex(buildingIndex)
 		// if err != nil {
@@ -165,6 +167,7 @@ var rootCmd = &cobra.Command{
 			buildings: buildings,
 			rotation:  rotation.Rotation(rotationArg),
 			// entry:     entry,
+			grid: true,
 		}
 
 		// components.BuildingType.Set(entry, &components.Building{
@@ -222,10 +225,13 @@ type Game struct {
 	lastTime         time.Time
 	entry            *donburi.Entry
 	buildings        *buildingsCod.Buildings
+	grid             bool
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	systems.RenderSystem(g.world.World, screen)
+	systems.RenderSystem(g.world.World, screen, g.grid)
+	systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
+	// systems.RenderSystemAscii(g.world.World)
 }
 
 // func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
@@ -268,6 +274,9 @@ func (g *Game) Update() error {
 			fmt.Println(int(g.rotation))
 			g.rotation.Decrement()
 			fmt.Println(int(g.rotation))
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyG) {
+			g.grid = !g.grid
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 			os.Exit(0)

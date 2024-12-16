@@ -5,8 +5,14 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+type Size struct {
+	Width  int
+	Height int
+}
+
 type Tile struct {
 	Image *ebiten.Image // Placeholder for current frame
+	Size  Size
 }
 
 var (

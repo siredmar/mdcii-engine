@@ -82,7 +82,8 @@ func WithChunk(gfxSprites *sprites.Sprites, b *buildings.Buildings, c *chunks.Is
 			// fmt.Println("")
 			for x := range i.Width {
 				t := c.Layers.Top.Fields[y*i.Width+x]
-				if t.Id == 65535 || t.Id == 102 {
+				if t.Id == 65535 {
+					//  || t.Id == 102 {
 					continue
 				}
 				if x != t.Posx || y != t.Posy {

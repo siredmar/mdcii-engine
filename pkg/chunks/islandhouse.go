@@ -95,40 +95,48 @@ func (i *IslandHouse) finalize() {
 	// graphic indexes for elements bigger than 1,1. The 'posx' and 'posy' fields are used to store the fields partly position if bigger
 	// than 1,1 because the position is also given via the array index. So no information is being lost if overwriting 'posx' and 'posy'.
 	for _, tile := range i.RawFields {
+		if tile.Id == 102 {
+			fmt.Printf("ID: %d, X: %d, Y: %d\n", tile.Id, tile.Posx, tile.Posy)
+			tile.Id = 169
+		}
 		if tile.Posx >= i.Size.Width || tile.Posy >= i.Size.Height {
 			continue
 		}
-		elementWidth := 0
-		elementHeight := 0
+		// elementWidth := 0
+		// elementHeight := 0
 		if i.Buildings != nil {
-			info, err := i.Buildings.GetBuilding(tile.Id)
+			_, err := i.Buildings.GetBuilding(tile.Id)
 			if err != nil {
 				log.Println(err)
-				i.Fields[tile.Posy*i.Size.Width+tile.Posx] = tile
-				i.Fields[tile.Posy*i.Size.Width+tile.Posx].X = 0
-				i.Fields[tile.Posy*i.Size.Width+tile.Posx].Y = 0
 				continue
-			} else {
-				if tile.Orientation%2 == 0 {
-					elementHeight = info.Size.H
-					elementWidth = info.Size.W
-				} else {
-					elementHeight = info.Size.W
-					elementWidth = info.Size.H
-				}
+				// i.Fields[tile.Posy*i.Size.Width+tile.Posx].X = 0
+				// i.Fields[tile.Posy*i.Size.Width+tile.Posx].Y = 0
+				// continue
+				// } else {
+				// if tile.Orientation%2 == 0 {
+				// 	elementHeight = info.Size.H
+				// 	elementWidth = info.Size.W
+				// } else {
+				// 	elementHeight = info.Size.W
+				// 	elementWidth = info.Size.H
+				// }
+				// elementHeight = 1
+				// elementWidth = 1
+				// }
 			}
-		}
-		if elementWidth > 1 || elementHeight > 1 {
-			fmt.Println("Element bigger than 1,1")
-		}
-		for y := 0; y < elementHeight && tile.Posy+y < i.Size.Height; y++ {
-			for x := 0; x < elementWidth && tile.Posx+x < i.Size.Width; x++ {
-				index := (tile.Posy+y)*i.Size.Width + (tile.Posx + x)
-				i.Fields[index] = tile
-				i.Fields[index].X = x
-				i.Fields[index].Y = y
-				fmt.Println(i.Fields[index])
-			}
+			i.Fields[tile.Posy*i.Size.Width+tile.Posx] = tile
+			// if elementWidth > 1 || elementHeight > 1 {
+			// 	fmt.Println("Element bigger than 1,1")
+			// }
+			// for y := 0; y < elementHeight && tile.Posy+y < i.Size.Height; y++ {
+			// 	for x := 0; x < elementWidth && tile.Posx+x < i.Size.Width; x++ {
+			// 		index := (tile.Posy+y)*i.Size.Width + (tile.Posx + x)
+			// 		i.Fields[index] = tile
+			// 		i.Fields[index].X = x
+			// 		i.Fields[index].Y = y
+			// 		// fmt.Println(i.Fields[index])
+			// 	}
+			// }
 		}
 	}
 }

@@ -1,8 +1,6 @@
 package systems
 
 import (
-	"fmt"
-
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
@@ -32,13 +30,13 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 				// Get animation frames from the atlas
 				// Update animation time
 				animation.CurrentTime += deltaTime
-				fmt.Println("animation.CurrentTime", animation.CurrentTime)
-				fmt.Println("len(frames)", len(frames))
-				fmt.Println("animation.Duration", animation.Duration)
+				// fmt.Println("animation.CurrentTime", animation.CurrentTime)
+				// fmt.Println("len(frames)", len(frames))
+				// fmt.Println("animation.Duration", animation.Duration)
 				frameDuration := animation.Duration / float64(len(frames))
-				fmt.Println("frameDuration", frameDuration)
+				// fmt.Println("frameDuration", frameDuration)
 				frameIndex := int(animation.CurrentTime / frameDuration)
-				fmt.Println("frameIndex", frameIndex)
+				// fmt.Println("frameIndex", frameIndex)
 				if animation.Loop {
 					frameIndex %= len(frames)
 				} else if frameIndex >= len(frames) {
