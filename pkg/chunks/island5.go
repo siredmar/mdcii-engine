@@ -153,7 +153,8 @@ func (i *Island5) Finalize() error {
 			if i.Layers.Final[0].Fields[y*i.Width+x].Id != 0xFFFF {
 				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[0].Fields[y*i.Width+x]
 			} else {
-				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[1].Fields[y*i.Width+x]
+				i.Layers.Top.Fields[y*i.Width+x] = Field{}
+				//i.Layers.Final[1].Fields[y*i.Width+x]
 			}
 		}
 	}

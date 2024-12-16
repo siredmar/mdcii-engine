@@ -174,8 +174,11 @@ var grid1 = createImage(grid1Tile)
 // }
 
 var AlignmentMap = map[buildingRotation.BuildingSizeIdentifier][2]float64{
-	buildingRotation.BuildingSize2x3: {-64, 48}, // Orientation 0: 48 pixels up, 31 pixels right
-	// Additional rotations can be added here
+	buildingRotation.BuildingSize2x3: {-32 * 2, (32 / 2) * 3},
+	buildingRotation.BuildingSize2x2: {-32, (32 / 2) * 2},
+	buildingRotation.BuildingSize1x2: {-32 / 2, 32},
+	buildingRotation.BuildingSize2x1: {-32 * 1, 32 / 2},
+	buildingRotation.BuildingSize4x3: {-32 * 3, (32 / 2) * 5},
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
@@ -183,12 +186,12 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 	tileHeight := zoom.TileHeight()
 
 	// Temporary list for sorting tiles by depth
-	type RenderableTile struct {
-		isoX, isoY float64
-		image      *ebiten.Image
-	}
+	// type RenderableTile struct {
+	// 	isoX, isoY float64
+	// 	image      *ebiten.Image
+	// }
 
-	var renderableTiles []RenderableTile
+	// var renderableTiles []RenderableTile
 
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
@@ -205,34 +208,46 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 				// Adjust for image height
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
-				if building.Size == buildingRotation.BuildingSize2x3 {
+				if building.Size == buildingRotation.BuildingSize2x3 || building.Size == buildingRotation.BuildingSize2x2 || building.Size == buildingRotation.BuildingSize2x1 || building.Size == buildingRotation.BuildingSize4x3 {
 					// Apply precise alignment offsets
 					if offset, ok := AlignmentMap[building.Size]; ok {
 						isoX += offset[0] // Shift right
 						isoY += offset[1] // Shift up
 					}
 				}
-				// Add tile to the list for sorting
-				renderableTiles = append(renderableTiles, RenderableTile{
-					isoX:  isoX,
-					isoY:  isoY,
-					image: tile.Image,
-				})
+
+				if building.Size != buildingRotation.BuildingSize1x1 {
+					// Render tiles in sorted order
+					// for _, tile := range renderableTiles {
+					op := &ebiten.DrawImageOptions{}
+					op.GeoM.Translate(isoX, isoY)
+					screen.DrawImage(tile.Image, op)
+				}
+				// }
+
+				// // Add tile to the list for sorting
+				// renderableTiles = append(renderableTiles, RenderableTile{
+				// 	isoX:  isoX,
+				// 	isoY:  isoY,
+				// 	image: tile.Image,
+				// })
 			}
 		}
 	})
 
-	// Sort renderable tiles by Y-coordinate for proper draw order
+	// // Sort renderable tiles by Y-coordinate for proper draw order
 	// sort.Slice(renderableTiles, func(i, j int) bool {
-	// 	return renderableTiles[i].isoY < renderableTiles[j].isoY
-	// })
+	// 	// First, sort by the sum of grid coordinates (diagonal order)
+	// 	sumI := renderableTiles[i].isoX + renderableTiles[i].isoY
+	// 	sumJ := renderableTiles[j].isoX + renderableTiles[j].isoY
 
-	// Render tiles in sorted order
-	for _, tile := range renderableTiles {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(tile.isoX, tile.isoY)
-		screen.DrawImage(tile.image, op)
-	}
+	// 	if sumI == sumJ {
+	// 		// If diagonal sums are equal, sort by X (leftmost first)
+	// 		return renderableTiles[i].isoX < renderableTiles[j].isoX
+	// 	}
+
+	// 	return sumI < sumJ
+	// })
 
 	// Optional: Debug grid overlay
 	// if grid {
