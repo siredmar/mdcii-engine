@@ -148,16 +148,24 @@ func (i *Island5) Finalize() error {
 	}
 	// merge layers. Ignore fields that are t.Id == 0xFFFF
 	i.Layers.Top = NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
-	for y := 0; y < i.Height; y++ {
-		for x := 0; x < i.Width; x++ {
-			if i.Layers.Final[0].Fields[y*i.Width+x].Id != 0xFFFF {
-				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[0].Fields[y*i.Width+x]
-			} else {
-				i.Layers.Top.Fields[y*i.Width+x] = Field{}
-				//i.Layers.Final[1].Fields[y*i.Width+x]
-			}
+	for index, tile := range i.Layers.Final[0].Fields {
+		if tile.Id != 0 {
+			i.Layers.Top.Fields = append(i.Layers.Top.Fields, tile)
+		} else {
+			i.Layers.Top.Fields = append(i.Layers.Top.Fields, i.Layers.Final[1].Fields[index])
 		}
 	}
+	// for y := 0; y < i.Height; y++ {
+	// 	for x := 0; x < i.Width; x++ {
+	// 		if i.Layers.Final[0].Fields[y*i.Width+x].Id != 0xFFFF {
+	// 			i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[0].Fields[y*i.Width+x]
+	// 		} else {
+	// 			if i.Layers.Final[1].Fields[y*i.Width+x].Id != 0xFFFF {
+	// 				i.Layers.Top.Fields[y*i.Width+x] = i.Layers.Final[1].Fields[y*i.Width+x]
+	// 			}
+	// 		}
+	// 	}
+	// }
 	return nil
 }
 

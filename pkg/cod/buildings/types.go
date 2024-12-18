@@ -10,27 +10,76 @@ func (k Kind) String() string {
 }
 
 var (
-	KindsCoast = []Kind{
+	KindSeaID = "SEA"
+	KindsSea  = []Kind{
+		KindSea,
+		KindEstuary,
+		KindSurf,
+	}
+	KindBuildingsID = "BUILDINGS"
+	KindBuildings   = []Kind{
+		KindGate,
+		KindRuin,
+		KindHeadquarters,
+		KindBeachHouse,
+		KindTower,
+		KindMine,
+		KindTowerBeach,
+		KindPier,
+		KindBuilding,
+		KindWMill,
+		KindWall,
+		KindHarbor,
+	}
+	KindGroundID = "GROUND"
+	KindsGround  = []Kind{
+		KindGround,
+		KindSlopeSpring,
+		KindRock,
+		KindSlope,
 		KindBeachMouth,
 		KindBeach,
 		KindBeachCornerI,
 		KindBeachCornerII,
 		KindBeachCornerIII,
 		KindSlope,
+		KindBeachRuin,
+		KindSlopeCorner,
+		KindBurnCorner,
+		KindRiverCorner,
+		KindRiver,
+		KindWallBeach,
 	}
-	KindsSea = []Kind{
-		KindSea,
-		KindEstuary,
-		KindSurf,
+	KindForrestID = "FORREST"
+	KindsForrest  = []Kind{
+		KindForrest,
+	}
+	KindRoadsID = "ROADS"
+	KindsRoads  = []Kind{
+		KindStreet,
+		KindBridge,
+		KindPlaza,
 	}
 )
 
-func (k Kind) IsCoast() bool {
-	return slices.Contains(KindsCoast, k)
+func (k Kind) IsForrest() bool {
+	return slices.Contains(KindsForrest, k)
+}
+
+func (k Kind) IsRoad() bool {
+	return slices.Contains(KindsRoads, k)
 }
 
 func (k Kind) IsWater() bool {
 	return slices.Contains(KindsSea, k)
+}
+
+func (k Kind) IsBuilding() bool {
+	return slices.Contains(KindBuildings, k)
+}
+
+func (k Kind) IsGround() bool {
+	return slices.Contains(KindsGround, k)
 }
 
 const (

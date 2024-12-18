@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/texture/sprites"
@@ -36,14 +35,6 @@ type Terrain struct {
 }
 
 type Building struct {
-	ID             int `json:"id"`
-	Rotation       int `json:"rotation"`
-	X              int `json:"x"`
-	Y              int `json:"y"`
-	AnimationCount int `json:"animation"`
-}
-
-type Figures struct {
 	ID             int `json:"id"`
 	Rotation       int `json:"rotation"`
 	X              int `json:"x"`
@@ -127,25 +118,6 @@ func NewIsland(opts ...Option) (*Island, error) {
 	}
 
 	return i, nil
-}
-
-func (i *Island) Render(r rotation.Rotation, screen *ebiten.Image) error {
-	// for _, t := range i.Water {
-	// 	if err := t.Render(r, screen); err != nil {
-	// 		return err
-	// 	}
-	// }
-	// for _, t := range i.Coast {
-	// 	if err := t.Render(r, screen); err != nil {
-	// 		return err
-	// 	}
-	// }
-	for _, t := range i.Terrain {
-		if err := t.Render(r, screen); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func Marshal(i *Island) (string, error) {
