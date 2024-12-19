@@ -60,7 +60,7 @@ type Building struct {
 	Kind            Kind                `json:"kind"`
 	PositionOffset  int                 `json:"position_offset"`
 	PathSpeeds      []int               `json:"path_speeds"`
-	HighFlag        int                 `json:"high_flag"`
+	HighFlag        int                 `json:"high_flag"` // if the building is high (buildings, forreset) or low (roads, grass)
 	Einhoffs        int                 `json:"einhoffs"`
 	BuildSample     BuildSample         `json:"build_sample"`
 	Ruin            Ruin                `json:"ruin"`

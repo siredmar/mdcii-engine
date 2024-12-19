@@ -15,7 +15,6 @@ type Tile struct {
 	Image      *ebiten.Image // Placeholder for current frame
 	Size       Size
 	Occupation bool
-	// Parent     *donburi.Entry
 }
 
 var (

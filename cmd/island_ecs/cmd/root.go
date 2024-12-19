@@ -146,7 +146,7 @@ var rootCmd = &cobra.Command{
 		// Create an entity and get its Entry
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
 		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
-		components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+		components.CreateIslandFromChunk(w.World, buildings, ani, gamParser.Islands5[0], 10, 10)
 		// fmt.Println(island)
 		// w.World.Entry(entity)
 

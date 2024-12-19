@@ -1,6 +1,92 @@
 package building
 
+type Size struct {
+	Width  int
+	Height int
+}
+
 var (
+	BuildingRotationSizes map[BuildingSizeIdentifier][]Size = map[BuildingSizeIdentifier][]Size{
+		BuildingSize1x1: []Size{
+			{1, 1}, // Rotation 0
+			{1, 1}, // Rotation 1
+			{1, 1}, // Rotation 2
+			{1, 1}, // Rotation 3
+		},
+		BuildingSize2x2: []Size{
+			{2, 2}, // Rotation 0
+			{2, 2}, // Rotation 1
+			{2, 2}, // Rotation 2
+			{2, 2}, // Rotation 3
+		},
+		BuildingSize2x3: []Size{
+			{2, 3}, // Rotation 0
+			{3, 2}, // Rotation 1
+			{2, 3}, // Rotation 2
+			{3, 2}, // Rotation 3
+		},
+		BuildingSize2x1: []Size{
+			{2, 1}, // Rotation 0
+			{1, 2}, // Rotation 1
+			{2, 1}, // Rotation 2
+			{1, 2}, // Rotation 3
+		},
+		BuildingSize1x2: []Size{
+			{1, 2}, // Rotation 0
+			{2, 1}, // Rotation 1
+			{1, 2}, // Rotation 2
+			{2, 1}, // Rotation 3
+		},
+		BuildingSize1x3: []Size{
+			{1, 3}, // Rotation 0
+			{3, 1}, // Rotation 1
+			{1, 3}, // Rotation 2
+			{3, 1}, // Rotation 3
+		},
+		BuildingSize3x3: []Size{
+			{3, 3}, // Rotation 0
+			{3, 3}, // Rotation 1
+			{3, 3}, // Rotation 2
+			{3, 3}, // Rotation 3
+		},
+		BuildingSize4x3: []Size{
+			{4, 3}, // Rotation 0
+			{3, 4}, // Rotation 1
+			{4, 3}, // Rotation 2
+			{3, 4}, // Rotation 3
+		},
+		BuildingSize4x4: []Size{
+			{4, 4}, // Rotation 0
+			{4, 4}, // Rotation 1
+			{4, 4}, // Rotation 2
+			{4, 4}, // Rotation 3
+		},
+		BuildingSize5x5: []Size{
+			{5, 5}, // Rotation 0
+			{5, 5}, // Rotation 1
+			{5, 5}, // Rotation 2
+			{5, 5}, // Rotation 3
+		},
+		BuildingSize6x6: []Size{
+			{6, 6}, // Rotation 0
+			{6, 6}, // Rotation 1
+			{6, 6}, // Rotation 2
+			{6, 6}, // Rotation 3
+		},
+		BuildingSize6x4: []Size{
+			{6, 4}, // Rotation 0
+			{4, 6}, // Rotation 1
+			{6, 4}, // Rotation 2
+			{4, 6}, // Rotation 3
+		},
+		BuildingSize5x7: []Size{
+			{5, 7}, // Rotation 0
+			{7, 5}, // Rotation 1
+			{5, 7}, // Rotation 2
+			{7, 5}, // Rotation 3
+		},
+	}
+
 	RotationOffsets = map[BuildingSizeIdentifier][][][]int{
 		BuildingSize1x1: {
 			{{0, 0}}, // Rotation 0

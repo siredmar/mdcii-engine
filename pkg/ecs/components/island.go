@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/siredmar/mdcii-engine/pkg/building"
+	buildingRotation "github.com/siredmar/mdcii-engine/pkg/building"
 	island5 "github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
@@ -31,69 +33,6 @@ const (
 	Any
 )
 
-// type Option func(*Island)
-
-// func WithChunk(gfxSprites *sprites.Sprites, b *buildings.Buildings, c *chunks.Island5) Option {
-// 	return func(*Island) {
-// 		i := &Island{}
-
-// 		i.Width = c.Width
-// 		i.Height = c.Height
-// 		i.Number = c.IslandNumber
-// 		i.Climate = Climate(c.Climate)
-// 		i.Terrain = make([]*tiles.TerrainTile, i.Width*i.Height)
-
-// 		for y := range i.Height {
-// 			// fmt.Println("")
-// 			for x := range i.Width {
-// 				t := c.Layers.Top.Fields[y*i.Width+x]
-// 				if t.Id == 65535 {
-// 					//  || t.Id == 102 {
-// 					continue
-// 				}
-// 				if x != t.Posx || y != t.Posy {
-// 					fmt.Printf("Error: x: %d, y: %d, PosX: %d, PosY: %d\n", x, y, t.Posx, t.Posy)
-// 				}
-// 				// fmt.Printf("%d ", rotation.Rotation(t.Orientation))
-// 				// t := g.gam.Islands5[0].Layers.Top.Fields[y*g.gam.Islands5[0].Width+x]
-// 				// // 		if t.Id == 65535 || t.Id == 102 {
-// 				// // 			continue
-// 				// // 		}
-// 				// // 		if t.Id == 1201 {
-// 				// // 			fmt.Println("found 1201")
-// 				// // 		}
-// 				// // 		building := g.buildings.Buildings[t.Id]
-
-// 				building := b.Buildings[t.Id]
-// 				tile := tiles.NewTerrainTile(rotation.Rotation(t.Orientation), x, y, building, gfxSprites)
-// 				// if building.Kind.IsWater() {
-// 				// 	i.Water = append(i.Water, tile)
-// 				// 	continue
-// 				// }
-// 				// if building.Kind.IsCoast() {
-// 				// 	i.Coast = append(i.Coast, tile)
-// 				// 	continue
-// 				// }
-
-// 				i.Terrain[x+y*i.Width] = tile
-// 				// i.Terrain = append(i.Terrain, tile)
-// 			}
-// 		}
-// 	}
-// }
-
-// func NewIsland(opts ...Option) (*Island, error) {
-// 	i := &Island{
-// 		Version: "v1alpha1",
-// 	}
-
-// 	for _, opt := range opts {
-// 		opt(i)
-// 	}
-
-// 	return i, nil
-// }
-
 func Marshal(i *Island) (string, error) {
 	out, err := json.Marshal(i)
 	if err != nil {
@@ -111,53 +50,7 @@ func Unmarshal(island string) (*Island, error) {
 	return i, nil
 }
 
-// func CreateIsland(world donburi.World, ani *animations.Animations, width, height int, worldX, worldY float64) *donburi.Entry {
-// 	// Create the Island entity
-// 	islandEntity := world.Create(IslandType)
-// 	islandEntry := world.Entry(islandEntity)
-
-// 	// Initialize the Island component
-// 	island := &Island{
-// 		Width:  width,
-// 		Height: height,
-// 		X:      worldX,
-// 		Y:      worldY,
-// 		Tiles:  make([][]*donburi.Entry, height),
-// 	}
-
-// 	// Populate the island with tiles
-// 	for y := 0; y < height; y++ {
-// 		island.Tiles[y] = make([]*donburi.Entry, width)
-// 		for x := 0; x < width; x++ {
-// 			tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-// 			tileEntry := world.Entry(tileEntity)
-
-// 			// Set components for the tile
-// 			PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y)})
-// 			TileType.Set(tileEntry, &Tile{})
-// 			anim := ani.GetAnimation(1804, rotation.DEG0)
-// 			AnimationType.Set(tileEntry, &Animation{
-// 				Count:        anim.Steps,
-// 				Duration:     float64(anim.FrameDuration),
-// 				Running:      true,
-// 				Loop:         true,
-// 				CurrentFrame: 0,
-// 				CurrentTime:  0,
-// 			})
-// 			BuildingType.Set(tileEntry, &Building{BuildingID: 1804, Rotation: rotation.DEG0})
-
-// 			// Add the tile entry to the island grid
-// 			island.Tiles[y][x] = tileEntry
-// 		}
-// 	}
-
-// 	// Set the Island component
-// 	IslandType.Set(islandEntry, island)
-
-// 	return islandEntry
-// }
-
-func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *island5.Island5, worldX, worldY float64) *donburi.Entry {
+func CreateIslandFromChunk(world donburi.World, cod *buildingsCod.Buildings, ani *animations.Animations, i *island5.Island5, worldX, worldY float64) *donburi.Entry {
 	// Create the Island entity
 	islandEntity := world.Create(IslandType)
 	islandEntry := world.Entry(islandEntity)
@@ -184,7 +77,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 		if currentTile.Id == 65535 {
 			continue
 		}
-		fmt.Println("currentTile.Id", currentTile.Id)
+		// fmt.Println("currentTile.Id", currentTile.Id)
 		tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
 		tileEntry := world.Entry(tileEntity)
 		posOffset := i.Buildings.Buildings[currentTile.Id].PositionOffset
@@ -203,11 +96,12 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			CurrentFrame: 0,
 			CurrentTime:  0,
 		})
-		BuildingType.Set(tileEntry, &Building{
+		building := &Building{
 			BuildingID: currentTile.Id,
 			Rotation:   rotation.Rotation(currentTile.Orientation),
 			Size:       building.BuildingSize(size.W, size.H),
-		})
+		}
+		BuildingType.Set(tileEntry, building)
 
 		switch {
 		case field.Kind.IsBuilding():
@@ -215,22 +109,38 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			if size.W > 1 || size.H > 2 {
 				fmt.Println("church")
 			}
-			for dy := 0; dy < size.H; dy++ {
-				for dx := 0; dx < size.W; dx++ {
+
+			fmt.Println("building", currentTile.Id, "x", x, "y", y, "size", size.W, size.H)
+			realSize := buildingRotation.BuildingRotationSizes[building.Size][building.Rotation]
+
+			for dy := 0; dy < realSize.Height; dy++ {
+				for dx := 0; dx < realSize.Width; dx++ {
+					occX := x + dx
+					occY := y + dy
+					if occX == x && occY == y {
+						continue
+					}
+					fmt.Println("occupy: ", x+dx, y+dy)
 					occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
 					occupyEntry := world.Entry(occupyEntity)
 					BuildingType.Set(occupyEntry, &Building{
 						BuildingID: -1,
 						Rotation:   0,
-						Size:       building.BuildingSize(1, 1),
+						Size:       buildingRotation.BuildingSize(1, 1),
+						// HighFlag:   building.HighFlag,
 					})
 					AnimationType.Set(occupyEntry, &Animation{
 						Count:    1,
 						Duration: 1,
 					})
-					PositionType.Set(occupyEntry, &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)})
+					PositionType.Set(occupyEntry, &Position{X: worldX + float64(occX), Y: worldY + float64(occY), Offset: float64(posOffset)})
+					buildingIndex, err := cod.GetBuildingIndexById(currentTile.Id)
+					if err != nil {
+						return nil
+					}
+
 					TileType.Set(occupyEntry, &Tile{
-						Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
+						Size:       Size{Width: 1, Height: 1, Z: cod.BuildingsVector[buildingIndex].HighFlag},
 						Image:      nil,
 						Occupation: true,
 					})

@@ -1,8 +1,6 @@
 package systems
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
@@ -37,10 +35,10 @@ func MouseSelectorSystem(world donburi.World) {
 	})
 	// Print or interact with the selected tile
 	if selectedTile != nil {
-		building := components.BuildingType.Get(selectedTile)
-		fmt.Printf("Tile Selected: X=%d, Y=%d, TileID=%d\n", gridX-10, gridY, building.BuildingID)
-	} else {
-		fmt.Printf("No tile at X=%d, Y=%d\n", gridX-10, gridY)
+		// building := components.BuildingType.Get(selectedTile)
+		// 	fmt.Printf("Tile Selected: X=%d, Y=%d, TileID=%d\n", gridX-10, gridY, building.BuildingID)
+		// } else {
+		// fmt.Printf("No tile at X=%d, Y=%d\n", gridX-10, gridY)
 	}
 }
 

@@ -53,6 +53,20 @@ func createImage(data []byte) *ebiten.Image {
 var grid0 = createImage(grid0Bytes)
 var grid1 = createImage(grid1Tile)
 
+func renderDebugGrid(world donburi.World, screen *ebiten.Image, w, h float64) {
+
+}
+
+type RenderableTile struct {
+	isoX, isoY       float64
+	bottomX, bottomY float64 // Bottom-right grid position for sorting
+	Z                int
+	HighFlag         bool
+	Image            *ebiten.Image
+	Occupy           bool
+	Width, Height    int
+}
+
 var AlignmentMap = map[buildingRotation.BuildingSizeIdentifier][2]float64{
 	buildingRotation.BuildingSize2x3: {-32 * 2, (32 / 2) * 3},
 	buildingRotation.BuildingSize2x2: {-32, (32 / 2) * 2},
@@ -61,51 +75,19 @@ var AlignmentMap = map[buildingRotation.BuildingSizeIdentifier][2]float64{
 	buildingRotation.BuildingSize4x3: {-32 * 3, (32 / 2) * 5},
 }
 
-// func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
-// 	tileWidth := zoom.TileSize()
-// 	tileHeight := zoom.TileHeight()
-
-//		rendererQuery.Each(world, func(entry *donburi.Entry) {
-//			island := components.IslandType.Get(entry)
-//			for _, layerID := range []string{buildings.KindSeaID, buildings.KindGroundID, buildings.KindRoadsID, buildings.KindForrestID, buildings.KindBuildingsID} {
-//				for _, tileEntry := range island.Tiles[layerID] {
-//					pos := components.PositionType.Get(tileEntry)
-//					tile := components.TileType.Get(tileEntry)
-//					building := components.BuildingType.Get(tileEntry)
-//					if tile.Image != nil {
-//						// Base isometric position for Tile 1
-//						isoX := ((pos.X-island.X)-(pos.Y-island.Y))*(float64(tileWidth)/2) + (island.X * (float64(tileWidth) / 2))
-//						isoY := ((pos.X-island.X)+(pos.Y-island.Y))*(float64(tileHeight)/2) + (island.Y * (float64(tileHeight) / 2))
-//						isoY -= pos.Offset
-//						// Adjust for image height
-//						tileImageHeight := float64(tile.Image.Bounds().Dy())
-//						isoY -= tileImageHeight - float64(tileHeight)
-//						if building.Size == buildingRotation.BuildingSize2x3 || building.Size == buildingRotation.BuildingSize2x2 || building.Size == buildingRotation.BuildingSize2x1 || building.Size == buildingRotation.BuildingSize4x3 {
-//							// Apply precise alignment offsets
-//							if offset, ok := AlignmentMap[building.Size]; ok {
-//								isoX += offset[0] // Shift right
-//								isoY += offset[1] // Shift up
-//							}
-//						}
-//						op := &ebiten.DrawImageOptions{}
-//						op.GeoM.Translate(isoX, isoY)
-//						screen.DrawImage(tile.Image, op)
-//					}
-//				}
-//			}
-//		})
-//	}
-
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
 
 	type RenderableTile struct {
-		isoX, isoY float64
-		Z          float64
-		topY       float64 // Topmost grid Y coordinate for sorting
-		topX       float64 // Leftmost grid X coordinate for sorting
-		Image      *ebiten.Image
+		isoX, isoY       float64
+		bottomX, bottomY float64
+		depth            float64 // Calculated depth score
+		Z                int
+		HighFlag         bool
+		Image            *ebiten.Image
+		Occupy           bool
+		Width, Height    int
 	}
 
 	var renderableTiles []RenderableTile
@@ -113,66 +95,76 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
 
-		// Iterate over ALL layers
 		for _, layerID := range []string{
-			buildings.KindSeaID,
+			buildings.KindBuildingsID,
+			buildings.KindForrestID,
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
-			buildings.KindForrestID,
-			buildings.KindBuildingsID,
+			buildings.KindSeaID,
 		} {
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
 				building := components.BuildingType.Get(tileEntry)
+
 				// Base isometric position
 				isoX := ((pos.X-island.X)-(pos.Y-island.Y))*(float64(tileWidth)/2) + (island.X * (float64(tileWidth) / 2))
 				isoY := ((pos.X-island.X)+(pos.Y-island.Y))*(float64(tileHeight)/2) + (island.Y * (float64(tileHeight) / 2))
 				isoY -= pos.Offset
-				if tile.Occupation {
-					tile.Image = grid1
-				}
+
 				if tile.Image != nil {
 					// Adjust for image height
 					tileImageHeight := float64(tile.Image.Bounds().Dy())
 					isoY -= tileImageHeight - float64(tileHeight)
 				}
-				// Apply alignment offsets for multi-tile buildings
+
+				// Apply alignment offsets
 				if offset, ok := AlignmentMap[building.Size]; ok {
 					isoX += offset[0]
 					isoY += offset[1]
 				}
 
-				// Top-left grid reference for sorting
-				topX := pos.X
-				topY := pos.Y
+				// Bottom grid reference for sorting
+				bottomX := pos.X + float64(tile.Size.Width-1)
+				bottomY := pos.Y + float64(tile.Size.Height-1)
 
-				// Add tile to renderable list
+				// Calculate depth score
+				depth := (1000 * bottomY) + bottomX + (10 * boolToFloat(tile.Size.Z > 0)) - float64(tile.Size.Z)
+
 				renderableTiles = append(renderableTiles, RenderableTile{
-					isoX:  isoX,
-					isoY:  isoY,
-					topX:  topX, // Leftmost X for sorting
-					topY:  topY, // Topmost Y for sorting
-					Image: tile.Image,
-					Z:     float64(tile.Size.Z),
+					isoX:     isoX,
+					isoY:     isoY,
+					bottomX:  bottomX,
+					bottomY:  bottomY,
+					depth:    depth,
+					Image:    tile.Image,
+					Z:        tile.Size.Z,
+					HighFlag: tile.Size.Z > 0, // Use Z > 0 as HighFlag
+					Occupy:   tile.Occupation,
+					Width:    tile.Size.Width,
+					Height:   tile.Size.Height,
 				})
 			}
 		}
 	})
 
-	// Sort tiles: First by topY (topmost first), then by topX (leftmost first)
+	// Sorting tiles
 	sort.Slice(renderableTiles, func(i, j int) bool {
-		if renderableTiles[i].topY == renderableTiles[j].topY {
-			// If topY is the same, sort by topX (leftmost first)
-			return renderableTiles[i].topX < renderableTiles[j].topX
+		// First compare HighFlag (buildings first)
+		if renderableTiles[i].HighFlag != renderableTiles[j].HighFlag {
+			return renderableTiles[i].HighFlag
 		}
-		// Sort by topY (topmost tiles first)
-		return renderableTiles[i].Z > renderableTiles[j].topY
+		// Compare bottomY
+		if renderableTiles[i].bottomY != renderableTiles[j].bottomY {
+			return renderableTiles[i].bottomY < renderableTiles[j].bottomY
+		}
+		// Compare bottomX
+		return renderableTiles[i].bottomX < renderableTiles[j].bottomX
 	})
 
 	// Render tiles in sorted order
 	for _, tile := range renderableTiles {
-		if tile.Image != nil {
+		if tile.Image != nil && !tile.Occupy {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(tile.isoX, tile.isoY)
 			screen.DrawImage(tile.Image, op)
@@ -185,5 +177,15 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 	}
 }
 
-func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
+func boolToFloat(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
+}
+func AlignmentMapOffset(width, height int) float64 {
+	if offset, ok := AlignmentMap[buildingRotation.BuildingSize(width, height)]; ok {
+		return offset[1] // Return the vertical offset
+	}
+	return 0 // Default: No offset
 }
