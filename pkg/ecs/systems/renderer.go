@@ -94,7 +94,8 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
-
+		tiles := [][]components.Tile{}
+		
 		for _, layerID := range []string{
 			buildings.KindBuildingsID,
 			buildings.KindForrestID,
@@ -107,85 +108,90 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 				tile := components.TileType.Get(tileEntry)
 				building := components.BuildingType.Get(tileEntry)
 
-				// Base isometric position
-				isoX := ((pos.X-island.X)-(pos.Y-island.Y))*(float64(tileWidth)/2) + (island.X * (float64(tileWidth) / 2))
-				isoY := ((pos.X-island.X)+(pos.Y-island.Y))*(float64(tileHeight)/2) + (island.Y * (float64(tileHeight) / 2))
-				isoY -= pos.Offset
 
-				if tile.Image != nil {
-					// Adjust for image height
-					tileImageHeight := float64(tile.Image.Bounds().Dy())
-					isoY -= tileImageHeight - float64(tileHeight)
-				}
-
-				// Apply alignment offsets
-				if offset, ok := AlignmentMap[building.Size]; ok {
-					isoX += offset[0]
-					isoY += offset[1]
-				}
-
-				// Bottom grid reference for sorting
-				bottomX := pos.X + float64(tile.Size.Width-1)
-				bottomY := pos.Y + float64(tile.Size.Height-1)
-
-				// Calculate depth score
-				depth := (1000 * bottomY) + bottomX + (10 * boolToFloat(tile.Size.Z > 0)) - float64(tile.Size.Z)
-
-				renderableTiles = append(renderableTiles, RenderableTile{
-					isoX:     isoX,
-					isoY:     isoY,
-					bottomX:  bottomX,
-					bottomY:  bottomY,
-					depth:    depth,
-					Image:    tile.Image,
-					Z:        tile.Size.Z,
-					HighFlag: tile.Size.Z > 0, // Use Z > 0 as HighFlag
-					Occupy:   tile.Occupation,
-					Width:    tile.Size.Width,
-					Height:   tile.Size.Height,
-				})
 			}
 		}
-	})
-
-	// Sorting tiles
-	sort.Slice(renderableTiles, func(i, j int) bool {
-		// First compare HighFlag (buildings first)
-		if renderableTiles[i].HighFlag != renderableTiles[j].HighFlag {
-			return renderableTiles[i].HighFlag
-		}
-		// Compare bottomY
-		if renderableTiles[i].bottomY != renderableTiles[j].bottomY {
-			return renderableTiles[i].bottomY < renderableTiles[j].bottomY
-		}
-		// Compare bottomX
-		return renderableTiles[i].bottomX < renderableTiles[j].bottomX
-	})
-
-	// Render tiles in sorted order
-	for _, tile := range renderableTiles {
-		if tile.Image != nil && !tile.Occupy {
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(tile.isoX, tile.isoY)
-			screen.DrawImage(tile.Image, op)
-		}
 	}
 
-	// Optional debug grid overlay
-	if grid {
-		renderDebugGrid(world, screen, float64(tileWidth), float64(tileHeight))
-	}
-}
+// 				// Base isometric position
+// 				isoX := ((pos.X-island.X)-(pos.Y-island.Y))*(float64(tileWidth)/2) + (island.X * (float64(tileWidth) / 2))
+// 				isoY := ((pos.X-island.X)+(pos.Y-island.Y))*(float64(tileHeight)/2) + (island.Y * (float64(tileHeight) / 2))
+// 				isoY -= pos.Offset
 
-func boolToFloat(b bool) float64 {
-	if b {
-		return 1.0
-	}
-	return 0.0
-}
-func AlignmentMapOffset(width, height int) float64 {
-	if offset, ok := AlignmentMap[buildingRotation.BuildingSize(width, height)]; ok {
-		return offset[1] // Return the vertical offset
-	}
-	return 0 // Default: No offset
-}
+// 				if tile.Image != nil {
+// 					// Adjust for image height
+// 					tileImageHeight := float64(tile.Image.Bounds().Dy())
+// 					isoY -= tileImageHeight - float64(tileHeight)
+// 				}
+
+// 				// Apply alignment offsets
+// 				if offset, ok := AlignmentMap[building.Size]; ok {
+// 					isoX += offset[0]
+// 					isoY += offset[1]
+// 				}
+
+// 				// Bottom grid reference for sorting
+// 				bottomX := pos.X + float64(tile.Size.Width-1)
+// 				bottomY := pos.Y + float64(tile.Size.Height-1)
+
+// 				// Calculate depth score
+// 				depth := (1000 * bottomY) + bottomX + (10 * boolToFloat(tile.Size.Z > 0)) - float64(tile.Size.Z)
+
+// 				renderableTiles = append(renderableTiles, RenderableTile{
+// 					isoX:     isoX,
+// 					isoY:     isoY,
+// 					bottomX:  bottomX,
+// 					bottomY:  bottomY,
+// 					depth:    depth,
+// 					Image:    tile.Image,
+// 					Z:        tile.Size.Z,
+// 					HighFlag: tile.Size.Z > 0, // Use Z > 0 as HighFlag
+// 					Occupy:   tile.Occupation,
+// 					Width:    tile.Size.Width,
+// 					Height:   tile.Size.Height,
+// 				})
+// 			}
+// 		}
+// 	})
+
+// 	// Sorting tiles
+// 	sort.Slice(renderableTiles, func(i, j int) bool {
+// 		// First compare HighFlag (buildings first)
+// 		if renderableTiles[i].HighFlag != renderableTiles[j].HighFlag {
+// 			return renderableTiles[i].HighFlag
+// 		}
+// 		// Compare bottomY
+// 		if renderableTiles[i].bottomY != renderableTiles[j].bottomY {
+// 			return renderableTiles[i].bottomY < renderableTiles[j].bottomY
+// 		}
+// 		// Compare bottomX
+// 		return renderableTiles[i].bottomX < renderableTiles[j].bottomX
+// 	})
+
+// 	// Render tiles in sorted order
+// 	for _, tile := range renderableTiles {
+// 		if tile.Image != nil && !tile.Occupy {
+// 			op := &ebiten.DrawImageOptions{}
+// 			op.GeoM.Translate(tile.isoX, tile.isoY)
+// 			screen.DrawImage(tile.Image, op)
+// 		}
+// 	}
+
+// 	// Optional debug grid overlay
+// 	if grid {
+// 		renderDebugGrid(world, screen, float64(tileWidth), float64(tileHeight))
+// 	}
+// }
+
+// func boolToFloat(b bool) float64 {
+// 	if b {
+// 		return 1.0
+// 	}
+// 	return 0.0
+// }
+// func AlignmentMapOffset(width, height int) float64 {
+// 	if offset, ok := AlignmentMap[buildingRotation.BuildingSize(width, height)]; ok {
+// 		return offset[1] // Return the vertical offset
+// 	}
+// 	return 0 // Default: No offset
+// }
