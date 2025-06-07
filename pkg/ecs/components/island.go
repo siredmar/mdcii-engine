@@ -176,79 +176,97 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 	island.Tiles[buildings.KindRoadsID] = []*donburi.Entry{}
 	island.Tiles[buildings.KindGroundID] = []*donburi.Entry{}
 
+	sorted2DByXY := make(map[int]map[int]island5.Field)
 	for _, field := range i.Layers.Top.Fields {
-		x := field.Posx
-		y := field.Posy
-
-		currentTile := field
-		if currentTile.Id == 65535 {
-			continue
+		if _, ok := sorted2DByXY[field.Posy]; !ok {
+			sorted2DByXY[field.Posy] = make(map[int]island5.Field)
 		}
-		fmt.Println("currentTile.Id", currentTile.Id)
-		tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-		tileEntry := world.Entry(tileEntity)
-		posOffset := i.Buildings.Buildings[currentTile.Id].PositionOffset
-		size := i.Buildings.Buildings[currentTile.Id].Size
-		// Set components for the tile
-		PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(posOffset)})
-		TileType.Set(tileEntry, &Tile{
-			Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()},
-		})
-		anim := ani.GetAnimation(currentTile.Id, rotation.DEG0)
-		AnimationType.Set(tileEntry, &Animation{
-			Count:        anim.Steps,
-			Duration:     float64(anim.FrameDuration),
-			Running:      true,
-			Loop:         true,
-			CurrentFrame: 0,
-			CurrentTime:  0,
-		})
-		BuildingType.Set(tileEntry, &Building{
-			BuildingID: currentTile.Id,
-			Rotation:   rotation.Rotation(currentTile.Orientation),
-			Size:       building.BuildingSize(size.W, size.H),
-		})
+		sorted2DByXY[field.Posy][field.Posx] = field
+	}
 
-		switch {
-		case field.Kind.IsBuilding():
-			island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], tileEntry)
-			if size.W > 1 || size.H > 2 {
-				fmt.Println("church")
+	for y := 0; y < i.Height; y++ {
+		for x := 0; x < i.Width; x++ {
+			if _, ok := sorted2DByXY[y][x]; !ok {
+				continue
 			}
-			for dy := 0; dy < size.H; dy++ {
-				for dx := 0; dx < size.W; dx++ {
-					occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-					occupyEntry := world.Entry(occupyEntity)
-					BuildingType.Set(occupyEntry, &Building{
-						BuildingID: -1,
-						Rotation:   0,
-						Size:       building.BuildingSize(1, 1),
-					})
-					AnimationType.Set(occupyEntry, &Animation{
-						Count:    1,
-						Duration: 1,
-					})
-					PositionType.Set(occupyEntry, &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)})
-					TileType.Set(occupyEntry, &Tile{
-						Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
-						Image:      nil,
-						Occupation: true,
-					})
+			field := sorted2DByXY[y][x]
 
-					island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], occupyEntry)
+			// for _, field := range i.Layers.Top.Fields {
+			// 	x := field.Posx
+			// 	y := field.Posy
 
+			currentTile := field
+			if currentTile.Id == 65535 {
+				fmt.Println("Id 65535")
+				continue
+			}
+			fmt.Println("currentTile.Id", currentTile.Id)
+			tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+			tileEntry := world.Entry(tileEntity)
+			posOffset := i.Buildings.Buildings[currentTile.Id].PositionOffset
+			size := i.Buildings.Buildings[currentTile.Id].Size
+			// Set components for the tile
+			PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(posOffset)})
+			TileType.Set(tileEntry, &Tile{
+				Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()},
+			})
+			anim := ani.GetAnimation(currentTile.Id, rotation.DEG0)
+			AnimationType.Set(tileEntry, &Animation{
+				Count:        anim.Steps,
+				Duration:     float64(anim.FrameDuration),
+				Running:      true,
+				Loop:         true,
+				CurrentFrame: 0,
+				CurrentTime:  0,
+			})
+			BuildingType.Set(tileEntry, &Building{
+				BuildingID: currentTile.Id,
+				Rotation:   rotation.Rotation(currentTile.Orientation),
+				Size:       building.BuildingSize(size.W, size.H),
+			})
+
+			switch {
+			case field.Kind.IsBuilding():
+				island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], tileEntry)
+				if size.W > 1 || size.H > 2 {
+					fmt.Println("church")
 				}
-			}
-		case field.Kind.IsWater():
-			island.Tiles[buildings.KindSeaID] = append(island.Tiles[buildings.KindSeaID], tileEntry)
-		case field.Kind.IsRoad():
-			island.Tiles[buildings.KindRoadsID] = append(island.Tiles[buildings.KindRoadsID], tileEntry)
-		case field.Kind.IsGround():
-			island.Tiles[buildings.KindGroundID] = append(island.Tiles[buildings.KindGroundID], tileEntry)
-		case field.Kind.IsForrest():
-			island.Tiles[buildings.KindForrestID] = append(island.Tiles[buildings.KindForrestID], tileEntry)
-		}
+				for dy := 0; dy < size.H; dy++ {
+					for dx := 0; dx < size.W; dx++ {
+						occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+						occupyEntry := world.Entry(occupyEntity)
+						BuildingType.Set(occupyEntry, &Building{
+							BuildingID: -1,
+							Rotation:   0,
+							Size:       building.BuildingSize(1, 1),
+						})
+						AnimationType.Set(occupyEntry, &Animation{
+							Count:    1,
+							Duration: 1,
+						})
+						p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
+						PositionType.Set(occupyEntry, p)
+						TileType.Set(occupyEntry, &Tile{
+							Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
+							Image:      nil,
+							Occupation: true,
+						})
 
+						island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], occupyEntry)
+
+					}
+				}
+			case field.Kind.IsWater():
+				island.Tiles[buildings.KindSeaID] = append(island.Tiles[buildings.KindSeaID], tileEntry)
+			case field.Kind.IsRoad():
+				island.Tiles[buildings.KindRoadsID] = append(island.Tiles[buildings.KindRoadsID], tileEntry)
+			case field.Kind.IsGround():
+				island.Tiles[buildings.KindGroundID] = append(island.Tiles[buildings.KindGroundID], tileEntry)
+			case field.Kind.IsForrest():
+				island.Tiles[buildings.KindForrestID] = append(island.Tiles[buildings.KindForrestID], tileEntry)
+			}
+
+		}
 	}
 
 	// Set the Island component

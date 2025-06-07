@@ -230,7 +230,7 @@ type Game struct {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	systems.RenderSystem(g.world.World, screen, g.grid)
-	systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
+	// systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
 	// systems.RenderSystemAscii(g.world.World)
 }
 

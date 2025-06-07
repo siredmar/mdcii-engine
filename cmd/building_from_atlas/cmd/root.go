@@ -198,7 +198,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	options := &ebiten.DrawImageOptions{}
 	options.GeoM.Translate(100, 100)
-	options.GeoM.Scale(1.5, 1.5)
+	// options.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(ebitenImg, options)
 	g.DrawBuildingInfo(screen)
 	g.DrawUsage(screen)

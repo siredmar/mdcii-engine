@@ -113,6 +113,40 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
 
+		// for _, layerID := range []string{
+		// 	buildings.KindSeaID,
+		// 	buildings.KindGroundID,
+		// 	buildings.KindRoadsID,
+		// 	buildings.KindForrestID,
+		// 	buildings.KindBuildingsID,
+		// } {
+
+		// first sort by y,x. fill empty spaces with empty tiles
+		for _, layer := range island.Tiles {
+			sort.Slice(layer, func(i, j int) bool {
+				posI := components.PositionType.Get(layer[i])
+				posJ := components.PositionType.Get(layer[j])
+				if posI.Y == posJ.Y {
+					return posI.X < posJ.X
+				}
+				return posI.Y < posJ.Y
+			})
+			// fill empty spaces with empty tiles
+			for i := 0; i < len(layer)-1; i++ {
+				posI := components.PositionType.Get(layer[i])
+				posJ := components.PositionType.Get(layer[i+1])
+				if posI.Y == posJ.Y && posI.X+1 < posJ.X {
+					for x := posI.X + 1; x < posJ.X; x++ {
+						tileEntity := world.Create(components.BuildingType, components.PositionType, components.TileType, components.AnimationType)
+						tileEntry := world.Entry(tileEntity)
+						components.PositionType.Set(tileEntry, &components.Position{X: x, Y: posI.Y})
+						components.TileType.Set(tileEntry, &components.Tile{Image: nil})
+						layer = append(layer, tileEntry)
+					}
+				}
+			}
+		}
+
 		// Iterate over ALL layers
 		for _, layerID := range []string{
 			buildings.KindSeaID,
@@ -122,6 +156,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 			buildings.KindBuildingsID,
 		} {
 			for _, tileEntry := range island.Tiles[layerID] {
+
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
 				building := components.BuildingType.Get(tileEntry)
