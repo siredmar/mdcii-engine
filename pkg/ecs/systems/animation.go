@@ -28,9 +28,9 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		}
 		frames := ani.GetAnimation(building.BuildingID, building.Rotation).Frames
 		tile := components.TileType.Get(entry)
-		if tile.Occupation {
-			tile.Image = grid1
-		}
+		// if tile.Occupation {
+		// 	tile.Image = grid1
+		// }
 		if animation.Count > 1 {
 			if animation.Running {
 				// Get animation frames from the atlas
