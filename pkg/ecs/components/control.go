@@ -11,6 +11,10 @@ type Control struct {
 	Rotation         rotation.Rotation
 	GridVisible      bool
 	LastKeyPressTime time.Time
+
+	Dragging   bool
+	LastMouseX int
+	LastMouseY int
 }
 
 var ControlType = donburi.NewComponentType[Control]()

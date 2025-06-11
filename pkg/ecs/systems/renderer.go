@@ -127,13 +127,22 @@ type RenderableTile struct {
 	Image      *ebiten.Image
 }
 
-// RenderSystem renders all tiles with isometric projection and camera rotation
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
-
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
 
 	var renderableTiles []RenderableTile
+
+	// 👉 Fetch camera (added)
+	var camera *components.Camera
+	cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
+	cameraQuery.Each(world, func(entry *donburi.Entry) {
+		camera = components.CameraType.Get(entry)
+	})
+	if camera == nil {
+		log.Println("No camera entity found")
+		return
+	}
 
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
@@ -154,31 +163,27 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					continue
 				}
 
-				// Rotate the tile position based on current camera rotation
+				// 🔁 Apply rotation to world position
 				rotatedX, rotatedY := rotation.RotatePosition(int(pos.X), int(pos.Y), island.Width, island.Height, currentRotation)
 
-				// Project to isometric screen coordinates
+				// 📐 Isometric projection
 				isoX := ((float64(rotatedX)-island.X)-(float64(rotatedY)-island.Y))*(float64(tileWidth)/2) + float64(island.X)*(float64(tileWidth)/2)
 				isoY := ((float64(rotatedX)-island.X)+(float64(rotatedY)-island.Y))*(float64(tileHeight)/2) + float64(island.Y)*(float64(tileHeight)/2)
 				isoY -= pos.Offset
 
-				// Adjust image height for proper overlap
+				// ⬇ Adjust image height for visual stacking
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
 
-				// // Apply alignment offset for multi-tile buildings
-				// if offset, ok := AlignmentMap[building.Size]; ok {
-				// 	isoX += offset[0]
-				// 	isoY += offset[1]
-				// }
-
+				// 🧭 Alignment offset (rotation-specific)
 				if rotationMap, ok := AlignmentMaps[currentRotation]; ok {
 					if offset, ok := rotationMap[building.Size]; ok {
 						isoX += offset[0]
 						isoY += offset[1]
 					}
 				}
-				// Calculate visual height for depth sorting
+
+				// 📏 Visual depth
 				visualZ := tileImageHeight / float64(tileHeight)
 
 				renderableTiles = append(renderableTiles, RenderableTile{
@@ -193,18 +198,18 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 	})
 
-	// Sort by isometric depth (rotatedX + rotatedY + height)
+	// 🔄 Depth sort for correct layering
 	sort.Slice(renderableTiles, func(i, j int) bool {
 		depthI := renderableTiles[i].topX + renderableTiles[i].topY + int(renderableTiles[i].Z)
 		depthJ := renderableTiles[j].topX + renderableTiles[j].topY + int(renderableTiles[j].Z)
 		return depthI < depthJ
 	})
 
-	// Render tiles
+	// 🎨 Draw everything, applying camera offset
 	for _, tile := range renderableTiles {
 		if tile.Image != nil {
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(tile.isoX, tile.isoY)
+			op.GeoM.Translate(tile.isoX-camera.X, tile.isoY-camera.Y)
 			screen.DrawImage(tile.Image, op)
 		}
 	}
