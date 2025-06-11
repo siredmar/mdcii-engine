@@ -49,39 +49,70 @@ const (
 )
 
 // // Alignment offsets for multi-tile buildings
-// var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
-// 	building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
-// 	building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
-// 	building.BuildingSize1x2: {-32 / 2, 32},
-// 	building.BuildingSize2x1: {-32 * 1, 32.0 / 2},
-// 	building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
-// }
-
-// AlignmentOffset returns the pixel offset to correctly align multi-tile buildings
-func AlignmentOffset(size building.BuildingSizeIdentifier, rot rotation.Rotation) (float64, float64) {
-	w, h := size.Width(), size.Height()
-
-	// Anchor offset in tile-space: bottom-left (0-indexed)
-	anchorTileX := 0
-	anchorTileY := h - 1
-
-	// Compute how far the anchor is from top-left (0,0) of the building
-	offsetTileX := -anchorTileX
-	offsetTileY := -anchorTileY
-
-	// Rotate that offset in tile-space
-	rotatedX, rotatedY := rotation.RotatePosition(
-		offsetTileX, offsetTileY,
-		w, h,
-		rot,
-	)
-
-	// Convert to isometric pixel-space
-	pixelX := (float64(rotatedX) - float64(rotatedY)) * (TILE_WIDTH / 2)
-	pixelY := (float64(rotatedX) + float64(rotatedY)) * (TILE_HEIGHT / 2)
-
-	return pixelX, pixelY
+//
+//	var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
+//		building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
+//		building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
+//		building.BuildingSize1x2: {-32 / 2, 32},
+//		building.BuildingSize2x1: {-32 * 1, 32.0 / 2},
+//		building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
+//	}
+var AlignmentMaps = map[rotation.Rotation]map[building.BuildingSizeIdentifier][2]float64{
+	rotation.DEG0: {
+		building.BuildingSize2x2: {-32, 32},
+		building.BuildingSize2x3: {-64, 48},
+		building.BuildingSize1x2: {-16, 32},
+		building.BuildingSize2x1: {-32, 16},
+		building.BuildingSize4x3: {-96, 80},
+	},
+	rotation.DEG90: {
+		building.BuildingSize2x2: {-32, 32},
+		building.BuildingSize2x3: {-48, 64},
+		building.BuildingSize1x2: {-16, 32},
+		building.BuildingSize2x1: {-32, 16},
+		building.BuildingSize4x3: {-80, 96},
+	},
+	rotation.DEG180: {
+		building.BuildingSize2x2: {-32, 32},
+		building.BuildingSize2x3: {-64, 48},
+		building.BuildingSize1x2: {-16, 32},
+		building.BuildingSize2x1: {-32, 16},
+		building.BuildingSize4x3: {-96, 80},
+	},
+	rotation.DEG270: {
+		building.BuildingSize2x2: {-32, 32},
+		building.BuildingSize2x3: {-48, 64},
+		building.BuildingSize1x2: {-16, 32},
+		building.BuildingSize2x1: {-32, 16},
+		building.BuildingSize4x3: {-80, 96},
+	},
 }
+
+// // AlignmentOffset returns the pixel offset to correctly align multi-tile buildings
+// func AlignmentOffset(size building.BuildingSizeIdentifier, rot rotation.Rotation) (float64, float64) {
+// 	w, h := size.Width(), size.Height()
+
+// 	// Anchor offset in tile-space: bottom-left (0-indexed)
+// 	anchorTileX := 0
+// 	anchorTileY := h - 1
+
+// 	// Compute how far the anchor is from top-left (0,0) of the building
+// 	offsetTileX := -anchorTileX
+// 	offsetTileY := -anchorTileY
+
+// 	// Rotate that offset in tile-space
+// 	rotatedX, rotatedY := rotation.RotatePosition(
+// 		offsetTileX, offsetTileY,
+// 		w, h,
+// 		rot,
+// 	)
+
+// 	// Convert to isometric pixel-space
+// 	pixelX := (float64(rotatedX) - float64(rotatedY)) * (TILE_WIDTH / 2)
+// 	pixelY := (float64(rotatedX) + float64(rotatedY)) * (TILE_HEIGHT / 2)
+
+// 	return pixelX, pixelY
+// }
 
 // Renderer query
 var rendererQuery = donburi.NewQuery(
@@ -97,7 +128,8 @@ type RenderableTile struct {
 }
 
 // RenderSystem renders all tiles with isometric projection and camera rotation
-func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, rot rotation.Rotation) {
+func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
+
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
 
@@ -123,7 +155,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, rot rota
 				}
 
 				// Rotate the tile position based on current camera rotation
-				rotatedX, rotatedY := rotation.RotatePosition(int(pos.X), int(pos.Y), island.Width, island.Height, rot)
+				rotatedX, rotatedY := rotation.RotatePosition(int(pos.X), int(pos.Y), island.Width, island.Height, currentRotation)
 
 				// Project to isometric screen coordinates
 				isoX := ((float64(rotatedX)-island.X)-(float64(rotatedY)-island.Y))*(float64(tileWidth)/2) + float64(island.X)*(float64(tileWidth)/2)
@@ -140,10 +172,12 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, rot rota
 				// 	isoY += offset[1]
 				// }
 
-				ox, oy := AlignmentOffset(building.Size, rot)
-				isoX += ox
-				isoY += oy
-
+				if rotationMap, ok := AlignmentMaps[currentRotation]; ok {
+					if offset, ok := rotationMap[building.Size]; ok {
+						isoX += offset[0]
+						isoY += offset[1]
+					}
+				}
 				// Calculate visual height for depth sorting
 				visualZ := tileImageHeight / float64(tileHeight)
 
