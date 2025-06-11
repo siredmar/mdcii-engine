@@ -67,3 +67,41 @@ type Building struct {
 	AnimationAdd         int
 	Size                 BuildingSizeIdentifier
 }
+
+func (b *BuildingSizeIdentifier) Width() int {
+	switch *b {
+	case BuildingSize1x1, BuildingSize1x2, BuildingSize1x3:
+		return 1
+	case BuildingSize2x1, BuildingSize2x2, BuildingSize2x3:
+		return 2
+	case BuildingSize3x3:
+		return 3
+	case BuildingSize4x3, BuildingSize4x4:
+		return 4
+	case BuildingSize5x5, BuildingSize5x7:
+		return 5
+	case BuildingSize6x6, BuildingSize6x4:
+		return 6
+	default:
+		return 0
+	}
+}
+
+func (b *BuildingSizeIdentifier) Height() int {
+	switch *b {
+	case BuildingSize1x1, BuildingSize2x1, BuildingSize3x3:
+		return 1
+	case BuildingSize1x2, BuildingSize2x2, BuildingSize6x4:
+		return 2
+	case BuildingSize1x3, BuildingSize2x3:
+		return 3
+	case BuildingSize4x3, BuildingSize4x4:
+		return 4
+	case BuildingSize5x5, BuildingSize5x7:
+		return 5
+	case BuildingSize6x6:
+		return 6
+	default:
+		return 0
+	}
+}

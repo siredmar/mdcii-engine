@@ -38,7 +38,8 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 			animation.CurrentTime = 0
 			animation.Reset = false
 		}
-		rotation := (building.Rotation + globalRotation) % 4
+		// rotation := (building.Rotation + globalRotation) % 4
+		rotation := building.Rotation.Add(globalRotation)
 		fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
 		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
 		tile := components.TileType.Get(entry)

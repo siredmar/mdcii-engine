@@ -1,9 +1,5 @@
 package rotation
 
-import (
-	"errors"
-)
-
 // Rotation represents the rotation in degrees
 type Rotation int
 
@@ -50,18 +46,18 @@ func (r *Rotation) Decrement() {
 }
 
 // IntToRotation converts an integer to a Rotation
-func IntToRotation(rotation int) (Rotation, error) {
+func IntToRotation(rotation int) Rotation {
 	switch rotation {
 	case int(DEG0):
-		return DEG0, nil
+		return DEG0
 	case int(DEG90):
-		return DEG90, nil
+		return DEG90
 	case int(DEG180):
-		return DEG180, nil
+		return DEG180
 	case int(DEG270):
-		return DEG270, nil
+		return DEG270
 	default:
-		return DEG0, errors.New("[IntToRotation()] Invalid rotation given.")
+		return DEG0
 	}
 }
 
@@ -88,13 +84,13 @@ func RotatePosition(mapX, mapY, width, height int, rotation Rotation) (int, int)
 }
 
 // Add returns the result of adding two rotations
-func (r Rotation) Add(other Rotation) (Rotation, error) {
+func (r Rotation) Add(other Rotation) Rotation {
 	result := (int(r) + int(other)) % int(len([]Rotation{DEG0, DEG90, DEG180, DEG270}))
 	return IntToRotation(result)
 }
 
 // Subtract returns the result of subtracting two rotations
-func (r Rotation) Subtract(other Rotation) (Rotation, error) {
+func (r Rotation) Subtract(other Rotation) Rotation {
 	result := (int(r) - int(other) + int(len([]Rotation{DEG0, DEG90, DEG180, DEG270}))) % int(len([]Rotation{DEG0, DEG90, DEG180, DEG270}))
 	return IntToRotation(result)
 }

@@ -43,13 +43,44 @@ func createImage(data []byte) *ebiten.Image {
 	return ebiten.NewImageFromImage(rgbaImg)
 }
 
-// Alignment offsets for multi-tile buildings
-var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
-	building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
-	building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
-	building.BuildingSize1x2: {-32 / 2, 32},
-	building.BuildingSize2x1: {-32 * 1, 32.0 / 2},
-	building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
+const (
+	TILE_WIDTH  = 64
+	TILE_HEIGHT = 32
+)
+
+// // Alignment offsets for multi-tile buildings
+// var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
+// 	building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
+// 	building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
+// 	building.BuildingSize1x2: {-32 / 2, 32},
+// 	building.BuildingSize2x1: {-32 * 1, 32.0 / 2},
+// 	building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
+// }
+
+// AlignmentOffset returns the pixel offset to correctly align multi-tile buildings
+func AlignmentOffset(size building.BuildingSizeIdentifier, rot rotation.Rotation) (float64, float64) {
+	w, h := size.Width(), size.Height()
+
+	// Anchor offset in tile-space: bottom-left (0-indexed)
+	anchorTileX := 0
+	anchorTileY := h - 1
+
+	// Compute how far the anchor is from top-left (0,0) of the building
+	offsetTileX := -anchorTileX
+	offsetTileY := -anchorTileY
+
+	// Rotate that offset in tile-space
+	rotatedX, rotatedY := rotation.RotatePosition(
+		offsetTileX, offsetTileY,
+		w, h,
+		rot,
+	)
+
+	// Convert to isometric pixel-space
+	pixelX := (float64(rotatedX) - float64(rotatedY)) * (TILE_WIDTH / 2)
+	pixelY := (float64(rotatedX) + float64(rotatedY)) * (TILE_HEIGHT / 2)
+
+	return pixelX, pixelY
 }
 
 // Renderer query
@@ -103,11 +134,15 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, rot rota
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
 
-				// Apply alignment offset for multi-tile buildings
-				if offset, ok := AlignmentMap[building.Size]; ok {
-					isoX += offset[0]
-					isoY += offset[1]
-				}
+				// // Apply alignment offset for multi-tile buildings
+				// if offset, ok := AlignmentMap[building.Size]; ok {
+				// 	isoX += offset[0]
+				// 	isoY += offset[1]
+				// }
+
+				ox, oy := AlignmentOffset(building.Size, rot)
+				isoX += ox
+				isoY += oy
 
 				// Calculate visual height for depth sorting
 				visualZ := tileImageHeight / float64(tileHeight)
