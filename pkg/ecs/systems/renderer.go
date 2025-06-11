@@ -12,20 +12,18 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
 )
 
+// Embed optional debug tiles
+//
 //go:embed assets/gfx/0.png
 var grid0Bytes []byte
 
-//go:embed assets/gfx/1.png
-var grid1Tile []byte
-
 var grid0 = createImage(grid0Bytes)
-
-// var grid1 = createImage(grid1Tile)
 
 func createImage(data []byte) *ebiten.Image {
 	img, err := png.Decode(bytes.NewReader(data))
@@ -45,7 +43,7 @@ func createImage(data []byte) *ebiten.Image {
 	return ebiten.NewImageFromImage(rgbaImg)
 }
 
-// Alignment for various building sizes
+// Alignment offsets for multi-tile buildings
 var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
 	building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
 	building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
@@ -54,19 +52,21 @@ var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
 	building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
 }
 
-// Renderer ECS query
+// Renderer query
 var rendererQuery = donburi.NewQuery(
 	filter.Contains(components.IslandType),
 )
 
+// A renderable tile or building piece
 type RenderableTile struct {
 	isoX, isoY float64
 	Z          float64
-	topX, topY float64
+	topX, topY int
 	Image      *ebiten.Image
 }
 
-func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
+// RenderSystem renders all tiles with isometric projection and camera rotation
+func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, rot rotation.Rotation) {
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
 
@@ -87,36 +87,36 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 				tile := components.TileType.Get(tileEntry)
 				building := components.BuildingType.Get(tileEntry)
 
-				// if tile.Image == nil && tile.Occupation {
-				// 	tile.Image = grid1
-				// }
 				if tile.Image == nil {
 					continue
 				}
 
-				// Compute screen coordinates
-				isoX := ((pos.X-island.X)-(pos.Y-island.Y))*(float64(tileWidth)/2) + float64(island.X)*(float64(tileWidth)/2)
-				isoY := ((pos.X-island.X)+(pos.Y-island.Y))*(float64(tileHeight)/2) + float64(island.Y)*(float64(tileHeight)/2)
+				// Rotate the tile position based on current camera rotation
+				rotatedX, rotatedY := rotation.RotatePosition(int(pos.X), int(pos.Y), island.Width, island.Height, rot)
+
+				// Project to isometric screen coordinates
+				isoX := ((float64(rotatedX)-island.X)-(float64(rotatedY)-island.Y))*(float64(tileWidth)/2) + float64(island.X)*(float64(tileWidth)/2)
+				isoY := ((float64(rotatedX)-island.X)+(float64(rotatedY)-island.Y))*(float64(tileHeight)/2) + float64(island.Y)*(float64(tileHeight)/2)
 				isoY -= pos.Offset
 
-				// Adjust image height
+				// Adjust image height for proper overlap
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
 
-				// Apply alignment offset if needed
+				// Apply alignment offset for multi-tile buildings
 				if offset, ok := AlignmentMap[building.Size]; ok {
 					isoX += offset[0]
 					isoY += offset[1]
 				}
 
-				// Calculate visual Z-depth from image height
+				// Calculate visual height for depth sorting
 				visualZ := tileImageHeight / float64(tileHeight)
 
 				renderableTiles = append(renderableTiles, RenderableTile{
 					isoX:  isoX,
 					isoY:  isoY,
-					topX:  pos.X,
-					topY:  pos.Y,
+					topX:  rotatedX,
+					topY:  rotatedY,
 					Z:     visualZ,
 					Image: tile.Image,
 				})
@@ -124,13 +124,14 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 		}
 	})
 
-	// Sort tiles by isometric depth order
+	// Sort by isometric depth (rotatedX + rotatedY + height)
 	sort.Slice(renderableTiles, func(i, j int) bool {
-		depthI := renderableTiles[i].topX + renderableTiles[i].topY + renderableTiles[i].Z
-		depthJ := renderableTiles[j].topX + renderableTiles[j].topY + renderableTiles[j].Z
+		depthI := renderableTiles[i].topX + renderableTiles[i].topY + int(renderableTiles[i].Z)
+		depthJ := renderableTiles[j].topX + renderableTiles[j].topY + int(renderableTiles[j].Z)
 		return depthI < depthJ
 	})
 
+	// Render tiles
 	for _, tile := range renderableTiles {
 		if tile.Image != nil {
 			op := &ebiten.DrawImageOptions{}
@@ -145,5 +146,5 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool) {
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
-	// Optional debug grid overlay
+	// Implement if needed
 }

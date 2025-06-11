@@ -1,7 +1,10 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
 
@@ -15,6 +18,15 @@ var animationQuery = donburi.NewQuery(
 )
 
 func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime float64) {
+	var rot rotation.Rotation
+
+	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQuery.Each(world, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		rot = ctrl.Rotation
+	})
+	globalRotation := rot
+
 	animationQuery.Each(world, func(entry *donburi.Entry) {
 		// Access the Animation and Tile components
 		building := components.BuildingType.Get(entry)
@@ -26,7 +38,9 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 			animation.CurrentTime = 0
 			animation.Reset = false
 		}
-		frames := ani.GetAnimation(building.BuildingID, building.Rotation).Frames
+		rotation := (building.Rotation + globalRotation) % 4
+		fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
+		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
 		tile := components.TileType.Get(entry)
 		// if tile.Occupation {
 		// 	tile.Image = grid1

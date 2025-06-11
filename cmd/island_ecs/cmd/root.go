@@ -40,6 +40,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 
 	donburi "github.com/yohamta/donburi"
+	"github.com/yohamta/donburi/filter"
 )
 
 var (
@@ -147,6 +148,25 @@ var rootCmd = &cobra.Command{
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
 		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
 		components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+
+		cameraEntity := w.World.Create(components.CameraType)
+		cameraEntry := w.World.Entry(cameraEntity)
+		components.CameraType.Set(cameraEntry, &components.Camera{
+			X:        0,
+			Y:        0,
+			Zoom:     1.0,
+			Rotation: rotation.DEG0,
+		})
+
+		controlEntity := w.World.Create(components.ControlType)
+		controlEntry := w.World.Entry(controlEntity)
+
+		components.ControlType.Set(controlEntry, &components.Control{
+			Rotation:         rotation.DEG0,
+			GridVisible:      true,
+			LastKeyPressTime: time.Now(),
+		})
+
 		// fmt.Println(island)
 		// w.World.Entry(entity)
 
@@ -214,22 +234,31 @@ func Execute() {
 }
 
 type Game struct {
-	world            *world.World
-	animations       *animations.Animations
-	ScreenWidth      int
-	ScreenHeight     int
-	lastKeyPressTime time.Time
-	buildingId       int
-	buildingIndex    int
-	rotation         rotation.Rotation
-	lastTime         time.Time
-	entry            *donburi.Entry
-	buildings        *buildingsCod.Buildings
-	grid             bool
+	world        *world.World
+	animations   *animations.Animations
+	ScreenWidth  int
+	ScreenHeight int
+	// lastKeyPressTime time.Time
+	// buildingId       int
+	buildingIndex int
+	rotation      rotation.Rotation
+	// lastTime         time.Time
+	// entry            *donburi.Entry
+	buildings *buildingsCod.Buildings
+	grid      bool
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	systems.RenderSystem(g.world.World, screen, g.grid)
+	var rot rotation.Rotation
+	var grid bool
+
+	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQuery.Each(g.world.World, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		rot = ctrl.Rotation
+		grid = ctrl.GridVisible
+	})
+	systems.RenderSystem(g.world.World, screen, grid, rot)
 	// systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
 	// systems.RenderSystemAscii(g.world.World)
 }
@@ -259,31 +288,32 @@ func (g *Game) DrawUsage(screen *ebiten.Image) {
 
 func (g *Game) Update() error {
 	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
-
-	const debounceDuration = time.Millisecond * 250
-	now := time.Now()
-
-	if now.Sub(g.lastKeyPressTime) >= debounceDuration {
-		if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-			fmt.Println(int(g.rotation))
-			g.rotation.Increment()
-			fmt.Println(int(g.rotation))
-			g.lastKeyPressTime = now
-
-		} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-			fmt.Println(int(g.rotation))
-			g.rotation.Decrement()
-			fmt.Println(int(g.rotation))
-			g.lastKeyPressTime = now
-		} else if ebiten.IsKeyPressed(ebiten.KeyG) {
-			g.grid = !g.grid
-			g.lastKeyPressTime = now
-		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-			os.Exit(0)
-		}
-	}
-	g.lastTime = now
+	systems.InputSystem(g.world.World)
 	return nil
+	// const debounceDuration = time.Millisecond * 250
+	// now := time.Now()
+
+	// if now.Sub(g.lastKeyPressTime) >= debounceDuration {
+	// 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+	// 		fmt.Println(int(g.rotation))
+	// 		g.rotation.Increment()
+	// 		fmt.Println(int(g.rotation))
+	// 		g.lastKeyPressTime = now
+
+	// 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+	// 		fmt.Println(int(g.rotation))
+	// 		g.rotation.Decrement()
+	// 		fmt.Println(int(g.rotation))
+	// 		g.lastKeyPressTime = now
+	// 	} else if ebiten.IsKeyPressed(ebiten.KeyG) {
+	// 		g.grid = !g.grid
+	// 		g.lastKeyPressTime = now
+	// 	} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+	// 		os.Exit(0)
+	// 	}
+	// }
+	// g.lastTime = now
+	// return nil
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
