@@ -105,3 +105,61 @@ func (b *BuildingSizeIdentifier) Height() int {
 		return 0
 	}
 }
+
+var orderedSizes = []BuildingSizeIdentifier{
+	BuildingSize1x2,
+	BuildingSize2x1,
+	BuildingSize2x2,
+	BuildingSize2x3,
+	BuildingSize4x3,
+	BuildingSize5x5,
+	BuildingSize6x4,
+	BuildingSize6x6,
+	BuildingSize1x3,
+	BuildingSize3x3,
+	BuildingSize4x4,
+	BuildingSize1x1,
+	BuildingSize5x7,
+}
+
+func NextBuildingSize(current BuildingSizeIdentifier) BuildingSizeIdentifier {
+	for i, size := range orderedSizes {
+		if size == current && i+1 < len(orderedSizes) {
+			return orderedSizes[i+1]
+		}
+	}
+	return orderedSizes[0]
+}
+
+func PreviousBuildingSize(current BuildingSizeIdentifier) BuildingSizeIdentifier {
+	for i, size := range orderedSizes {
+		if size == current && i > 0 {
+			return orderedSizes[i-1]
+		}
+	}
+	return orderedSizes[len(orderedSizes)-1]
+}
+
+var SizeToIdentifier = map[BuildingSizeIdentifier]string{
+	BuildingSize1x1:     "1x1",
+	BuildingSize1x2:     "1x2",
+	BuildingSize1x3:     "1x3",
+	BuildingSize2x1:     "2x1",
+	BuildingSize2x2:     "2x2",
+	BuildingSize2x3:     "2x3",
+	BuildingSize3x3:     "3x3",
+	BuildingSize4x3:     "4x3",
+	BuildingSize4x4:     "4x4",
+	BuildingSize5x5:     "5x5",
+	BuildingSize6x6:     "6x6",
+	BuildingSize6x4:     "6x4",
+	BuildingSize5x7:     "5x7",
+	BuildingSizeUnknown: "unknown",
+}
+
+func (size BuildingSizeIdentifier) String() string {
+	if id, ok := SizeToIdentifier[size]; ok {
+		return id
+	}
+	return SizeToIdentifier[BuildingSizeUnknown]
+}

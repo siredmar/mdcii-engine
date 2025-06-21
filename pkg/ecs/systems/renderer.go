@@ -66,53 +66,27 @@ var AlignmentMaps = map[rotation.Rotation]map[building.BuildingSizeIdentifier][2
 		building.BuildingSize4x3: {-96, 80},
 	},
 	rotation.DEG90: {
-		building.BuildingSize2x2: {-32, 32},
-		building.BuildingSize2x3: {-48, 64},
-		building.BuildingSize1x2: {-16, 32},
-		building.BuildingSize2x1: {-32, 16},
-		building.BuildingSize4x3: {-80, 96},
+		building.BuildingSize2x2: {-64, 16},
+		building.BuildingSize2x3: {-96, 16},
+		building.BuildingSize1x2: {-32, 32},
+		building.BuildingSize2x1: {-32, 0},
+		building.BuildingSize4x3: {-160, 32},
 	},
 	rotation.DEG180: {
-		building.BuildingSize2x2: {-32, 32},
-		building.BuildingSize2x3: {-64, 48},
+		building.BuildingSize2x2: {-32, 0},
+		building.BuildingSize2x3: {-32, 0},
 		building.BuildingSize1x2: {-16, 32},
-		building.BuildingSize2x1: {-32, 16},
-		building.BuildingSize4x3: {-96, 80},
+		building.BuildingSize2x1: {0, 0},
+		building.BuildingSize4x3: {-64, 0},
 	},
 	rotation.DEG270: {
-		building.BuildingSize2x2: {-32, 32},
-		building.BuildingSize2x3: {-48, 64},
-		building.BuildingSize1x2: {-16, 32},
-		building.BuildingSize2x1: {-32, 16},
-		building.BuildingSize4x3: {-80, 96},
+		building.BuildingSize2x2: {0, 16},
+		building.BuildingSize2x3: {0, 32},
+		building.BuildingSize1x2: {-32, 32},
+		building.BuildingSize2x1: {0, 16},
+		building.BuildingSize4x3: {0, 46},
 	},
 }
-
-// // AlignmentOffset returns the pixel offset to correctly align multi-tile buildings
-// func AlignmentOffset(size building.BuildingSizeIdentifier, rot rotation.Rotation) (float64, float64) {
-// 	w, h := size.Width(), size.Height()
-
-// 	// Anchor offset in tile-space: bottom-left (0-indexed)
-// 	anchorTileX := 0
-// 	anchorTileY := h - 1
-
-// 	// Compute how far the anchor is from top-left (0,0) of the building
-// 	offsetTileX := -anchorTileX
-// 	offsetTileY := -anchorTileY
-
-// 	// Rotate that offset in tile-space
-// 	rotatedX, rotatedY := rotation.RotatePosition(
-// 		offsetTileX, offsetTileY,
-// 		w, h,
-// 		rot,
-// 	)
-
-// 	// Convert to isometric pixel-space
-// 	pixelX := (float64(rotatedX) - float64(rotatedY)) * (TILE_WIDTH / 2)
-// 	pixelY := (float64(rotatedX) + float64(rotatedY)) * (TILE_HEIGHT / 2)
-
-// 	return pixelX, pixelY
-// }
 
 // Renderer query
 var rendererQuery = donburi.NewQuery(

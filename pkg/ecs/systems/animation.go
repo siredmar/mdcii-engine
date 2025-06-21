@@ -1,8 +1,6 @@
 package systems
 
 import (
-	"fmt"
-
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 
@@ -40,7 +38,7 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		}
 		// rotation := (building.Rotation + globalRotation) % 4
 		rotation := building.Rotation.Add(globalRotation)
-		fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
+		// fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
 		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
 		tile := components.TileType.Get(entry)
 		// if tile.Occupation {
