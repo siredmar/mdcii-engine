@@ -61,26 +61,42 @@ func IntToRotation(rotation int) Rotation {
 	}
 }
 
-// RotatePosition rotates a position based on the given rotation
-func RotatePosition(mapX, mapY, width, height int, rotation Rotation) (int, int) {
-	x := mapX
-	y := mapY
-
-	switch rotation {
+// RotateOffset rotates a tile-local offset based on rotation
+func RotateOffset(x, y, width, height int, rot Rotation) (int, int) {
+	switch rot {
 	case DEG0:
-		// no change
+		return x, y
 	case DEG90:
-		x = width - mapY - 1
-		y = mapX
+		return height - 1 - y, x
 	case DEG180:
-		x = width - mapX - 1
-		y = height - mapY - 1
+		return width - 1 - x, height - 1 - y
 	case DEG270:
-		x = mapY
-		y = height - mapX - 1
+		return y, width - 1 - x
+	default:
+		return x, y
 	}
+}
 
-	return x, y
+// RotatePosition rotates a local tile coordinate (x, y) within a building of given width and height
+// so that the bottom-left corner remains anchored after rotation.
+// Rotation is clockwise: DEG90 means rotating right by 90°.
+func RotatePosition(x, y, width, height int, rot Rotation) (int, int) {
+	switch rot {
+	case DEG0:
+		return x, y
+	case DEG90:
+		// Clockwise 90°: rotate (x, y) → (h - 1 - y, x)
+		return height - 1 - y, x
+	case DEG180:
+		// Clockwise 180°: rotate (x, y) → (w - 1 - x, h - 1 - y)
+		return width - 1 - x, height - 1 - y
+	case DEG270:
+		// Clockwise 270°: rotate (x, y) → (y, w - 1 - x)
+		return y, width - 1 - x
+	default:
+		// Fallback: no rotation
+		return x, y
+	}
 }
 
 // Add returns the result of adding two rotations

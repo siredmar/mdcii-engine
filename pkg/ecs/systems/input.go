@@ -46,34 +46,34 @@ func InputSystem(world donburi.World) {
 				os.Exit(0)
 			}
 
-			// 🔁 ALIGNMENT ADJUSTMENT
-			rotationMap := AlignmentMaps[ctrl.Rotation]
-			offset := rotationMap[ctrl.SelectedSize]
+			// // 🔁 ALIGNMENT ADJUSTMENT
+			// rotationMap := AlignmentMaps[ctrl.Rotation]
+			// offset := rotationMap[ctrl.SelectedSize]
 
-			if ebiten.IsKeyPressed(ebiten.KeyBracketLeft) { // [
-				offset[0] -= 1
-				rotationMap[ctrl.SelectedSize] = offset
-				ctrl.LastKeyPressTime = now
-				fmt.Printf("Adjust X -: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
-			}
-			if ebiten.IsKeyPressed(ebiten.KeyBracketRight) { // ]
-				offset[0] += 1
-				rotationMap[ctrl.SelectedSize] = offset
-				ctrl.LastKeyPressTime = now
-				fmt.Printf("Adjust X +: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
-			}
-			if ebiten.IsKeyPressed(ebiten.KeySemicolon) { // ;
-				offset[1] -= 1
-				rotationMap[ctrl.SelectedSize] = offset
-				ctrl.LastKeyPressTime = now
-				fmt.Printf("Adjust Y -: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
-			}
-			if ebiten.IsKeyPressed(ebiten.KeyApostrophe) { // '
-				offset[1] += 1
-				rotationMap[ctrl.SelectedSize] = offset
-				ctrl.LastKeyPressTime = now
-				fmt.Printf("Adjust Y +: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
-			}
+			// if ebiten.IsKeyPressed(ebiten.KeyBracketLeft) { // [
+			// 	offset[0] -= 1
+			// 	rotationMap[ctrl.SelectedSize] = offset
+			// 	ctrl.LastKeyPressTime = now
+			// 	fmt.Printf("Adjust X -: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
+			// }
+			// if ebiten.IsKeyPressed(ebiten.KeyBracketRight) { // ]
+			// 	offset[0] += 1
+			// 	rotationMap[ctrl.SelectedSize] = offset
+			// 	ctrl.LastKeyPressTime = now
+			// 	fmt.Printf("Adjust X +: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
+			// }
+			// if ebiten.IsKeyPressed(ebiten.KeySemicolon) { // ;
+			// 	offset[1] -= 1
+			// 	rotationMap[ctrl.SelectedSize] = offset
+			// 	ctrl.LastKeyPressTime = now
+			// 	fmt.Printf("Adjust Y -: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
+			// }
+			// if ebiten.IsKeyPressed(ebiten.KeyApostrophe) { // '
+			// 	offset[1] += 1
+			// 	rotationMap[ctrl.SelectedSize] = offset
+			// 	ctrl.LastKeyPressTime = now
+			// 	fmt.Printf("Adjust Y +: %s %s -> [%.0f, %.0f]\n", ctrl.Rotation, ctrl.SelectedSize.String(), offset[0], offset[1])
+			// }
 
 			// 🔁 BUILDING SIZE SELECTION
 			if ebiten.IsKeyPressed(ebiten.KeyDigit1) {

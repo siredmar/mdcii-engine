@@ -3,13 +3,11 @@ package systems
 import (
 	"bytes"
 	_ "embed"
-	"image"
 	"image/png"
 	"log"
 	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/siredmar/mdcii-engine/pkg/building"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
@@ -18,8 +16,6 @@ import (
 	"github.com/yohamta/donburi/filter"
 )
 
-// Embed optional debug tiles
-//
 //go:embed assets/gfx/0.png
 var grid0Bytes []byte
 
@@ -30,17 +26,7 @@ func createImage(data []byte) *ebiten.Image {
 	if err != nil {
 		log.Fatalf("Failed to decode PNG: %v", err)
 	}
-
-	rgbaImg := image.NewRGBA(img.Bounds())
-	drawer := image.NewRGBA(img.Bounds())
-	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
-		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-			drawer.Set(x, y, img.At(x, y))
-		}
-	}
-	copy(rgbaImg.Pix, drawer.Pix)
-
-	return ebiten.NewImageFromImage(rgbaImg)
+	return ebiten.NewImageFromImage(img)
 }
 
 const (
@@ -48,57 +34,29 @@ const (
 	TILE_HEIGHT = 32
 )
 
-// // Alignment offsets for multi-tile buildings
-//
-//	var AlignmentMap = map[building.BuildingSizeIdentifier][2]float64{
-//		building.BuildingSize2x3: {-32 * 2, (32.0 / 2) * 3},
-//		building.BuildingSize2x2: {-32, (32.0 / 2) * 2},
-//		building.BuildingSize1x2: {-32 / 2, 32},
-//		building.BuildingSize2x1: {-32 * 1, 32.0 / 2},
-//		building.BuildingSize4x3: {-32 * 3, (32.0 / 2) * 5},
-//	}
-var AlignmentMaps = map[rotation.Rotation]map[building.BuildingSizeIdentifier][2]float64{
-	rotation.DEG0: {
-		building.BuildingSize2x2: {-32, 32},
-		building.BuildingSize2x3: {-64, 48},
-		building.BuildingSize1x2: {-16, 32},
-		building.BuildingSize2x1: {-32, 16},
-		building.BuildingSize4x3: {-96, 80},
-	},
-	rotation.DEG90: {
-		building.BuildingSize2x2: {-64, 16},
-		building.BuildingSize2x3: {-96, 16},
-		building.BuildingSize1x2: {-32, 32},
-		building.BuildingSize2x1: {-32, 0},
-		building.BuildingSize4x3: {-160, 32},
-	},
-	rotation.DEG180: {
-		building.BuildingSize2x2: {-32, 0},
-		building.BuildingSize2x3: {-32, 0},
-		building.BuildingSize1x2: {-16, 32},
-		building.BuildingSize2x1: {0, 0},
-		building.BuildingSize4x3: {-64, 0},
-	},
-	rotation.DEG270: {
-		building.BuildingSize2x2: {0, 16},
-		building.BuildingSize2x3: {0, 32},
-		building.BuildingSize1x2: {-32, 32},
-		building.BuildingSize2x1: {0, 16},
-		building.BuildingSize4x3: {0, 46},
-	},
-}
+var rendererQuery = donburi.NewQuery(filter.Contains(components.IslandType))
 
-// Renderer query
-var rendererQuery = donburi.NewQuery(
-	filter.Contains(components.IslandType),
-)
-
-// A renderable tile or building piece
 type RenderableTile struct {
 	isoX, isoY float64
 	Z          float64
 	topX, topY int
 	Image      *ebiten.Image
+}
+
+// 💡 Compute anchor offset dynamically (bottom-left tile is the anchor in DEG0)
+func computeAnchorOffset(buildingWidth, buildingHeight int, rot rotation.Rotation, tileW, tileH float64) (float64, float64) {
+	// Bottom-left tile in DEG0
+	anchorX := 0
+	anchorY := buildingHeight - 1
+
+	// Rotate anchor to current rotation
+	rotX, rotY := rotation.RotateOffset(anchorX, anchorY, buildingWidth, buildingHeight, rot)
+
+	// Convert rotated anchor position to isometric offset
+	pixelX := float64(rotX-rotY) * (tileW / 2)
+	pixelY := float64(rotX+rotY) * (tileH / 2)
+
+	return -pixelX, -pixelY
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
@@ -107,7 +65,6 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 	var renderableTiles []RenderableTile
 
-	// 👉 Fetch camera (added)
 	var camera *components.Camera
 	cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
@@ -137,27 +94,22 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					continue
 				}
 
-				// 🔁 Apply rotation to world position
+				// Rotate position
 				rotatedX, rotatedY := rotation.RotatePosition(int(pos.X), int(pos.Y), island.Width, island.Height, currentRotation)
 
-				// 📐 Isometric projection
+				// Convert to isometric coordinates
 				isoX := ((float64(rotatedX)-island.X)-(float64(rotatedY)-island.Y))*(float64(tileWidth)/2) + float64(island.X)*(float64(tileWidth)/2)
 				isoY := ((float64(rotatedX)-island.X)+(float64(rotatedY)-island.Y))*(float64(tileHeight)/2) + float64(island.Y)*(float64(tileHeight)/2)
 				isoY -= pos.Offset
 
-				// ⬇ Adjust image height for visual stacking
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
 
-				// 🧭 Alignment offset (rotation-specific)
-				if rotationMap, ok := AlignmentMaps[currentRotation]; ok {
-					if offset, ok := rotationMap[building.Size]; ok {
-						isoX += offset[0]
-						isoY += offset[1]
-					}
-				}
+				// 🔧 Apply anchor offset
+				offsetX, offsetY := computeAnchorOffset(building.Size.Width(), building.Size.Height(), currentRotation, float64(tileWidth), float64(tileHeight))
+				isoX += offsetX
+				isoY += offsetY
 
-				// 📏 Visual depth
 				visualZ := tileImageHeight / float64(tileHeight)
 
 				renderableTiles = append(renderableTiles, RenderableTile{
@@ -172,14 +124,12 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 	})
 
-	// 🔄 Depth sort for correct layering
 	sort.Slice(renderableTiles, func(i, j int) bool {
 		depthI := renderableTiles[i].topX + renderableTiles[i].topY + int(renderableTiles[i].Z)
 		depthJ := renderableTiles[j].topX + renderableTiles[j].topY + int(renderableTiles[j].Z)
 		return depthI < depthJ
 	})
 
-	// 🎨 Draw everything, applying camera offset
 	for _, tile := range renderableTiles {
 		if tile.Image != nil {
 			op := &ebiten.DrawImageOptions{}
@@ -194,5 +144,5 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
-	// Implement if needed
+	// optional grid rendering
 }

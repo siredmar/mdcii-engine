@@ -38,12 +38,12 @@ type TextureAtlas struct {
 	OptionSkipFileEnding bool                      `json:"-"`
 	OptionKeyToLower     bool                      `json:"-"`
 	OptionKeyToUpper     bool                      `json:"-"`
-	PNGs                 *bsh.BshPng
-	BuildingsCOD         buildingsCOD.Buildings
+	PNGs                 *bsh.BshPng               `json:"-"`
+	BuildingsCOD         buildingsCOD.Buildings    `json:"-"`
 	// filesToLoad          []string `json:"-"`
-	outputDir string `json:"-"`
-	indexToId map[int]int
-	idToIndex map[int]int
+	outputDir string      `json:"-"`
+	indexToId map[int]int `json:"-"`
+	idToIndex map[int]int `json:"-"`
 	// imagesToLoad         map[string]image.Image   `json:"-"`
 }
 
