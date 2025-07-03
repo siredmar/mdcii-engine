@@ -86,33 +86,31 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		// filenames := []string{"1.png", "2.png", "3.png"} // Add your filenames here
-		// files, err := os.ReadDir(inputDir)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	os.Exit(1)
-		// }
+
 		atlasWidth := 4096
 		atlasHeight := 4096
-		// filenames := []string{}
-		// for _, file := range files {
-		// 	if !file.IsDir() {
-		// 		if strings.HasSuffix(file.Name(), ".png") {
-		// 			filenames = append(filenames, fmt.Sprintf("%s/%s", inputDir, file.Name()))
-		// 		}
-		// 	}
-		// }
-		// fmt.Println(filenames)
+		atlasJsonPath := filepath.Join(outputDir, "texture-atlas.json")
 
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-
-		if err := atlas.Export(); err != nil {
-			fmt.Println("Error exporting texture atlas:", err)
-			return
+		if _, err := os.Stat(atlasJsonPath); os.IsNotExist(err) {
+			fmt.Println("Atlas does not exist, creating new atlas...")
+			atlasObj, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(outputDir))
+			if err != nil {
+				fmt.Println("Error:", err)
+				os.Exit(1)
+			}
+			if err := atlasObj.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				os.Exit(1)
+			}
+			fmt.Println("Atlas created and exported.")
+		} else {
+			fmt.Println("Loading existing atlas...")
+			loadedAtlas, err := atlas.LoadAtlasFromJSON(atlasJsonPath)
+			if err != nil {
+				fmt.Println("Error loading atlas:", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Atlas loaded: %s (%dx%d)\n", loadedAtlas.AtlasMeta.Name, loadedAtlas.AtlasMeta.Width, loadedAtlas.AtlasMeta.Height)
 		}
 
 	},
@@ -137,7 +135,7 @@ func init() {
 	// rootCmd.Flags().BoolVarP(&decrypt, "decrypt", "d", false, "decrypt true/false")
 	// rootCmd.Flags().StringVarP(&inputDir, "dir", "d", ".", "Input directory")
 	rootCmd.Flags().StringVarP(&gamePath, "game", "g", ".", "game path")
-	rootCmd.Flags().StringVarP(&outputDir, "output", "o", ".", "Output directory")
+	rootCmd.Flags().StringVarP(&outputDir, "output", "o", ".", "Output file")
 	rootCmd.Flags().StringVarP(&buildingsPath, "buildings", "b", "", "Path to buildings file")
 	// rootCmd.Flags().StringVarP(&inputBSH, "bsh", "b", ".", "input BSH")
 }

@@ -56,18 +56,19 @@ type AtlasMeta struct {
 // Metadata contains metadata for an image in the atlas
 type Metadata struct {
 	BuildingID     int `json:"buildingID"`
-	Width          int `json:"width"`
-	Height         int `json:"height"`
+	PNGIndex       int `json:"pngIndex"`
 	X              int `json:"x"`
 	Y              int `json:"y"`
+	Width          int `json:"width"`
+	Height         int `json:"height"`
 	Rotation       int `json:"rotation"`
 	AnimationIndex int `json:"animationIndex"`
 }
 
 // Image contains metadata for an image in the atlas
 type Image struct {
-	Sprite   image.Image
-	Metadata Metadata `json:"metadata"`
+	Sprite   image.Image `json:"-"`
+	Metadata Metadata    `json:"metadata"`
 }
 
 type TextureAtlasOption func(*TextureAtlas)
@@ -397,21 +398,89 @@ func (a *TextureAtlas) Export() error {
 		}
 	}
 
-	for i, img := range a.Images {
-		err := a.ExportPNG(fmt.Sprintf("%s/%s-%04d.png", a.outputDir, a.AtlasMeta.Name, i), img)
-		if err != nil {
+	// Packing: pack all images into PNG sheets of fixed size
+	const sheetWidth, sheetHeight = 2048, 2048
+	var sheets []*image.RGBA
+	var sheetIndex int
+	var x, y, maxRowHeight int
+
+	sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, sheetWidth, sheetHeight)))
+
+	// Collect all images to pack
+	var allImages []struct {
+		img     image.Image
+		meta    *Metadata
+		rot     rotation.Rotation
+		buildID int
+		animIdx int
+	}
+	for buildID, set := range a.ImagesMeta {
+		for rot, anim := range set.Animations {
+			for animIdx, img := range anim.Images {
+				allImages = append(allImages, struct {
+					img     image.Image
+					meta    *Metadata
+					rot     rotation.Rotation
+					buildID int
+					animIdx int
+				}{img.Sprite, &anim.Images[animIdx].Metadata, rot, buildID, animIdx})
+			}
+		}
+	}
+
+	for _, entry := range allImages {
+		img := entry.img
+		w, h := img.Bounds().Dx(), img.Bounds().Dy()
+		if x+w > sheetWidth {
+			x = 0
+			y += maxRowHeight
+			maxRowHeight = 0
+		}
+		if y+h > sheetHeight {
+			sheetIndex++
+			y = 0
+			x = 0
+			maxRowHeight = 0
+			sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, sheetWidth, sheetHeight)))
+		}
+		dst := sheets[sheetIndex].SubImage(image.Rect(x, y, x+w, y+h)).(*image.RGBA)
+		draw.Draw(dst, dst.Bounds(), img, img.Bounds().Min, draw.Src)
+		entry.meta.PNGIndex = sheetIndex
+		entry.meta.X = x
+		entry.meta.Y = y
+		entry.meta.Width = w
+		entry.meta.Height = h
+		x += w
+		if h > maxRowHeight {
+			maxRowHeight = h
+		}
+	}
+
+	// Export PNG sheets
+	for i, sheet := range sheets {
+		filename := fmt.Sprintf("%s/%s-%04d.png", a.outputDir, a.AtlasMeta.Name, i)
+		if err := a.ExportPNG(filename, sheet); err != nil {
 			return err
 		}
 	}
 
-	// Save metadata to JSON file
+	// Save metadata to JSON file (only metadata, not image data)
+	type ExportMeta struct {
+		AtlasMeta  AtlasMeta
+		ImagesMeta map[int]*ImageSetRotation
+	}
+	exportMeta := ExportMeta{
+		AtlasMeta:  a.AtlasMeta,
+		ImagesMeta: a.ImagesMeta,
+	}
+
 	exportJSONFile, err := os.Create(fmt.Sprintf("%s/%s.json", a.outputDir, a.AtlasMeta.Name))
 	if err != nil {
 		return err
 	}
 	defer exportJSONFile.Close()
 
-	j, err := json.MarshalIndent(a, "", "  ")
+	j, err := json.MarshalIndent(exportMeta, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -421,6 +490,58 @@ func (a *TextureAtlas) Export() error {
 		return err
 	}
 	return nil
+}
+
+// LoadAtlasFromJSON loads the atlas metadata and PNG sheets
+func LoadAtlasFromJSON(jsonPath string) (*TextureAtlas, error) {
+	jsonFile, err := os.Open(jsonPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open JSON file: %v", err)
+	}
+	defer jsonFile.Close()
+
+	type ExportMeta struct {
+		AtlasMeta  AtlasMeta
+		ImagesMeta map[int]*ImageSetRotation
+	}
+	var exportMeta ExportMeta
+	if err := json.NewDecoder(jsonFile).Decode(&exportMeta); err != nil {
+		return nil, fmt.Errorf("failed to decode atlas JSON: %v", err)
+	}
+
+	atlas := &TextureAtlas{
+		AtlasMeta:  exportMeta.AtlasMeta,
+		ImagesMeta: exportMeta.ImagesMeta,
+	}
+
+	// Load all PNG sheets
+	atlas.Images = []*image.RGBA{}
+	for i := 0; ; i++ {
+		pngPath := fmt.Sprintf("%s-%04d.png", jsonPath[:len(jsonPath)-5], i)
+		if _, err := os.Stat(pngPath); os.IsNotExist(err) {
+			break
+		}
+		img, err := loadImage(pngPath)
+		if err != nil {
+			return nil, err
+		}
+		atlas.Images = append(atlas.Images, imageToRGBA(img))
+	}
+
+	// Reconstruct Sprite fields for all images using metadata
+	for _, set := range atlas.ImagesMeta {
+		for _, anim := range set.Animations {
+			for i := range anim.Images {
+				meta := &anim.Images[i].Metadata
+				if meta.PNGIndex < len(atlas.Images) {
+					sheet := atlas.Images[meta.PNGIndex]
+					rect := image.Rect(meta.X, meta.Y, meta.X+meta.Width, meta.Y+meta.Height)
+					anim.Images[i].Sprite = sheet.SubImage(rect).(*image.RGBA)
+				}
+			}
+		}
+	}
+	return atlas, nil
 }
 
 // loadImage loads an image from the specified file path
@@ -445,4 +566,11 @@ func loadImage(filename string) (image.Image, error) {
 
 	// return nil, fmt.Errorf("failed to convert image to RGBA")
 	return img, nil
+}
+
+// Helper to convert to RGBA
+func imageToRGBA(img image.Image) *image.RGBA {
+	rgba := image.NewRGBA(img.Bounds())
+	draw.Draw(rgba, rgba.Bounds(), img, img.Bounds().Min, draw.Src)
+	return rgba
 }
