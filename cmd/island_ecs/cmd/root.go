@@ -110,13 +110,30 @@ var rootCmd = &cobra.Command{
 
 		atlasWidth := 4096
 		atlasHeight := 4096
-
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
+		atlasJsonPath := filepath.Join("/tmp/atlas", "texture-atlas.json")
+		var atlasObj *atlas.TextureAtlas
+		if _, err := os.Stat(atlasJsonPath); os.IsNotExist(err) {
+			fmt.Println("Atlas does not exist, creating new atlas...")
+			atlasObj, err = atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir("/tmp/atlas"))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := atlasObj.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
+			fmt.Println("Atlas created and exported.")
+		} else {
+			fmt.Println("Loading existing atlas...")
+			atlasObj, err = atlas.LoadAtlasFromJSON(atlasJsonPath)
+			if err != nil {
+				fmt.Println("Error loading atlas:", err)
+				return
+			}
+			fmt.Printf("Atlas loaded: %s (%dx%d)\n", atlasObj.AtlasMeta.Name, atlasObj.AtlasMeta.Width, atlasObj.AtlasMeta.Height)
 		}
-		ani, err := animations.New(atlas)
+		ani, err := animations.New(atlasObj)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
