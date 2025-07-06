@@ -156,7 +156,7 @@ func (a *TextureAtlas) findContentBounds(eimg *ebiten.Image) image.Rectangle {
 
 const (
 	tileWidth  = 64
-	tileHeight = 31
+	tileHeight = 32
 )
 
 func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSize) image.Image {
