@@ -10,11 +10,24 @@ func GetAnchorOffset(size building.BuildingSizeIdentifier, rot rotation.Rotation
 	width := size.Width()
 	height := size.Height()
 
-	// Anchor is always the bottom-left tile in DEG0
-	anchorX := 0
-	anchorY := height - 1
-
-	// Rotate anchor tile position based on current rotation
-	rotX, rotY := rotation.RotatePosition(anchorX, anchorY, width, height, rot)
-	return rotX, rotY
+	var anchorX, anchorY int
+	switch rot {
+	case rotation.DEG0:
+		// bottom-left
+		anchorX = 0
+		anchorY = height - 1
+	case rotation.DEG90:
+		// bottom-right
+		anchorX = width - 1
+		anchorY = height - 1
+	case rotation.DEG180:
+		// top-right
+		anchorX = width - 1
+		anchorY = 0
+	case rotation.DEG270:
+		// top-left
+		anchorX = 0
+		anchorY = 0
+	}
+	return anchorX, anchorY
 }

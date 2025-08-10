@@ -53,16 +53,36 @@ type AtlasMeta struct {
 	Name   string `json:"name"`
 }
 
+type TileAnchor struct {
+	GridX  int `json:"gridX"`
+	GridY  int `json:"gridY"`
+	PixelX int `json:"pixelX"`
+	PixelY int `json:"pixelY"`
+}
+
+type TileOffset struct {
+	GridDX  int `json:"gridDX"`
+	GridDY  int `json:"gridDY"`
+	PixelDX int `json:"pixelDX"`
+	PixelDY int `json:"pixelDY"`
+}
+
 // Metadata contains metadata for an image in the atlas
 type Metadata struct {
-	BuildingID     int `json:"buildingID"`
-	PNGIndex       int `json:"pngIndex"`
-	X              int `json:"x"`
-	Y              int `json:"y"`
-	Width          int `json:"width"`
-	Height         int `json:"height"`
-	Rotation       int `json:"rotation"`
-	AnimationIndex int `json:"animationIndex"`
+	BuildingID     int          `json:"buildingID"`
+	PNGIndex       int          `json:"pngIndex"`
+	X              int          `json:"x"`
+	Y              int          `json:"y"`
+	Width          int          `json:"width"`
+	Height         int          `json:"height"`
+	Rotation       int          `json:"rotation"`
+	AnimationIndex int          `json:"animationIndex"`
+	AnchorPixelX   int          `json:"anchorPixelX"`
+	AnchorPixelY   int          `json:"anchorPixelY"`
+	AnchorGridX    int          `json:"anchorGridX"`
+	AnchorGridY    int          `json:"anchorGridY"`
+	TileAnchors    []TileAnchor `json:"tileAnchors"`
+	TileOffsets    []TileOffset `json:"tileOffsets"`
 }
 
 // Image contains metadata for an image in the atlas
@@ -159,17 +179,24 @@ const (
 	tileHeight = 32
 )
 
-func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSize) image.Image {
+func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSize) (image.Image, int, int, int, int, []TileAnchor, []TileOffset) {
 	// Create a blank RGBA image for drawing
 	outputImage := image.NewRGBA(image.Rect(0, 0, 1000, 1000))
 
 	// Draw the building
 	offsets := building.RotationOffsets[b.Size][b.Rotation]
+	var anchorScreenX, anchorScreenY int
+	var tileAnchors []TileAnchor
+	var tileOffsets []TileOffset
+	anchorGridX, anchorGridY := offsets[0][0], offsets[0][1] // lowest-left tile for DEG0
 	for i, offset := range offsets {
 		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
+		if i == 0 { // bottom-left tile in DEG0
+			anchorScreenX = screenX
+			anchorScreenY = screenY
+		}
 
-		// textureKey := fmt.Sprintf("%d", b.BaseIndex+i)
 		textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
 			tilesPerRotation := len(building.RotationOffsets[size][rotation])
 			return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
@@ -190,6 +217,19 @@ func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSi
 
 		draw.Draw(outputImage, image.Rect(screenX, screenY-baseOffsetY, screenX+tileSize.Width, screenY+tileSize.Height),
 			tileImg, image.Point{}, draw.Over)
+
+		tileAnchors = append(tileAnchors, TileAnchor{
+			GridX:  offset[0],
+			GridY:  offset[1],
+			PixelX: screenX,
+			PixelY: screenY,
+		})
+		tileOffsets = append(tileOffsets, TileOffset{
+			GridDX:  offset[0] - anchorGridX,
+			GridDY:  offset[1] - anchorGridY,
+			PixelDX: screenX - anchorScreenX,
+			PixelDY: screenY - anchorScreenY,
+		})
 	}
 
 	// Find the bounds of the non-alpha content
@@ -197,19 +237,12 @@ func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSi
 
 	// Crop the image to the determined bounds
 	croppedImage := cropImage(outputImage, cropBounds)
-	return croppedImage
-	// // Save the cropped output image as a PNG file
-	// outputFile, err := os.Create("output.png")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer outputFile.Close()
 
-	// err = png.Encode(outputFile, croppedImage)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println("Image rendered, cropped, and saved as output.png")
+	// Calculate anchor pixel in cropped image
+	anchorPixelX := anchorScreenX - cropBounds.Min.X
+	anchorPixelY := anchorScreenY - cropBounds.Min.Y
+
+	return croppedImage, anchorPixelX, anchorPixelY, anchorGridX, anchorGridY, tileAnchors, tileOffsets
 }
 
 // findNonAlphaBounds determines the bounds of the non-transparent content in an image.
@@ -308,7 +341,7 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 				animations = 1
 			}
 			for animationStep := 0; animationStep < animations; animationStep++ {
-				img := atlas.drawBuildingToImage(b, TileSize{Width: tileWidth, Height: tileHeight})
+				img, anchorPixelX, anchorPixelY, anchorGridX, anchorGridY, tileAnchors, tileOffsets := atlas.drawBuildingToImage(b, TileSize{Width: tileWidth, Height: tileHeight})
 				if atlas.ImagesMeta[buildingID] == nil {
 					atlas.ImagesMeta[buildingID] = &ImageSetRotation{
 						Animations: make(map[rotation.Rotation]*Animation),
@@ -325,13 +358,17 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
 					Sprite: img,
 					Metadata: Metadata{
-						BuildingID: buildingID,
-						Width:      img.Bounds().Dx(),
-						Height:     img.Bounds().Dy(),
-						// X:              get set during packing,
-						// Y:              get set during packing,
+						BuildingID:     buildingID,
+						Width:          img.Bounds().Dx(),
+						Height:         img.Bounds().Dy(),
 						Rotation:       b.Rotation,
 						AnimationIndex: animationStep,
+						AnchorPixelX:   anchorPixelX,
+						AnchorPixelY:   anchorPixelY,
+						AnchorGridX:    anchorGridX,
+						AnchorGridY:    anchorGridY,
+						TileAnchors:    tileAnchors,
+						TileOffsets:    tileOffsets,
 					},
 				})
 				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Time = time.Duration((1000.0 / buildingCOD.AnimationTime) / 60.0)

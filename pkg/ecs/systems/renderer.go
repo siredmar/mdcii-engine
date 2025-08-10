@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/texture/mapping"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
@@ -43,22 +44,6 @@ type RenderableTile struct {
 	Image      *ebiten.Image
 }
 
-// 💡 Compute anchor offset dynamically (bottom-left tile is the anchor in DEG0)
-func computeAnchorOffset(buildingWidth, buildingHeight int, rot rotation.Rotation, tileW, tileH float64) (float64, float64) {
-	// Bottom-left tile in DEG0
-	anchorX := 0
-	anchorY := buildingHeight - 1
-
-	// Rotate anchor to current rotation
-	rotX, rotY := rotation.RotateOffset(anchorX, anchorY, buildingWidth, buildingHeight, rot)
-
-	// Convert rotated anchor position to isometric offset
-	pixelX := float64(rotX-rotY) * (tileW / 2)
-	pixelY := float64(rotX+rotY) * (tileH / 2)
-
-	return -pixelX, -pixelY
-}
-
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
@@ -90,8 +75,8 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				tile := components.TileType.Get(tileEntry)
 				building := components.BuildingType.Get(tileEntry)
 
-				if tile.Image == nil {
-					continue
+				if tile == nil || tile.Image == nil || tile.Metadata == nil {
+					return
 				}
 
 				// Rotate position
@@ -105,10 +90,17 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				tileImageHeight := float64(tile.Image.Bounds().Dy())
 				isoY -= tileImageHeight - float64(tileHeight)
 
-				// 🔧 Apply anchor offset
-				offsetX, offsetY := computeAnchorOffset(building.Size.Width(), building.Size.Height(), currentRotation, float64(tileWidth), float64(tileHeight))
-				isoX += offsetX
-				isoY += offsetY
+				// Compute anchor offset using GetAnchorOffset
+				anchorTileX, anchorTileY := mapping.GetAnchorOffset(building.Size, currentRotation)
+				anchorPixelX := float64(anchorTileX-anchorTileY) * (float64(tileWidth) / 2)
+				anchorPixelY := float64(anchorTileX+anchorTileY) * (float64(tileHeight) / 2)
+				isoX -= anchorPixelX
+				isoY -= anchorPixelY
+
+				// Use anchor pixel offset from atlas metadata for correct alignment
+				meta := tile.Metadata
+				isoX -= float64(meta.AnchorPixelX)
+				isoY -= float64(meta.AnchorPixelY)
 
 				visualZ := tileImageHeight / float64(tileHeight)
 

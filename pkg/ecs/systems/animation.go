@@ -36,38 +36,31 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 			animation.CurrentTime = 0
 			animation.Reset = false
 		}
-		// rotation := (building.Rotation + globalRotation) % 4
 		rotation := building.Rotation.Add(globalRotation)
-		// fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
-		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
+		animationData := ani.GetAnimation(building.BuildingID, rotation)
+		images := animationData.Images
 		tile := components.TileType.Get(entry)
-		// if tile.Occupation {
-		// 	tile.Image = grid1
-		// }
-		if animation.Count > 1 {
-			if animation.Running {
-				// Get animation frames from the atlas
-				// Update animation time
-				animation.CurrentTime += deltaTime
-				// fmt.Println("animation.CurrentTime", animation.CurrentTime)
-				// fmt.Println("len(frames)", len(frames))
-				// fmt.Println("animation.Duration", animation.Duration)
-				frameDuration := animation.Duration / float64(len(frames))
-				// fmt.Println("frameDuration", frameDuration)
-				frameIndex := int(animation.CurrentTime / frameDuration)
-				// fmt.Println("frameIndex", frameIndex)
-				if animation.Loop {
-					frameIndex %= len(frames)
-				} else if frameIndex >= len(frames) {
-					frameIndex = len(frames) - 1
-				}
 
-				animation.CurrentFrame = frameIndex
-				// Update the tile's current image
-				tile.Image = frames[frameIndex]
+		// Always set both image and metadata for the tile
+		tile.Image = nil
+		tile.Metadata = nil
+		if len(images) > 0 {
+			tile.Image = images[0].Sprite
+			tile.Metadata = &images[0].Metadata
+		}
+		if animation.Count > 1 && animation.Running && len(images) > 0 {
+			animation.CurrentTime += deltaTime
+			frameDuration := animation.Duration / float64(len(images))
+			frameIndex := int(animation.CurrentTime / frameDuration)
+			if animation.Loop {
+				frameIndex %= len(images)
+			} else if frameIndex >= len(images) {
+				frameIndex = len(images) - 1
 			}
+			animation.CurrentFrame = frameIndex
+			tile.Image = images[frameIndex].Sprite
+			tile.Metadata = &images[frameIndex].Metadata
 			return
 		}
-		tile.Image = frames[0]
 	})
 }
