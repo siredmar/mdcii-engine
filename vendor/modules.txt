@@ -7,7 +7,7 @@ github.com/asaskevich/govalidator
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/ebitengine/purego v0.5.0
+# github.com/ebitengine/purego v0.7.1
 ## explicit; go 1.18
 github.com/ebitengine/purego
 github.com/ebitengine/purego/internal/cgo
@@ -17,11 +17,17 @@ github.com/ebitengine/purego/objc
 # github.com/fsnotify/fsnotify v1.4.9
 ## explicit; go 1.13
 github.com/fsnotify/fsnotify
+# github.com/gen2brain/raylib-go/raylib v0.55.1
+## explicit; go 1.21
+github.com/gen2brain/raylib-go/raylib
+github.com/gen2brain/raylib-go/raylib/external
+github.com/gen2brain/raylib-go/raylib/external/android/native_app_glue
+github.com/gen2brain/raylib-go/raylib/external/glfw/include/GLFW
+github.com/gen2brain/raylib-go/raylib/external/glfw/src
+github.com/gen2brain/raylib-go/raylib/platforms
 # github.com/ghostiam/binstruct v1.3.2
 ## explicit; go 1.13
 github.com/ghostiam/binstruct
-# github.com/google/go-cmp v0.5.8
-## explicit; go 1.13
 # github.com/hajimehoshi/ebiten/v2 v2.6.3
 ## explicit; go 1.18
 github.com/hajimehoshi/ebiten/v2
@@ -138,6 +144,10 @@ github.com/yohamta/donburi
 github.com/yohamta/donburi/component
 github.com/yohamta/donburi/filter
 github.com/yohamta/donburi/internal/storage
+# golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+## explicit; go 1.20
+golang.org/x/exp/constraints
+golang.org/x/exp/slices
 # golang.org/x/exp/shiny v0.0.0-20240110193028-0dcbfd608b1e
 ## explicit; go 1.18
 golang.org/x/exp/shiny/driver/gldriver
@@ -170,7 +180,7 @@ golang.org/x/mobile/internal/mobileinit
 # golang.org/x/sync v0.9.0
 ## explicit; go 1.18
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.15.0
+# golang.org/x/sys v0.20.0
 ## explicit; go 1.18
 golang.org/x/sys/unix
 golang.org/x/sys/windows
