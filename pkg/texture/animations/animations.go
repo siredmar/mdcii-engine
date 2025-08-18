@@ -2,8 +2,8 @@ package animation
 
 import (
 	"errors"
-	"image"
 
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 )
@@ -13,7 +13,7 @@ type Animations struct {
 }
 
 type Animation struct {
-	Frames        []image.Image
+	Frames        []rl.Texture2D
 	Steps         int
 	Animated      bool
 	FrameDuration int
@@ -39,10 +39,13 @@ func New(atlas *atlas.TextureAtlas) (*Animations, error) {
 		for _, rot := range rotation.AllRotations {
 			animation := imageSetForRotation.Animations[rot]
 			a.Animations[buildingId][rot] = &Animation{
-				Frames: func() []image.Image {
-					out := []image.Image{}
+				Frames: func() []rl.Texture2D {
+					out := []rl.Texture2D{}
 					for _, img := range animation.Images {
-						out = append(out, img.Sprite)
+						rlImg := rl.NewImageFromImage(img.Sprite)
+						tex := rl.LoadTextureFromImage(rlImg)
+						rl.UnloadImage(rlImg)
+						out = append(out, tex)
 					}
 					return out
 				}(),

@@ -17,14 +17,11 @@ package cmd
 
 import (
 	"fmt"
-	"image/color"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
@@ -37,7 +34,6 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/spf13/cobra"
-	"golang.org/x/image/font/basicfont"
 
 	donburi "github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
@@ -71,6 +67,10 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
+		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
+		defer rl.CloseWindow()
+		rl.SetTargetFPS(60)
 
 		dirPath := filepath.Dir(absPath)
 
@@ -108,15 +108,22 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		atlasWidth := 4096
-		atlasHeight := 4096
-
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		var a *atlas.TextureAtlas
+		name := "texture-atlas"
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", "/tmp/atlas", name))
 		if err != nil {
-			fmt.Println("Error:", err)
-			return
+			fmt.Println("Error loading texture atlas. Creating new one.")
+			a, err = atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir("/tmp/atlas"), atlas.WithName(name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := a.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
 		}
-		ani, err := animations.New(atlas)
+		ani, err := animations.New(a)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -127,6 +134,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
 		err = gamParser.LoadPath("/home/armin/spiele/anno1602/SAVEGAME/lastgame.gam")
 		// err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/LIT02.SCP")
 
@@ -139,9 +147,6 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
-		ebiten.SetWindowTitle("animations")
 
 		w := world.New()
 		// Create an entity and get its Entry
@@ -219,8 +224,9 @@ var rootCmd = &cobra.Command{
 		// 	return
 		// }
 		// game.animation = game.animations.GetAnimation(buildingParam, rotation.DEG0)
-		if err := ebiten.RunGame(game); err != nil {
-			log.Fatal(err)
+		for !rl.WindowShouldClose() {
+			game.Update()
+			game.Draw()
 		}
 	},
 }
@@ -234,21 +240,15 @@ func Execute() {
 }
 
 type Game struct {
-	world        *world.World
-	animations   *animations.Animations
-	ScreenWidth  int
-	ScreenHeight int
-	// lastKeyPressTime time.Time
-	// buildingId       int
+	world         *world.World
+	animations    *animations.Animations
 	buildingIndex int
 	rotation      rotation.Rotation
-	// lastTime         time.Time
-	// entry            *donburi.Entry
-	buildings *buildingsCod.Buildings
-	grid      bool
+	buildings     *buildingsCod.Buildings
+	grid          bool
 }
 
-func (g *Game) Draw(screen *ebiten.Image) {
+func (g *Game) Draw() {
 	var rot rotation.Rotation
 	var grid bool
 
@@ -258,9 +258,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		rot = ctrl.Rotation
 		grid = ctrl.GridVisible
 	})
-	systems.RenderSystem(g.world.World, screen, grid, rot)
-	// systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
-	// systems.RenderSystemAscii(g.world.World)
+
+	rl.BeginDrawing()
+	rl.ClearBackground(rl.Black)
+	systems.RenderSystem(g.world.World, grid, rot)
+	g.DrawUsage()
+	rl.EndDrawing()
+	// systems.MouseSelectorSystem(g.world.World)
 }
 
 // func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
@@ -278,44 +282,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // 	// text.Draw(screen, fmt.Sprintf("CurrentAnimationStep: %d", g.Building.CurrentAnimationStep), face, 10, 80, textColor)
 // }
 
-func (g *Game) DrawUsage(screen *ebiten.Image) {
-	textColor := color.RGBA{255, 255, 255, 255}
-	face := basicfont.Face7x13
-
-	text.Draw(screen, "Up: Animation Step, Left/Right: Rotate, N: next, M: previous", face, 10, ScreenHeight-20, textColor)
-
+func (g *Game) DrawUsage() {
+	rl.DrawText("Up: Animation Step, Left/Right: Rotate, N: next, M: previous", 10, int32(ScreenHeight-20), 10, rl.White)
 }
 
-func (g *Game) Update() error {
+func (g *Game) Update() {
 	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
 	systems.InputSystem(g.world.World)
-	return nil
-	// const debounceDuration = time.Millisecond * 250
-	// now := time.Now()
-
-	// if now.Sub(g.lastKeyPressTime) >= debounceDuration {
-	// 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-	// 		fmt.Println(int(g.rotation))
-	// 		g.rotation.Increment()
-	// 		fmt.Println(int(g.rotation))
-	// 		g.lastKeyPressTime = now
-
-	// 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-	// 		fmt.Println(int(g.rotation))
-	// 		g.rotation.Decrement()
-	// 		fmt.Println(int(g.rotation))
-	// 		g.lastKeyPressTime = now
-	// 	} else if ebiten.IsKeyPressed(ebiten.KeyG) {
-	// 		g.grid = !g.grid
-	// 		g.lastKeyPressTime = now
-	// 	} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-	// 		os.Exit(0)
-	// 	}
-	// }
-	// g.lastTime = now
-	// return nil
-}
-
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return ScreenWidth, ScreenHeight
 }
