@@ -15,14 +15,13 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	buildingsCOD "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 )
 
 type Animation struct {
-	Images []Image
-	Steps  int
-	Time   time.Duration
+	Images []Image       `json:"images"`
+	Steps  int           `json:"steps"`
+	Time   time.Duration `json:"time"`
 }
 
 type ImageSetRotation struct {
@@ -31,20 +30,17 @@ type ImageSetRotation struct {
 
 // TextureAtlas represents a texture atlas containing multiple images
 type TextureAtlas struct {
-	Images    []*image.RGBA `json:"-"`
-	AtlasMeta AtlasMeta     `json:"atlasMeta"`
-	// map[buildingIndex]map[rotation][]Images - slice is for animations
+	Images               []*image.RGBA             `json:"-"`
+	AtlasMeta            AtlasMeta                 `json:"atlasMeta"`
 	ImagesMeta           map[int]*ImageSetRotation `json:"imageMeta"`
 	OptionSkipFileEnding bool                      `json:"-"`
 	OptionKeyToLower     bool                      `json:"-"`
 	OptionKeyToUpper     bool                      `json:"-"`
 	PNGs                 *bsh.BshPng               `json:"-"`
 	BuildingsCOD         buildingsCOD.Buildings    `json:"-"`
-	// filesToLoad          []string `json:"-"`
-	outputDir string      `json:"-"`
-	indexToId map[int]int `json:"-"`
-	idToIndex map[int]int `json:"-"`
-	// imagesToLoad         map[string]image.Image   `json:"-"`
+	outputDir            string                    `json:"-"`
+	indexToId            map[int]int               `json:"-"`
+	idToIndex            map[int]int               `json:"-"`
 }
 
 type AtlasMeta struct {
@@ -118,40 +114,6 @@ func WithOutputDir(outputDir string) TextureAtlasOption {
 type TileSize struct {
 	Width  int
 	Height int
-}
-
-// findContentBounds determines the bounding rectangle of non-transparent pixels in an Ebiten image.
-func (a *TextureAtlas) findContentBounds(eimg *ebiten.Image) image.Rectangle {
-	bounds := eimg.Bounds()
-	minX, minY := bounds.Max.X, bounds.Max.Y
-	maxX, maxY := bounds.Min.X, bounds.Min.Y
-
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			_, _, _, alpha := eimg.At(x, y).RGBA()
-			if alpha > 0 { // Non-transparent pixel
-				if x < minX {
-					minX = x
-				}
-				if y < minY {
-					minY = y
-				}
-				if x > maxX {
-					maxX = x
-				}
-				if y > maxY {
-					maxY = y
-				}
-			}
-		}
-	}
-
-	// Ensure valid bounds
-	if minX > maxX || minY > maxY {
-		return image.Rect(0, 0, 0, 0) // No content
-	}
-
-	return image.Rect(minX, minY, maxX+1, maxY+1) // Add 1 to include the last pixel
 }
 
 const (
@@ -404,7 +366,7 @@ func (a *TextureAtlas) Export() error {
 	var sheetIndex int
 	var x, y, maxRowHeight int
 
-	sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, sheetWidth, sheetHeight)))
+	sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, a.AtlasMeta.Width, a.AtlasMeta.Height)))
 
 	// Collect all images to pack
 	var allImages []struct {

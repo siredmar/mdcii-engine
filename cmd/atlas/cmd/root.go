@@ -86,35 +86,24 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		// filenames := []string{"1.png", "2.png", "3.png"} // Add your filenames here
-		// files, err := os.ReadDir(inputDir)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	os.Exit(1)
-		// }
 		atlasWidth := 4096
 		atlasHeight := 4096
-		// filenames := []string{}
-		// for _, file := range files {
-		// 	if !file.IsDir() {
-		// 		if strings.HasSuffix(file.Name(), ".png") {
-		// 			filenames = append(filenames, fmt.Sprintf("%s/%s", inputDir, file.Name()))
-		// 		}
-		// 	}
-		// }
-		// fmt.Println(filenames)
-
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		var a *atlas.TextureAtlas
+		name := "texture-atlas"
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", outputDir, name))
 		if err != nil {
-			fmt.Println("Error:", err)
-			return
+			fmt.Println("Error loading texture atlas. Creating new one.")
+			a, err = atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(outputDir), atlas.WithName(name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := a.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
 		}
-
-		if err := atlas.Export(); err != nil {
-			fmt.Println("Error exporting texture atlas:", err)
-			return
-		}
-
+		fmt.Println(a.AtlasMeta.Name)
 	},
 }
 

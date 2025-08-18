@@ -41,7 +41,9 @@ import (
 var (
 	gamePath      string
 	buildingIndex int
+	atlasPath     string
 	// buildingParam int
+
 )
 
 var (
@@ -52,6 +54,7 @@ var (
 )
 
 func init() {
+	rootCmd.Flags().StringVarP(&atlasPath, "atlas", "a", ".", "Path to texture atlas")
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
 	// rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 2121, "building ID")
@@ -107,13 +110,21 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		atlas, err := atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		var a *atlas.TextureAtlas
+		name := "texture-atlas"
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			fmt.Println("Error loading texture atlas. Creating new one.")
+			a, err = atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := a.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
 		}
-
 		// if buildingIndex == -1 {
 		// 	for i, b := range buildings.BuildingsVector {
 		// 		if b.Id == buildingParam {
@@ -139,7 +150,7 @@ var rootCmd = &cobra.Command{
 				CurrentAnimationStep: 0,
 			},
 			buildingIndex:  buildingIndex,
-			atlas:          atlas,
+			atlas:          a,
 			Sprite:         nil,
 			rotation:       rotation.DEG0,
 			animationIndex: 0,
