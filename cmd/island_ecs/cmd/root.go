@@ -68,6 +68,10 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
+		defer rl.CloseWindow()
+		rl.SetTargetFPS(60)
+
 		dirPath := filepath.Dir(absPath)
 
 		files.CreateInstance(dirPath)
@@ -104,15 +108,22 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		atlasWidth := 4096
-		atlasHeight := 4096
-
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		var a *atlas.TextureAtlas
+		name := "texture-atlas"
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", "/tmp/atlas", name))
 		if err != nil {
-			fmt.Println("Error:", err)
-			return
+			fmt.Println("Error loading texture atlas. Creating new one.")
+			a, err = atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir("/tmp/atlas"), atlas.WithName(name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := a.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
 		}
-		ani, err := animations.New(atlas)
+		ani, err := animations.New(a)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -123,6 +134,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
 		err = gamParser.LoadPath("/home/armin/spiele/anno1602/SAVEGAME/lastgame.gam")
 		// err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/LIT02.SCP")
 
@@ -135,10 +147,6 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
-		defer rl.CloseWindow()
-		rl.SetTargetFPS(60)
 
 		w := world.New()
 		// Create an entity and get its Entry
