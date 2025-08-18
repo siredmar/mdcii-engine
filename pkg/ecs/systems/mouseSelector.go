@@ -3,7 +3,7 @@ package systems
 import (
 	"fmt"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
@@ -21,7 +21,8 @@ func MouseSelectorSystem(world donburi.World) {
 	tileHeight := zoom.TileHeight() // Tile height in pixels
 
 	// Get the mouse position
-	mouseX, mouseY := ebiten.CursorPosition()
+	mouse := rl.GetMousePosition()
+	mouseX, mouseY := int(mouse.X), int(mouse.Y)
 
 	// Reverse isometric projection to get grid coordinates
 	gridX, gridY := getMouseTilePosition(mouseX, mouseY, tileWidth, tileHeight)
