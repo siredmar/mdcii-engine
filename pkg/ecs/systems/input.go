@@ -5,8 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
 )
@@ -16,7 +17,7 @@ var cameraQuery = donburi.NewQuery(filter.Contains(components.CameraType))
 
 func InputSystem(world donburi.World) {
 	const debounce = time.Millisecond * 250
-	const cameraSpeed = 10.0
+	const cameraSpeed = 0.1
 
 	// 🔁 Handle control input (rotation, toggles, etc.)
 	inputQuery.Each(world, func(entry *donburi.Entry) {
@@ -24,29 +25,31 @@ func InputSystem(world donburi.World) {
 		now := time.Now()
 
 		if now.Sub(ctrl.LastKeyPressTime) >= debounce {
-			if ebiten.IsKeyPressed(ebiten.KeyQ) {
+			if rl.IsKeyDown(rl.KeyQ) {
 				ctrl.Rotation.Increment()
 				fmt.Println("Rotation Incremented:", ctrl.Rotation)
 				ctrl.LastKeyPressTime = now
 			}
-			if ebiten.IsKeyPressed(ebiten.KeyE) {
+			if rl.IsKeyDown(rl.KeyE) {
 				ctrl.Rotation.Decrement()
 				fmt.Println("Rotation Decremented:", ctrl.Rotation)
 				ctrl.LastKeyPressTime = now
 			}
-			if ebiten.IsKeyPressed(ebiten.KeyG) {
+			if rl.IsKeyDown(rl.KeyG) {
 				ctrl.GridVisible = !ctrl.GridVisible
 				ctrl.LastKeyPressTime = now
 			}
-			if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+			if rl.IsKeyDown(rl.KeyEscape) {
 				os.Exit(0)
 			}
 		}
 
 		// 🖱️ Right mouse drag for scrolling
-		mouseX, mouseY := ebiten.CursorPosition()
+		mouse := rl.GetMousePosition()
+		mouseX := int(mouse.X)
+		mouseY := int(mouse.Y)
 
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) {
+		if rl.IsMouseButtonDown(rl.MouseButtonRight) {
 			if !ctrl.Dragging {
 				// Start drag
 				ctrl.Dragging = true
@@ -59,8 +62,8 @@ func InputSystem(world donburi.World) {
 
 				cameraQuery.Each(world, func(camEntry *donburi.Entry) {
 					cam := components.CameraType.Get(camEntry)
-					cam.X -= dx
-					cam.Y -= dy
+					cam.X -= dx / float64(zoom.TileSize())
+					cam.Y -= dy / float64(zoom.TileSize())
 				})
 
 				// Update last position
@@ -76,16 +79,16 @@ func InputSystem(world donburi.World) {
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
 		cam := components.CameraType.Get(entry)
 
-		if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+		if rl.IsKeyDown(rl.KeyW) || rl.IsKeyDown(rl.KeyUp) {
 			cam.Y -= cameraSpeed
 		}
-		if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+		if rl.IsKeyDown(rl.KeyS) || rl.IsKeyDown(rl.KeyDown) {
 			cam.Y += cameraSpeed
 		}
-		if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+		if rl.IsKeyDown(rl.KeyA) || rl.IsKeyDown(rl.KeyLeft) {
 			cam.X -= cameraSpeed
 		}
-		if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
+		if rl.IsKeyDown(rl.KeyD) || rl.IsKeyDown(rl.KeyRight) {
 			cam.X += cameraSpeed
 		}
 	})

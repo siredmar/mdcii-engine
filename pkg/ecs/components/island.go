@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	island5 "github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
@@ -248,7 +249,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 						PositionType.Set(occupyEntry, p)
 						TileType.Set(occupyEntry, &Tile{
 							Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
-							Image:      nil,
+							Image:      rl.Texture2D{},
 							Occupation: true,
 						})
 

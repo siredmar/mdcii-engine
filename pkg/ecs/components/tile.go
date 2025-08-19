@@ -1,7 +1,7 @@
 package components
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/yohamta/donburi"
 )
 
@@ -12,7 +12,7 @@ type Size struct {
 }
 
 type Tile struct {
-	Image      *ebiten.Image // Placeholder for current frame
+	Image      rl.Texture2D // Placeholder for current frame
 	Size       Size
 	Occupation bool
 	// Parent     *donburi.Entry
