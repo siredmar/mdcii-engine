@@ -14,7 +14,7 @@ type Renderer struct {
 
 const (
 	isoYawDeg   = 45.0
-	isoPitchDeg = 35.264389682 // asin(tan(30°))
+	isoPitchDeg = 30
 )
 
 func (r *Renderer) SetTrueIsoCamera(ppu float32) {
@@ -30,7 +30,7 @@ func (r *Renderer) SetTrueIsoCamera(ppu float32) {
 	// Exact yaw/pitch -> camera position on a sphere around the origin.
 	yaw := rl.Deg2rad * isoYawDeg
 	pitch := rl.Deg2rad * isoPitchDeg
-	dist := float32(20) // any positive distance (no perspective in ortho)
+	dist := float32(50) // any positive distance (no perspective in ortho)
 
 	dir := rl.NewVector3(
 		float32(math.Cos(pitch)*math.Sin(yaw)),

@@ -97,9 +97,5 @@ func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D,
 		}
 	})
 
-	if grid {
-		// TODO: implement grid rendering if needed
-	}
-
 	r.End()
 }

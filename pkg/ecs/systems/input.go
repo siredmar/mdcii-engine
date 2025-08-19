@@ -62,8 +62,8 @@ func InputSystem(world donburi.World) {
 
 				cameraQuery.Each(world, func(camEntry *donburi.Entry) {
 					cam := components.CameraType.Get(camEntry)
-					cam.X -= dx / float64(zoom.TileSize())
-					cam.Y -= dy / float64(zoom.TileSize())
+					cam.X += dx / float64(zoom.TileSize())
+					cam.Y += dy / float64(zoom.TileSize())
 				})
 
 				// Update last position

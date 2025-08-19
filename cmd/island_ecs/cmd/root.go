@@ -55,14 +55,11 @@ var (
 
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
-	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
-	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
-	// rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 380, "building ID")
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "animations for buildings",
-	Short: "animations for buildings",
+	Use:   "island_ecs",
+	Short: "island_ecs",
 	Run: func(cmd *cobra.Command, args []string) {
 		absPath, err := filepath.Abs(gamePath)
 		if err != nil {
@@ -126,7 +123,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println("Error:", err)
 			return
 		}
-
+		zoom.ZoomIn()
 		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
 		rl.SetTargetFPS(60)
 		renderer := r3d.NewRenderer(float32(zoom.TileSize()))
@@ -191,16 +188,6 @@ var rootCmd = &cobra.Command{
 			LastKeyPressTime: time.Now(),
 		})
 
-		// fmt.Println(island)
-		// w.World.Entry(entity)
-
-		// fmt.Println(w.World)
-
-		// buildingId, err := buildings.GetBuildingIdByIndex(buildingIndex)
-		// if err != nil {
-		// 	log.Fatalln("Error:", err)
-		// }
-
 		game := &Game{
 			world:         w,
 			animations:    ani,
@@ -212,35 +199,6 @@ var rootCmd = &cobra.Command{
 			textures:      textures,
 		}
 
-		// components.BuildingType.Set(entry, &components.Building{
-		// 	BuildingID: buildingId,
-		// 	Rotation:   game.rotation,
-		// })
-
-		// // Set initial values for the Animation component
-		// components.AnimationType.Set(entry, &components.Animation{
-		// 	Running:  true,
-		// 	Duration: 1,
-		// 	Loop:     true,
-		// })
-
-		// components.TileType.Set(entry, &components.Tile{
-		// 	Image: nil,
-		// })
-
-		// components.PositionType.Set(entry, &components.Position{
-		// 	X: 100,
-		// 	Y: 100,
-		// })
-
-		// game.entry = entry
-
-		// game.buildingId, err = buildings.GetBuildingIdByIndex(game.buildingIndex)
-		// if err != nil {
-		// 	fmt.Println("Error:", err)
-		// 	return
-		// }
-		// game.animation = game.animations.GetAnimation(buildingParam, rotation.DEG0)
 		for !rl.WindowShouldClose() {
 			game.Update()
 			game.Draw()
@@ -283,23 +241,7 @@ func (g *Game) Draw() {
 	systems.RenderSystem(g.world.World, g.renderer, g.textures, grid, rot)
 	g.DrawUsage()
 	rl.EndDrawing()
-	// systems.MouseSelectorSystem(g.world.World)
 }
-
-// func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
-// 	textColor := color.RGBA{255, 255, 255, 255}
-// 	face := basicfont.Face7x13
-
-// 	b := g.buildings.BuildingsVector[g.buildingId]
-// 	text.Draw(screen, fmt.Sprintf("Building Id: %d", b.Id), face, 10, 10, textColor)
-// 	text.Draw(screen, fmt.Sprintf("Building Size: %d,%d", b.Size.W, b.Size.H), face, 10, 20, textColor)
-// 	text.Draw(screen, fmt.Sprintf("Building Animation Amount: %d", b.AnimationAmount), face, 10, 30, textColor)
-// 	text.Draw(screen, fmt.Sprintf("Building Animation Add: %d", b.AnimationAdd), face, 10, 40, textColor)
-// 	text.Draw(screen, fmt.Sprintf("Building Gfx: %d", b.Gfx), face, 10, 50, textColor)
-// 	// text.Draw(screen, fmt.Sprintf("Building Rotation: %d", g.Building.Rotation), face, 10, 60, textColor)
-// 	// text.Draw(screen, fmt.Sprintf("Building BaseIndex: %d", g.Building.BaseIndex), face, 10, 70, textColor)
-// 	// text.Draw(screen, fmt.Sprintf("CurrentAnimationStep: %d", g.Building.CurrentAnimationStep), face, 10, 80, textColor)
-// }
 
 func (g *Game) DrawUsage() {
 	rl.DrawText("Up: Animation Step, Left/Right: Rotate, N: next, M: previous", 10, int32(ScreenHeight-20), 10, rl.White)
