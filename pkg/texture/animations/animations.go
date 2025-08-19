@@ -8,12 +8,19 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 )
 
+// Frame describes a single frame within an animation. It references a
+// sub-rectangle inside one of the atlas textures by its PNG index.
+type Frame struct {
+	PNGIndex int
+	Src      rl.Rectangle
+}
+
 type Animations struct {
 	Animations map[int]map[rotation.Rotation]*Animation
 }
 
 type Animation struct {
-	Frames        []rl.Texture2D
+	Frames        []Frame
 	Steps         int
 	Animated      bool
 	FrameDuration int
@@ -38,19 +45,23 @@ func New(atlas *atlas.TextureAtlas) (*Animations, error) {
 		a.Animations[buildingId] = make(map[rotation.Rotation]*Animation)
 		for _, rot := range rotation.AllRotations {
 			animation := imageSetForRotation.Animations[rot]
+			frames := make([]Frame, len(animation.Images))
+			for i, img := range animation.Images {
+				meta := img.Metadata
+				frames[i] = Frame{
+					PNGIndex: meta.PNGIndex,
+					Src: rl.NewRectangle(
+						float32(meta.X),
+						float32(meta.Y),
+						float32(meta.Width),
+						float32(meta.Height),
+					),
+				}
+			}
 			a.Animations[buildingId][rot] = &Animation{
-				Frames: func() []rl.Texture2D {
-					out := []rl.Texture2D{}
-					for _, img := range animation.Images {
-						rlImg := rl.NewImageFromImage(img.Sprite)
-						tex := rl.LoadTextureFromImage(rlImg)
-						rl.UnloadImage(rlImg)
-						out = append(out, tex)
-					}
-					return out
-				}(),
+				Frames:        frames,
 				Steps:         animation.Steps,
-				Animated:      func() bool { return animation.Steps > 1 }(),
+				Animated:      animation.Steps > 1,
 				FrameDuration: 85,
 			}
 		}

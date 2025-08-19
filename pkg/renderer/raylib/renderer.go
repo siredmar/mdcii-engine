@@ -37,8 +37,9 @@ func (r *Renderer) SetTrueIsoCamera(ppu float32) {
 		float32(math.Sin(pitch)),
 		float32(math.Cos(pitch)*math.Cos(yaw)),
 	)
+	// Position the camera above the origin looking towards it
 	r.Camera.Position = rl.NewVector3(
-		-dir.X*dist, -dir.Y*dist, -dir.Z*dist,
+		-dir.X*dist, dir.Y*dist, -dir.Z*dist,
 	)
 
 	// Ortho height in WORLD units (not degrees):

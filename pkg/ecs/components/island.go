@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	island5 "github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
-	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/yohamta/donburi"
 
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
@@ -19,7 +17,7 @@ type Island struct {
 	Width, Height int                         // Dimensions of the island
 	X, Y          float64                     // Position of the island in the world
 	Climate       Climate                     `json:"climate"`
-	Tiles         map[string][]*donburi.Entry // 2D grid of tile entries
+	Layers        map[string][]*donburi.Entry // Tiles grouped by layer
 }
 
 var IslandType = donburi.NewComponentType[Island]()
@@ -170,12 +168,12 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 		X:       worldX,
 		Y:       worldY,
 		Climate: Climate(i.Climate),
-		Tiles:   map[string][]*donburi.Entry{},
+		Layers:  map[string][]*donburi.Entry{},
 	}
-	island.Tiles[buildings.KindBuildingsID] = []*donburi.Entry{}
-	island.Tiles[buildings.KindSeaID] = []*donburi.Entry{}
-	island.Tiles[buildings.KindRoadsID] = []*donburi.Entry{}
-	island.Tiles[buildings.KindGroundID] = []*donburi.Entry{}
+	island.Layers[buildings.KindBuildingsID] = []*donburi.Entry{}
+	island.Layers[buildings.KindSeaID] = []*donburi.Entry{}
+	island.Layers[buildings.KindRoadsID] = []*donburi.Entry{}
+	island.Layers[buildings.KindGroundID] = []*donburi.Entry{}
 
 	sorted2DByXY := make(map[int]map[int]island5.Field)
 	for _, field := range i.Layers.Top.Fields {
@@ -201,7 +199,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 				fmt.Println("Id 65535")
 				continue
 			}
-			fmt.Println("currentTile.Id", currentTile.Id)
+			// fmt.Println("currentTile.Id", currentTile.Id)
 			tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
 			tileEntry := world.Entry(tileEntity)
 			posOffset := i.Buildings.Buildings[currentTile.Id].PositionOffset
@@ -209,7 +207,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			// Set components for the tile
 			PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(posOffset)})
 			TileType.Set(tileEntry, &Tile{
-				Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()},
+				Size: Size{Width: size.W, Height: size.H},
 			})
 			anim := ani.GetAnimation(currentTile.Id, rotation.DEG0)
 			AnimationType.Set(tileEntry, &Animation{
@@ -228,43 +226,42 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 
 			switch {
 			case field.Kind.IsBuilding():
-				island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], tileEntry)
-				if size.W > 1 || size.H > 2 {
-					fmt.Println("church")
-				}
-				for dy := 0; dy < size.H; dy++ {
-					for dx := 0; dx < size.W; dx++ {
-						occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-						occupyEntry := world.Entry(occupyEntity)
-						BuildingType.Set(occupyEntry, &Building{
-							BuildingID: -1,
-							Rotation:   0,
-							Size:       building.BuildingSize(1, 1),
-						})
-						AnimationType.Set(occupyEntry, &Animation{
-							Count:    1,
-							Duration: 1,
-						})
-						p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
-						PositionType.Set(occupyEntry, p)
-						TileType.Set(occupyEntry, &Tile{
-							Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
-							Image:      rl.Texture2D{},
-							Occupation: true,
-						})
+				island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], tileEntry)
+				// if size.W > 1 || size.H > 2 {
+				// 	fmt.Println("church")
+				// }
+				// for dy := 0; dy < size.H; dy++ {
+				// 	for dx := 0; dx < size.W; dx++ {
+				// 		occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+				// 		occupyEntry := world.Entry(occupyEntity)
+				// 		BuildingType.Set(occupyEntry, &Building{
+				// 			BuildingID: -1,
+				// 			Rotation:   0,
+				// 			Size:       building.BuildingSize(1, 1),
+				// 		})
+				// 		AnimationType.Set(occupyEntry, &Animation{
+				// 			Count:    1,
+				// 			Duration: 1,
+				// 		})
+				// 		p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
+				// 		PositionType.Set(occupyEntry, p)
+				// 		TileType.Set(occupyEntry, &Tile{
+				// 			Size:       Size{Width: 1, Height: 1},
+				// 			Occupation: true,
+				// 		})
 
-						island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], occupyEntry)
+				// 		island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], occupyEntry)
 
-					}
-				}
+				// 	}
+				// }
 			case field.Kind.IsWater():
-				island.Tiles[buildings.KindSeaID] = append(island.Tiles[buildings.KindSeaID], tileEntry)
+				island.Layers[buildings.KindSeaID] = append(island.Layers[buildings.KindSeaID], tileEntry)
 			case field.Kind.IsRoad():
-				island.Tiles[buildings.KindRoadsID] = append(island.Tiles[buildings.KindRoadsID], tileEntry)
+				island.Layers[buildings.KindRoadsID] = append(island.Layers[buildings.KindRoadsID], tileEntry)
 			case field.Kind.IsGround():
-				island.Tiles[buildings.KindGroundID] = append(island.Tiles[buildings.KindGroundID], tileEntry)
+				island.Layers[buildings.KindGroundID] = append(island.Layers[buildings.KindGroundID], tileEntry)
 			case field.Kind.IsForrest():
-				island.Tiles[buildings.KindForrestID] = append(island.Tiles[buildings.KindForrestID], tileEntry)
+				island.Layers[buildings.KindForrestID] = append(island.Layers[buildings.KindForrestID], tileEntry)
 			}
 
 		}

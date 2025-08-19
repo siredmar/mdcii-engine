@@ -105,11 +105,23 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		atlasWidth := 4096
-		atlasHeight := 4096
-
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
+		atlasPath := "/tmp/atlas"
+		var a *atlas.TextureAtlas
+		name := "texture-atlas"
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
+		if err != nil {
+			fmt.Println("Error loading texture atlas. Creating new one.")
+			a, err = atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := a.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
+		}
+		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -120,7 +132,15 @@ var rootCmd = &cobra.Command{
 		renderer := r3d.NewRenderer(float32(zoom.TileSize()))
 		defer rl.CloseWindow()
 
-		ani, err := animations.New(atlas)
+		textures := make([]rl.Texture2D, len(a.Images))
+		for i, img := range a.Images {
+			rlImg := rl.NewImageFromImage(img)
+			textures[i] = rl.LoadTextureFromImage(rlImg)
+			rl.UnloadImage(rlImg)
+			defer rl.UnloadTexture(textures[i])
+		}
+
+		ani, err := animations.New(a)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -148,13 +168,16 @@ var rootCmd = &cobra.Command{
 		// Create an entity and get its Entry
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
 		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
-		components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+		islandEntry := components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
+
+		// Center the camera on the loaded island so tiles are visible on start
+		islandComp := components.IslandType.Get(islandEntry)
 
 		cameraEntity := w.World.Create(components.CameraType)
 		cameraEntry := w.World.Entry(cameraEntity)
 		components.CameraType.Set(cameraEntry, &components.Camera{
-			X:        0,
-			Y:        0,
+			X:        islandComp.X + float64(islandComp.Width)/2,
+			Y:        islandComp.Y + float64(islandComp.Height)/2,
 			Zoom:     1.0,
 			Rotation: rotation.DEG0,
 		})
@@ -186,6 +209,7 @@ var rootCmd = &cobra.Command{
 			buildings:     buildings,
 			rotation:      rotation.Rotation(rotationArg),
 			grid:          true,
+			textures:      textures,
 		}
 
 		// components.BuildingType.Set(entry, &components.Building{
@@ -240,6 +264,7 @@ type Game struct {
 	rotation      rotation.Rotation
 	buildings     *buildingsCod.Buildings
 	grid          bool
+	textures      []rl.Texture2D
 }
 
 func (g *Game) Draw() {
@@ -255,7 +280,7 @@ func (g *Game) Draw() {
 
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
-	systems.RenderSystem(g.world.World, g.renderer, grid, rot)
+	systems.RenderSystem(g.world.World, g.renderer, g.textures, grid, rot)
 	g.DrawUsage()
 	rl.EndDrawing()
 	// systems.MouseSelectorSystem(g.world.World)

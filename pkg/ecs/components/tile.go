@@ -8,11 +8,11 @@ import (
 type Size struct {
 	Width  int
 	Height int
-	Z      int
 }
 
 type Tile struct {
-	Image      rl.Texture2D // Placeholder for current frame
+	PNGIndex   int
+	Src        rl.Rectangle
 	Size       Size
 	Occupation bool
 	// Parent     *donburi.Entry
