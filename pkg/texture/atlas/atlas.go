@@ -157,6 +157,15 @@ func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSi
 	// Find the bounds of the non-alpha content
 	cropBounds := findNonAlphaBounds(outputImage)
 
+	// Expand bounds to the next tile multiple so baseline rows/columns
+	// are preserved even if the original sprite is trimmed.
+	if rem := cropBounds.Dx() % tileSize.Width; rem != 0 {
+		cropBounds.Max.X = cropBounds.Min.X + cropBounds.Dx() + (tileSize.Width - rem)
+	}
+	if rem := cropBounds.Dy() % tileSize.Height; rem != 0 {
+		cropBounds.Max.Y = cropBounds.Min.Y + cropBounds.Dy() + (tileSize.Height - rem)
+	}
+
 	// Crop the image to the determined bounds
 	croppedImage := cropImage(outputImage, cropBounds)
 	return croppedImage
