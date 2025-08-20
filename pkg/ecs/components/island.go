@@ -209,10 +209,19 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			TileType.Set(tileEntry, &Tile{
 				Size: Size{Width: size.W, Height: size.H},
 			})
-			anim := ani.GetAnimation(currentTile.Id, rotation.DEG0)
+			anim := ani.GetAnimation(currentTile.Id, rotation.Rotation(currentTile.Orientation))
+			// if size.W > 2 && size.H > 1 {
+			// 	fmt.Printf("church: %d\n", currentTile.Id)
+			// 	b, err := json.MarshalIndent(anim, "", "  ")
+			// 	if err != nil {
+			// 		fmt.Println(err)
+			// 	}
+			// 	fmt.Printf("%s\n", string(b))
+			// }
 			AnimationType.Set(tileEntry, &Animation{
 				Count:        anim.Steps,
 				Duration:     float64(anim.FrameDuration),
+				Frames:       anim.Frames,
 				Running:      true,
 				Loop:         true,
 				CurrentFrame: 0,
@@ -225,35 +234,35 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			})
 
 			switch {
-			case field.Kind.IsBuilding():
-				island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], tileEntry)
-				// if size.W > 1 || size.H > 2 {
-				// 	fmt.Println("church")
-				// }
-				// for dy := 0; dy < size.H; dy++ {
-				// 	for dx := 0; dx < size.W; dx++ {
-				// 		occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-				// 		occupyEntry := world.Entry(occupyEntity)
-				// 		BuildingType.Set(occupyEntry, &Building{
-				// 			BuildingID: -1,
-				// 			Rotation:   0,
-				// 			Size:       building.BuildingSize(1, 1),
-				// 		})
-				// 		AnimationType.Set(occupyEntry, &Animation{
-				// 			Count:    1,
-				// 			Duration: 1,
-				// 		})
-				// 		p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
-				// 		PositionType.Set(occupyEntry, p)
-				// 		TileType.Set(occupyEntry, &Tile{
-				// 			Size:       Size{Width: 1, Height: 1},
-				// 			Occupation: true,
-				// 		})
+			// case field.Kind.IsBuilding():
+			// 	island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], tileEntry)
+			// if size.W > 1 || size.H > 2 {
+			// 	fmt.Println("church")
+			// }
+			// for dy := 0; dy < size.H; dy++ {
+			// 	for dx := 0; dx < size.W; dx++ {
+			// 		occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+			// 		occupyEntry := world.Entry(occupyEntity)
+			// 		BuildingType.Set(occupyEntry, &Building{
+			// 			BuildingID: -1,
+			// 			Rotation:   0,
+			// 			Size:       building.BuildingSize(1, 1),
+			// 		})
+			// 		AnimationType.Set(occupyEntry, &Animation{
+			// 			Count:    1,
+			// 			Duration: 1,
+			// 		})
+			// 		p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
+			// 		PositionType.Set(occupyEntry, p)
+			// 		TileType.Set(occupyEntry, &Tile{
+			// 			Size:       Size{Width: 1, Height: 1},
+			// 			Occupation: true,
+			// 		})
 
-				// 		island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], occupyEntry)
+			// 		island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], occupyEntry)
 
-				// 	}
-				// }
+			// 	}
+			// }
 			case field.Kind.IsWater():
 				island.Layers[buildings.KindSeaID] = append(island.Layers[buildings.KindSeaID], tileEntry)
 			case field.Kind.IsRoad():

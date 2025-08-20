@@ -36,15 +36,13 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/spf13/cobra"
-
-	donburi "github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/filter"
 )
 
 var (
 	gamePath      string
 	buildingIndex int
 	rotationArg   int
+	newatlas      bool
 	// buildingParam int
 )
 
@@ -55,6 +53,7 @@ var (
 
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
+	rootCmd.Flags().BoolVarP(&newatlas, "newatlas", "a", false, "Create a new atlas")
 }
 
 var rootCmd = &cobra.Command{
@@ -105,10 +104,27 @@ var rootCmd = &cobra.Command{
 		atlasPath := "/tmp/atlas"
 		var a *atlas.TextureAtlas
 		name := "texture-atlas"
-		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
-		if err != nil {
-			fmt.Println("Error loading texture atlas. Creating new one.")
-			a, err = atlas.New(4096, 4096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
+		if !newatlas {
+			a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
+			if err != nil {
+				fmt.Println("Error loading texture atlas. Creating new one.")
+				a, err = atlas.New(2096, 2096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
+				if err != nil {
+					fmt.Println("Error:", err)
+					return
+				}
+				if err := a.Export(); err != nil {
+					fmt.Println("Error exporting texture atlas:", err)
+					return
+				}
+			}
+			a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+		} else {
+			a, err = atlas.New(2096, 2096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
 			if err != nil {
 				fmt.Println("Error:", err)
 				return
@@ -117,11 +133,6 @@ var rootCmd = &cobra.Command{
 				fmt.Println("Error exporting texture atlas:", err)
 				return
 			}
-		}
-		a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
 		}
 		zoom.ZoomIn()
 		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
@@ -176,14 +187,14 @@ var rootCmd = &cobra.Command{
 			X:        islandComp.X + float64(islandComp.Width)/2,
 			Y:        islandComp.Y + float64(islandComp.Height)/2,
 			Zoom:     1.0,
-			Rotation: rotation.DEG0,
+			Rotation: rotation.DEG180,
 		})
 
 		controlEntity := w.World.Create(components.ControlType)
 		controlEntry := w.World.Entry(controlEntity)
 
 		components.ControlType.Set(controlEntry, &components.Control{
-			Rotation:         rotation.DEG0,
+			Rotation:         rotation.DEG180,
 			GridVisible:      true,
 			LastKeyPressTime: time.Now(),
 		})
@@ -226,19 +237,18 @@ type Game struct {
 }
 
 func (g *Game) Draw() {
-	var rot rotation.Rotation
-	var grid bool
+	// var rot rotation.Rotation
 
-	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
-	controlQuery.Each(g.world.World, func(entry *donburi.Entry) {
-		ctrl := components.ControlType.Get(entry)
-		rot = ctrl.Rotation
-		grid = ctrl.GridVisible
-	})
+	// controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	// controlQuery.Each(g.world.World, func(entry *donburi.Entry) {
+	// 	ctrl := components.ControlType.Get(entry)
+	// 	rot = ctrl.Rotation
+	// 	grid = ctrl.GridVisible
+	// })
 
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
-	systems.RenderSystem(g.world.World, g.renderer, g.textures, grid, rot)
+	systems.RenderSystem(g.world.World, g.renderer, g.textures)
 	g.DrawUsage()
 	rl.EndDrawing()
 }

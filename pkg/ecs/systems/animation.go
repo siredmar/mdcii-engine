@@ -1,7 +1,10 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/utils"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
@@ -36,16 +39,23 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 			animation.CurrentTime = 0
 			animation.Reset = false
 		}
-		// rotation := (building.Rotation + globalRotation) % 4
+
 		rotation := building.Rotation.Add(globalRotation)
 		// fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
-		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
+		// frames := ani.GetAnimation(building.BuildingID, rotation).Frames
+		frames := animation.Frames
+		if frames == nil {
+			return
+		}
+		fmt.Printf("frames for %d, rot %d\n", building.BuildingID, rotation)
+		utils.PrettyPrint(frames)
 		tile := components.TileType.Get(entry)
 		if animation.Count > 1 {
 			if animation.Running {
 				animation.CurrentTime += deltaTime
 				frameDuration := animation.Duration / float64(len(frames))
 				frameIndex := int(animation.CurrentTime / frameDuration)
+				fmt.Printf("id: %d, count: %d, duration: %f, index: %d\n", building.BuildingID, animation.Count, animation.Duration, frameIndex)
 				if animation.Loop {
 					frameIndex %= len(frames)
 				} else if frameIndex >= len(frames) {
@@ -57,8 +67,10 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 				tile.Src = frames[frameIndex].Src
 			}
 			return
+		} else {
+			fmt.Printf("id: %d, count: %d, index: %d\n", building.BuildingID, animation.Count, 0)
+			tile.PNGIndex = frames[0].PNGIndex
+			tile.Src = frames[0].Src
 		}
-		tile.PNGIndex = frames[0].PNGIndex
-		tile.Src = frames[0].Src
 	})
 }

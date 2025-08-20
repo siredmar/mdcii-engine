@@ -18,37 +18,6 @@ import (
 	buildingsCOD "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 )
 
-type Animation struct {
-	Images []Image       `json:"images"`
-	Steps  int           `json:"steps"`
-	Time   time.Duration `json:"time"`
-}
-
-type ImageSetRotation struct {
-	Animations map[rotation.Rotation]*Animation
-}
-
-// TextureAtlas represents a texture atlas containing multiple images
-type TextureAtlas struct {
-	Images               []*image.RGBA             `json:"-"`
-	AtlasMeta            AtlasMeta                 `json:"atlasMeta"`
-	ImagesMeta           map[int]*ImageSetRotation `json:"imageMeta"`
-	OptionSkipFileEnding bool                      `json:"-"`
-	OptionKeyToLower     bool                      `json:"-"`
-	OptionKeyToUpper     bool                      `json:"-"`
-	PNGs                 *bsh.BshPng               `json:"-"`
-	BuildingsCOD         buildingsCOD.Buildings    `json:"-"`
-	outputDir            string                    `json:"-"`
-	indexToId            map[int]int               `json:"-"`
-	idToIndex            map[int]int               `json:"-"`
-}
-
-type AtlasMeta struct {
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
-	Name   string `json:"name"`
-}
-
 // Metadata contains metadata for an image in the atlas
 type Metadata struct {
 	BuildingID     int `json:"buildingID"`
@@ -65,6 +34,37 @@ type Metadata struct {
 type Image struct {
 	Sprite   image.Image `json:"-"`
 	Metadata Metadata    `json:"metadata"`
+}
+
+type Animation struct {
+	Images []Image       `json:"images"`
+	Steps  int           `json:"steps"`
+	Time   time.Duration `json:"time"`
+}
+
+type ImageSetRotation struct {
+	Animations map[rotation.Rotation]*Animation `json:"animations"`
+}
+
+type AtlasMeta struct {
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+	Name   string `json:"name"`
+}
+
+// TextureAtlas represents a texture atlas containing multiple images
+type TextureAtlas struct {
+	Images               []*image.RGBA             `json:"-"`
+	AtlasMeta            AtlasMeta                 `json:"atlasMeta"`
+	ImagesMeta           map[int]*ImageSetRotation `json:"imageMeta"`
+	OptionSkipFileEnding bool                      `json:"-"`
+	OptionKeyToLower     bool                      `json:"-"`
+	OptionKeyToUpper     bool                      `json:"-"`
+	PNGs                 *bsh.BshPng               `json:"-"`
+	BuildingsCOD         buildingsCOD.Buildings    `json:"-"`
+	outputDir            string                    `json:"-"`
+	indexToId            map[int]int               `json:"-"`
+	idToIndex            map[int]int               `json:"-"`
 }
 
 type TextureAtlasOption func(*TextureAtlas)
@@ -208,9 +208,13 @@ func findNonAlphaBounds(img *image.RGBA) image.Rectangle {
 }
 
 // cropImage crops an image to the specified rectangle.
+// The returned image always has its origin at (0,0) so subsequent
+// operations that assume zero-based coordinates (like converting to
+// raylib images) won't sample outside bounds and introduce black
+// padding.
 func cropImage(img *image.RGBA, rect image.Rectangle) *image.RGBA {
-	cropped := image.NewRGBA(rect)
-	draw.Draw(cropped, rect, img, rect.Min, draw.Src)
+	cropped := image.NewRGBA(image.Rect(0, 0, rect.Dx(), rect.Dy()))
+	draw.Draw(cropped, cropped.Bounds(), img, rect.Min, draw.Src)
 	return cropped
 }
 
@@ -240,7 +244,7 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 
 	for _, buildingCOD := range buildings.BuildingsVector {
 		buildingID := buildingCOD.Id
-		if buildingID == 2121 {
+		if buildingID == 803 {
 			fmt.Println("Building ID:", buildingID)
 		}
 		// atlas.indexToId[i] = buildingID
@@ -259,17 +263,17 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			AnimationSteps:       buildingCOD.AnimationAmount,
 			CurrentAnimationStep: 0,
 			AnimationAdd:         buildingCOD.AnimationAdd,
-			X:                    100,
-			Y:                    100,
+			X:                    150,
+			Y:                    150,
 			Size:                 building.BuildingSize(buildingCOD.Size.W, buildingCOD.Size.H),
 		}
 
 		for rot := range []rotation.Rotation{rotation.DEG0, rotation.DEG90, rotation.DEG180, rotation.DEG270} {
-			animations := buildingCOD.AnimationAmount
+			steps := buildingCOD.AnimationAmount
 			if buildingCOD.AnimationAmount == 0 {
-				animations = 1
+				steps = 1
 			}
-			for animationStep := 0; animationStep < animations; animationStep++ {
+			for animationStep := 0; animationStep < steps; animationStep++ {
 				img := atlas.drawBuildingToImage(b, TileSize{Width: tileWidth, Height: tileHeight})
 				if atlas.ImagesMeta[buildingID] == nil {
 					atlas.ImagesMeta[buildingID] = &ImageSetRotation{
@@ -280,7 +284,7 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 				if atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)] == nil {
 					atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)] = &Animation{
 						Images: []Image{},
-						Steps:  animations,
+						Steps:  steps,
 					}
 				}
 

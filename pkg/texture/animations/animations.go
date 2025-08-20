@@ -11,22 +11,26 @@ import (
 // Frame describes a single frame within an animation. It references a
 // sub-rectangle inside one of the atlas textures by its PNG index.
 type Frame struct {
-	PNGIndex int
-	Src      rl.Rectangle
+	PNGIndex int          `json:"pngIndex"`
+	Src      rl.Rectangle `json:"src"`
 }
 
 type Animations struct {
-	Animations map[int]map[rotation.Rotation]*Animation
+	Animations map[int]map[rotation.Rotation]*Animation `json:"animations"`
 }
 
 type Animation struct {
-	Frames        []Frame
-	Steps         int
-	Animated      bool
-	FrameDuration int
+	Frames        []Frame `json:"frames"`
+	Steps         int     `json:"steps"`
+	Animated      bool    `json:"animated"`
+	FrameDuration int     `json:"frameDuration"`
 }
 
 func (a *Animations) GetAnimation(buildingId int, rot rotation.Rotation) *Animation {
+	// fmt.Printf("GetAnimation for %d\n", buildingId)
+	// for r := range rotation.AllRotations {
+	// 	utils.PrettyPrint(a.Animations[buildingId][rotation.Rotation(r)])
+	// }
 	return a.Animations[buildingId][rot]
 }
 

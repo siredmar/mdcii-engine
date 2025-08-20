@@ -15,8 +15,14 @@ var rendererQuery = donburi.NewQuery(
 	filter.Contains(components.IslandType),
 )
 
+// insetRect returns a rectangle inset by the given pixel amount on all sides.
+// This helps to avoid sampling artefacts from neighbouring tiles in the atlas.
+func insetRect(src rl.Rectangle, px float32) rl.Rectangle {
+	return rl.NewRectangle(src.X+px, src.Y+px, src.Width-2*px, src.Height-2*px)
+}
+
 // RenderSystem draws all tiles in 3D using raylib.
-func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D, grid bool, currentRotation rotation.Rotation) {
+func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D) {
 	if r == nil {
 		return
 	}
@@ -29,6 +35,14 @@ func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D,
 	if camComp == nil {
 		return
 	}
+
+	var rot rotation.Rotation
+	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQuery.Each(world, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		rot = ctrl.Rotation
+	})
+	globalRotation := rot
 
 	// Update camera based on component
 	r.PPU = float32(zoom.TileSize())
@@ -47,7 +61,7 @@ func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D,
 	// 	// Add a small margin so edge tiles are fully visible
 	// 	r.Camera.Fovy = maxDim + 1
 	// }
-
+	currentRotation := globalRotation
 	offset := rl.Vector3Subtract(r.Camera.Position, r.Camera.Target)
 	r.Camera.Target = rl.NewVector3(float32(camComp.X), 0, float32(camComp.Y))
 	r.Camera.Position = rl.Vector3Add(r.Camera.Target, offset)
@@ -85,14 +99,20 @@ func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D,
 				centerX := float32(rotatedX) + float32(b.Size.Width())/2
 				centerZ := float32(rotatedY) + float32(b.Size.Height())/2
 
-				w := tile.Src.Width / r.PPU
-				h := tile.Src.Height / r.PPU
+				// Slightly inset the source rectangle to avoid texture bleeding
+				// src := insetRect(tile.Src, 0.5)
+				src := tile.Src
 
-				posY := h/2 - float32(pos.Offset)/r.PPU
+				w := src.Width / r.PPU
+				h := src.Height / r.PPU
+
+				posY := h/2 + float32(pos.Offset)/(r.PPU)
 				position := rl.NewVector3(centerX, posY, centerZ)
 				size := rl.NewVector2(w, h)
 
-				rl.DrawBillboardRec(r.Camera, tex, tile.Src, position, size, rl.White)
+				// Determine final rotation for the tile and rotate the billboard accordingly
+				// Tile orientation is already baked into the texture selection.
+				rl.DrawBillboardPro(r.Camera, tex, src, position, rl.NewVector3(0, 1, 0), size, rl.NewVector2(size.X/2, size.Y/2), 0, rl.White)
 			}
 		}
 	})
