@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"math"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
@@ -102,11 +104,24 @@ func RenderSystem(world donburi.World, r *r3d.Renderer, textures []rl.Texture2D)
 				// Slightly inset the source rectangle to avoid texture bleeding
 				// src := insetRect(tile.Src, 0.5)
 				src := tile.Src
+				origW := src.Width / r.PPU
+				origH := src.Height / r.PPU
+				if origW == 0 {
+					continue
+				}
 
-				w := src.Width / r.PPU
-				h := src.Height / r.PPU
+				// The atlas contains isometric projections whose bounding boxes
+				// span both the tile's width and height on the grid. The actual
+				// world-space width of the sprite is therefore half the sum of its
+				// tile footprint in each dimension (w+h)/2. Use this to derive a
+				// scale factor that keeps spacing consistent regardless of sprite
+				// pixel size.
+				targetW := float32(tile.Size.Width+tile.Size.Height) / 2
+				scale := targetW / origW
+				w := targetW * float32(math.Sqrt2)
+				h := origH * scale * float32(math.Sqrt2)
 
-				posY := h/2 + float32(pos.Offset)/(r.PPU)
+				posY := h/2 + float32(pos.Offset)/float32(math.Sqrt2)/(r.PPU)
 				position := rl.NewVector3(centerX, posY, centerZ)
 				size := rl.NewVector2(w, h)
 

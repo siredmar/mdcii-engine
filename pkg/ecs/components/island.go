@@ -234,8 +234,8 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			})
 
 			switch {
-			// case field.Kind.IsBuilding():
-			// 	island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], tileEntry)
+			case field.Kind.IsBuilding():
+				island.Layers[buildings.KindBuildingsID] = append(island.Layers[buildings.KindBuildingsID], tileEntry)
 			// if size.W > 1 || size.H > 2 {
 			// 	fmt.Println("church")
 			// }
