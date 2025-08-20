@@ -1,5 +1,7 @@
-*.png
 *.json
+*.png
+!atlas/*.png
+!atlas/*.json
 out
 __debug_*
 \.vscode/
