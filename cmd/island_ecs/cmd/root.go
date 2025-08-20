@@ -101,7 +101,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		atlasPath := "/tmp/atlas"
+		atlasPath := "./atlas"
 		var a *atlas.TextureAtlas
 		name := "texture-atlas"
 		if !newatlas {
