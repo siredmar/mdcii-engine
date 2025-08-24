@@ -117,11 +117,11 @@ var rootCmd = &cobra.Command{
 					fmt.Println("Error exporting texture atlas:", err)
 					return
 				}
-			}
-			a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
+				a, err = atlas.LoadAtlasFromJSON(fmt.Sprintf("%s/%s.json", atlasPath, name))
+				if err != nil {
+					fmt.Println("Error:", err)
+					return
+				}
 			}
 		} else {
 			a, err = atlas.New(2096, 2096, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir(atlasPath), atlas.WithName(name))
@@ -159,8 +159,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = gamParser.LoadPath("/home/armin/spiele/anno1602/SAVEGAME/lastgame.gam")
-		// err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/LIT02.SCP")
+		err = gamParser.LoadPath("assets/savegames/lastgame.gam")
 
 		if err != nil {
 			fmt.Println(err)

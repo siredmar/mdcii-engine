@@ -1,7 +1,6 @@
 package files
 
 import (
-	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -110,5 +109,5 @@ func (f *Files) FindPathForFile(file string) (string, error) {
 			return t, nil
 		}
 	}
-	return "", errors.New("[ERR] cannot find file: " + file)
+	return filepath.Abs(file)
 }
