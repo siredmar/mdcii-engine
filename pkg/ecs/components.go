@@ -50,9 +50,10 @@ type IslandData struct {
 }
 
 type CameraData struct {
-	X, Y float64
-	Zoom float32
-	Rot  uint8
+	X, Y             float64
+	Zoom             float32
+	Rot              uint8
+	OffsetX, OffsetY float32 // screen pixel offsets for centering
 }
 
 var (
@@ -70,6 +71,7 @@ var (
 	qAnimated   = ecs.NewQuery(0, filter.Contains(Transform, Animation, Render))
 	qRenderable = ecs.NewQuery(0, filter.Contains(Transform, Render))
 	qIsland     = ecs.NewQuery(0, filter.Contains(Island))
+	qCamera     = ecs.NewQuery(0, filter.Contains(Camera))
 )
 
 func IslandEntity(w donburi.World) (donburi.Entity, *IslandData) {
@@ -79,4 +81,20 @@ func IslandEntity(w donburi.World) (donburi.Entity, *IslandData) {
 		return 0, nil
 	}
 	return found.Entity(), Island.Get(found)
+}
+
+func CameraEntity(w donburi.World) (donburi.Entity, *CameraData) {
+	var found *donburi.Entry
+	qCamera.Each(w, func(e *donburi.Entry) { found = e })
+	if found == nil {
+		return 0, nil
+	}
+	return found.Entity(), Camera.Get(found)
+}
+
+// QRenderableEach applies cb to each renderable entity's Transform.
+func QRenderableEach(w donburi.World, cb func(*TransformData)) {
+	qRenderable.Each(w, func(e *donburi.Entry) {
+		cb(Transform.Get(e))
+	})
 }

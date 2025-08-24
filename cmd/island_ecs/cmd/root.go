@@ -30,6 +30,7 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/gam"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/spf13/cobra"
 	"github.com/yohamta/donburi"
@@ -61,6 +62,7 @@ type Game struct {
 	world      donburi.World // changed from *donburi.World to interface type
 	dispatcher *ecsdispatcher.ECS
 	island     *chunks.Island5
+	atlas      *atlas.TextureAtlas // added atlas reference
 }
 
 var rootCmd = &cobra.Command{
@@ -171,7 +173,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		game := &Game{textures: textures, island: gamParser.Islands5[0]}
+		game := &Game{textures: textures, island: gamParser.Islands5[0], atlas: a}
 		game.initECS()
 		game.run()
 	},
@@ -202,21 +204,58 @@ func (g *Game) initECS() {
 	camEnt := g.dispatcher.Create(ecsdispatcher.LayerDefault, myecs.Camera)
 	camEntry := g.world.Entry(camEnt)
 	myecs.Camera.Set(camEntry, &myecs.CameraData{Zoom: 1})
-	// Spawn entities from island top layer fields (placeholder rendering)
+	// Spawn entities from island top layer fields (using atlas metadata)
+	var spawned int
 	if g.island != nil && g.island.Layers.Top != nil {
 		for _, f := range g.island.Layers.Top.Fields {
 			if f.Id == 0 || f.Id == 0xFFFF {
 				continue
 			}
+			set := g.atlas.ImagesMeta[f.Id]
+			if set == nil {
+				continue
+			}
+			rot := rotation.Rotation(f.Orientation & 3)
+			anim := set.Animations[rot]
+			if anim == nil || len(anim.Images) == 0 {
+				continue
+			}
+			frameIdx := f.AnimationCount
+			if frameIdx >= len(anim.Images) {
+				frameIdx = 0
+			}
+			meta := anim.Images[frameIdx].Metadata
 			ent := g.dispatcher.Create(ecsdispatcher.LayerDefault, myecs.Transform, myecs.Render, myecs.BuildingRef)
 			entry := g.world.Entry(ent)
-			myecs.Transform.Set(entry, &myecs.TransformData{GridX: 0, GridY: 0, LocalRot: uint8(f.Orientation), Dirty: true})
+			myecs.Transform.Set(entry, &myecs.TransformData{GridX: f.Posx, GridY: f.Posy, LocalRot: uint8(f.Orientation), Dirty: true})
 			myecs.BuildingRef.Set(entry, &myecs.BuildingRefData{ID: f.Id, VariantIdx: 0})
-			// Placeholder: all use first atlas image region 64x64 until frame meta is implemented
-			frame := myecs.FrameMeta{AtlasImageIdx: 0, Src: rl.Rectangle{X: 0, Y: 0, Width: 64, Height: 64}, Duration: 0}
-			myecs.Render.Set(entry, &myecs.RenderData{AtlasImageIdx: frame.AtlasImageIdx, Src: frame.Src})
+			// Anchor: place bottom-center of sprite onto tile center; isoProject yields (x-y)*tileW/2,(x+y)*tileH/2 with tileH=tileW/2 => tileH/2 in formula
+			// world tile center at projection point; sprite top-left needed -> offsetX = -Width/2, offsetY = -Height + tileHeight/2
+			anchorOffsetX := -float32(meta.Width) / 2
+			anchorOffsetY := -float32(meta.Height) + float32(zoom.TileSize())/4 // tileHeight/2 = tileW/4
+			src := rl.Rectangle{X: float32(meta.X), Y: float32(meta.Y), Width: float32(meta.Width), Height: float32(meta.Height)}
+			myecs.Render.Set(entry, &myecs.RenderData{AtlasImageIdx: meta.PNGIndex, Src: src, AnchorOffsetX: anchorOffsetX, AnchorOffsetY: anchorOffsetY})
+			spawned++
 		}
 		myecs.MarkResortNeededForNewEntity()
+	}
+	// Center camera on island midpoint
+	if spawned > 0 {
+		midX := width / 2
+		midY := height / 2
+		// project midpoint (reuse simple isometric formula identical to ecs.isoProject)
+		tileW := float32(zoom.TileSize())
+		hw := tileW / 2
+		hh := tileW / 4
+		worldMidX := float32(midX-midY) * hw
+		worldMidY := float32(midX+midY) * hh
+		cam := myecs.Camera.Get(camEntry)
+		cam.OffsetX = float32(ScreenWidth) / 2
+		cam.OffsetY = float32(ScreenHeight) / 2
+		cam.X = float64(worldMidX)
+		cam.Y = float64(worldMidY)
+		// mark all transforms dirty for repositioning
+		myecs.QRenderableEach(g.world, func(tr *myecs.TransformData) { tr.Dirty = true })
 	}
 }
 
