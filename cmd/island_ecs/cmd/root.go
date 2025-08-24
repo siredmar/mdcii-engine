@@ -19,18 +19,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
+	"github.com/siredmar/mdcii-engine/pkg/chunks"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
-	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	myecs "github.com/siredmar/mdcii-engine/pkg/ecs"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/gam"
-	"github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/spf13/cobra"
+	"github.com/yohamta/donburi"
+	ecsdispatcher "github.com/yohamta/donburi/ecs"
 )
 
 var (
@@ -54,11 +57,10 @@ func init() {
 // Game (V2) ---------------------------------------------------------------
 // Old ECS fields removed; lean V2 fields only.
 type Game struct {
-	textures       []rl.Texture2D
-	entitiesV2     []EntityV2
-	islandV2       components.IslandV2
-	cameraV2       components.Camera
-	globalRotDirty bool
+	textures   []rl.Texture2D
+	world      donburi.World // changed from *donburi.World to interface type
+	dispatcher *ecsdispatcher.ECS
+	island     *chunks.Island5
 }
 
 var rootCmd = &cobra.Command{
@@ -152,9 +154,6 @@ var rootCmd = &cobra.Command{
 			defer rl.UnloadTexture(textures[i])
 		}
 
-		// (Animations meta still parsed for potential frame durations; not integrated fully yet)
-		_, _ = animations.New(a)
-
 		gamParser, err := gam.NewParser()
 		if err != nil {
 			fmt.Println(err)
@@ -172,9 +171,9 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		game := &Game{textures: textures}
-		game.initV2() // placeholder entity until island loader implemented
-		game.gameLoopV2()
+		game := &Game{textures: textures, island: gamParser.Islands5[0]}
+		game.initECS()
+		game.run()
 	},
 }
 
@@ -184,6 +183,71 @@ func Execute() {
 		os.Exit(1)
 	}
 
+}
+
+// initECS sets up Donburi world, systems, and spawns minimal entities.
+func (g *Game) initECS() {
+	g.world = donburi.NewWorld()
+	g.dispatcher = ecsdispatcher.NewECS(g.world)
+	myecs.Register(g.dispatcher) // updated call
+	// Island singleton using actual island size if available
+	width, height := 64, 64
+	if g.island != nil {
+		width = g.island.Width
+		height = g.island.Height
+	}
+	islandEnt := g.dispatcher.Create(ecsdispatcher.LayerDefault, myecs.Island)
+	islandEntry := g.world.Entry(islandEnt)
+	myecs.Island.Set(islandEntry, &myecs.IslandData{Width: width, Height: height, GlobalRot: 0})
+	camEnt := g.dispatcher.Create(ecsdispatcher.LayerDefault, myecs.Camera)
+	camEntry := g.world.Entry(camEnt)
+	myecs.Camera.Set(camEntry, &myecs.CameraData{Zoom: 1})
+	// Spawn entities from island top layer fields (placeholder rendering)
+	if g.island != nil && g.island.Layers.Top != nil {
+		for _, f := range g.island.Layers.Top.Fields {
+			if f.Id == 0 || f.Id == 0xFFFF {
+				continue
+			}
+			ent := g.dispatcher.Create(ecsdispatcher.LayerDefault, myecs.Transform, myecs.Render, myecs.BuildingRef)
+			entry := g.world.Entry(ent)
+			myecs.Transform.Set(entry, &myecs.TransformData{GridX: 0, GridY: 0, LocalRot: uint8(f.Orientation), Dirty: true})
+			myecs.BuildingRef.Set(entry, &myecs.BuildingRefData{ID: f.Id, VariantIdx: 0})
+			// Placeholder: all use first atlas image region 64x64 until frame meta is implemented
+			frame := myecs.FrameMeta{AtlasImageIdx: 0, Src: rl.Rectangle{X: 0, Y: 0, Width: 64, Height: 64}, Duration: 0}
+			myecs.Render.Set(entry, &myecs.RenderData{AtlasImageIdx: frame.AtlasImageIdx, Src: frame.Src})
+		}
+		myecs.MarkResortNeededForNewEntity()
+	}
+}
+
+// run main loop.
+func (g *Game) run() {
+	last := time.Now()
+	for !rl.WindowShouldClose() {
+		now := time.Now()
+		dt := float32(now.Sub(last).Seconds())
+		last = now
+		myecs.SetDeltaTime(dt)
+		g.dispatcher.Update()
+		g.draw()
+	}
+}
+
+func (g *Game) draw() {
+	rl.BeginDrawing()
+	rl.ClearBackground(rl.Black)
+	// Render pass
+	for _, e := range myecs.SortedRenderableEntities(g.dispatcher) { // updated call
+		entry := g.world.Entry(e)
+		tr := myecs.Transform.Get(entry)
+		rd := myecs.Render.Get(entry)
+		tex := g.textures[rd.AtlasImageIdx]
+		dst := rl.Rectangle{X: tr.WorldX, Y: tr.WorldY, Width: rd.Src.Width, Height: rd.Src.Height}
+		origin := rl.Vector2{X: 0, Y: 0}
+		rl.DrawTexturePro(tex, rd.Src, dst, origin, 0, rl.White)
+	}
+	g.DrawUsage()
+	rl.EndDrawing()
 }
 
 func (g *Game) DrawUsage() {

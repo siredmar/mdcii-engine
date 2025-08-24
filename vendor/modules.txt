@@ -142,6 +142,7 @@ github.com/subosito/gotenv
 ## explicit; go 1.23
 github.com/yohamta/donburi
 github.com/yohamta/donburi/component
+github.com/yohamta/donburi/ecs
 github.com/yohamta/donburi/filter
 github.com/yohamta/donburi/internal/storage
 # golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
