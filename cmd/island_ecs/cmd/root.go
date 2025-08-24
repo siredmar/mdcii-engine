@@ -19,21 +19,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
-	"github.com/siredmar/mdcii-engine/pkg/ecs/systems"
-	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/gam"
-	r3d "github.com/siredmar/mdcii-engine/pkg/renderer/raylib"
-	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
+	"github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
-	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/siredmar/mdcii-engine/pkg/world/zoom"
 	"github.com/spf13/cobra"
 )
@@ -54,6 +49,16 @@ var (
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().BoolVarP(&newatlas, "newatlas", "a", false, "Create a new atlas")
+}
+
+// Game (V2) ---------------------------------------------------------------
+// Old ECS fields removed; lean V2 fields only.
+type Game struct {
+	textures       []rl.Texture2D
+	entitiesV2     []EntityV2
+	islandV2       components.IslandV2
+	cameraV2       components.Camera
+	globalRotDirty bool
 }
 
 var rootCmd = &cobra.Command{
@@ -135,9 +140,8 @@ var rootCmd = &cobra.Command{
 			}
 		}
 		zoom.ZoomIn()
-		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "animations")
+		rl.InitWindow(int32(ScreenWidth), int32(ScreenHeight), "ecs_v2")
 		rl.SetTargetFPS(60)
-		renderer := r3d.NewRenderer(float32(zoom.TileSize()))
 		defer rl.CloseWindow()
 
 		textures := make([]rl.Texture2D, len(a.Images))
@@ -148,11 +152,8 @@ var rootCmd = &cobra.Command{
 			defer rl.UnloadTexture(textures[i])
 		}
 
-		ani, err := animations.New(a)
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
+		// (Animations meta still parsed for potential frame durations; not integrated fully yet)
+		_, _ = animations.New(a)
 
 		gamParser, err := gam.NewParser()
 		if err != nil {
@@ -171,48 +172,9 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		w := world.New()
-		// Create an entity and get its Entry
-		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
-		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
-		islandEntry := components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
-
-		// Center the camera on the loaded island so tiles are visible on start
-		islandComp := components.IslandType.Get(islandEntry)
-
-		cameraEntity := w.World.Create(components.CameraType)
-		cameraEntry := w.World.Entry(cameraEntity)
-		components.CameraType.Set(cameraEntry, &components.Camera{
-			X:        islandComp.X + float64(islandComp.Width)/2,
-			Y:        islandComp.Y + float64(islandComp.Height)/2,
-			Zoom:     1.0,
-			Rotation: rotation.DEG180,
-		})
-
-		controlEntity := w.World.Create(components.ControlType)
-		controlEntry := w.World.Entry(controlEntity)
-
-		components.ControlType.Set(controlEntry, &components.Control{
-			Rotation:         rotation.DEG180,
-			GridVisible:      true,
-			LastKeyPressTime: time.Now(),
-		})
-
-		game := &Game{
-			world:         w,
-			animations:    ani,
-			renderer:      renderer,
-			buildingIndex: buildingIndex,
-			buildings:     buildings,
-			rotation:      rotation.Rotation(rotationArg),
-			grid:          true,
-			textures:      textures,
-		}
-
-		for !rl.WindowShouldClose() {
-			game.Update()
-			game.Draw()
-		}
+		game := &Game{textures: textures}
+		game.initV2() // placeholder entity until island loader implemented
+		game.gameLoopV2()
 	},
 }
 
@@ -224,39 +186,6 @@ func Execute() {
 
 }
 
-type Game struct {
-	world         *world.World
-	animations    *animations.Animations
-	renderer      *r3d.Renderer
-	buildingIndex int
-	rotation      rotation.Rotation
-	buildings     *buildingsCod.Buildings
-	grid          bool
-	textures      []rl.Texture2D
-}
-
-func (g *Game) Draw() {
-	// var rot rotation.Rotation
-
-	// controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
-	// controlQuery.Each(g.world.World, func(entry *donburi.Entry) {
-	// 	ctrl := components.ControlType.Get(entry)
-	// 	rot = ctrl.Rotation
-	// 	grid = ctrl.GridVisible
-	// })
-
-	rl.BeginDrawing()
-	rl.ClearBackground(rl.Black)
-	systems.RenderSystem(g.world.World, g.renderer, g.textures)
-	g.DrawUsage()
-	rl.EndDrawing()
-}
-
 func (g *Game) DrawUsage() {
-	rl.DrawText("Up: Animation Step, Left/Right: Rotate, N: next, M: previous", 10, int32(ScreenHeight-20), 10, rl.White)
-}
-
-func (g *Game) Update() {
-	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
-	systems.InputSystem(g.world.World)
+	rl.DrawText("Q/E: Rotate world", 10, int32(ScreenHeight-20), 10, rl.White)
 }
