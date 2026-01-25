@@ -28,8 +28,7 @@ func TransformSystem(es *ecs.ECS) { // updated signature
 		if !tr.Dirty && !globalRotDirty {
 			return
 		}
-		// effRot placeholder
-		wpx, wpy := isoProject(tr.GridX, tr.GridY, float32(zoom.TileSize()))
+		wpx, wpy := isoProject(tr.GridX, tr.GridY, float32(zoom.TileSize())*2)
 		rd := Render.Get(e)
 		tr.WorldX = wpx + rd.AnchorOffsetX
 		tr.WorldY = wpy + rd.AnchorOffsetY
