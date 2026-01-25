@@ -2,8 +2,8 @@ package animation
 
 import (
 	"errors"
-	"image"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 )
@@ -13,7 +13,7 @@ type Animations struct {
 }
 
 type Animation struct {
-	Frames        []image.Image
+	Frames        []*ebiten.Image
 	Steps         int
 	Animated      bool
 	FrameDuration int
@@ -39,10 +39,10 @@ func New(atlas *atlas.TextureAtlas) (*Animations, error) {
 		for _, rot := range rotation.AllRotations {
 			animation := imageSetForRotation.Animations[rot]
 			a.Animations[buildingId][rot] = &Animation{
-				Frames: func() []image.Image {
-					out := []image.Image{}
+				Frames: func() []*ebiten.Image {
+					out := make([]*ebiten.Image, 0, len(animation.Images))
 					for _, img := range animation.Images {
-						out = append(out, img.Sprite)
+						out = append(out, ebiten.NewImageFromImage(img.Sprite))
 					}
 					return out
 				}(),

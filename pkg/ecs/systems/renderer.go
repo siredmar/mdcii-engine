@@ -20,10 +20,10 @@ import (
 
 // Embed optional debug tiles
 //
-//go:embed assets/gfx/0.png
-var grid0Bytes []byte
+// go:embed assets/gfx/0.png
+// var grid0Bytes []byte
 
-var grid0 = createImage(grid0Bytes)
+// var grid0 = createImage(grid0Bytes)
 
 func createImage(data []byte) *ebiten.Image {
 	img, err := png.Decode(bytes.NewReader(data))
