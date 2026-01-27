@@ -42,6 +42,11 @@ func InputSystem(world donburi.World) {
 				ctrl.LastKeyPressTime = now
 				fmt.Println("Grid toggled:", ctrl.GridVisible)
 			}
+			if ebiten.IsKeyPressed(ebiten.KeyO) {
+				ctrl.OverlayVisible = !ctrl.OverlayVisible
+				ctrl.LastKeyPressTime = now
+				fmt.Println("Overlay toggled:", ctrl.OverlayVisible)
+			}
 			if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 				os.Exit(0)
 			}

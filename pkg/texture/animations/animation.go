@@ -15,6 +15,7 @@ type Animations struct {
 
 type Animation struct {
 	Frames        []*ebiten.Image
+	FrameMeta     []atlas.Metadata
 	Steps         int
 	Animated      bool
 	FrameDuration int
@@ -24,18 +25,18 @@ func (a *Animations) GetAnimation(buildingId int, rot rotation.Rotation) *Animat
 	return a.Animations[buildingId][rot]
 }
 
-func New(atlas *atlas.TextureAtlas) (*Animations, error) {
+func New(atlasObj *atlas.TextureAtlas) (*Animations, error) {
 	a := &Animations{
 		Animations: make(map[int]map[rotation.Rotation]*Animation),
 	}
-	if atlas == nil {
+	if atlasObj == nil {
 		return nil, errors.New("atlas is nil")
 	}
 	if a.Animations == nil {
 		a.Animations = make(map[int]map[rotation.Rotation]*Animation)
 	}
 
-	for buildingId, imageSetForRotation := range atlas.ImagesMeta {
+	for buildingId, imageSetForRotation := range atlasObj.ImagesMeta {
 		a.Animations[buildingId] = make(map[rotation.Rotation]*Animation)
 		for _, rot := range rotation.AllRotations {
 			animation := imageSetForRotation.Animations[rot]
@@ -44,6 +45,13 @@ func New(atlas *atlas.TextureAtlas) (*Animations, error) {
 					out := []*ebiten.Image{}
 					for _, img := range animation.Images {
 						out = append(out, ebiten.NewImageFromImage(img.Sprite))
+					}
+					return out
+				}(),
+				FrameMeta: func() []atlas.Metadata {
+					out := make([]atlas.Metadata, 0, len(animation.Images))
+					for _, img := range animation.Images {
+						out = append(out, img.Metadata)
 					}
 					return out
 				}(),

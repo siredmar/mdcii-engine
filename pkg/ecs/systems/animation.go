@@ -40,6 +40,7 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		rotation := building.Rotation.Add(globalRotation)
 		// fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
 		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
+		metas := ani.GetAnimation(building.BuildingID, rotation).FrameMeta
 		tile := components.TileType.Get(entry)
 		// if tile.Occupation {
 		// 	tile.Image = grid1
@@ -65,9 +66,17 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 				animation.CurrentFrame = frameIndex
 				// Update the tile's current image
 				tile.Image = frames[frameIndex]
+				if frameIndex < len(metas) {
+					tile.PivotX = metas[frameIndex].PivotX
+					tile.PivotY = metas[frameIndex].PivotY
+				}
 			}
 			return
 		}
 		tile.Image = frames[0]
+		if len(metas) > 0 {
+			tile.PivotX = metas[0].PivotX
+			tile.PivotY = metas[0].PivotY
+		}
 	})
 }

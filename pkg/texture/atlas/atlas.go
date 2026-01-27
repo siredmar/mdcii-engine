@@ -61,6 +61,8 @@ type Metadata struct {
 	Y              int `json:"y"`
 	Width          int `json:"width"`
 	Height         int `json:"height"`
+	PivotX         int `json:"pivotX"`
+	PivotY         int `json:"pivotY"`
 	Rotation       int `json:"rotation"`
 	AnimationIndex int `json:"animationIndex"`
 }
@@ -159,17 +161,50 @@ const (
 	tileHeight = 32
 )
 
+// drawBuildingToImage is preserved for any legacy callers, but should no longer be used.
+// It returns the union-cropped frame 0 image.
 func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSize) image.Image {
+	frame := a.drawBuildingToFrame(b, tileSize)
+	return frame.Sprite
+}
+
+func (a *TextureAtlas) drawBuildingToFrame(b *building.Building, tileSize TileSize) Image {
+	canvas, anchor := a.renderBuildingCanvas(b, tileSize)
+	cropBounds := findNonAlphaBounds(canvas)
+	if cropBounds.Empty() {
+		return Image{Sprite: image.NewRGBA(image.Rect(0, 0, 0, 0))}
+	}
+
+	pivotX := anchor.X - cropBounds.Min.X
+	pivotY := anchor.Y - cropBounds.Min.Y
+	croppedImage := cropImage(canvas, cropBounds)
+
+	return Image{Sprite: croppedImage, Metadata: Metadata{PivotX: pivotX, PivotY: pivotY}}
+}
+
+type renderedFrame struct {
+	canvas        *image.RGBA
+	contentBounds image.Rectangle
+}
+
+func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileSize) (*image.RGBA, image.Point) {
 	// Create a blank RGBA image for drawing
 	outputImage := image.NewRGBA(image.Rect(0, 0, 1000, 1000))
 
-	// Draw the building
+	// Tile origin convention: bottom-left tile's top point in the rotated footprint.
+	anchorX := b.X
+	footH := b.Size.Height()
+	if b.Rotation%2 == 1 {
+		footH = b.Size.Width()
+	}
+	anchorY := b.Y + (footH-1)*(tileSize.Height/2)
+	anchor := image.Point{X: anchorX, Y: anchorY}
+
 	offsets := building.RotationOffsets[b.Size][b.Rotation]
 	for i, offset := range offsets {
 		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
 
-		// textureKey := fmt.Sprintf("%d", b.BaseIndex+i)
 		textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
 			tilesPerRotation := len(building.RotationOffsets[size][rotation])
 			return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
@@ -192,24 +227,7 @@ func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSi
 			tileImg, image.Point{}, draw.Over)
 	}
 
-	// Find the bounds of the non-alpha content
-	cropBounds := findNonAlphaBounds(outputImage)
-
-	// Crop the image to the determined bounds
-	croppedImage := cropImage(outputImage, cropBounds)
-	return croppedImage
-	// // Save the cropped output image as a PNG file
-	// outputFile, err := os.Create("output.png")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer outputFile.Close()
-
-	// err = png.Encode(outputFile, croppedImage)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println("Image rendered, cropped, and saved as output.png")
+	return outputImage, anchor
 }
 
 // findNonAlphaBounds determines the bounds of the non-transparent content in an image.
@@ -247,8 +265,8 @@ func findNonAlphaBounds(img *image.RGBA) image.Rectangle {
 
 // cropImage crops an image to the specified rectangle.
 func cropImage(img *image.RGBA, rect image.Rectangle) *image.RGBA {
-	cropped := image.NewRGBA(rect)
-	draw.Draw(cropped, rect, img, rect.Min, draw.Src)
+	cropped := image.NewRGBA(image.Rect(0, 0, rect.Dx(), rect.Dy()))
+	draw.Draw(cropped, cropped.Bounds(), img, rect.Min, draw.Src)
 	return cropped
 }
 
@@ -278,9 +296,6 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 
 	for _, buildingCOD := range buildings.BuildingsVector {
 		buildingID := buildingCOD.Id
-		if buildingID == 2121 {
-			fmt.Println("Building ID:", buildingID)
-		}
 		// atlas.indexToId[i] = buildingID
 		// atlas.idToIndex[buildingID] = i
 		// rotationsCod := buildingCOD.Rotate
@@ -303,12 +318,37 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 		}
 
 		for rot := range []rotation.Rotation{rotation.DEG0, rotation.DEG90, rotation.DEG180, rotation.DEG270} {
+			// Ensure each rotation starts at animation frame 0.
+			b.CurrentAnimationStep = 0
+			b.BaseIndex = b.BaseIndexSaved
+
 			animations := buildingCOD.AnimationAmount
 			if buildingCOD.AnimationAmount == 0 {
 				animations = 1
 			}
+			frames := make([]renderedFrame, 0, animations)
+			var unionBounds image.Rectangle
+			footH := b.Size.Height()
+			if b.Rotation%2 == 1 {
+				footH = b.Size.Width()
+			}
+			anchor := image.Point{X: b.X, Y: b.Y + (footH-1)*(tileHeight/2)}
 			for animationStep := 0; animationStep < animations; animationStep++ {
-				img := atlas.drawBuildingToImage(b, TileSize{Width: tileWidth, Height: tileHeight})
+				if b.AnimationSteps > 0 {
+					b.BaseIndex = b.BaseIndexSaved + ((animationStep % b.AnimationSteps) * b.AnimationAdd)
+				} else {
+					b.BaseIndex = b.BaseIndexSaved
+				}
+				canvas, _ := atlas.renderBuildingCanvas(b, TileSize{Width: tileWidth, Height: tileHeight})
+				bounds := findNonAlphaBounds(canvas)
+				frames = append(frames, renderedFrame{canvas: canvas, contentBounds: bounds})
+				if !bounds.Empty() {
+					if unionBounds.Empty() {
+						unionBounds = bounds
+					} else {
+						unionBounds = unionBounds.Union(bounds)
+					}
+				}
 				if atlas.ImagesMeta[buildingID] == nil {
 					atlas.ImagesMeta[buildingID] = &ImageSetRotation{
 						Animations: make(map[rotation.Rotation]*Animation),
@@ -322,34 +362,51 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 					}
 				}
 
+				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Time = time.Duration((1000.0 / buildingCOD.AnimationTime) / 60.0)
+			}
+
+			// Stabilize crop across frames: crop every frame to the union bounds.
+			for animationStep := 0; animationStep < animations; animationStep++ {
+				frame := frames[animationStep]
+				if unionBounds.Empty() {
+					atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
+						Sprite: image.NewRGBA(image.Rect(0, 0, 0, 0)),
+						Metadata: Metadata{
+							BuildingID:     buildingID,
+							Width:          0,
+							Height:         0,
+							PivotX:         0,
+							PivotY:         0,
+							Rotation:       b.Rotation,
+							AnimationIndex: animationStep,
+						},
+					})
+					continue
+				}
+
+				pivotX := anchor.X - unionBounds.Min.X
+				pivotY := anchor.Y - unionBounds.Min.Y
+
+				cropped := cropImage(frame.canvas, unionBounds)
 				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
-					Sprite: img,
+					Sprite: cropped,
 					Metadata: Metadata{
-						BuildingID: buildingID,
-						Width:      img.Bounds().Dx(),
-						Height:     img.Bounds().Dy(),
-						// X:              get set during packing,
-						// Y:              get set during packing,
+						BuildingID:     buildingID,
+						Width:          cropped.Bounds().Dx(),
+						Height:         cropped.Bounds().Dy(),
+						PivotX:         pivotX,
+						PivotY:         pivotY,
 						Rotation:       b.Rotation,
 						AnimationIndex: animationStep,
 					},
 				})
-				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Time = time.Duration((1000.0 / buildingCOD.AnimationTime) / 60.0)
-				if b.AnimationSteps > 0 {
-					b.CurrentAnimationStep = (b.CurrentAnimationStep + 1) % b.AnimationSteps
-					add := b.CurrentAnimationStep * b.AnimationAdd
-					b.BaseIndex = b.BaseIndexSaved + add
-				}
 			}
 			b.Rotation = (b.Rotation + 1) % 4
 		}
 	}
 
 	// packer := NewMaxRectsPacker(atlasWidth, atlasHeight)
-	for id, img := range atlas.ImagesMeta {
-		for rot, animations := range img.Animations {
-			fmt.Printf("ID: %d, Rot: %d, Animations: %d, BuildingID: %d\n", id, rot, len(animations.Images), animations.Images[0].Metadata.BuildingID)
-		}
+	for range atlas.ImagesMeta {
 		// rewind:
 		// 	rect, err := packer.Pack(img.Bounds().Dx(), img.Bounds().Dy())
 		// 	if err != nil {

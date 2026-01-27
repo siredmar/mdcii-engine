@@ -2,7 +2,6 @@ package components
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	island5 "github.com/siredmar/mdcii-engine/pkg/chunks"
@@ -197,10 +196,8 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 
 			currentTile := field
 			if currentTile.Id == 65535 {
-				fmt.Println("Id 65535")
 				continue
 			}
-			fmt.Println("currentTile.Id", currentTile.Id)
 			tileEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
 			tileEntry := world.Entry(tileEntity)
 			posOffset := i.Buildings.Buildings[currentTile.Id].PositionOffset
@@ -210,7 +207,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			TileType.Set(tileEntry, &Tile{
 				Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()},
 			})
-			anim := ani.GetAnimation(currentTile.Id, rotation.DEG0)
+			anim := ani.GetAnimation(currentTile.Id, rotation.Rotation(currentTile.Orientation))
 			AnimationType.Set(tileEntry, &Animation{
 				Count:        anim.Steps,
 				Duration:     float64(anim.FrameDuration),
@@ -228,9 +225,6 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			switch {
 			case field.Kind.IsBuilding():
 				island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], tileEntry)
-				if size.W > 1 || size.H > 2 {
-					fmt.Println("church")
-				}
 				for dy := 0; dy < size.H; dy++ {
 					for dx := 0; dx < size.W; dx++ {
 						occupyEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
@@ -244,16 +238,14 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 							Count:    1,
 							Duration: 1,
 						})
-						p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dx), Offset: float64(posOffset)}
+						p := &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dy), Offset: float64(posOffset)}
 						PositionType.Set(occupyEntry, p)
 						TileType.Set(occupyEntry, &Tile{
 							Size:       Size{Width: 1, Height: 1, Z: size.H - zoom.TileHeight()},
 							Image:      nil,
 							Occupation: true,
 						})
-
 						island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], occupyEntry)
-
 					}
 				}
 			case field.Kind.IsWater():

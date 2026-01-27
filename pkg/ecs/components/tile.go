@@ -12,7 +12,9 @@ type Size struct {
 }
 
 type Tile struct {
-	Image      *ebiten.Image // Placeholder for current frame
+	Image      *ebiten.Image // Current frame image
+	PivotX     int
+	PivotY     int
 	Size       Size
 	Occupation bool
 	// Parent     *donburi.Entry

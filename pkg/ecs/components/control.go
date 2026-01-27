@@ -11,6 +11,7 @@ import (
 type Control struct {
 	Rotation         rotation.Rotation
 	GridVisible      bool
+	OverlayVisible   bool
 	LastKeyPressTime time.Time
 
 	Dragging   bool

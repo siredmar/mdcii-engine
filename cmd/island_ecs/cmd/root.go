@@ -16,8 +16,11 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"image"
 	"image/color"
+	"image/png"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,6 +50,10 @@ var (
 	gamePath      string
 	buildingIndex int
 	rotationArg   int
+
+	screenshotPath        string
+	screenshotAfterFrames int
+	exitAfterScreenshot   bool
 	// buildingParam int
 )
 
@@ -59,6 +66,10 @@ func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
 	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
+
+	rootCmd.Flags().StringVar(&screenshotPath, "screenshot", "", "Write a screenshot PNG to this path")
+	rootCmd.Flags().IntVar(&screenshotAfterFrames, "screenshotAfterFrames", 60, "Take screenshot after N update frames")
+	rootCmd.Flags().BoolVar(&exitAfterScreenshot, "exitAfterScreenshot", true, "Exit after taking the screenshot")
 	// rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 380, "building ID")
 }
 
@@ -72,9 +83,12 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		dirPath := filepath.Dir(absPath)
+		gameRoot := absPath
+		if fi, err := os.Stat(absPath); err == nil && !fi.IsDir() {
+			gameRoot = filepath.Dir(absPath)
+		}
 
-		files.CreateInstance(dirPath)
+		files.CreateInstance(gameRoot)
 		buildingsCodPath, err := files.Instance().FindPathForFile("haeuser.cod")
 		if err != nil {
 			fmt.Println(err)
@@ -112,6 +126,14 @@ var rootCmd = &cobra.Command{
 		atlasHeight := 4096
 		atlasJsonPath := filepath.Join("/tmp/atlas", "texture-atlas.json")
 		var atlasObj *atlas.TextureAtlas
+
+		if b, err := os.ReadFile(atlasJsonPath); err == nil {
+			// Cache invalidation: older atlases don't have pivot metadata and will render misaligned.
+			if !bytes.Contains(b, []byte("\"pivotX\"")) {
+				_ = os.RemoveAll(filepath.Dir(atlasJsonPath))
+			}
+		}
+
 		if _, err := os.Stat(atlasJsonPath); os.IsNotExist(err) {
 			fmt.Println("Atlas does not exist, creating new atlas...")
 			atlasObj, err = atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir("/tmp/atlas"))
@@ -144,8 +166,9 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = gamParser.LoadPath("/home/armin/spiele/anno1602/SAVEGAME/lastgame.gam")
-		// err = gamParser.LoadPath("/home/armin/spiele/anno1602/NORDNAT/LIT02.SCP")
+		gamPath := filepath.Join(gameRoot, "SAVEGAME", "lastgame.gam")
+		err = gamParser.LoadPath(gamPath)
+		// err = gamParser.LoadPath(filepath.Join(gameRoot, "NORDNAT", "LIT02.SCP"))
 
 		if err != nil {
 			fmt.Println(err)
@@ -179,7 +202,7 @@ var rootCmd = &cobra.Command{
 		controlEntry := w.World.Entry(controlEntity)
 
 		components.ControlType.Set(controlEntry, &components.Control{
-			Rotation:         rotation.DEG0,
+			Rotation:         rotation.Rotation(rotationArg),
 			GridVisible:      true,
 			LastKeyPressTime: time.Now(),
 		})
@@ -205,6 +228,10 @@ var rootCmd = &cobra.Command{
 			rotation:  rotation.Rotation(rotationArg),
 			// entry:     entry,
 			grid: true,
+
+			screenshotPath:        screenshotPath,
+			screenshotAfterFrames: screenshotAfterFrames,
+			exitAfterScreenshot:   exitAfterScreenshot,
 		}
 
 		// components.BuildingType.Set(entry, &components.Building{
@@ -263,6 +290,13 @@ type Game struct {
 	// entry            *donburi.Entry
 	buildings *buildingsCod.Buildings
 	grid      bool
+
+	screenshotPath        string
+	screenshotAfterFrames int
+	exitAfterScreenshot   bool
+	frameCount            int
+	screenshotPending     bool
+	screenshotTaken       bool
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -276,6 +310,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		grid = ctrl.GridVisible
 	})
 	systems.RenderSystem(g.world.World, screen, grid, rot)
+
+	if g.screenshotPending && !g.screenshotTaken {
+		if err := g.writeScreenshot(screen); err != nil {
+			log.Println("screenshot error:", err)
+		} else {
+			log.Println("wrote screenshot:", g.screenshotPath)
+		}
+		g.screenshotTaken = true
+		g.screenshotPending = false
+	}
 	// systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
 	// systems.RenderSystemAscii(g.world.World)
 }
@@ -304,8 +348,17 @@ func (g *Game) DrawUsage(screen *ebiten.Image) {
 }
 
 func (g *Game) Update() error {
+	g.frameCount++
+	if g.exitAfterScreenshot && g.screenshotTaken {
+		return ebiten.Termination
+	}
+
 	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
 	systems.InputSystem(g.world.World)
+
+	if g.screenshotPath != "" && !g.screenshotTaken && !g.screenshotPending && g.frameCount >= g.screenshotAfterFrames {
+		g.screenshotPending = true
+	}
 	return nil
 	// const debounceDuration = time.Millisecond * 250
 	// now := time.Now()
@@ -335,4 +388,25 @@ func (g *Game) Update() error {
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
+}
+
+func (g *Game) writeScreenshot(screen *ebiten.Image) error {
+	if err := os.MkdirAll(filepath.Dir(g.screenshotPath), 0o755); err != nil {
+		return err
+	}
+
+	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
+	pixels := make([]byte, 4*w*h)
+	screen.ReadPixels(pixels)
+
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	copy(img.Pix, pixels)
+
+	f, err := os.Create(g.screenshotPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return png.Encode(f, img)
 }
