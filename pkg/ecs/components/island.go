@@ -205,7 +205,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			// Base layer: draw the underlying island tile as well (cliffs/shorelines are often split across layers).
 			if bottomLayer != nil {
 				base := bottomLayer.Get(x, y)
-				if base.Id != 0xFFFF && base.Id != currentTile.Id {
+				if base.Id != 0xFFFF && (base.Id != currentTile.Id || base.Orientation != currentTile.Orientation) {
 					baseB := i.Buildings.Buildings[base.Id]
 					baseOffset := baseB.PositionOffset
 					size := baseB.Size
@@ -223,6 +223,12 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 						island.Tiles[buildings.KindSeaID+"_OVERLAY"] = append(island.Tiles[buildings.KindSeaID+"_OVERLAY"], baseEntry)
 					case baseB.Kind.IsGround():
 						island.Tiles[buildings.KindGroundID+"_OVERLAY"] = append(island.Tiles[buildings.KindGroundID+"_OVERLAY"], baseEntry)
+					case baseB.Kind.IsRoad():
+						island.Tiles[buildings.KindRoadsID] = append(island.Tiles[buildings.KindRoadsID], baseEntry)
+					case baseB.Kind.IsForrest():
+						island.Tiles[buildings.KindForrestID] = append(island.Tiles[buildings.KindForrestID], baseEntry)
+					case baseB.Kind.IsBuilding():
+						island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], baseEntry)
 					}
 				}
 			}
