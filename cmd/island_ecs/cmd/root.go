@@ -128,8 +128,8 @@ var rootCmd = &cobra.Command{
 		var atlasObj *atlas.TextureAtlas
 
 		if b, err := os.ReadFile(atlasJsonPath); err == nil {
-			// Cache invalidation: older atlases don't have pivot metadata and will render misaligned.
-			if !bytes.Contains(b, []byte("\"pivotX\"")) {
+			// Cache invalidation: older atlases don't have pivot metadata or correct tile drawing.
+			if !bytes.Contains(b, []byte("\"pivotX\"")) || !bytes.Contains(b, []byte("\"version\": 2")) {
 				_ = os.RemoveAll(filepath.Dir(atlasJsonPath))
 			}
 		}

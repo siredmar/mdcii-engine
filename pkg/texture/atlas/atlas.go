@@ -48,9 +48,10 @@ type TextureAtlas struct {
 }
 
 type AtlasMeta struct {
-	Width  int    `json:"width"`
-	Height int    `json:"height"`
-	Name   string `json:"name"`
+	Width   int    `json:"width"`
+	Height  int    `json:"height"`
+	Name    string `json:"name"`
+	Version int    `json:"version"`
 }
 
 // Metadata contains metadata for an image in the atlas
@@ -223,7 +224,7 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 			return 0
 		}(tileImg.Bounds().Dy(), tileHeight)
 
-		draw.Draw(outputImage, image.Rect(screenX, screenY-baseOffsetY, screenX+tileSize.Width, screenY+tileSize.Height),
+		draw.Draw(outputImage, image.Rect(screenX, screenY-baseOffsetY, screenX+tileImg.Bounds().Dx(), screenY-baseOffsetY+tileImg.Bounds().Dy()),
 			tileImg, image.Point{}, draw.Over)
 	}
 
@@ -277,9 +278,10 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 		Images:     []*image.RGBA{image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight))},
 		ImagesMeta: make(map[int]*ImageSetRotation),
 		AtlasMeta: AtlasMeta{
-			Width:  atlasWidth,
-			Height: atlasHeight,
-			Name:   "atlas",
+			Width:   atlasWidth,
+			Height:  atlasHeight,
+			Name:    "atlas",
+			Version: 2,
 		},
 		BuildingsCOD: *buildings,
 		// imagesToLoad: make(map[string]image.Image),
