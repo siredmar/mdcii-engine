@@ -35,14 +35,14 @@ func TestIslandHouse(t *testing.T) {
 	assert.Len(islandhouse.Fields, islandhouse.Size.Height*islandhouse.Size.Width)
 	assert.Equal(islandhouse.Size.Width, 64)
 	assert.Equal(islandhouse.Size.Height, 64)
-	assert.Equal(islandhouse.Fields[5*64+48].Id, 2701)
-	assert.Equal(islandhouse.Fields[5*64+48].IslandNumber, 12)
-	assert.Equal(islandhouse.Fields[5*64+48].Posx, 0)
-	assert.Equal(islandhouse.Fields[5*64+48].Posy, 0)
+	assert.Equal(2701, islandhouse.Fields[5*64+48].Id)
+	assert.Equal(12, islandhouse.Fields[5*64+48].IslandNumber)
+	assert.Equal(48, islandhouse.Fields[5*64+48].Posx)
+	assert.Equal(5, islandhouse.Fields[5*64+48].Posy)
 
-	assert.Equal(islandhouse.Fields[41*64+31].Id, 2701)
-	assert.Equal(islandhouse.Fields[41*64+31].IslandNumber, 12)
-	assert.Equal(islandhouse.Fields[41*64+31].Posx, 0)
-	assert.Equal(islandhouse.Fields[41*64+31].Posy, 0)
+	assert.Equal(2701, islandhouse.Fields[41*64+31].Id)
+	assert.Equal(12, islandhouse.Fields[41*64+31].IslandNumber)
+	assert.Equal(31, islandhouse.Fields[41*64+31].Posx)
+	assert.Equal(41, islandhouse.Fields[41*64+31].Posy)
 
 }

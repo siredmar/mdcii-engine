@@ -146,13 +146,14 @@ func (i *Island5) Finalize() error {
 			i.Layers.Final = append([]*IslandHouse{empty}, i.Layers.Final...)
 		}
 	}
-	// merge layers. Ignore fields that are t.Id == 0xFFFF
+	// merge layers. Ignore fields that are t.Id == 0xFFFF (empty sentinel)
 	i.Layers.Top = NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
+	i.Layers.Top.Fields = make([]Field, len(i.Layers.Final[0].Fields))
 	for index, tile := range i.Layers.Final[0].Fields {
-		if tile.Id != 0 {
-			i.Layers.Top.Fields = append(i.Layers.Top.Fields, tile)
+		if tile.Id != 0xFFFF {
+			i.Layers.Top.Fields[index] = tile
 		} else {
-			i.Layers.Top.Fields = append(i.Layers.Top.Fields, i.Layers.Final[1].Fields[index])
+			i.Layers.Top.Fields[index] = i.Layers.Final[1].Fields[index]
 		}
 	}
 	// for y := 0; y < i.Height; y++ {

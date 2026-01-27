@@ -57,9 +57,13 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 		if id == 102 {
 			id = 169
 		}
-		index, err := b.GetBuildingIndexById(id)
-		if err != nil {
-			return nil, err
+		index := 0
+		if b != nil {
+			var err error
+			index, err = b.GetBuildingIndexById(id)
+			if err != nil {
+				return nil, err
+			}
 		}
 		field := &Field{
 			Id:             id,
@@ -74,7 +78,9 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 			Reserved:       int((bits >> 26) & ((1 << 6) - 1)),
 			// X:              0,
 			// Y:              0,
-			Kind: b.BuildingsVector[index].Kind,
+		}
+		if b != nil {
+			field.Kind = b.BuildingsVector[index].Kind
 		}
 		islandhouse.RawFields = append(islandhouse.RawFields, *field)
 	}
@@ -93,6 +99,11 @@ func NewEmptyIslandHouse(size IslandDimensions) *IslandHouse {
 
 func (i *IslandHouse) finalize() {
 	i.Fields = make([]Field, i.Size.Height*i.Size.Width)
+	for y := 0; y < i.Size.Height; y++ {
+		for x := 0; x < i.Size.Width; x++ {
+			i.Fields[y*i.Size.Width+x] = Field{Id: 0xFFFF, Posx: x, Posy: y}
+		}
+	}
 	for _, tile := range i.RawFields {
 		if tile.Id == 102 {
 			fmt.Printf("ID: %d, X: %d, Y: %d\n", tile.Id, tile.Posx, tile.Posy)
@@ -107,9 +118,10 @@ func (i *IslandHouse) finalize() {
 				log.Println(err)
 				continue
 			}
-			i.Fields = append(i.Fields, tile)
-			// i.Fields[tile.Posy*i.Size.Width+tile.Posx] = tile
-
+		}
+		idx := tile.Posy*i.Size.Width + tile.Posx
+		if idx >= 0 && idx < len(i.Fields) {
+			i.Fields[idx] = tile
 		}
 	}
 }
