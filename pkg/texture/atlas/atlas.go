@@ -207,8 +207,11 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
 
 		textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
-			tilesPerRotation := len(building.RotationOffsets[size][rotation])
-			return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
+			rotateStride := 0
+			if codB := a.BuildingsCOD.Buildings[b.Id]; codB != nil {
+				rotateStride = codB.Rotate
+			}
+			return fmt.Sprintf("%d", baseIndex+(rotation*rotateStride)+tileIndex)
 		}(b.BaseIndex, b.Rotation, i, b.Size)
 
 		tileImg, ok := a.PNGs.Images[textureKey]
@@ -281,7 +284,7 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			Width:   atlasWidth,
 			Height:  atlasHeight,
 			Name:    "atlas",
-			Version: 2,
+			Version: 3,
 		},
 		BuildingsCOD: *buildings,
 		// imagesToLoad: make(map[string]image.Image),
