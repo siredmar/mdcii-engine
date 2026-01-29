@@ -192,13 +192,11 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 	// Create a blank RGBA image for drawing
 	outputImage := image.NewRGBA(image.Rect(0, 0, 1000, 1000))
 
-	// Tile origin convention: bottom-left tile's top point in the rotated footprint.
+	// Anchor at the back corner (0,0 in local building coords).
+	// This is where Anno 1602 stores the building position (upper-left in grid).
+	// The anchor is the top point of the isometric diamond for the (0,0) tile.
 	anchorX := b.X
-	footH := b.Size.Height()
-	if b.Rotation%2 == 1 {
-		footH = b.Size.Width()
-	}
-	anchorY := b.Y + (footH-1)*(tileSize.Height/2)
+	anchorY := b.Y
 	anchor := image.Point{X: anchorX, Y: anchorY}
 
 	offsets := building.RotationOffsets[b.Size][b.Rotation]
@@ -333,11 +331,8 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			}
 			frames := make([]renderedFrame, 0, animations)
 			var unionBounds image.Rectangle
-			footH := b.Size.Height()
-			if b.Rotation%2 == 1 {
-				footH = b.Size.Width()
-			}
-			anchor := image.Point{X: b.X, Y: b.Y + (footH-1)*(tileHeight/2)}
+			// Anchor at the back corner (local grid 0,0) - matches where game stores building position
+			anchor := image.Point{X: b.X, Y: b.Y}
 			for animationStep := 0; animationStep < animations; animationStep++ {
 				if b.AnimationSteps > 0 {
 					b.BaseIndex = b.BaseIndexSaved + ((animationStep % b.AnimationSteps) * b.AnimationAdd)
