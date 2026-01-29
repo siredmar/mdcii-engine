@@ -250,30 +250,6 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			AnimationType.Set(tileEntry, &Animation{Count: anim.Steps, Duration: float64(anim.FrameDuration), Running: true, Loop: true})
 			BuildingType.Set(tileEntry, &Building{BuildingID: currentTile.Id, Rotation: rotation.Rotation(currentTile.Orientation), Size: building.BuildingSize(size.W, size.H)})
 
-			// Coastal transition tiles (BurnCorner, Surf, Estuary, Beach*) have transparent areas
-			// that need a sea tile underneath to avoid black artifacts
-			needsSeaUnderlay := tileB.Kind == buildings.KindBurnCorner ||
-				tileB.Kind == buildings.KindSurf ||
-				tileB.Kind == buildings.KindEstuary ||
-				tileB.Kind == buildings.KindBeach ||
-				tileB.Kind == buildings.KindBeachCornerI ||
-				tileB.Kind == buildings.KindBeachCornerII ||
-				tileB.Kind == buildings.KindBeachCornerIII
-			if needsSeaUnderlay {
-				// Add a deep sea tile (1201) as underlay
-				seaB := i.Buildings.Buildings[1201]
-				if seaB != nil {
-					seaEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-					seaEntry := world.Entry(seaEntity)
-					PositionType.Set(seaEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: 0})
-					TileType.Set(seaEntry, &Tile{Size: Size{Width: 1, Height: 1, Z: 0}})
-					seaAnim := ani.GetAnimation(1201, rotation.DEG0)
-					AnimationType.Set(seaEntry, &Animation{Count: seaAnim.Steps, Duration: float64(seaAnim.FrameDuration), Running: true, Loop: true})
-					BuildingType.Set(seaEntry, &Building{BuildingID: 1201, Rotation: rotation.DEG0, Size: building.BuildingSize(1, 1)})
-					island.Tiles[buildings.KindSeaID] = append(island.Tiles[buildings.KindSeaID], seaEntry)
-				}
-			}
-
 			// Cliff/slope transition tiles (Slope, SlopeCorner, Rock) have transparent areas
 			// that need a ground tile underneath to avoid black artifacts
 			needsGroundUnderlay := tileB.Kind == buildings.KindSlope ||

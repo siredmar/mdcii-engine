@@ -96,9 +96,9 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		// Some tiles (notably roads) are self-contained (they include their own base ground).
-		// Only skip them if we know we will still draw a base tile (sea/ground) underneath.
+		// Only skip them if we know we will still draw a base tile (ground) underneath.
 		base := map[[2]int]struct{}{}
-		for _, layerID := range []string{buildings.KindSeaID, buildings.KindSeaID + "_OVERLAY", buildings.KindGroundID, buildings.KindGroundID + "_OVERLAY"} {
+		for _, layerID := range []string{buildings.KindGroundID, buildings.KindGroundID + "_OVERLAY"} {
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
@@ -110,8 +110,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		layerOrder := []string{
-			buildings.KindSeaID,
-			buildings.KindSeaID + "_OVERLAY",
+			// Sea tiles are handled by drawSeaBackground, not as entities
 			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
