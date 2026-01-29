@@ -177,34 +177,23 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 	island.Tiles[buildings.KindGroundID] = []*donburi.Entry{}
 	island.Tiles[buildings.KindGroundID+"_OVERLAY"] = []*donburi.Entry{}
 
-	var topLayer, bottomLayer *island5.IslandHouse
-	if len(i.Layers.Final) >= 2 {
-		// Final[0] has priority in the existing merge logic; treat it as the overlay.
-		topLayer = i.Layers.Final[0]
-		bottomLayer = i.Layers.Final[1]
-	} else if len(i.Layers.Final) == 1 {
-		topLayer = i.Layers.Final[0]
+	// Use the already-merged Top layer. Final[0] is base terrain, Final[1] is overlay (buildings).
+	var baseLayer *island5.IslandHouse
+	if len(i.Layers.Final) >= 1 {
+		baseLayer = i.Layers.Final[0] // Base terrain for underlay
 	}
 
 	for y := 0; y < i.Height; y++ {
 		for x := 0; x < i.Width; x++ {
-			var field island5.Field
-			if topLayer != nil {
-				field = topLayer.Get(x, y)
-			}
-
-			// for _, field := range i.Layers.Top.Fields {
-			// 	x := field.Posx
-			// 	y := field.Posy
-
-			currentTile := field
+			// Use the merged Top layer which prioritizes buildings over terrain
+			currentTile := i.Layers.Top.Get(x, y)
 			if currentTile.Id == 0xFFFF {
 				currentTile.Id = 0xFFFF
 			}
 
-			// Base layer: draw the underlying island tile as well (cliffs/shorelines are often split across layers).
-			if bottomLayer != nil {
-				base := bottomLayer.Get(x, y)
+			// Base layer underlay: draw the underlying terrain when the merged top layer has a different tile.
+			if baseLayer != nil {
+				base := baseLayer.Get(x, y)
 				if base.Id != 0xFFFF && (base.Id != currentTile.Id || base.Orientation != currentTile.Orientation) {
 					baseB := i.Buildings.Buildings[base.Id]
 					baseOffset := baseB.PositionOffset
@@ -213,7 +202,12 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 					baseEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
 					baseEntry := world.Entry(baseEntity)
 					PositionType.Set(baseEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(baseOffset)})
-					TileType.Set(baseEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}})
+					// For tiles with Rotate=0 in COD, apply runtime sprite rotation
+					baseSpriteRot := 0
+					if baseB.Rotate == 0 && base.Orientation > 0 {
+						baseSpriteRot = base.Orientation
+					}
+					TileType.Set(baseEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}, SpriteRotation: baseSpriteRot})
 					anim := ani.GetAnimation(base.Id, rotation.Rotation(base.Orientation))
 					AnimationType.Set(baseEntry, &Animation{Count: anim.Steps, Duration: float64(anim.FrameDuration), Running: true, Loop: true})
 					BuildingType.Set(baseEntry, &Building{BuildingID: base.Id, Rotation: rotation.Rotation(base.Orientation), Size: building.BuildingSize(size.W, size.H)})
@@ -244,7 +238,12 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			posOffset := tileB.PositionOffset
 			size := tileB.Size
 			PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(posOffset)})
-			TileType.Set(tileEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}})
+			// For tiles with Rotate=0 in COD, apply runtime sprite rotation based on orientation
+			spriteRot := 0
+			if tileB.Rotate == 0 && currentTile.Orientation > 0 {
+				spriteRot = currentTile.Orientation
+			}
+			TileType.Set(tileEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}, SpriteRotation: spriteRot})
 			anim := ani.GetAnimation(currentTile.Id, rotation.Rotation(currentTile.Orientation))
 			AnimationType.Set(tileEntry, &Animation{Count: anim.Steps, Duration: float64(anim.FrameDuration), Running: true, Loop: true})
 			BuildingType.Set(tileEntry, &Building{BuildingID: currentTile.Id, Rotation: rotation.Rotation(currentTile.Orientation), Size: building.BuildingSize(size.W, size.H)})

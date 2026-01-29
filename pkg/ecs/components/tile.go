@@ -12,11 +12,12 @@ type Size struct {
 }
 
 type Tile struct {
-	Image      *ebiten.Image // Current frame image
-	PivotX     int
-	PivotY     int
-	Size       Size
-	Occupation bool
+	Image          *ebiten.Image // Current frame image
+	PivotX         int
+	PivotY         int
+	Size           Size
+	Occupation     bool
+	SpriteRotation int // 0-3: number of 90° clockwise rotations to apply at render time
 	// Parent     *donburi.Entry
 }
 

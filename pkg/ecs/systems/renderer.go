@@ -26,15 +26,16 @@ const (
 var rendererQuery = donburi.NewQuery(filter.Contains(components.IslandType))
 
 type RenderableTile struct {
-	isoX, isoY float64
-	originX    float64
-	originY    float64
-	bottomY    float64
-	topX, topY int
-	Image      *ebiten.Image
-	Layer      int
-	pivotX     float64
-	pivotY     float64
+	isoX, isoY     float64
+	originX        float64
+	originY        float64
+	bottomY        float64
+	topX, topY     int
+	Image          *ebiten.Image
+	Layer          int
+	pivotX         float64
+	pivotY         float64
+	SpriteRotation int // 0-3: number of 90° clockwise rotations to apply
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
@@ -149,17 +150,18 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 				bottomY := drawY + float64(tile.Image.Bounds().Dy())
 				renderableTiles = append(renderableTiles, RenderableTile{
-					isoX:    drawX,
-					isoY:    drawY,
-					originX: originX,
-					originY: originY,
-					bottomY: bottomY,
-					topX:    rotatedX,
-					topY:    rotatedY,
-					Image:   tile.Image,
-					Layer:   layerIdx,
-					pivotX:  float64(tile.PivotX),
-					pivotY:  float64(tile.PivotY),
+					isoX:           drawX,
+					isoY:           drawY,
+					originX:        originX,
+					originY:        originY,
+					bottomY:        bottomY,
+					topX:           rotatedX,
+					topY:           rotatedY,
+					Image:          tile.Image,
+					Layer:          layerIdx,
+					pivotX:         float64(tile.PivotX),
+					pivotY:         float64(tile.PivotY),
+					SpriteRotation: tile.SpriteRotation,
 				})
 			}
 		}
@@ -190,6 +192,16 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			continue
 		}
 		op := &ebiten.DrawImageOptions{}
+
+		// Apply sprite rotation for tiles with Rotate=0 in COD but non-zero orientation
+		if tile.SpriteRotation > 0 {
+			w, h := float64(tile.Image.Bounds().Dx()), float64(tile.Image.Bounds().Dy())
+			// Rotate around image center
+			op.GeoM.Translate(-w/2, -h/2)
+			op.GeoM.Rotate(float64(tile.SpriteRotation) * math.Pi / 2)
+			op.GeoM.Translate(w/2, h/2)
+		}
+
 		op.GeoM.Translate(tile.isoX-camera.X, tile.isoY-camera.Y)
 		screen.DrawImage(tile.Image, op)
 

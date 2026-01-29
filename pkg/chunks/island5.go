@@ -146,14 +146,17 @@ func (i *Island5) Finalize() error {
 			i.Layers.Final = append([]*IslandHouse{empty}, i.Layers.Final...)
 		}
 	}
-	// merge layers. Ignore fields that are t.Id == 0xFFFF (empty sentinel)
+	// merge layers. Final[1] is the overlay (buildings/modifications), Final[0] is base terrain.
+	// Overlay takes priority when non-empty; fallback to base layer.
 	i.Layers.Top = NewEmptyIslandHouse(IslandDimensions{i.Width, i.Height})
 	i.Layers.Top.Fields = make([]Field, len(i.Layers.Final[0].Fields))
-	for index, tile := range i.Layers.Final[0].Fields {
-		if tile.Id != 0xFFFF {
-			i.Layers.Top.Fields[index] = tile
+	for index := range i.Layers.Final[0].Fields {
+		overlay := i.Layers.Final[1].Fields[index]
+		base := i.Layers.Final[0].Fields[index]
+		if overlay.Id != 0xFFFF {
+			i.Layers.Top.Fields[index] = overlay
 		} else {
-			i.Layers.Top.Fields[index] = i.Layers.Final[1].Fields[index]
+			i.Layers.Top.Fields[index] = base
 		}
 	}
 	// for y := 0; y < i.Height; y++ {
