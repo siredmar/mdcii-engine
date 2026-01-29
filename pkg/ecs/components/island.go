@@ -176,6 +176,7 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 	island.Tiles[buildings.KindRoadsID] = []*donburi.Entry{}
 	island.Tiles[buildings.KindGroundID] = []*donburi.Entry{}
 	island.Tiles[buildings.KindGroundID+"_OVERLAY"] = []*donburi.Entry{}
+	island.Tiles[buildings.KindForrestID] = []*donburi.Entry{}
 
 	// Use the already-merged Top layer. Final[0] is base terrain, Final[1] is overlay (buildings).
 	var baseLayer *island5.IslandHouse
@@ -183,12 +184,45 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 		baseLayer = i.Layers.Final[0] // Base terrain for underlay
 	}
 
+	// FIRST PASS: Build a map of all positions occupied by buildings and roads
+	// This is needed because building footprints span multiple cells, but only the
+	// origin cell has the building ID. Other cells may have 0xFFFF in overlay,
+	// causing the merge to show trees from the base layer.
+	occupiedByBuilding := make(map[[2]int]bool)
+	occupiedByRoad := make(map[[2]int]bool)
+
+	for y := 0; y < i.Height; y++ {
+		for x := 0; x < i.Width; x++ {
+			currentTile := i.Layers.Top.Get(x, y)
+			if currentTile.Id == 0xFFFF {
+				continue
+			}
+			tileB := i.Buildings.Buildings[currentTile.Id]
+			if tileB == nil {
+				continue
+			}
+			if tileB.Kind.IsBuilding() {
+				size := tileB.Size
+				// Mark all cells in the building footprint as occupied
+				for dy := 0; dy < size.H; dy++ {
+					for dx := 0; dx < size.W; dx++ {
+						occupiedByBuilding[[2]int{x + dx, y + dy}] = true
+					}
+				}
+			}
+			if tileB.Kind.IsRoad() {
+				occupiedByRoad[[2]int{x, y}] = true
+			}
+		}
+	}
+
+	// SECOND PASS: Create entities, skipping forest tiles on occupied positions
 	for y := 0; y < i.Height; y++ {
 		for x := 0; x < i.Width; x++ {
 			// Use the merged Top layer which prioritizes buildings over terrain
 			currentTile := i.Layers.Top.Get(x, y)
 			if currentTile.Id == 0xFFFF {
-				currentTile.Id = 0xFFFF
+				continue
 			}
 
 			// Base layer underlay: draw the underlying terrain when the merged top layer has a different tile.
@@ -297,6 +331,11 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			case tileB.Kind.IsGround():
 				island.Tiles[buildings.KindGroundID] = append(island.Tiles[buildings.KindGroundID], tileEntry)
 			case tileB.Kind.IsForrest():
+				// Skip forest tiles that are on positions occupied by buildings or roads
+				posKey := [2]int{x, y}
+				if occupiedByBuilding[posKey] || occupiedByRoad[posKey] {
+					continue
+				}
 				island.Tiles[buildings.KindForrestID] = append(island.Tiles[buildings.KindForrestID], tileEntry)
 			}
 		}

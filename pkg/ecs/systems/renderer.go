@@ -95,6 +95,13 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			}
 		}
 
+		// Also mark road positions as occupied to hide forest tiles under roads
+		roadPositions := map[[2]int]struct{}{}
+		for _, tileEntry := range island.Tiles[buildings.KindRoadsID] {
+			pos := components.PositionType.Get(tileEntry)
+			roadPositions[[2]int{int(pos.X), int(pos.Y)}] = struct{}{}
+		}
+
 		// Some tiles (notably roads) are self-contained (they include their own base ground).
 		// Only skip them if we know we will still draw a base tile (ground) underneath.
 		base := map[[2]int]struct{}{}
@@ -141,7 +148,19 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					continue
 				}
 
-				if layerID == buildings.KindRoadsID || layerID == buildings.KindForrestID {
+				// Skip forest tiles that overlap with buildings or roads
+				if layerID == buildings.KindForrestID {
+					posKey := [2]int{int(pos.X), int(pos.Y)}
+					if _, onBuilding := occupied[posKey]; onBuilding {
+						continue
+					}
+					if _, onRoad := roadPositions[posKey]; onRoad {
+						continue
+					}
+				}
+
+				// Skip roads only if they overlap building footprints AND there's ground underneath
+				if layerID == buildings.KindRoadsID {
 					if _, ok := occupied[[2]int{int(pos.X), int(pos.Y)}]; ok {
 						if _, hasBase := base[[2]int{int(pos.X), int(pos.Y)}]; hasBase {
 							continue
