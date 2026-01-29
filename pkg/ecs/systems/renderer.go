@@ -114,11 +114,22 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
+			// Forest and Buildings share same layer priority for proper depth interleaving
 			buildings.KindForrestID,
 			buildings.KindBuildingsID,
 		}
 
-		for layerIdx, layerID := range layerOrder {
+		// Layer indices for sorting - forest and buildings share same priority
+		layerPriority := map[string]int{
+			buildings.KindSeaID:                  0,
+			buildings.KindGroundID + "_OVERLAY": 1,
+			buildings.KindGroundID:              2,
+			buildings.KindRoadsID:               3,
+			buildings.KindForrestID:             4, // Same priority as buildings
+			buildings.KindBuildingsID:           4, // Same priority as forest
+		}
+
+		for _, layerID := range layerOrder {
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
@@ -166,7 +177,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					topX:           rotatedX,
 					topY:           rotatedY,
 					Image:          tile.Image,
-					Layer:          layerIdx,
+					Layer:          layerPriority[layerID],
 					pivotX:         float64(tile.PivotX),
 					pivotY:         float64(tile.PivotY),
 					SpriteRotation: tile.SpriteRotation,
