@@ -274,6 +274,27 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 				}
 			}
 
+			// Cliff/slope transition tiles (Slope, SlopeCorner, Rock) have transparent areas
+			// that need a ground tile underneath to avoid black artifacts
+			needsGroundUnderlay := tileB.Kind == buildings.KindSlope ||
+				tileB.Kind == buildings.KindSlopeCorner ||
+				tileB.Kind == buildings.KindRock ||
+				tileB.Kind == buildings.KindSlopeSpring
+			if needsGroundUnderlay {
+				// Add a plain ground tile (0) as underlay
+				groundB := i.Buildings.Buildings[0]
+				if groundB != nil {
+					groundEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+					groundEntry := world.Entry(groundEntity)
+					PositionType.Set(groundEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(groundB.PositionOffset)})
+					TileType.Set(groundEntry, &Tile{Size: Size{Width: 1, Height: 1, Z: 0}})
+					groundAnim := ani.GetAnimation(0, rotation.DEG0)
+					AnimationType.Set(groundEntry, &Animation{Count: groundAnim.Steps, Duration: float64(groundAnim.FrameDuration), Running: true, Loop: true})
+					BuildingType.Set(groundEntry, &Building{BuildingID: 0, Rotation: rotation.DEG0, Size: building.BuildingSize(1, 1)})
+					island.Tiles[buildings.KindGroundID+"_OVERLAY"] = append(island.Tiles[buildings.KindGroundID+"_OVERLAY"], groundEntry)
+				}
+			}
+
 			switch {
 			case tileB.Kind.IsBuilding():
 				island.Tiles[buildings.KindBuildingsID] = append(island.Tiles[buildings.KindBuildingsID], tileEntry)

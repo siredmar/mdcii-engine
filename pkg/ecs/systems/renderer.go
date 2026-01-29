@@ -112,8 +112,8 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		layerOrder := []string{
 			buildings.KindSeaID,
 			buildings.KindSeaID + "_OVERLAY",
+			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
-			buildings.KindGroundID + "_OVERLAY",
 			buildings.KindRoadsID,
 			buildings.KindForrestID,
 			buildings.KindBuildingsID,
