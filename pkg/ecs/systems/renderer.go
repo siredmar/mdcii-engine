@@ -124,14 +124,10 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				tile := components.TileType.Get(tileEntry)
 				bld := components.BuildingType.Get(tileEntry)
 
-				// Skip plain sea tiles (ID 1201-1259 are sea) - handled by drawSeaBackground
-				if layerID == buildings.KindSeaID && bld != nil {
-					// Plain sea tiles: 1201, 1202, 1203, 1204, 1209, 1251, 1252, 1253, 1254, 1259
-					seaIDs := map[int]bool{1201: true, 1202: true, 1203: true, 1204: true, 1209: true,
-						1251: true, 1252: true, 1253: true, 1254: true, 1259: true}
-					if seaIDs[bld.BuildingID] {
-						continue
-					}
+				// Skip only the deep sea tile (1201) used for drawSeaBackground
+				// Keep shallow water tiles (1202, 1203, 1204, 1209) and coast transitions (Surf, Estuary)
+				if layerID == buildings.KindSeaID && bld != nil && bld.BuildingID == 1201 {
+					continue
 				}
 
 				if layerID == buildings.KindRoadsID || layerID == buildings.KindForrestID {
