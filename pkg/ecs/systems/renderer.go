@@ -170,22 +170,16 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 	sort.Slice(renderableTiles, func(i, j int) bool {
 		a, b := renderableTiles[i], renderableTiles[j]
-		if a.Layer != b.Layer {
-			return a.Layer < b.Layer
-		}
-		if a.bottomY != b.bottomY {
-			return a.bottomY < b.bottomY
-		}
-		if a.originY != b.originY {
-			return a.originY < b.originY
-		}
-		if a.originX != b.originX {
-			return a.originX < b.originX
-		}
+		// Sort by isometric depth: tiles further back (lower originY) render first
+		// For tiles at the same position, lower layer index renders first (underlay before overlay)
 		if a.topY != b.topY {
 			return a.topY < b.topY
 		}
-		return a.topX < b.topX
+		if a.topX != b.topX {
+			return a.topX < b.topX
+		}
+		// Same tile position: render underlays (lower layer) first
+		return a.Layer < b.Layer
 	})
 
 	for _, tile := range renderableTiles {
