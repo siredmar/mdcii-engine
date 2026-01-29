@@ -110,7 +110,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		layerOrder := []string{
-			// Sea tiles are handled by drawSeaBackground, not as entities
+			buildings.KindSeaID, // Contains Surf, Estuary - plain Sea tiles filtered out below
 			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
@@ -122,6 +122,18 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
+				bld := components.BuildingType.Get(tileEntry)
+
+				// Skip plain sea tiles (ID 1201-1259 are sea) - handled by drawSeaBackground
+				if layerID == buildings.KindSeaID && bld != nil {
+					// Plain sea tiles: 1201, 1202, 1203, 1204, 1209, 1251, 1252, 1253, 1254, 1259
+					seaIDs := map[int]bool{1201: true, 1202: true, 1203: true, 1204: true, 1209: true,
+						1251: true, 1252: true, 1253: true, 1254: true, 1259: true}
+					if seaIDs[bld.BuildingID] {
+						continue
+					}
+				}
+
 				if layerID == buildings.KindRoadsID || layerID == buildings.KindForrestID {
 					if _, ok := occupied[[2]int{int(pos.X), int(pos.Y)}]; ok {
 						if _, hasBase := base[[2]int{int(pos.X), int(pos.Y)}]; hasBase {
@@ -169,16 +181,15 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 	sort.Slice(renderableTiles, func(i, j int) bool {
 		a, b := renderableTiles[i], renderableTiles[j]
-		// Sort by isometric depth: tiles further back (lower originY) render first
-		// For tiles at the same position, lower layer index renders first (underlay before overlay)
+		// First sort by layer - sea before ground before buildings
+		if a.Layer != b.Layer {
+			return a.Layer < b.Layer
+		}
+		// Within same layer, sort by isometric depth
 		if a.topY != b.topY {
 			return a.topY < b.topY
 		}
-		if a.topX != b.topX {
-			return a.topX < b.topX
-		}
-		// Same tile position: render underlays (lower layer) first
-		return a.Layer < b.Layer
+		return a.topX < b.topX
 	})
 
 	for _, tile := range renderableTiles {

@@ -191,9 +191,10 @@ var rootCmd = &cobra.Command{
 
 		cameraEntity := w.World.Create(components.CameraType)
 		cameraEntry := w.World.Entry(cameraEntity)
+		// Center camera to match reference view
 		components.CameraType.Set(cameraEntry, &components.Camera{
-			X:        0,
-			Y:        0,
+			X:        100,
+			Y:        50,
 			Zoom:     1.0,
 			Rotation: rotation.DEG0,
 		})
