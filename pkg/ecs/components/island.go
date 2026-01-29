@@ -203,8 +203,9 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 					baseEntry := world.Entry(baseEntity)
 					PositionType.Set(baseEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(baseOffset)})
 					// For tiles with Rotate=0 in COD, apply runtime sprite rotation
+					// BUT skip symmetrical tiles (Sea, Forrest) where orientation doesn't mean visual rotation
 					baseSpriteRot := 0
-					if baseB.Rotate == 0 && base.Orientation > 0 {
+					if baseB.Rotate == 0 && base.Orientation > 0 && !baseB.Kind.IsWater() && !baseB.Kind.IsForrest() {
 						baseSpriteRot = base.Orientation
 					}
 					TileType.Set(baseEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}, SpriteRotation: baseSpriteRot})
@@ -239,14 +240,39 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			size := tileB.Size
 			PositionType.Set(tileEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(posOffset)})
 			// For tiles with Rotate=0 in COD, apply runtime sprite rotation based on orientation
+			// BUT skip symmetrical tiles (Sea, Forrest) where orientation doesn't mean visual rotation
 			spriteRot := 0
-			if tileB.Rotate == 0 && currentTile.Orientation > 0 {
+			if tileB.Rotate == 0 && currentTile.Orientation > 0 && !tileB.Kind.IsWater() && !tileB.Kind.IsForrest() {
 				spriteRot = currentTile.Orientation
 			}
 			TileType.Set(tileEntry, &Tile{Size: Size{Width: size.W, Height: size.H, Z: size.H - zoom.TileHeight()}, SpriteRotation: spriteRot})
 			anim := ani.GetAnimation(currentTile.Id, rotation.Rotation(currentTile.Orientation))
 			AnimationType.Set(tileEntry, &Animation{Count: anim.Steps, Duration: float64(anim.FrameDuration), Running: true, Loop: true})
 			BuildingType.Set(tileEntry, &Building{BuildingID: currentTile.Id, Rotation: rotation.Rotation(currentTile.Orientation), Size: building.BuildingSize(size.W, size.H)})
+
+			// Coastal transition tiles (BurnCorner, Surf, Estuary, Beach*) have transparent areas
+			// that need a sea tile underneath to avoid black artifacts
+			needsSeaUnderlay := tileB.Kind == buildings.KindBurnCorner ||
+				tileB.Kind == buildings.KindSurf ||
+				tileB.Kind == buildings.KindEstuary ||
+				tileB.Kind == buildings.KindBeach ||
+				tileB.Kind == buildings.KindBeachCornerI ||
+				tileB.Kind == buildings.KindBeachCornerII ||
+				tileB.Kind == buildings.KindBeachCornerIII
+			if needsSeaUnderlay {
+				// Add a deep sea tile (1201) as underlay
+				seaB := i.Buildings.Buildings[1201]
+				if seaB != nil {
+					seaEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+					seaEntry := world.Entry(seaEntity)
+					PositionType.Set(seaEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: 0})
+					TileType.Set(seaEntry, &Tile{Size: Size{Width: 1, Height: 1, Z: 0}})
+					seaAnim := ani.GetAnimation(1201, rotation.DEG0)
+					AnimationType.Set(seaEntry, &Animation{Count: seaAnim.Steps, Duration: float64(seaAnim.FrameDuration), Running: true, Loop: true})
+					BuildingType.Set(seaEntry, &Building{BuildingID: 1201, Rotation: rotation.DEG0, Size: building.BuildingSize(1, 1)})
+					island.Tiles[buildings.KindSeaID] = append(island.Tiles[buildings.KindSeaID], seaEntry)
+				}
+			}
 
 			switch {
 			case tileB.Kind.IsBuilding():

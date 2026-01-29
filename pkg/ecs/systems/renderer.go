@@ -118,6 +118,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			buildings.KindForrestID,
 			buildings.KindBuildingsID,
 		}
+
 		for layerIdx, layerID := range layerOrder {
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
@@ -219,7 +220,33 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
-	// optional grid rendering
+	// Disabled for now - uncomment to show coordinate labels on tiles
+	/*
+	var camera *components.Camera
+	cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
+	cameraQuery.Each(world, func(entry *donburi.Entry) {
+		camera = components.CameraType.Get(entry)
+	})
+	if camera == nil {
+		return
+	}
+
+	rendererQuery.Each(world, func(entry *donburi.Entry) {
+		island := components.IslandType.Get(entry)
+		for ly := 0; ly < island.Height; ly++ {
+			for lx := 0; lx < island.Width; lx++ {
+				// Calculate screen position for this tile
+				originX := ((float64(lx))-(float64(ly)))*(tileWidth/2) + island.X*(tileWidth/2)
+				originY := ((float64(lx))+(float64(ly)))*(tileHeight/2) + island.Y*(tileHeight/2)
+				sx := int(originX - camera.X)
+				sy := int(originY - camera.Y)
+				// Draw coordinate text
+				label := fmt.Sprintf("%d,%d", lx, ly)
+				text.Draw(screen, label, basicfont.Face7x13, sx-10, sy+5, color.RGBA{255, 255, 0, 200})
+			}
+		}
+	})
+	*/
 }
 
 func drawSeaBackground(screen *ebiten.Image, camera *components.Camera, island *components.Island, seaImg *ebiten.Image, pivotX, pivotY float64, tileWidth, tileHeight int) {
