@@ -166,19 +166,26 @@ Certain tile types are excluded from sprite rotation because their orientation f
 
 ## Building Rotation Offsets
 
-Multi-tile buildings need offset tables to correctly place each tile after rotation:
+Multi-tile buildings need offset calculations to correctly place each tile after rotation. The offsets are computed dynamically using the `GenerateTileOffsets` function:
 
 ```go
-// pkg/building/building.go
-var RotationOffsets = map[BuildingSizeIdentifier]map[int][][2]int{
-    BuildingSizeIdentifier_2x2: {
-        0: {{0, 0}, {1, 0}, {0, 1}, {1, 1}},  // Rotation 0
-        1: {{0, 1}, {0, 0}, {1, 1}, {1, 0}},  // Rotation 1
-        2: {{1, 1}, {0, 1}, {1, 0}, {0, 0}},  // Rotation 2
-        3: {{1, 0}, {1, 1}, {0, 0}, {0, 1}},  // Rotation 3
-    },
-    // ... other sizes
+// pkg/building/rotation.go
+func GenerateTileOffsets(width, height, rotation int) [][2]int {
+    offsets := make([][2]int, 0, width*height)
+    for y := 0; y < height; y++ {
+        for x := 0; x < width; x++ {
+            rx, ry := rotatePosition(x, y, width, height, rotation)
+            offsets = append(offsets, [2]int{rx, ry})
+        }
+    }
+    return offsets
 }
+
+// Example output for 2x2 building:
+// Rotation 0: {{0, 0}, {1, 0}, {0, 1}, {1, 1}}
+// Rotation 1: {{1, 0}, {1, 1}, {0, 0}, {0, 1}}
+// Rotation 2: {{1, 1}, {0, 1}, {1, 0}, {0, 0}}
+// Rotation 3: {{0, 1}, {0, 0}, {1, 1}, {1, 0}}
 ```
 
 These offsets define which grid cells each sprite index occupies at each rotation.
@@ -219,5 +226,5 @@ func IsoToCartesian(x, y float64, tileSize int) (float64, float64) {
 - `pkg/world/rotation/rotation.go` - Rotation type and transforms
 - `pkg/ecs/systems/renderer.go` - World rotation application
 - `pkg/ecs/systems/animation.go` - Building + world rotation combination
-- `pkg/building/building.go` - RotationOffsets for multi-tile buildings
+- `pkg/building/rotation.go` - GenerateTileOffsets for multi-tile buildings
 - `pkg/texture/atlas/atlas.go` - Pre-rendering all 4 rotation variants

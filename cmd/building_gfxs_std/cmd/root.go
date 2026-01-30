@@ -117,7 +117,7 @@ func renderToPNG(screenWidth, screenHeight int, buildings *buildingsCod.Building
 	}
 
 	// Draw the building
-	offsets := building.RotationOffsets[buildingData.Size][buildingData.Rotation]
+	offsets := building.GenerateTileOffsets(buildingData.Size.Width(), buildingData.Size.Height(), buildingData.Rotation)
 	for i, offset := range offsets {
 		screenX := buildingData.X + (offset[0]-offset[1])*(tileWidth/2)
 		screenY := buildingData.Y + (offset[0]+offset[1])*(tileHeight/2)

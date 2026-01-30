@@ -80,8 +80,8 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
     anchorY := b.Y  // e.g., 100
     anchor := image.Point{X: anchorX, Y: anchorY}
     
-    // Get tile offsets for this rotation
-    offsets := building.RotationOffsets[b.Size][b.Rotation]
+    // Get tile offsets for this rotation (computed dynamically)
+    offsets := building.GenerateTileOffsets(b.Size.Width(), b.Size.Height(), b.Rotation)
     
     for i, offset := range offsets {
         // Calculate isometric screen position for each tile
@@ -107,25 +107,23 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 
 ### Multi-Tile Buildings
 
-Building footprints are defined by size (W×H). The `RotationOffsets` table provides grid offsets for each tile:
+Building footprints are defined by size (W×H). The `GenerateTileOffsets` function computes grid offsets for each tile by applying rotation transforms:
 
 ```go
-// pkg/building/building.go
-var RotationOffsets = map[BuildingSizeIdentifier]map[int][][2]int{
-    BuildingSizeIdentifier_1x1: {
-        0: {{0, 0}},  // Single tile
-        1: {{0, 0}},
-        2: {{0, 0}},
-        3: {{0, 0}},
-    },
-    BuildingSizeIdentifier_2x2: {
-        0: {{0, 0}, {1, 0}, {0, 1}, {1, 1}},  // Rotation 0
-        1: {{0, 1}, {0, 0}, {1, 1}, {1, 0}},  // Rotation 1
-        2: {{1, 1}, {0, 1}, {1, 0}, {0, 0}},  // Rotation 2
-        3: {{1, 0}, {1, 1}, {0, 0}, {0, 1}},  // Rotation 3
-    },
-    // ... 3x3, 4x4, etc.
+// pkg/building/rotation.go
+func GenerateTileOffsets(width, height, rotation int) [][2]int {
+    offsets := make([][2]int, 0, width*height)
+    for y := 0; y < height; y++ {
+        for x := 0; x < width; x++ {
+            rx, ry := rotatePosition(x, y, width, height, rotation)
+            offsets = append(offsets, [2]int{rx, ry})
+        }
+    }
+    return offsets
 }
+
+// Example: 2x2 building at rotation 0 → {{0,0}, {1,0}, {0,1}, {1,1}}
+// Example: 2x2 building at rotation 1 → {{1,0}, {1,1}, {0,0}, {0,1}}
 ```
 
 ## Pivot Calculation
@@ -384,5 +382,6 @@ This ensures format changes are properly applied.
 
 - `pkg/texture/atlas/atlas.go` - Atlas generation and loading
 - `pkg/texture/texture.go` - Texture manager with caching
-- `pkg/building/building.go` - Building struct and RotationOffsets
+- `pkg/building/building.go` - Building struct and size helpers
+- `pkg/building/rotation.go` - GenerateTileOffsets function
 - `pkg/bsh/bsh_png.go` - Source sprite loading

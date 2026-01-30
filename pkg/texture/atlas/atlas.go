@@ -199,7 +199,7 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 	anchorY := b.Y
 	anchor := image.Point{X: anchorX, Y: anchorY}
 
-	offsets := building.RotationOffsets[b.Size][b.Rotation]
+	offsets := building.GenerateTileOffsets(b.Size.Width(), b.Size.Height(), b.Rotation)
 	for i, offset := range offsets {
 		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)

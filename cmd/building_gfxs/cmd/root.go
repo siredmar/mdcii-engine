@@ -176,13 +176,13 @@ type Game struct {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.Building != nil {
-		offsets := building.RotationOffsets[g.Building.Size][g.Building.Rotation]
+		offsets := building.GenerateTileOffsets(g.Building.Size.Width(), g.Building.Size.Height(), g.Building.Rotation)
 		for i, offset := range offsets {
 			screenX := float64(g.Building.X) + float64(offset[0]-offset[1])*(float64(tileWidth)/2)
 			screenY := float64(g.Building.Y) + float64(offset[0]+offset[1])*(float64(tileHeight)/2)
 
 			textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
-				tilesPerRotation := len(building.RotationOffsets[size][rotation])
+				tilesPerRotation := g.Building.Size.Width() * g.Building.Size.Height()
 				return fmt.Sprintf("%d", baseIndex+(rotation*tilesPerRotation)+tileIndex)
 			}(g.Building.BaseIndex, g.Building.Rotation, i, g.Building.Size)
 
