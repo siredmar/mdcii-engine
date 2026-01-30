@@ -31,6 +31,7 @@ type RenderableTile struct {
 	originY        float64
 	bottomY        float64
 	topX, topY     int
+	tileW, tileH   int // Building footprint size for depth sorting
 	Image          *ebiten.Image
 	Layer          int
 	pivotX         float64
@@ -195,6 +196,8 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					bottomY:        bottomY,
 					topX:           rotatedX,
 					topY:           rotatedY,
+					tileW:          tile.Size.Width,
+					tileH:          tile.Size.Height,
 					Image:          tile.Image,
 					Layer:          layerPriority[layerID],
 					pivotX:         float64(tile.PivotX),
@@ -211,10 +214,21 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		if a.Layer != b.Layer {
 			return a.Layer < b.Layer
 		}
-		// Within same layer, sort by isometric depth
-		if a.topY != b.topY {
-			return a.topY < b.topY
+
+		// Isometric depth sorting using grid coordinates.
+		// For multi-tile buildings, we need to consider which tiles they occupy.
+		// A 1x1 tile at (x,y) should be drawn AFTER a multi-tile building if
+		// (x,y) is "in front of" (higher x+y than) any tile the building occupies.
+
+		// Calculate the "front" depth for each tile (front corner = anchor + size - 1)
+		aFrontDepth := a.topX + a.topY + (a.tileW - 1) + (a.tileH - 1)
+		bFrontDepth := b.topX + b.topY + (b.tileW - 1) + (b.tileH - 1)
+
+		// Sort by front depth - tiles with higher front depth are drawn later (in front)
+		if aFrontDepth != bFrontDepth {
+			return aFrontDepth < bFrontDepth
 		}
+		// Tie-breaker: topX (right side drawn later)
 		return a.topX < b.topX
 	})
 
