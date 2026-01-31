@@ -1,6 +1,8 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 
@@ -39,13 +41,27 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		rotation := building.Rotation.Add(globalRotation)
 		anim := ani.GetAnimation(building.BuildingID, rotation)
 		if anim == nil {
+			pos := components.PositionType.Get(entry)
+			fmt.Printf("[ANIM_NIL] BuildingID=%d pos=(%d,%d) bldRot=%d global=%d final=%d\n",
+				building.BuildingID, int(pos.X), int(pos.Y), building.Rotation, globalRotation, rotation)
 			return
 		}
 		frames := anim.Frames
 		metas := anim.FrameMeta
 		if len(frames) == 0 || frames[0] == nil {
+			pos := components.PositionType.Get(entry)
+			fmt.Printf("[ANIM_EMPTY] BuildingID=%d pos=(%d,%d) bldRot=%d global=%d final=%d frames=%d\n",
+				building.BuildingID, int(pos.X), int(pos.Y), building.Rotation, globalRotation, rotation, len(frames))
 			return
 		}
+		
+		// DEBUG: Log specific building for investigation
+		if building.BuildingID == 2702 && globalRotation == 2 {
+			pos := components.PositionType.Get(entry)
+			fmt.Printf("[ANIM] BuildingID=2702 pos=(%d,%d) bldRot=%d global=%d final=%d frames=%d\n",
+				int(pos.X), int(pos.Y), building.Rotation, globalRotation, rotation, len(frames))
+		}
+		
 		tile := components.TileType.Get(entry)
 		// if tile.Occupation {
 		// 	tile.Image = grid1

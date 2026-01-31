@@ -185,9 +185,8 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 	}
 
 	// FIRST PASS: Build a map of all positions occupied by buildings and roads
-	// This is needed because building footprints span multiple cells, but only the
-	// origin cell has the building ID. Other cells may have 0xFFFF in overlay,
-	// causing the merge to show trees from the base layer.
+	// Only mark the actual anchor position where the building tile exists, not the entire footprint.
+	// Forest tiles may coexist at footprint positions if the Top layer has a forest there.
 	occupiedByBuilding := make(map[[2]int]bool)
 	occupiedByRoad := make(map[[2]int]bool)
 
@@ -201,14 +200,9 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			if tileB == nil {
 				continue
 			}
+			// Only mark the anchor position as occupied, not the whole footprint
 			if tileB.Kind.IsBuilding() {
-				size := tileB.Size
-				// Mark all cells in the building footprint as occupied
-				for dy := 0; dy < size.H; dy++ {
-					for dx := 0; dx < size.W; dx++ {
-						occupiedByBuilding[[2]int{x + dx, y + dy}] = true
-					}
-				}
+				occupiedByBuilding[[2]int{x, y}] = true
 			}
 			if tileB.Kind.IsRoad() {
 				occupiedByRoad[[2]int{x, y}] = true
@@ -288,24 +282,34 @@ func CreateIslandFromChunk(world donburi.World, ani *animations.Animations, i *i
 			AnimationType.Set(tileEntry, &Animation{Count: anim.Steps, Duration: float64(anim.FrameDuration), Running: true, Loop: true})
 			BuildingType.Set(tileEntry, &Building{BuildingID: currentTile.Id, Rotation: rotation.Rotation(currentTile.Orientation), Size: building.BuildingSize(size.W, size.H)})
 
-			// Cliff/slope transition tiles (Slope, SlopeCorner, Rock) have transparent areas
-			// that need a ground tile underneath to avoid black artifacts
+			// Cliff/slope/beach transition tiles have transparent areas
+			// that need a ground tile underneath to avoid artifacts when rotated
 			needsGroundUnderlay := tileB.Kind == buildings.KindSlope ||
 				tileB.Kind == buildings.KindSlopeCorner ||
 				tileB.Kind == buildings.KindRock ||
-				tileB.Kind == buildings.KindSlopeSpring
+				tileB.Kind == buildings.KindSlopeSpring ||
+				tileB.Kind == buildings.KindBeach ||
+				tileB.Kind == buildings.KindBeachCornerI ||
+				tileB.Kind == buildings.KindBeachCornerII ||
+				tileB.Kind == buildings.KindBeachCornerIII ||
+				tileB.Kind == buildings.KindBeachMouth ||
+				tileB.Kind == buildings.KindBeachRuin
 			if needsGroundUnderlay {
-				// Add a plain ground tile (0) as underlay
+				// Add plain ground tiles (0) as underlay for the entire footprint
 				groundB := i.Buildings.Buildings[0]
 				if groundB != nil {
-					groundEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
-					groundEntry := world.Entry(groundEntity)
-					PositionType.Set(groundEntry, &Position{X: worldX + float64(x), Y: worldY + float64(y), Offset: float64(groundB.PositionOffset)})
-					TileType.Set(groundEntry, &Tile{Size: Size{Width: 1, Height: 1, Z: 0}})
-					groundAnim := ani.GetAnimation(0, rotation.DEG0)
-					AnimationType.Set(groundEntry, &Animation{Count: groundAnim.Steps, Duration: float64(groundAnim.FrameDuration), Running: true, Loop: true})
-					BuildingType.Set(groundEntry, &Building{BuildingID: 0, Rotation: rotation.DEG0, Size: building.BuildingSize(1, 1)})
-					island.Tiles[buildings.KindGroundID+"_OVERLAY"] = append(island.Tiles[buildings.KindGroundID+"_OVERLAY"], groundEntry)
+					for dy := 0; dy < size.H; dy++ {
+						for dx := 0; dx < size.W; dx++ {
+							groundEntity := world.Create(BuildingType, PositionType, TileType, AnimationType)
+							groundEntry := world.Entry(groundEntity)
+							PositionType.Set(groundEntry, &Position{X: worldX + float64(x+dx), Y: worldY + float64(y+dy), Offset: float64(groundB.PositionOffset)})
+							TileType.Set(groundEntry, &Tile{Size: Size{Width: 1, Height: 1, Z: 0}})
+							groundAnim := ani.GetAnimation(0, rotation.DEG0)
+							AnimationType.Set(groundEntry, &Animation{Count: groundAnim.Steps, Duration: float64(groundAnim.FrameDuration), Running: true, Loop: true})
+							BuildingType.Set(groundEntry, &Building{BuildingID: 0, Rotation: rotation.DEG0, Size: building.BuildingSize(1, 1)})
+							island.Tiles[buildings.KindGroundID+"_OVERLAY"] = append(island.Tiles[buildings.KindGroundID+"_OVERLAY"], groundEntry)
+						}
+					}
 				}
 			}
 

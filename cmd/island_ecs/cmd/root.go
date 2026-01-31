@@ -301,6 +301,9 @@ type Game struct {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	// Clear screen with black background
+	screen.Fill(color.Black)
+
 	var rot rotation.Rotation
 	var grid bool
 
