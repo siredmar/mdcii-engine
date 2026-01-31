@@ -118,7 +118,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		layerOrder := []string{
-			buildings.KindSeaID, // Contains Surf, Estuary - plain Sea tiles filtered out below
+			buildings.KindSeaID,                 // Contains Surf, Estuary - plain Sea tiles filtered out below
 			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
@@ -129,7 +129,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 		// Layer indices for sorting - forest and buildings share same priority
 		layerPriority := map[string]int{
-			buildings.KindSeaID:                  0,
+			buildings.KindSeaID:                 0,
 			buildings.KindGroundID + "_OVERLAY": 1,
 			buildings.KindGroundID:              2,
 			buildings.KindRoadsID:               3,
@@ -266,87 +266,87 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
 	// Disabled for now - uncomment to show coordinate labels on tiles
 	/*
-	var camera *components.Camera
-	cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
-	cameraQuery.Each(world, func(entry *donburi.Entry) {
-		camera = components.CameraType.Get(entry)
-	})
-	if camera == nil {
-		return
-	}
-
-	rendererQuery.Each(world, func(entry *donburi.Entry) {
-		island := components.IslandType.Get(entry)
-		for ly := 0; ly < island.Height; ly++ {
-			for lx := 0; lx < island.Width; lx++ {
-				// Calculate screen position for this tile
-				originX := ((float64(lx))-(float64(ly)))*(tileWidth/2) + island.X*(tileWidth/2)
-				originY := ((float64(lx))+(float64(ly)))*(tileHeight/2) + island.Y*(tileHeight/2)
-				sx := int(originX - camera.X)
-				sy := int(originY - camera.Y)
-				// Draw coordinate text
-				label := fmt.Sprintf("%d,%d", lx, ly)
-				text.Draw(screen, label, basicfont.Face7x13, sx-10, sy+5, color.RGBA{255, 255, 0, 200})
-			}
+		var camera *components.Camera
+		cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
+		cameraQuery.Each(world, func(entry *donburi.Entry) {
+			camera = components.CameraType.Get(entry)
+		})
+		if camera == nil {
+			return
 		}
-	})
+
+		rendererQuery.Each(world, func(entry *donburi.Entry) {
+			island := components.IslandType.Get(entry)
+			for ly := 0; ly < island.Height; ly++ {
+				for lx := 0; lx < island.Width; lx++ {
+					// Calculate screen position for this tile
+					originX := ((float64(lx))-(float64(ly)))*(tileWidth/2) + island.X*(tileWidth/2)
+					originY := ((float64(lx))+(float64(ly)))*(tileHeight/2) + island.Y*(tileHeight/2)
+					sx := int(originX - camera.X)
+					sy := int(originY - camera.Y)
+					// Draw coordinate text
+					label := fmt.Sprintf("%d,%d", lx, ly)
+					text.Draw(screen, label, basicfont.Face7x13, sx-10, sy+5, color.RGBA{255, 255, 0, 200})
+				}
+			}
+		})
 	*/
 }
 
 func drawSeaBackground(screen *ebiten.Image, camera *components.Camera, island *components.Island, seaImg *ebiten.Image, pivotX, pivotY float64, tileWidth, tileHeight int) {
-	if seaImg == nil || camera == nil || island == nil {
-		return
-	}
+	// if seaImg == nil || camera == nil || island == nil {
+	// 	return
+	// }
 
-	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
-	marginX := float64(tileWidth)
-	marginY := float64(tileHeight)
-	minWX := camera.X - marginX
-	minWY := camera.Y - marginY
-	maxWX := camera.X + float64(sw) + marginX
-	maxWY := camera.Y + float64(sh) + marginY
+	// sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
+	// marginX := float64(tileWidth)
+	// marginY := float64(tileHeight)
+	// minWX := camera.X - marginX
+	// minWY := camera.Y - marginY
+	// maxWX := camera.X + float64(sw) + marginX
+	// maxWY := camera.Y + float64(sh) + marginY
 
-	baseX := float64(island.X) * (float64(tileWidth) / 2)
-	baseY := float64(island.Y) * (float64(tileHeight) / 2)
+	// baseX := float64(island.X) * (float64(tileWidth) / 2)
+	// baseY := float64(island.Y) * (float64(tileHeight) / 2)
 
-	denX := float64(tileWidth) / 2
-	denY := float64(tileHeight) / 2
-	corners := [][2]float64{{minWX, minWY}, {maxWX, minWY}, {minWX, maxWY}, {maxWX, maxWY}}
+	// denX := float64(tileWidth) / 2
+	// denY := float64(tileHeight) / 2
+	// corners := [][2]float64{{minWX, minWY}, {maxWX, minWY}, {minWX, maxWY}, {maxWX, maxWY}}
 
-	minX, minY := math.Inf(1), math.Inf(1)
-	maxX, maxY := math.Inf(-1), math.Inf(-1)
-	for _, c := range corners {
-		dx := (c[0] - baseX) / denX
-		dy := (c[1] - baseY) / denY
-		x := (dx + dy) / 2
-		y := (dy - dx) / 2
-		if x < minX {
-			minX = x
-		}
-		if x > maxX {
-			maxX = x
-		}
-		if y < minY {
-			minY = y
-		}
-		if y > maxY {
-			maxY = y
-		}
-	}
+	// minX, minY := math.Inf(1), math.Inf(1)
+	// maxX, maxY := math.Inf(-1), math.Inf(-1)
+	// for _, c := range corners {
+	// 	dx := (c[0] - baseX) / denX
+	// 	dy := (c[1] - baseY) / denY
+	// 	x := (dx + dy) / 2
+	// 	y := (dy - dx) / 2
+	// 	if x < minX {
+	// 		minX = x
+	// 	}
+	// 	if x > maxX {
+	// 		maxX = x
+	// 	}
+	// 	if y < minY {
+	// 		minY = y
+	// 	}
+	// 	if y > maxY {
+	// 		maxY = y
+	// 	}
+	// }
 
-	ix0 := int(math.Floor(minX)) - 2
-	ix1 := int(math.Ceil(maxX)) + 2
-	iy0 := int(math.Floor(minY)) - 2
-	iy1 := int(math.Ceil(maxY)) + 2
+	// ix0 := int(math.Floor(minX)) - 2
+	// ix1 := int(math.Ceil(maxX)) + 2
+	// iy0 := int(math.Floor(minY)) - 2
+	// iy1 := int(math.Ceil(maxY)) + 2
 
-	for y := iy0; y <= iy1; y++ {
-		for x := ix0; x <= ix1; x++ {
-			originX := (float64(x-y))*(float64(tileWidth)/2) + baseX
-			originY := (float64(x+y))*(float64(tileHeight)/2) + baseY
+	// for y := iy0; y <= iy1; y++ {
+	// 	for x := ix0; x <= ix1; x++ {
+	// 		originX := (float64(x-y))*(float64(tileWidth)/2) + baseX
+	// 		originY := (float64(x+y))*(float64(tileHeight)/2) + baseY
 
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(originX-pivotX-camera.X, originY-pivotY-camera.Y)
-			screen.DrawImage(seaImg, op)
-		}
-	}
+	// 		op := &ebiten.DrawImageOptions{}
+	// 		op.GeoM.Translate(originX-pivotX-camera.X, originY-pivotY-camera.Y)
+	// 		screen.DrawImage(seaImg, op)
+	// 	}
+	// }
 }
