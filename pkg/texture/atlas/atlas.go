@@ -320,8 +320,9 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			Size:                 building.BuildingSize(buildingCOD.Size.W, buildingCOD.Size.H),
 		}
 
-		for rot := range []rotation.Rotation{rotation.DEG0, rotation.DEG90, rotation.DEG180, rotation.DEG270} {
-			// Ensure each rotation starts at animation frame 0.
+		for _, rot := range []rotation.Rotation{rotation.DEG0, rotation.DEG90, rotation.DEG180, rotation.DEG270} {
+			// Ensure each rotation starts at animation frame 0 and uses the correct rotation.
+			b.Rotation = int(rot)
 			b.CurrentAnimationStep = 0
 			b.BaseIndex = b.BaseIndexSaved
 
@@ -401,7 +402,6 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 					},
 				})
 			}
-			b.Rotation = (b.Rotation + 1) % 4
 		}
 	}
 

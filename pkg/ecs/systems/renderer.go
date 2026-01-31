@@ -141,13 +141,14 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
-				bld := components.BuildingType.Get(tileEntry)
+				_ = components.BuildingType.Get(tileEntry)
 
 				// Skip only the deep sea tile (1201) used for drawSeaBackground
 				// Keep shallow water tiles (1202, 1203, 1204, 1209) and coast transitions (Surf, Estuary)
-				if layerID == buildings.KindSeaID && bld != nil && bld.BuildingID == 1201 {
-					continue
-				}
+				// TEMPORARILY DISABLED - drawing all sea tiles since sea background is commented out
+				// if layerID == buildings.KindSeaID && bld != nil && bld.BuildingID == 1201 {
+				// 	continue
+				// }
 
 				// Skip forest tiles that overlap with buildings or roads
 				if layerID == buildings.KindForrestID {
