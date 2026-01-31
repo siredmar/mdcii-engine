@@ -287,59 +287,59 @@ func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileH
 }
 
 func drawSeaBackground(screen *ebiten.Image, camera *components.Camera, island *components.Island, seaImg *ebiten.Image, pivotX, pivotY float64, tileWidth, tileHeight int) {
-	// if seaImg == nil || camera == nil || island == nil {
-	// 	return
-	// }
+	if seaImg == nil || camera == nil || island == nil {
+		return
+	}
 
-	// sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
-	// marginX := float64(tileWidth)
-	// marginY := float64(tileHeight)
-	// minWX := camera.X - marginX
-	// minWY := camera.Y - marginY
-	// maxWX := camera.X + float64(sw) + marginX
-	// maxWY := camera.Y + float64(sh) + marginY
+	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
+	marginX := float64(tileWidth)
+	marginY := float64(tileHeight)
+	minWX := camera.X - marginX
+	minWY := camera.Y - marginY
+	maxWX := camera.X + float64(sw) + marginX
+	maxWY := camera.Y + float64(sh) + marginY
 
-	// baseX := float64(island.X) * (float64(tileWidth) / 2)
-	// baseY := float64(island.Y) * (float64(tileHeight) / 2)
+	baseX := float64(island.X) * (float64(tileWidth) / 2)
+	baseY := float64(island.Y) * (float64(tileHeight) / 2)
 
-	// denX := float64(tileWidth) / 2
-	// denY := float64(tileHeight) / 2
-	// corners := [][2]float64{{minWX, minWY}, {maxWX, minWY}, {minWX, maxWY}, {maxWX, maxWY}}
+	denX := float64(tileWidth) / 2
+	denY := float64(tileHeight) / 2
+	corners := [][2]float64{{minWX, minWY}, {maxWX, minWY}, {minWX, maxWY}, {maxWX, maxWY}}
 
-	// minX, minY := math.Inf(1), math.Inf(1)
-	// maxX, maxY := math.Inf(-1), math.Inf(-1)
-	// for _, c := range corners {
-	// 	dx := (c[0] - baseX) / denX
-	// 	dy := (c[1] - baseY) / denY
-	// 	x := (dx + dy) / 2
-	// 	y := (dy - dx) / 2
-	// 	if x < minX {
-	// 		minX = x
-	// 	}
-	// 	if x > maxX {
-	// 		maxX = x
-	// 	}
-	// 	if y < minY {
-	// 		minY = y
-	// 	}
-	// 	if y > maxY {
-	// 		maxY = y
-	// 	}
-	// }
+	minX, minY := math.Inf(1), math.Inf(1)
+	maxX, maxY := math.Inf(-1), math.Inf(-1)
+	for _, c := range corners {
+		dx := (c[0] - baseX) / denX
+		dy := (c[1] - baseY) / denY
+		x := (dx + dy) / 2
+		y := (dy - dx) / 2
+		if x < minX {
+			minX = x
+		}
+		if x > maxX {
+			maxX = x
+		}
+		if y < minY {
+			minY = y
+		}
+		if y > maxY {
+			maxY = y
+		}
+	}
 
-	// ix0 := int(math.Floor(minX)) - 2
-	// ix1 := int(math.Ceil(maxX)) + 2
-	// iy0 := int(math.Floor(minY)) - 2
-	// iy1 := int(math.Ceil(maxY)) + 2
+	ix0 := int(math.Floor(minX)) - 2
+	ix1 := int(math.Ceil(maxX)) + 2
+	iy0 := int(math.Floor(minY)) - 2
+	iy1 := int(math.Ceil(maxY)) + 2
 
-	// for y := iy0; y <= iy1; y++ {
-	// 	for x := ix0; x <= ix1; x++ {
-	// 		originX := (float64(x-y))*(float64(tileWidth)/2) + baseX
-	// 		originY := (float64(x+y))*(float64(tileHeight)/2) + baseY
+	for y := iy0; y <= iy1; y++ {
+		for x := ix0; x <= ix1; x++ {
+			originX := (float64(x-y))*(float64(tileWidth)/2) + baseX
+			originY := (float64(x+y))*(float64(tileHeight)/2) + baseY
 
-	// 		op := &ebiten.DrawImageOptions{}
-	// 		op.GeoM.Translate(originX-pivotX-camera.X, originY-pivotY-camera.Y)
-	// 		screen.DrawImage(seaImg, op)
-	// 	}
-	// }
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(originX-pivotX-camera.X, originY-pivotY-camera.Y)
+			screen.DrawImage(seaImg, op)
+		}
+	}
 }
