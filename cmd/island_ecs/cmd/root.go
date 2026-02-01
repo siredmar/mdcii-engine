@@ -36,6 +36,7 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/gam"
+	"github.com/siredmar/mdcii-engine/pkg/savegame"
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
@@ -50,6 +51,7 @@ var (
 	gamePath      string
 	buildingIndex int
 	rotationArg   int
+	useJSON       bool
 
 	screenshotPath        string
 	screenshotAfterFrames int
@@ -66,6 +68,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
 	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
+	rootCmd.Flags().BoolVar(&useJSON, "use-json", true, "Use JSON savegame format (auto-converts GAM if needed)")
 
 	rootCmd.Flags().StringVar(&screenshotPath, "screenshot", "", "Write a screenshot PNG to this path")
 	rootCmd.Flags().IntVar(&screenshotAfterFrames, "screenshotAfterFrames", 60, "Take screenshot after N update frames")
@@ -161,23 +164,79 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		gamParser, err := gam.NewParser()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		gamPath := filepath.Join(gameRoot, "SAVEGAME", "lastgame.gam")
-		err = gamParser.LoadPath(gamPath)
-		// err = gamParser.LoadPath(filepath.Join(gameRoot, "NORDNAT", "LIT02.SCP"))
+		gamFilePath := filepath.Join(gameRoot, "SAVEGAME", "lastgame.gam")
+		jsonFilePath := gamFilePath[:len(gamFilePath)-4] + ".json"
 
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		err = gamParser.Parse(buildings)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		var sg *savegame.Savegame
+
+		if useJSON {
+			// Try to load existing JSON file first
+			if _, err := os.Stat(jsonFilePath); err == nil {
+				fmt.Println("Loading existing JSON savegame:", jsonFilePath)
+				sg, err = savegame.Load(jsonFilePath)
+				if err != nil {
+					fmt.Println("Error loading JSON savegame:", err)
+					fmt.Println("Falling back to GAM conversion...")
+					sg = nil
+				}
+			}
+
+			// If no JSON exists or loading failed, convert from GAM
+			if sg == nil {
+				fmt.Println("Converting GAM to JSON format...")
+				gamParser, err := gam.NewParser()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				err = gamParser.LoadPath(gamFilePath)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				err = gamParser.Parse(buildings)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+
+				sg, err = savegame.ConvertFromGAM(gamParser, buildings)
+				if err != nil {
+					fmt.Println("Error converting GAM:", err)
+					os.Exit(1)
+				}
+
+				// Save the JSON file alongside the GAM
+				if err := sg.Save(jsonFilePath); err != nil {
+					fmt.Println("Warning: Failed to save JSON file:", err)
+				} else {
+					fmt.Println("Saved JSON savegame:", jsonFilePath)
+				}
+			}
+		} else {
+			// Original behavior: load directly from GAM
+			fmt.Println("Loading GAM file directly (--use-json=false)")
+			gamParser, err := gam.NewParser()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			err = gamParser.LoadPath(gamFilePath)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			err = gamParser.Parse(buildings)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			sg, err = savegame.ConvertFromGAM(gamParser, buildings)
+			if err != nil {
+				fmt.Println("Error converting GAM:", err)
+				os.Exit(1)
+			}
 		}
 
 		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
@@ -186,18 +245,25 @@ var rootCmd = &cobra.Command{
 		w := world.New()
 		// Create an entity and get its Entry
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
-		// island := components.CreateIsland(w.World, ani, 10, 10, 10, 10)
-		components.CreateIslandFromChunk(w.World, ani, gamParser.Islands5[0], 10, 10)
 
-		cameraEntity := w.World.Create(components.CameraType)
-		cameraEntry := w.World.Entry(cameraEntity)
-		// Center camera to match reference view
-		components.CameraType.Set(cameraEntry, &components.Camera{
-			X:        60,
-			Y:        -130,
-			Zoom:     1.0,
-			Rotation: rotation.DEG0,
-		})
+		// Create islands from the savegame using the new format
+		if err := sg.ToECSWorld(w.World, ani, buildings); err != nil {
+			fmt.Println("Error creating ECS world from savegame:", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Loaded %d islands from savegame\n", len(sg.World.Islands))
+
+		// Print island positions
+		for i, island := range sg.World.Islands {
+			fmt.Printf("  Island %d: pos=(%d,%d) size=%dx%d climate=%s\n",
+				i, island.Position.X, island.Position.Y,
+				island.Dimensions.Width, island.Dimensions.Height, island.Climate)
+		}
+
+		// Create camera from savegame (centers on first island if uninitialized)
+		sg.CreateCameraEntity(w.World)
+		fmt.Printf("Camera: pos=(%.1f,%.1f) zoom=%.1f rotation=%d\n",
+			sg.Meta.Camera.X, sg.Meta.Camera.Y, sg.Meta.Camera.Zoom, sg.Meta.Camera.Rotation)
 
 		controlEntity := w.World.Create(components.ControlType)
 		controlEntry := w.World.Entry(controlEntity)

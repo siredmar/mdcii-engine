@@ -107,6 +107,7 @@ func InputSystem(world donburi.World) {
 					cam := components.CameraType.Get(camEntry)
 					cam.X -= dx
 					cam.Y -= dy
+					fmt.Printf("Camera: pos=(%.1f,%.1f)\n", cam.X, cam.Y)
 				})
 				ctrl.LastMouseX = mouseX
 				ctrl.LastMouseY = mouseY
@@ -119,17 +120,25 @@ func InputSystem(world donburi.World) {
 	// 🎮 KEYBOARD SCROLL (WASD)
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
 		cam := components.CameraType.Get(entry)
+		moved := false
 		if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
 			cam.Y -= cameraSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 			cam.Y += cameraSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 			cam.X -= cameraSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 			cam.X += cameraSpeed
+			moved = true
+		}
+		if moved {
+			fmt.Printf("Camera: pos=(%.1f,%.1f)\n", cam.X, cam.Y)
 		}
 	})
 }
