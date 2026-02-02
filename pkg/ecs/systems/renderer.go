@@ -45,7 +45,8 @@ var (
 
 // Selection buffer for pixel-perfect building hover detection
 var (
-	selectionBuffer *ebiten.Image
+	selectionBuffer  *ebiten.Image
+	displayBuffer    *ebiten.Image // Rainbow-colored version for debug display
 	selectionBufferW int
 	selectionBufferH int
 )
@@ -60,8 +61,65 @@ var (
 var reusableOp = &ebiten.DrawImageOptions{}
 var selectionOp = &ebiten.DrawImageOptions{}
 
-// idToColor encodes a building ID to a unique color (supports up to 16,777,215 IDs)
+// Cache for silhouette images (building ID -> solid color silhouette)
+var silhouetteCache = make(map[*ebiten.Image]*ebiten.Image)
+
+// idToColor encodes a building ID to a rainbow color for better visibility
+// Uses golden ratio to distribute colors evenly across the spectrum
 func idToColor(id int) color.RGBA {
+	// Use golden ratio for even color distribution
+	golden := 0.618033988749895
+	hue := math.Mod(float64(id)*golden, 1.0)
+	return hsvToRGB(hue, 0.9, 1.0)
+}
+
+// hsvToRGB converts HSV (hue 0-1, saturation 0-1, value 0-1) to RGB
+func hsvToRGB(h, s, v float64) color.RGBA {
+	var r, g, b float64
+	i := int(h * 6)
+	f := h*6 - float64(i)
+	p := v * (1 - s)
+	q := v * (1 - f*s)
+	t := v * (1 - (1-f)*s)
+
+	switch i % 6 {
+	case 0:
+		r, g, b = v, t, p
+	case 1:
+		r, g, b = q, v, p
+	case 2:
+		r, g, b = p, v, t
+	case 3:
+		r, g, b = p, q, v
+	case 4:
+		r, g, b = t, p, v
+	case 5:
+		r, g, b = v, p, q
+	}
+
+	return color.RGBA{
+		R: uint8(r * 255),
+		G: uint8(g * 255),
+		B: uint8(b * 255),
+		A: 255,
+	}
+}
+
+// colorToID decodes a rainbow color back to a building ID
+// Since we use rainbow colors, we need to store the actual ID separately
+// For now, we encode ID in the color directly using a simpler scheme
+func colorToID(c color.Color) int {
+	r, g, b, a := c.RGBA()
+	if a == 0 {
+		return 0 // transparent = no building
+	}
+	// RGBA returns 16-bit values, shift down to 8-bit
+	return int(r>>8)<<16 | int(g>>8)<<8 | int(b>>8)
+}
+
+// idToEncodedColor encodes a building ID directly into RGB for sampling
+// This is used for the actual ID lookup, separate from display color
+func idToEncodedColor(id int) color.RGBA {
 	return color.RGBA{
 		R: uint8((id >> 16) & 0xFF),
 		G: uint8((id >> 8) & 0xFF),
@@ -70,14 +128,26 @@ func idToColor(id int) color.RGBA {
 	}
 }
 
-// colorToID decodes a color back to a building ID
-func colorToID(c color.Color) int {
-	r, g, b, a := c.RGBA()
-	if a == 0 {
-		return 0 // transparent = no building
+// getSilhouette returns a solid-color silhouette of the given image
+func getSilhouette(img *ebiten.Image) *ebiten.Image {
+	if cached, ok := silhouetteCache[img]; ok {
+		return cached
 	}
-	// RGBA returns 16-bit values, shift down to 8-bit
-	return int(r>>8)<<16 | int(g>>8)<<8 | int(b>>8)
+
+	bounds := img.Bounds()
+	silhouette := ebiten.NewImage(bounds.Dx(), bounds.Dy())
+
+	// Draw the original image as pure white (preserving alpha)
+	op := &ebiten.DrawImageOptions{}
+	// Set color to white - this will be tinted later with the ID color
+	op.ColorScale.Scale(0, 0, 0, 1) // Zero out RGB, keep alpha
+	op.ColorScale.SetR(1)
+	op.ColorScale.SetG(1)
+	op.ColorScale.SetB(1)
+	silhouette.DrawImage(img, op)
+
+	silhouetteCache[img] = silhouette
+	return silhouette
 }
 
 // TileToScreen converts tile grid coordinates to isometric screen coordinates
@@ -408,21 +478,23 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 	}
 
-	// Render selection buffer for pixel-perfect building hover detection
-	renderSelectionBuffer(renderableTiles, screenW, screenH, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY)
-
-	// Sample selection buffer at mouse position to get hovered building ID
-	sampleSelectionBuffer(world)
-
-	// Optionally show selection buffer instead of normal rendering (toggle with 'B' key)
+	// Check if we should show selection buffer debug view
 	var showSelectionBuffer bool
 	controlQueryCached.Each(world, func(entry *donburi.Entry) {
 		ctrl := components.ControlType.Get(entry)
 		showSelectionBuffer = ctrl.SelectionBufferView
 	})
-	if showSelectionBuffer && selectionBuffer != nil {
+
+	// Render selection buffer for pixel-perfect building hover detection
+	renderSelectionBuffer(renderableTiles, screenW, screenH, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY, showSelectionBuffer)
+
+	// Sample selection buffer at mouse position to get hovered building ID
+	sampleSelectionBuffer(world)
+
+	// Optionally show rainbow-colored display buffer instead of normal rendering (toggle with 'B' key)
+	if showSelectionBuffer && displayBuffer != nil {
 		screen.Clear()
-		screen.DrawImage(selectionBuffer, nil)
+		screen.DrawImage(displayBuffer, nil)
 	}
 
 	if grid {
@@ -658,22 +730,30 @@ func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *compone
 }
 
 // renderSelectionBuffer draws buildings to an offscreen buffer using ID-encoded colors
-func renderSelectionBuffer(tiles []RenderableTile, screenW, screenH int, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY float64) {
+// Also creates a display buffer with rainbow colors for debug visualization
+func renderSelectionBuffer(tiles []RenderableTile, screenW, screenH int, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY float64, showDisplay bool) {
 	// Create or resize selection buffer if needed
 	if selectionBuffer == nil || selectionBufferW != screenW || selectionBufferH != screenH {
 		selectionBuffer = ebiten.NewImage(screenW, screenH)
+		displayBuffer = ebiten.NewImage(screenW, screenH)
 		selectionBufferW = screenW
 		selectionBufferH = screenH
 	}
 
-	// Clear buffer to transparent (ID=0 means no building)
+	// Clear buffers
 	selectionBuffer.Clear()
+	if showDisplay {
+		displayBuffer.Clear()
+	}
 
-	// Draw only building tiles with their ID-encoded color
+	// Draw only building tiles with their ID-encoded color as solid silhouettes
 	for _, tile := range tiles {
 		if !tile.IsBuilding || tile.BuildingID == 0 || tile.Image == nil {
 			continue
 		}
+
+		// Get or create silhouette (solid white version of the sprite)
+		silhouette := getSilhouette(tile.Image)
 
 		selectionOp.GeoM.Reset()
 		selectionOp.ColorScale.Reset()
@@ -694,12 +774,18 @@ func renderSelectionBuffer(tiles []RenderableTile, screenW, screenH int, cameraS
 		selectionOp.GeoM.Scale(zoomLevel, zoomLevel)
 		selectionOp.GeoM.Translate(relX*zoomLevel+screenCenterX*(1-zoomLevel), relY*zoomLevel+screenCenterY*(1-zoomLevel))
 
-		// Set color to ID-encoded color (replaces all pixels with this color while preserving alpha)
-		idColor := idToColor(tile.BuildingID)
-		// Use ColorScale to tint the image - we multiply by 0 and add the ID color
+		// Use encoded color for ID lookup (direct RGB encoding)
+		idColor := idToEncodedColor(tile.BuildingID)
 		selectionOp.ColorScale.ScaleWithColor(idColor)
+		selectionBuffer.DrawImage(silhouette, selectionOp)
 
-		selectionBuffer.DrawImage(tile.Image, selectionOp)
+		// Also draw to display buffer with rainbow colors if showing debug view
+		if showDisplay {
+			selectionOp.ColorScale.Reset()
+			rainbowColor := idToColor(tile.BuildingID)
+			selectionOp.ColorScale.ScaleWithColor(rainbowColor)
+			displayBuffer.DrawImage(silhouette, selectionOp)
+		}
 	}
 }
 
