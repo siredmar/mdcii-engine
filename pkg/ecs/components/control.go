@@ -9,10 +9,11 @@ import (
 )
 
 type Control struct {
-	Rotation         rotation.Rotation
-	GridVisible      bool
-	OverlayVisible   bool
-	LastKeyPressTime time.Time
+	Rotation            rotation.Rotation
+	GridVisible         bool
+	OverlayVisible      bool
+	SelectionBufferView bool // Show selection buffer instead of normal rendering
+	LastKeyPressTime    time.Time
 
 	Dragging   bool
 	LastMouseX int

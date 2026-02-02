@@ -45,6 +45,10 @@ func InputSystem(world donburi.World) {
 				ctrl.OverlayVisible = !ctrl.OverlayVisible
 				ctrl.LastKeyPressTime = now
 			}
+			if ebiten.IsKeyPressed(ebiten.KeyB) {
+				ctrl.SelectionBufferView = !ctrl.SelectionBufferView
+				ctrl.LastKeyPressTime = now
+			}
 			if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 				os.Exit(0)
 			}

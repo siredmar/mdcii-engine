@@ -414,6 +414,17 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	// Sample selection buffer at mouse position to get hovered building ID
 	sampleSelectionBuffer(world)
 
+	// Optionally show selection buffer instead of normal rendering (toggle with 'B' key)
+	var showSelectionBuffer bool
+	controlQueryCached.Each(world, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		showSelectionBuffer = ctrl.SelectionBufferView
+	})
+	if showSelectionBuffer && selectionBuffer != nil {
+		screen.Clear()
+		screen.DrawImage(selectionBuffer, nil)
+	}
+
 	if grid {
 		renderDebugGrid(world, screen, float64(tileWidth), float64(tileHeight))
 	}
