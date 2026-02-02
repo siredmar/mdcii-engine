@@ -10,12 +10,26 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-// ToECSWorld creates ECS entities from the savegame data
-func (s *Savegame) ToECSWorld(w donburi.World, ani *animation.Animations, b *buildings.Buildings) error {
-	for _, island := range s.World.Islands {
-		island.ToECSEntity(w, ani, b)
+// ToECSWorld creates ECS entities from the savegame data and returns the world entity
+func (s *Savegame) ToECSWorld(w donburi.World, ani *animation.Animations, b *buildings.Buildings) (*donburi.Entry, error) {
+	// Create world entity
+	worldEntity := w.Create(components.WorldType)
+	worldEntry := w.Entry(worldEntity)
+
+	ecsWorld := &components.World{
+		Width:   s.World.Width,
+		Height:  s.World.Height,
+		Islands: make([]*donburi.Entry, 0, len(s.World.Islands)),
 	}
-	return nil
+
+	// Create island entities
+	for _, island := range s.World.Islands {
+		islandEntry := island.ToECSEntity(w, ani, b)
+		ecsWorld.Islands = append(ecsWorld.Islands, islandEntry)
+	}
+
+	components.WorldType.Set(worldEntry, ecsWorld)
+	return worldEntry, nil
 }
 
 // CreateCameraEntity creates and returns a camera entity from the savegame camera state.

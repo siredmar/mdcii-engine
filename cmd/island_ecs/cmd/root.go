@@ -52,6 +52,7 @@ var (
 	buildingIndex int
 	rotationArg   int
 	useJSON       bool
+	savegameFile  string
 
 	screenshotPath        string
 	screenshotAfterFrames int
@@ -69,6 +70,7 @@ func init() {
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
 	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
 	rootCmd.Flags().BoolVar(&useJSON, "use-json", true, "Use JSON savegame format (auto-converts GAM if needed)")
+	rootCmd.Flags().StringVarP(&savegameFile, "savegame", "s", "SAVEGAME/lastgame.gam", "Savegame file path (relative to game path)")
 
 	rootCmd.Flags().StringVar(&screenshotPath, "screenshot", "", "Write a screenshot PNG to this path")
 	rootCmd.Flags().IntVar(&screenshotAfterFrames, "screenshotAfterFrames", 60, "Take screenshot after N update frames")
@@ -164,8 +166,10 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		gamFilePath := filepath.Join(gameRoot, "SAVEGAME", "lastgame.gam")
+		gamFilePath := filepath.Join(gameRoot, savegameFile)
 		jsonFilePath := gamFilePath[:len(gamFilePath)-4] + ".json"
+
+		fmt.Printf("Loading savegame: %s\n", gamFilePath)
 
 		var sg *savegame.Savegame
 
@@ -247,11 +251,13 @@ var rootCmd = &cobra.Command{
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
 
 		// Create islands from the savegame using the new format
-		if err := sg.ToECSWorld(w.World, ani, buildings); err != nil {
+		worldEntry, err := sg.ToECSWorld(w.World, ani, buildings)
+		if err != nil {
 			fmt.Println("Error creating ECS world from savegame:", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Loaded %d islands from savegame\n", len(sg.World.Islands))
+		ecsWorld := components.WorldType.Get(worldEntry)
+		fmt.Printf("World: %dx%d with %d islands\n", ecsWorld.Width, ecsWorld.Height, len(ecsWorld.Islands))
 
 		// Print island positions
 		for i, island := range sg.World.Islands {

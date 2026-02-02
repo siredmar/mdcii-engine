@@ -62,7 +62,8 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 			var err error
 			index, err = b.GetBuildingIndexById(id)
 			if err != nil {
-				return nil, err
+				log.Printf("Skipping unknown building ID %d at pos (%d,%d)", id, int(fieldData[2]), int(fieldData[3]))
+				continue
 			}
 		}
 		field := &Field{
