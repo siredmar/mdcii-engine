@@ -192,8 +192,8 @@ type RenderableTile struct {
 	pivotY         float64
 	SpriteRotation int   // 0-3: number of 90° clockwise rotations to apply
 	sortKey        int64 // Pre-computed sort key: layer << 32 | topY << 16 | topX
-	BuildingID     int   // Building ID for selection buffer (0 = not a building)
-	IsBuilding     bool  // True if this tile is from KindBuildings layer
+	BuildingID     int   // Building ID for selection buffer (0 = not selectable)
+	IsSelectable   bool  // True if this tile should appear in selection buffer (buildings, roads, plazas)
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
@@ -352,7 +352,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		for _, layerID := range layerOrder {
-			isBuilding := layerID == buildings.KindBuildingsID
+			isSelectable := layerID == buildings.KindBuildingsID || layerID == buildings.KindRoadsID
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
@@ -420,7 +420,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				sortKey := int64(layer)<<32 | int64(rotatedY+10000)<<16 | int64(rotatedX+10000)
 
 				buildingID := 0
-				if isBuilding && bld != nil {
+				if isSelectable && bld != nil {
 					buildingID = bld.BuildingID
 				}
 
@@ -439,7 +439,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					SpriteRotation: tile.SpriteRotation,
 					sortKey:        sortKey,
 					BuildingID:     buildingID,
-					IsBuilding:     isBuilding,
+					IsSelectable:   isSelectable,
 				})
 			}
 		}
@@ -757,9 +757,9 @@ func renderSelectionBuffer(tiles []RenderableTile, screenW, screenH int, cameraS
 		displayBuffer.Clear()
 	}
 
-	// Draw only building tiles with their ID-encoded color as solid silhouettes
+	// Draw selectable tiles (buildings, roads, plazas) with their ID-encoded color as solid silhouettes
 	for _, tile := range tiles {
-		if !tile.IsBuilding || tile.BuildingID == 0 || tile.Image == nil {
+		if !tile.IsSelectable || tile.BuildingID == 0 || tile.Image == nil {
 			continue
 		}
 
