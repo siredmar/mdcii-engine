@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/building"
+	"github.com/siredmar/mdcii-engine/pkg/config"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
@@ -18,7 +19,7 @@ var islandQuery = donburi.NewQuery(filter.Contains(components.IslandType))
 
 func InputSystem(world donburi.World) {
 	const debounce = time.Millisecond * 150
-	const cameraSpeed = 0.5 // Speed in tile units per frame
+	const cameraSpeed = 0.25 // Speed in tile units per frame (WASD)
 	const tileW = 64.0
 	const tileH = 32.0
 
@@ -99,10 +100,18 @@ func InputSystem(world donburi.World) {
 				// Convert screen pixel delta to tile coordinate delta
 				screenDX := float64(mouseX - ctrl.LastMouseX)
 				screenDY := float64(mouseY - ctrl.LastMouseY)
-				// Use ScreenToTile to convert the delta (treating it as a position from origin)
-				tileDX, tileDY := ScreenToTile(screenDX, screenDY, int(tileW), int(tileH))
+				// Pan speed scales linearly with zoom: faster when zoomed out
 				cameraQuery.Each(world, func(camEntry *donburi.Entry) {
 					cam := components.CameraType.Get(camEntry)
+					zoomLevel := cam.Zoom
+					if zoomLevel <= 0 {
+						zoomLevel = 1.0
+					}
+					// Speed multiplier: 10x at zoom 0.1, 1x at zoom 1.0
+					speedMultiplier := 11.0 - 10.0*zoomLevel
+					panFactor := config.Instance().MousePanFactor
+					// Use ScreenToTile to convert the delta (treating it as a position from origin)
+					tileDX, tileDY := ScreenToTile(screenDX*panFactor*speedMultiplier, screenDY*panFactor*speedMultiplier, int(tileW), int(tileH))
 					cam.X -= tileDX
 					cam.Y -= tileDY
 					cam.Initialized = true // Mark camera as moved by user
@@ -158,22 +167,27 @@ func InputSystem(world donburi.World) {
 	})
 
 	// 🔍 MOUSE WHEEL ZOOM - zoom levels from 0.1 to 1.0 in 0.1 steps
+	// Zoom centers on mouse cursor position
 	_, scrollY := ebiten.Wheel()
 	if scrollY != 0 {
+		mouseX, mouseY := ebiten.CursorPosition()
+		screenW, screenH := ebiten.WindowSize()
+		screenCenterX := float64(screenW) / 2
+		screenCenterY := float64(screenH) / 2
+
 		cameraQuery.Each(world, func(entry *donburi.Entry) {
 			cam := components.CameraType.Get(entry)
 			const zoomStep = 0.1
 			const minZoom = 0.1
 			const maxZoom = 1.0
 
+			oldZoom := cam.Zoom
 			if scrollY > 0 {
-				// Scroll up = zoom in (increase zoom)
 				cam.Zoom += zoomStep
 				if cam.Zoom > maxZoom {
 					cam.Zoom = maxZoom
 				}
 			} else {
-				// Scroll down = zoom out (decrease zoom)
 				cam.Zoom -= zoomStep
 				if cam.Zoom < minZoom {
 					cam.Zoom = minZoom
@@ -181,7 +195,43 @@ func InputSystem(world donburi.World) {
 			}
 			// Round to nearest 0.1 to avoid floating point drift
 			cam.Zoom = float64(int(cam.Zoom*10+0.5)) / 10
-			cam.Initialized = true // Mark camera as changed by user
+			newZoom := cam.Zoom
+
+			if oldZoom != newZoom {
+				// Camera is in tile coords. Convert to isometric screen coords.
+				camScreenX := (cam.X - cam.Y) * (float64(tileW) / 2)
+				camScreenY := (cam.X + cam.Y) * (float64(tileH) / 2)
+
+				// Renderer uses: screenPos = relPos * zoom + screenCenter * (1 - zoom)
+				// where relPos = worldPos - camScreenPos
+				// Inverse: relPos = (screenPos - screenCenter * (1 - zoom)) / zoom
+				// worldPos = relPos + camScreenPos
+				zoomOffset := 1 - oldZoom
+				relX := (float64(mouseX) - screenCenterX*zoomOffset) / oldZoom
+				relY := (float64(mouseY) - screenCenterY*zoomOffset) / oldZoom
+				worldX := relX + camScreenX
+				worldY := relY + camScreenY
+
+				// After zoom, we want the same world point under the cursor
+				// screenPos = (worldPos - newCamScreenPos) * newZoom + screenCenter * (1 - newZoom)
+				// Solve for newCamScreenPos:
+				// (mousePos - screenCenter * (1 - newZoom)) / newZoom = worldPos - newCamScreenPos
+				// newCamScreenPos = worldPos - (mousePos - screenCenter * (1 - newZoom)) / newZoom
+				newZoomOffset := 1 - newZoom
+				newCamScreenX := worldX - (float64(mouseX)-screenCenterX*newZoomOffset)/newZoom
+				newCamScreenY := worldY - (float64(mouseY)-screenCenterY*newZoomOffset)/newZoom
+
+				// Convert back to tile coordinates
+				// screenX = (tileX - tileY) * (tileW/2)
+				// screenY = (tileX + tileY) * (tileH/2)
+				// tileX = screenX/(tileW/2)/2 + screenY/(tileH/2)/2
+				// tileY = screenY/(tileH/2)/2 - screenX/(tileW/2)/2
+				halfW := float64(tileW) / 2
+				halfH := float64(tileH) / 2
+				cam.X = newCamScreenX/halfW/2 + newCamScreenY/halfH/2
+				cam.Y = newCamScreenY/halfH/2 - newCamScreenX/halfW/2
+			}
+			cam.Initialized = true
 		})
 	}
 

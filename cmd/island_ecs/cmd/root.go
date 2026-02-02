@@ -31,6 +31,7 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+	"github.com/siredmar/mdcii-engine/pkg/config"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/systems"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
@@ -53,6 +54,7 @@ var (
 	rotationArg   int
 	useJSON       bool
 	savegameFile  string
+	configPath    string
 
 	screenshotPath        string
 	screenshotAfterFrames int
@@ -71,6 +73,7 @@ func init() {
 	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
 	rootCmd.Flags().BoolVar(&useJSON, "use-json", true, "Use JSON savegame format (auto-converts GAM if needed)")
 	rootCmd.Flags().StringVarP(&savegameFile, "savegame", "s", "SAVEGAME/lastgame.gam", "Savegame file path (relative to game path)")
+	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Config file path (default: ~/.mdcii/config.yaml, fallback: ./config.yaml)")
 
 	rootCmd.Flags().StringVar(&screenshotPath, "screenshot", "", "Write a screenshot PNG to this path")
 	rootCmd.Flags().IntVar(&screenshotAfterFrames, "screenshotAfterFrames", 60, "Take screenshot after N update frames")
@@ -82,6 +85,12 @@ var rootCmd = &cobra.Command{
 	Use:   "animations for buildings",
 	Short: "animations for buildings",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Load config first (creates default if not exists, exits on parse error)
+		if _, err := config.LoadFromPath(configPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
+			os.Exit(1)
+		}
+
 		absPath, err := filepath.Abs(gamePath)
 		if err != nil {
 			fmt.Println(err)
