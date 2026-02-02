@@ -203,7 +203,7 @@ type Game struct {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	systems.RenderSystem(g.world.World, screen)
+	systems.RenderSystem(g.world.World, screen, false, g.rotation)
 }
 
 // func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {

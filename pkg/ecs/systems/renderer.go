@@ -1,11 +1,13 @@
 package systems
 
 import (
+	"cmp"
 	"fmt"
 	"image/color"
 	"log"
 	"math"
-	"sort"
+	"slices"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -22,6 +24,33 @@ const (
 	TILE_WIDTH  = 64
 	TILE_HEIGHT = 32
 )
+
+// FPS tracking
+var (
+	frameCount    int
+	lastFPSUpdate time.Time
+	currentFPS    float64
+	renderedTiles int
+	culledTiles   int
+)
+
+// Cached sea background texture - pre-rendered tiled sea for performance
+var (
+	cachedSeaTexture     *ebiten.Image
+	cachedSeaSourceImage *ebiten.Image
+	cachedSeaTileW       int
+	cachedSeaTileH       int
+	seaTextureGridSize   = 32 // Number of tiles in each direction for the cached texture
+)
+
+// Cached queries (avoid recreating every frame)
+var (
+	cameraQueryCached  = donburi.NewQuery(filter.Contains(components.CameraType))
+	controlQueryCached = donburi.NewQuery(filter.Contains(components.ControlType))
+)
+
+// Reusable DrawImageOptions to reduce allocations
+var reusableOp = &ebiten.DrawImageOptions{}
 
 // TileToScreen converts tile grid coordinates to isometric screen coordinates
 func TileToScreen(tileX, tileY float64, tileWidth, tileHeight int) (screenX, screenY float64) {
@@ -53,22 +82,31 @@ type RenderableTile struct {
 	pivotX         float64
 	pivotY         float64
 	SpriteRotation int // 0-3: number of 90° clockwise rotations to apply
+	sortKey        int64 // Pre-computed sort key: layer << 32 | topY << 16 | topX
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
+	// Update FPS counter
+	frameCount++
+	now := time.Now()
+	if now.Sub(lastFPSUpdate) >= time.Second {
+		currentFPS = float64(frameCount) / now.Sub(lastFPSUpdate).Seconds()
+		frameCount = 0
+		lastFPSUpdate = now
+	}
+
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
 
-	var renderableTiles []RenderableTile
+	// Pre-allocate with estimated capacity to reduce allocations
+	renderableTiles := make([]RenderableTile, 0, 10000)
 
 	var camera *components.Camera
 	var overlay bool
-	cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
-	cameraQuery.Each(world, func(entry *donburi.Entry) {
+	cameraQueryCached.Each(world, func(entry *donburi.Entry) {
 		camera = components.CameraType.Get(entry)
 	})
-	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
-	controlQuery.Each(world, func(entry *donburi.Entry) {
+	controlQueryCached.Each(world, func(entry *donburi.Entry) {
 		overlay = components.ControlType.Get(entry).OverlayVisible
 	})
 	if camera == nil {
@@ -90,12 +128,32 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	// Convert camera position from tile coordinates to screen coordinates
 	cameraScreenX, cameraScreenY := TileToScreen(camera.X, camera.Y, tileWidth, tileHeight)
 
-	rendererQuery.Each(world, func(entry *donburi.Entry) {
-		island := components.IslandType.Get(entry)
+	// Calculate visible bounds in world coordinates for frustum culling.
+	// The zoom is centered on screen center, so we need to calculate what world
+	// coordinates are visible at the screen edges.
+	// Screen position (sx, sy) maps to world-relative position:
+	//   relX = (sx - screenCenterX * (1 - zoom)) / zoom
+	// Then world position = relX + cameraScreenX
+	// Use a margin that's larger at high zoom (where sprites are bigger on screen).
+	zoomOffset := 1 - zoomLevel
+	margin := 500.0 + 1000.0*zoomLevel // 500 base + 1000 extra at zoom 1.0 = 1500 at full zoom
+	visMinX := (0-screenCenterX*zoomOffset)/zoomLevel + cameraScreenX - margin
+	visMinY := (0-screenCenterY*zoomOffset)/zoomLevel + cameraScreenY - margin
+	visMaxX := (float64(screenW)-screenCenterX*zoomOffset)/zoomLevel + cameraScreenX + margin
+	visMaxY := (float64(screenH)-screenCenterY*zoomOffset)/zoomLevel + cameraScreenY + margin
 
-		// Draw infinite sea background (outside island bounds) to match original game view.
-		var seaImg *ebiten.Image
-		var seaPivotX, seaPivotY float64
+	// Reset tile counters
+	culledTiles = 0
+	localRendered := 0
+
+	// Draw sea background once (before islands) - find a sea tile from any island
+	var seaImg *ebiten.Image
+	var seaFound bool
+	rendererQuery.Each(world, func(entry *donburi.Entry) {
+		if seaFound {
+			return
+		}
+		island := components.IslandType.Get(entry)
 		for _, tileEntry := range island.Tiles[buildings.KindSeaID] {
 			tile := components.TileType.Get(tileEntry)
 			if tile.Image == nil {
@@ -104,17 +162,31 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			b := components.BuildingType.Get(tileEntry)
 			if b != nil && b.BuildingID == 1201 { // deep sea tile
 				seaImg = tile.Image
-				seaPivotX = float64(tile.PivotX)
-				seaPivotY = float64(tile.PivotY)
-				break
+				seaFound = true
+				return
 			}
 			if seaImg == nil {
 				seaImg = tile.Image
-				seaPivotX = float64(tile.PivotX)
-				seaPivotY = float64(tile.PivotY)
 			}
 		}
-		drawSeaBackground(screen, cameraScreenX, cameraScreenY, island, seaImg, seaPivotX, seaPivotY, tileWidth, tileHeight, zoomLevel, screenCenterX, screenCenterY)
+	})
+	if seaImg != nil {
+		drawSeaBackground(screen, cameraScreenX, cameraScreenY, seaImg, tileWidth, tileHeight, zoomLevel, screenCenterX, screenCenterY)
+	}
+
+	rendererQuery.Each(world, func(entry *donburi.Entry) {
+		island := components.IslandType.Get(entry)
+
+		// Quick island-level frustum culling
+		islandIsoX := (island.X - island.Y) * (float64(tileWidth) / 2)
+		islandIsoY := (island.X + island.Y) * (float64(tileHeight) / 2)
+		islandMaxX := islandIsoX + float64(island.Width+island.Height)*(float64(tileWidth)/2)
+		islandMaxY := islandIsoY + float64(island.Width+island.Height)*(float64(tileHeight)/2)
+
+		// Skip entire island if completely outside view
+		if islandMaxX < visMinX || islandIsoX > visMaxX || islandMaxY < visMinY || islandIsoY > visMaxY {
+			return
+		}
 
 		// Hide underlying layers under buildings based on building footprint occupancy.
 		occupied := map[[2]int]struct{}{}
@@ -147,8 +219,9 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			}
 		}
 
+		// Include Sea layer for Surf/Estuary coast transitions (deep sea 1201 is filtered below)
 		layerOrder := []string{
-			buildings.KindSeaID,                 // Contains Surf, Estuary - plain Sea tiles filtered out below
+			buildings.KindSeaID,                 // Surf, Estuary - deep sea filtered out below
 			buildings.KindGroundID + "_OVERLAY", // Ground underlay for slope/cliff tiles
 			buildings.KindGroundID,
 			buildings.KindRoadsID,
@@ -171,12 +244,13 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
-				bld := components.BuildingType.Get(tileEntry)
 
-				// Skip only the deep sea tile (1201) used for drawSeaBackground
-				// Keep shallow water tiles (1202, 1203, 1204, 1209) and coast transitions (Surf, Estuary)
-				if layerID == buildings.KindSeaID && bld != nil && bld.BuildingID == 1201 {
-					continue
+				// Skip deep sea tiles (1201) - these are drawn by the sea background
+				if layerID == buildings.KindSeaID {
+					bld := components.BuildingType.Get(tileEntry)
+					if bld != nil && bld.BuildingID == 1201 {
+						continue
+					}
 				}
 
 				// Skip forest tiles that overlap with buildings or roads
@@ -210,9 +284,6 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				rotatedX, rotatedY := rxl+int(island.X), ryl+int(island.Y)
 
 				// Tile origin convention: (x,y) maps to the top point of the isometric diamond.
-				// First compute the island's world position in isometric coordinates
-				islandIsoX := (island.X - island.Y) * (float64(tileWidth) / 2)
-				islandIsoY := (island.X + island.Y) * (float64(tileHeight) / 2)
 				// Then compute local tile position in isometric and add to island offset
 				localX := float64(rotatedX) - island.X
 				localY := float64(rotatedY) - island.Y
@@ -220,10 +291,21 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				originY := (localX+localY)*(float64(tileHeight)/2) + islandIsoY
 				originY -= pos.Offset
 
+				// Tile-level frustum culling - visible bounds already include margin
+				if originX < visMinX || originX > visMaxX || originY < visMinY || originY > visMaxY {
+					culledTiles++
+					continue
+				}
+
+				localRendered++
 				drawX := originX - float64(tile.PivotX)
 				drawY := originY - float64(tile.PivotY)
 
 				bottomY := drawY + float64(tile.Image.Bounds().Dy())
+				layer := layerPriority[layerID]
+				// Pre-compute sort key: layer in high bits, then topY, then topX
+				// This allows single integer comparison instead of multiple comparisons
+				sortKey := int64(layer)<<32 | int64(rotatedY+10000)<<16 | int64(rotatedX+10000)
 				renderableTiles = append(renderableTiles, RenderableTile{
 					isoX:           drawX,
 					isoY:           drawY,
@@ -233,41 +315,38 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					topX:           rotatedX,
 					topY:           rotatedY,
 					Image:          tile.Image,
-					Layer:          layerPriority[layerID],
+					Layer:          layer,
 					pivotX:         float64(tile.PivotX),
 					pivotY:         float64(tile.PivotY),
 					SpriteRotation: tile.SpriteRotation,
+					sortKey:        sortKey,
 				})
 			}
 		}
 	})
 
-	sort.Slice(renderableTiles, func(i, j int) bool {
-		a, b := renderableTiles[i], renderableTiles[j]
-		// First sort by layer - sea before ground before buildings
-		if a.Layer != b.Layer {
-			return a.Layer < b.Layer
-		}
-		// Within same layer, sort by isometric depth
-		if a.topY != b.topY {
-			return a.topY < b.topY
-		}
-		return a.topX < b.topX
+	renderedTiles = localRendered
+
+	// Sort by pre-computed key for faster sorting using slices.SortFunc
+	slices.SortFunc(renderableTiles, func(a, b RenderableTile) int {
+		return cmp.Compare(a.sortKey, b.sortKey)
 	})
 
 	for _, tile := range renderableTiles {
 		if tile.Image == nil {
 			continue
 		}
-		op := &ebiten.DrawImageOptions{}
+		// Reuse the DrawImageOptions to reduce allocations
+		reusableOp.GeoM.Reset()
+		reusableOp.ColorScale.Reset()
 
 		// Apply sprite rotation for tiles with Rotate=0 in COD but non-zero orientation
 		if tile.SpriteRotation > 0 {
 			w, h := float64(tile.Image.Bounds().Dx()), float64(tile.Image.Bounds().Dy())
 			// Rotate around image center
-			op.GeoM.Translate(-w/2, -h/2)
-			op.GeoM.Rotate(float64(tile.SpriteRotation) * math.Pi / 2)
-			op.GeoM.Translate(w/2, h/2)
+			reusableOp.GeoM.Translate(-w/2, -h/2)
+			reusableOp.GeoM.Rotate(float64(tile.SpriteRotation) * math.Pi / 2)
+			reusableOp.GeoM.Translate(w/2, h/2)
 		}
 
 		// Calculate position relative to camera
@@ -275,9 +354,9 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		relY := tile.isoY - cameraScreenY
 
 		// Apply zoom: scale the image and position around screen center
-		op.GeoM.Scale(zoomLevel, zoomLevel)
-		op.GeoM.Translate(relX*zoomLevel+screenCenterX*(1-zoomLevel), relY*zoomLevel+screenCenterY*(1-zoomLevel))
-		screen.DrawImage(tile.Image, op)
+		reusableOp.GeoM.Scale(zoomLevel, zoomLevel)
+		reusableOp.GeoM.Translate(relX*zoomLevel+screenCenterX*(1-zoomLevel), relY*zoomLevel+screenCenterY*(1-zoomLevel))
+		screen.DrawImage(tile.Image, reusableOp)
 
 		if overlay {
 			// Apply zoom transformation to overlay coordinates
@@ -331,71 +410,130 @@ func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileH
 	*/
 }
 
-func drawSeaBackground(screen *ebiten.Image, cameraScreenX, cameraScreenY float64, island *components.Island, seaImg *ebiten.Image, pivotX, pivotY float64, tileWidth, tileHeight int, zoomLevel, screenCenterX, screenCenterY float64) {
-	if seaImg == nil || island == nil {
+// ensureSeaTextureCache creates or updates the cached sea texture if needed
+func ensureSeaTextureCache(seaImg *ebiten.Image, tileWidth, tileHeight int) {
+	if seaImg == nil {
+		return
+	}
+
+	// Check if we need to rebuild the cache
+	if cachedSeaTexture != nil && cachedSeaSourceImage == seaImg &&
+		cachedSeaTileW == tileWidth && cachedSeaTileH == tileHeight {
+		return // Cache is still valid
+	}
+
+	// Build a large tiled sea texture
+	// The sea tile is an isometric diamond, so we need to tile it properly
+	imgW := seaImg.Bounds().Dx()
+	imgH := seaImg.Bounds().Dy()
+
+	// Create a texture large enough to cover the visible area when tiled
+	// We use a grid of tiles that will be repeated
+	textureW := seaTextureGridSize * tileWidth
+	textureH := seaTextureGridSize * tileHeight
+
+	cachedSeaTexture = ebiten.NewImage(textureW, textureH)
+
+	// Draw tiles in an isometric pattern to fully cover the rectangular texture.
+	// We need to iterate over screen-space rows and place tiles to fill each row.
+	// For each screen Y, we need tiles that cover from X=0 to X=textureW.
+	// The isometric tile origin is at the top point of the diamond.
+	// Tile at grid (gx, gy) has screen origin at:
+	//   screenX = (gx - gy) * tileWidth/2
+	//   screenY = (gx + gy) * tileHeight/2
+	// We need to cover screenY from 0 to textureH and screenX from 0 to textureW.
+
+	// Calculate how many tiles we need to cover the texture
+	// Each tile covers tileHeight in Y direction, but due to isometric layout
+	// we need extra tiles to fill the rectangular area
+	tilesNeeded := seaTextureGridSize * 3
+
+	for gy := -tilesNeeded; gy < tilesNeeded; gy++ {
+		for gx := -tilesNeeded; gx < tilesNeeded; gx++ {
+			// Isometric screen position for this grid cell
+			screenX := float64(gx-gy) * float64(tileWidth) / 2
+			screenY := float64(gx+gy) * float64(tileHeight) / 2
+
+			// The sea sprite's anchor is at the top point of the diamond
+			// Draw position needs to account for the sprite dimensions
+			drawX := screenX - float64(imgW)/2 + float64(tileWidth)/2
+			drawY := screenY
+
+			// Skip if completely outside texture bounds
+			if drawX+float64(imgW) < 0 || drawX > float64(textureW) ||
+				drawY+float64(imgH) < 0 || drawY > float64(textureH) {
+				continue
+			}
+
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(drawX, drawY)
+			cachedSeaTexture.DrawImage(seaImg, op)
+		}
+	}
+
+	cachedSeaSourceImage = seaImg
+	cachedSeaTileW = tileWidth
+	cachedSeaTileH = tileHeight
+}
+
+func drawSeaBackground(screen *ebiten.Image, cameraScreenX, cameraScreenY float64, seaImg *ebiten.Image, tileWidth, tileHeight int, zoomLevel, screenCenterX, screenCenterY float64) {
+	if seaImg == nil {
+		return
+	}
+
+	// Ensure we have a cached sea texture
+	ensureSeaTextureCache(seaImg, tileWidth, tileHeight)
+	if cachedSeaTexture == nil {
 		return
 	}
 
 	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
-	// Adjust margins for zoom - need more tiles when zoomed out
-	marginX := float64(tileWidth) / zoomLevel
-	marginY := float64(tileHeight) / zoomLevel
-	// Adjust visible area for zoom
-	visibleW := float64(sw) / zoomLevel
-	visibleH := float64(sh) / zoomLevel
-	minWX := cameraScreenX - marginX
-	minWY := cameraScreenY - marginY
-	maxWX := cameraScreenX + visibleW + marginX
-	maxWY := cameraScreenY + visibleH + marginY
+	textureW := float64(cachedSeaTexture.Bounds().Dx())
+	textureH := float64(cachedSeaTexture.Bounds().Dy())
 
-	// Convert island world position to isometric screen coordinates
-	baseX := (island.X - island.Y) * (float64(tileWidth) / 2)
-	baseY := (island.X + island.Y) * (float64(tileHeight) / 2)
+	// Calculate the visible world-space bounds accounting for zoom centered on screen center.
+	// Screen position (sx, sy) maps to world-relative position:
+	//   relX = (sx - screenCenterX * (1 - zoom)) / zoom
+	//   relY = (sy - screenCenterY * (1 - zoom)) / zoom
+	zoomOffset := 1 - zoomLevel
+	minRelX := (0 - screenCenterX*zoomOffset) / zoomLevel
+	minRelY := (0 - screenCenterY*zoomOffset) / zoomLevel
+	maxRelX := (float64(sw) - screenCenterX*zoomOffset) / zoomLevel
+	maxRelY := (float64(sh) - screenCenterY*zoomOffset) / zoomLevel
 
-	denX := float64(tileWidth) / 2
-	denY := float64(tileHeight) / 2
-	corners := [][2]float64{{minWX, minWY}, {maxWX, minWY}, {minWX, maxWY}, {maxWX, maxWY}}
-
-	minX, minY := math.Inf(1), math.Inf(1)
-	maxX, maxY := math.Inf(-1), math.Inf(-1)
-	for _, c := range corners {
-		dx := (c[0] - baseX) / denX
-		dy := (c[1] - baseY) / denY
-		x := (dx + dy) / 2
-		y := (dy - dx) / 2
-		if x < minX {
-			minX = x
-		}
-		if x > maxX {
-			maxX = x
-		}
-		if y < minY {
-			minY = y
-		}
-		if y > maxY {
-			maxY = y
-		}
+	// Calculate the offset based on camera position
+	// The texture repeats, so we use modulo to find the offset within one texture tile
+	offsetX := math.Mod(cameraScreenX, textureW)
+	if offsetX < 0 {
+		offsetX += textureW
+	}
+	offsetY := math.Mod(cameraScreenY, textureH)
+	if offsetY < 0 {
+		offsetY += textureH
 	}
 
-	ix0 := int(math.Floor(minX)) - 2
-	ix1 := int(math.Ceil(maxX)) + 2
-	iy0 := int(math.Floor(minY)) - 2
-	iy1 := int(math.Ceil(maxY)) + 2
+	// Calculate tile range needed to cover the visible world area
+	startTx := int(math.Floor((minRelX + offsetX) / textureW))
+	startTy := int(math.Floor((minRelY + offsetY) / textureH))
+	endTx := int(math.Ceil((maxRelX + offsetX) / textureW))
+	endTy := int(math.Ceil((maxRelY + offsetY) / textureH))
 
-	for y := iy0; y <= iy1; y++ {
-		for x := ix0; x <= ix1; x++ {
-			originX := (float64(x-y))*(float64(tileWidth)/2) + baseX
-			originY := (float64(x+y))*(float64(tileHeight)/2) + baseY
+	// Draw the sea texture tiles - reuse DrawImageOptions to reduce allocations
+	seaOp := &ebiten.DrawImageOptions{}
+	for ty := startTy - 1; ty <= endTy+1; ty++ {
+		for tx := startTx - 1; tx <= endTx+1; tx++ {
+			// Position of this texture tile in world coordinates (relative to camera)
+			relX := float64(tx)*textureW - offsetX
+			relY := float64(ty)*textureH - offsetY
 
-			// Calculate position relative to camera
-			relX := originX - pivotX - cameraScreenX
-			relY := originY - pivotY - cameraScreenY
-
-			op := &ebiten.DrawImageOptions{}
-			// Apply zoom: scale the image and position around screen center
-			op.GeoM.Scale(zoomLevel, zoomLevel)
-			op.GeoM.Translate(relX*zoomLevel+screenCenterX*(1-zoomLevel), relY*zoomLevel+screenCenterY*(1-zoomLevel))
-			screen.DrawImage(seaImg, op)
+			// Apply zoom transformation centered on screen
+			seaOp.GeoM.Reset()
+			seaOp.GeoM.Scale(zoomLevel, zoomLevel)
+			seaOp.GeoM.Translate(
+				relX*zoomLevel+screenCenterX*zoomOffset,
+				relY*zoomLevel+screenCenterY*zoomOffset,
+			)
+			screen.DrawImage(cachedSeaTexture, seaOp)
 		}
 	}
 }
@@ -412,13 +550,26 @@ func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *compone
 
 	// Get control state for hovered island info
 	var ctrl *components.Control
-	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
-	controlQuery.Each(world, func(entry *donburi.Entry) {
+	controlQueryCached.Each(world, func(entry *donburi.Entry) {
 		ctrl = components.ControlType.Get(entry)
 	})
 
 	y := 15
 	lineHeight := 15
+
+	// FPS counter
+	fpsColor := color.RGBA{0, 255, 0, 255}
+	if currentFPS < 30 {
+		fpsColor = color.RGBA{255, 0, 0, 255}
+	} else if currentFPS < 55 {
+		fpsColor = color.RGBA{255, 255, 0, 255}
+	}
+	text.Draw(screen, fmt.Sprintf("FPS: %.1f", currentFPS), face, 10, y, fpsColor)
+	y += lineHeight
+
+	// Tile render stats
+	text.Draw(screen, fmt.Sprintf("Tiles: %d drawn, %d culled", renderedTiles, culledTiles), face, 10, y, textColor)
+	y += lineHeight
 
 	// Camera position (in tile coordinates)
 	text.Draw(screen, fmt.Sprintf("Camera: (%.1f, %.1f)", camera.X, camera.Y), face, 10, y, textColor)
