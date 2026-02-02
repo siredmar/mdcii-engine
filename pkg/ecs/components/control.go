@@ -19,6 +19,12 @@ type Control struct {
 	LastMouseY int
 
 	SelectedSize building.BuildingSizeIdentifier
+
+	// HoveredIsland is the index of the island the mouse is currently over, or -1 if none
+	HoveredIsland int
+	// MouseTileX and MouseTileY are the current mouse position in world tile coordinates
+	MouseTileX float64
+	MouseTileY float64
 }
 
 var ControlType = donburi.NewComponentType[Control]()

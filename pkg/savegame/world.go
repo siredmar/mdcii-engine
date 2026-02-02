@@ -34,6 +34,7 @@ func (s *Savegame) ToECSWorld(w donburi.World, ani *animation.Animations, b *bui
 
 // CreateCameraEntity creates and returns a camera entity from the savegame camera state.
 // If camera position is uninitialized (0,0), centers on the first island.
+// Camera position is stored in tile grid coordinates.
 func (s *Savegame) CreateCameraEntity(w donburi.World) *donburi.Entry {
 	cameraEntity := w.Create(components.CameraType)
 	cameraEntry := w.Entry(cameraEntity)
@@ -42,20 +43,20 @@ func (s *Savegame) CreateCameraEntity(w donburi.World) *donburi.Entry {
 
 	// Check if camera is uninitialized (both X and Y are 0)
 	if cam.X == 0 && cam.Y == 0 && len(s.World.Islands) > 0 {
-		// Center on first island using renderer's isometric formula
+		// Center on first island - camera position is in tile coordinates
 		first := s.World.Islands[0]
-		islandX := float64(first.Position.X)
-		islandY := float64(first.Position.Y)
-		// Local center of island
-		lx := float64(first.Dimensions.Width) / 2
-		ly := float64(first.Dimensions.Height) / 2
-		// Renderer formula: origin = local_iso + island_offset
-		tileWidth, tileHeight := 64.0, 32.0
-		originX := (lx-ly)*(tileWidth/2) + islandX*(tileWidth/2)
-		originY := (lx+ly)*(tileHeight/2) + islandY*(tileHeight/2)
-		// Center on screen (assuming 1024x1024)
-		cam.X = originX - 512
-		cam.Y = originY - 512
+		// Position camera at the center of the first island (in tile coordinates)
+		// The camera position represents the tile at the top-left of the screen,
+		// so we offset by screen center in tile units to center the island.
+		// Assuming 1024x1024 screen, and using inverse isometric to get tile offset:
+		// Screen center offset: (512, 512) in pixels -> tile offset
+		// Using ScreenToTile formula: tileX = (screenX/32 + screenY/16) / 2
+		//                             tileY = (screenY/16 - screenX/32) / 2
+		// For (512, 512): tileX = (16 + 32) / 2 = 24, tileY = (32 - 16) / 2 = 8
+		const screenCenterTileX = 24.0
+		const screenCenterTileY = 8.0
+		cam.X = float64(first.Position.X) + float64(first.Dimensions.Width)/2 - screenCenterTileX
+		cam.Y = float64(first.Position.Y) + float64(first.Dimensions.Height)/2 - screenCenterTileY
 		// Update the savegame camera so it gets saved correctly
 		s.Meta.Camera = cam
 	}
