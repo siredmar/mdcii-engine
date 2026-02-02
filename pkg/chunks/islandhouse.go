@@ -54,8 +54,13 @@ func NewIslandHouse(c *Chunk, size IslandDimensions, b *buildings.Buildings) (*I
 
 		bits := uint32(fieldData[4]) | uint32(fieldData[5])<<8 | uint32(fieldData[6])<<16 | uint32(fieldData[7])<<24
 		id := int(fieldData[0]) | int(fieldData[1])<<8
-		if id == 102 {
-			id = 169
+		// Remap invalid terrain IDs 102-110 to their valid equivalents
+		// IDs 102-103 map with +67 offset (162-170 range)
+		// IDs 104-110 map with +60 offset (161-170 range)
+		if id >= 102 && id <= 103 {
+			id = id + 67
+		} else if id >= 104 && id <= 110 {
+			id = id + 60
 		}
 		index := 0
 		if b != nil {
