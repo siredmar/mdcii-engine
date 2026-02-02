@@ -105,6 +105,7 @@ func InputSystem(world donburi.World) {
 					cam := components.CameraType.Get(camEntry)
 					cam.X -= tileDX
 					cam.Y -= tileDY
+					cam.Initialized = true // Mark camera as moved by user
 				})
 				ctrl.LastMouseX = mouseX
 				ctrl.LastMouseY = mouseY
@@ -115,27 +116,44 @@ func InputSystem(world donburi.World) {
 	})
 
 	// 🎮 KEYBOARD SCROLL (WASD) - movement in tile coordinates
+	// Pan speed scales linearly with zoom: 10x at zoom 0.1, 1x at zoom 1.0
+	// Formula: speed = 11 - 10*zoom
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
 		cam := components.CameraType.Get(entry)
+		zoomLevel := cam.Zoom
+		if zoomLevel <= 0 {
+			zoomLevel = 1.0
+		}
+		speedMultiplier := 11.0 - 10.0*zoomLevel
+		adjustedSpeed := cameraSpeed * speedMultiplier
+
+		moved := false
 		if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
 			// Moving "up" in isometric view means decreasing both X and Y in tile space
-			cam.X -= cameraSpeed
-			cam.Y -= cameraSpeed
+			cam.X -= adjustedSpeed
+			cam.Y -= adjustedSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
 			// Moving "down" in isometric view means increasing both X and Y in tile space
-			cam.X += cameraSpeed
-			cam.Y += cameraSpeed
+			cam.X += adjustedSpeed
+			cam.Y += adjustedSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 			// Moving "left" in isometric view means decreasing X, increasing Y in tile space
-			cam.X -= cameraSpeed
-			cam.Y += cameraSpeed
+			cam.X -= adjustedSpeed
+			cam.Y += adjustedSpeed
+			moved = true
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 			// Moving "right" in isometric view means increasing X, decreasing Y in tile space
-			cam.X += cameraSpeed
-			cam.Y -= cameraSpeed
+			cam.X += adjustedSpeed
+			cam.Y -= adjustedSpeed
+			moved = true
+		}
+		if moved {
+			cam.Initialized = true // Mark camera as moved by user
 		}
 	})
 
@@ -163,19 +181,20 @@ func InputSystem(world donburi.World) {
 			}
 			// Round to nearest 0.1 to avoid floating point drift
 			cam.Zoom = float64(int(cam.Zoom*10+0.5)) / 10
+			cam.Initialized = true // Mark camera as changed by user
 		})
 	}
 
-	// Apply world wrap-around to camera position (now in tile coordinates)
-	wrapCameraToWorld(world)
+	// Clamp camera position to world bounds (now in tile coordinates)
+	clampCameraToWorld(world)
 
 	// Update mouse tile position and detect hovered island
 	updateMouseTilePosition(world, tileW, tileH)
 }
 
-// wrapCameraToWorld wraps the camera position when it leaves the world bounds.
-// Camera position is in tile grid coordinates, so wrapping is straightforward.
-func wrapCameraToWorld(world donburi.World) {
+// clampCameraToWorld clamps the camera position to stay within world bounds.
+// Camera position is in tile grid coordinates.
+func clampCameraToWorld(world donburi.World) {
 	var worldComp *components.World
 	worldQuery.Each(world, func(entry *donburi.Entry) {
 		worldComp = components.WorldType.Get(entry)
@@ -190,20 +209,20 @@ func wrapCameraToWorld(world donburi.World) {
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
 		cam := components.CameraType.Get(entry)
 
-		// Wrap X coordinate within world bounds [0, Width)
-		for cam.X < 0 {
-			cam.X += w
+		// Clamp X coordinate within world bounds [0, Width)
+		if cam.X < 0 {
+			cam.X = 0
 		}
-		for cam.X >= w {
-			cam.X -= w
+		if cam.X >= w {
+			cam.X = w - 1
 		}
 
-		// Wrap Y coordinate within world bounds [0, Height)
-		for cam.Y < 0 {
-			cam.Y += h
+		// Clamp Y coordinate within world bounds [0, Height)
+		if cam.Y < 0 {
+			cam.Y = 0
 		}
-		for cam.Y >= h {
-			cam.Y -= h
+		if cam.Y >= h {
+			cam.Y = h - 1
 		}
 	})
 }
