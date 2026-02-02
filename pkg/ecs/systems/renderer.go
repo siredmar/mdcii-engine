@@ -43,6 +43,13 @@ var (
 	seaTextureGridSize   = 32 // Number of tiles in each direction for the cached texture
 )
 
+// Selection buffer for pixel-perfect building hover detection
+var (
+	selectionBuffer *ebiten.Image
+	selectionBufferW int
+	selectionBufferH int
+)
+
 // Cached queries (avoid recreating every frame)
 var (
 	cameraQueryCached  = donburi.NewQuery(filter.Contains(components.CameraType))
@@ -51,6 +58,27 @@ var (
 
 // Reusable DrawImageOptions to reduce allocations
 var reusableOp = &ebiten.DrawImageOptions{}
+var selectionOp = &ebiten.DrawImageOptions{}
+
+// idToColor encodes a building ID to a unique color (supports up to 16,777,215 IDs)
+func idToColor(id int) color.RGBA {
+	return color.RGBA{
+		R: uint8((id >> 16) & 0xFF),
+		G: uint8((id >> 8) & 0xFF),
+		B: uint8(id & 0xFF),
+		A: 255,
+	}
+}
+
+// colorToID decodes a color back to a building ID
+func colorToID(c color.Color) int {
+	r, g, b, a := c.RGBA()
+	if a == 0 {
+		return 0 // transparent = no building
+	}
+	// RGBA returns 16-bit values, shift down to 8-bit
+	return int(r>>8)<<16 | int(g>>8)<<8 | int(b>>8)
+}
 
 // TileToScreen converts tile grid coordinates to isometric screen coordinates
 func TileToScreen(tileX, tileY float64, tileWidth, tileHeight int) (screenX, screenY float64) {
@@ -81,8 +109,10 @@ type RenderableTile struct {
 	Layer          int
 	pivotX         float64
 	pivotY         float64
-	SpriteRotation int // 0-3: number of 90° clockwise rotations to apply
+	SpriteRotation int   // 0-3: number of 90° clockwise rotations to apply
 	sortKey        int64 // Pre-computed sort key: layer << 32 | topY << 16 | topX
+	BuildingID     int   // Building ID for selection buffer (0 = not a building)
+	IsBuilding     bool  // True if this tile is from KindBuildings layer
 }
 
 func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentRotation rotation.Rotation) {
@@ -241,13 +271,14 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		}
 
 		for _, layerID := range layerOrder {
+			isBuilding := layerID == buildings.KindBuildingsID
 			for _, tileEntry := range island.Tiles[layerID] {
 				pos := components.PositionType.Get(tileEntry)
 				tile := components.TileType.Get(tileEntry)
+				bld := components.BuildingType.Get(tileEntry)
 
 				// Skip deep sea tiles (1201) - these are drawn by the sea background
 				if layerID == buildings.KindSeaID {
-					bld := components.BuildingType.Get(tileEntry)
 					if bld != nil && bld.BuildingID == 1201 {
 						continue
 					}
@@ -306,6 +337,12 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				// Pre-compute sort key: layer in high bits, then topY, then topX
 				// This allows single integer comparison instead of multiple comparisons
 				sortKey := int64(layer)<<32 | int64(rotatedY+10000)<<16 | int64(rotatedX+10000)
+
+				buildingID := 0
+				if isBuilding && bld != nil {
+					buildingID = bld.BuildingID
+				}
+
 				renderableTiles = append(renderableTiles, RenderableTile{
 					isoX:           drawX,
 					isoY:           drawY,
@@ -320,6 +357,8 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 					pivotY:         float64(tile.PivotY),
 					SpriteRotation: tile.SpriteRotation,
 					sortKey:        sortKey,
+					BuildingID:     buildingID,
+					IsBuilding:     isBuilding,
 				})
 			}
 		}
@@ -368,6 +407,12 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 			text.Draw(screen, fmt.Sprintf("%d", tile.Layer), basicfont.Face7x13, x+6, y+5, color.RGBA{255, 255, 0, 255})
 		}
 	}
+
+	// Render selection buffer for pixel-perfect building hover detection
+	renderSelectionBuffer(renderableTiles, screenW, screenH, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY)
+
+	// Sample selection buffer at mouse position to get hovered building ID
+	sampleSelectionBuffer(world)
 
 	if grid {
 		renderDebugGrid(world, screen, float64(tileWidth), float64(tileHeight))
@@ -590,5 +635,83 @@ func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *compone
 		} else {
 			text.Draw(screen, "Island: -", face, 10, y, textColor)
 		}
+		y += lineHeight
+
+		// Hovered building
+		if ctrl.HoveredBuildingID > 0 {
+			text.Draw(screen, fmt.Sprintf("Building: %d", ctrl.HoveredBuildingID), face, 10, y, highlightColor)
+		} else {
+			text.Draw(screen, "Building: -", face, 10, y, textColor)
+		}
 	}
+}
+
+// renderSelectionBuffer draws buildings to an offscreen buffer using ID-encoded colors
+func renderSelectionBuffer(tiles []RenderableTile, screenW, screenH int, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY float64) {
+	// Create or resize selection buffer if needed
+	if selectionBuffer == nil || selectionBufferW != screenW || selectionBufferH != screenH {
+		selectionBuffer = ebiten.NewImage(screenW, screenH)
+		selectionBufferW = screenW
+		selectionBufferH = screenH
+	}
+
+	// Clear buffer to transparent (ID=0 means no building)
+	selectionBuffer.Clear()
+
+	// Draw only building tiles with their ID-encoded color
+	for _, tile := range tiles {
+		if !tile.IsBuilding || tile.BuildingID == 0 || tile.Image == nil {
+			continue
+		}
+
+		selectionOp.GeoM.Reset()
+		selectionOp.ColorScale.Reset()
+
+		// Apply sprite rotation if needed
+		if tile.SpriteRotation > 0 {
+			w, h := float64(tile.Image.Bounds().Dx()), float64(tile.Image.Bounds().Dy())
+			selectionOp.GeoM.Translate(-w/2, -h/2)
+			selectionOp.GeoM.Rotate(float64(tile.SpriteRotation) * math.Pi / 2)
+			selectionOp.GeoM.Translate(w/2, h/2)
+		}
+
+		// Calculate position relative to camera (same as main render)
+		relX := tile.isoX - cameraScreenX
+		relY := tile.isoY - cameraScreenY
+
+		// Apply zoom transformation
+		selectionOp.GeoM.Scale(zoomLevel, zoomLevel)
+		selectionOp.GeoM.Translate(relX*zoomLevel+screenCenterX*(1-zoomLevel), relY*zoomLevel+screenCenterY*(1-zoomLevel))
+
+		// Set color to ID-encoded color (replaces all pixels with this color while preserving alpha)
+		idColor := idToColor(tile.BuildingID)
+		// Use ColorScale to tint the image - we multiply by 0 and add the ID color
+		selectionOp.ColorScale.ScaleWithColor(idColor)
+
+		selectionBuffer.DrawImage(tile.Image, selectionOp)
+	}
+}
+
+// sampleSelectionBuffer reads the pixel at mouse position and decodes the building ID
+func sampleSelectionBuffer(world donburi.World) {
+	if selectionBuffer == nil {
+		return
+	}
+
+	mouseX, mouseY := ebiten.CursorPosition()
+
+	// Bounds check
+	if mouseX < 0 || mouseY < 0 || mouseX >= selectionBufferW || mouseY >= selectionBufferH {
+		return
+	}
+
+	// Sample the pixel color at mouse position
+	pixelColor := selectionBuffer.At(mouseX, mouseY)
+	buildingID := colorToID(pixelColor)
+
+	// Update control component
+	controlQueryCached.Each(world, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		ctrl.HoveredBuildingID = buildingID
+	})
 }

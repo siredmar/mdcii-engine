@@ -22,6 +22,8 @@ type Control struct {
 
 	// HoveredIsland is the index of the island the mouse is currently over, or -1 if none
 	HoveredIsland int
+	// HoveredBuildingID is the building ID under the mouse cursor, or 0 if none
+	HoveredBuildingID int
 	// MouseTileX and MouseTileY are the current mouse position in world tile coordinates
 	MouseTileX float64
 	MouseTileY float64
