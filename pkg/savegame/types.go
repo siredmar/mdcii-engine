@@ -27,10 +27,11 @@ type SavegameMeta struct {
 
 // Camera represents the camera state
 type Camera struct {
-	X        float64 `json:"x"`
-	Y        float64 `json:"y"`
-	Zoom     float64 `json:"zoom"`
-	Rotation int     `json:"rotation"`
+	X           float64 `json:"x"`
+	Y           float64 `json:"y"`
+	Zoom        float64 `json:"zoom"`
+	Rotation    int     `json:"rotation"`
+	Initialized bool    `json:"initialized"` // True if camera position was set by user
 }
 
 // World contains global world data and all islands
