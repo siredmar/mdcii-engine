@@ -3,6 +3,7 @@ package systems
 import (
 	"cmp"
 	"fmt"
+	"image"
 	"image/color"
 	"log"
 	"math"
@@ -128,24 +129,34 @@ func idToEncodedColor(id int) color.RGBA {
 	}
 }
 
-// getSilhouette returns a solid-color silhouette of the given image
+// getSilhouette returns a solid white silhouette of the given image (preserving alpha)
 func getSilhouette(img *ebiten.Image) *ebiten.Image {
 	if cached, ok := silhouetteCache[img]; ok {
 		return cached
 	}
 
 	bounds := img.Bounds()
-	silhouette := ebiten.NewImage(bounds.Dx(), bounds.Dy())
+	w, h := bounds.Dx(), bounds.Dy()
 
-	// Draw the original image as pure white (preserving alpha)
-	op := &ebiten.DrawImageOptions{}
-	// Set color to white - this will be tinted later with the ID color
-	op.ColorScale.Scale(0, 0, 0, 1) // Zero out RGB, keep alpha
-	op.ColorScale.SetR(1)
-	op.ColorScale.SetG(1)
-	op.ColorScale.SetB(1)
-	silhouette.DrawImage(img, op)
+	// Create a solid white image with the same alpha as the original
+	whiteImg := image.NewRGBA(image.Rect(0, 0, w, h))
 
+	// Read pixels from ebiten image
+	pixels := make([]byte, w*h*4)
+	img.ReadPixels(pixels)
+
+	// Set all pixels to white, preserving alpha
+	for i := 0; i < len(pixels); i += 4 {
+		alpha := pixels[i+3]
+		if alpha > 0 {
+			whiteImg.Pix[i] = 255   // R
+			whiteImg.Pix[i+1] = 255 // G
+			whiteImg.Pix[i+2] = 255 // B
+			whiteImg.Pix[i+3] = alpha
+		}
+	}
+
+	silhouette := ebiten.NewImageFromImage(whiteImg)
 	silhouetteCache[img] = silhouette
 	return silhouette
 }
