@@ -59,6 +59,11 @@ var (
 	screenshotPath        string
 	screenshotAfterFrames int
 	exitAfterScreenshot   bool
+
+	// Camera position overrides
+	cameraX float64
+	cameraY float64
+	zoomArg float64
 	// buildingParam int
 )
 
@@ -70,7 +75,7 @@ var (
 func init() {
 	rootCmd.Flags().StringVarP(&gamePath, "path", "p", ".", "Path to game")
 	rootCmd.Flags().IntVarP(&buildingIndex, "buildingIndex", "i", 381, "building index")
-	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation")
+	rootCmd.Flags().IntVarP(&rotationArg, "rotation", "r", 0, "rotation (0=DEG0, 1=DEG90, 2=DEG180, 3=DEG270)")
 	rootCmd.Flags().BoolVar(&useJSON, "use-json", true, "Use JSON savegame format (auto-converts GAM if needed)")
 	rootCmd.Flags().StringVarP(&savegameFile, "savegame", "s", "SAVEGAME/lastgame.gam", "Savegame file path (relative to game path)")
 	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Config file path (default: ~/.mdcii/config.yaml, fallback: ./config.yaml)")
@@ -78,7 +83,11 @@ func init() {
 	rootCmd.Flags().StringVar(&screenshotPath, "screenshot", "", "Write a screenshot PNG to this path")
 	rootCmd.Flags().IntVar(&screenshotAfterFrames, "screenshotAfterFrames", 60, "Take screenshot after N update frames")
 	rootCmd.Flags().BoolVar(&exitAfterScreenshot, "exitAfterScreenshot", true, "Exit after taking the screenshot")
-	// rootCmd.Flags().IntVarP(&buildingParam, "building", "b", 380, "building ID")
+
+	rootCmd.Flags().Float64Var(&cameraX, "camX", 0, "Camera X position in tile coordinates")
+	rootCmd.Flags().Float64Var(&cameraY, "camY", 0, "Camera Y position in tile coordinates")
+	rootCmd.Flags().Float64Var(&zoomArg, "zoom", 0, "Zoom level (0.1 to 1.0, 0 means use default)")
+	// buildingParam int
 }
 
 var rootCmd = &cobra.Command{
@@ -277,8 +286,36 @@ var rootCmd = &cobra.Command{
 
 		// Create camera from savegame (centers on first island if uninitialized)
 		sg.CreateCameraEntity(w.World)
-		fmt.Printf("Camera: pos=(%.1f,%.1f) zoom=%.1f rotation=%d\n",
-			sg.Meta.Camera.X, sg.Meta.Camera.Y, sg.Meta.Camera.Zoom, sg.Meta.Camera.Rotation)
+
+		// Override camera position and zoom from command line arguments
+		cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
+		cameraQuery.Each(w.World, func(entry *donburi.Entry) {
+			cam := components.CameraType.Get(entry)
+
+			// Override position if camX or camY were explicitly set
+			if cameraX != 0 || cameraY != 0 {
+				cam.X = cameraX
+				cam.Y = cameraY
+			}
+
+			// Override zoom if specified
+			if zoomArg > 0 {
+				cam.Zoom = zoomArg
+			}
+
+			// If starting with a non-zero rotation, rotate the camera position
+			// around the world center so it's looking at the same world location
+			// as it would be at DEG0
+			if rotationArg > 0 {
+				cam.X, cam.Y = rotation.RotateWorldPosition(
+					cam.X, cam.Y,
+					ecsWorld.Width, ecsWorld.Height,
+					rotation.Rotation(rotationArg))
+			}
+
+			fmt.Printf("Camera (after adjustments): pos=(%.1f,%.1f) zoom=%.1f rotation=%d\n",
+				cam.X, cam.Y, cam.Zoom, rotationArg)
+		})
 
 		controlEntity := w.World.Create(components.ControlType)
 		controlEntry := w.World.Entry(controlEntity)

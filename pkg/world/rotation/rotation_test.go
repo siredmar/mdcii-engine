@@ -22,9 +22,9 @@ func TestRotatePositionAroundAnchor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			gotX, gotY := RotatePositionAroundAnchor(tt.mapX, tt.mapY, tt.width, tt.height, tt.rotation)
+			gotX, gotY := RotatePosition(tt.mapX, tt.mapY, tt.width, tt.height, tt.rotation)
 			if gotX != tt.expectedX || gotY != tt.expectedY {
-				t.Errorf("RotatePositionAroundAnchor(%d, %d, %d, %d, %v) = (%d, %d), want (%d, %d)",
+				t.Errorf("RotatePosition(%d, %d, %d, %d, %v) = (%d, %d), want (%d, %d)",
 					tt.mapX, tt.mapY, tt.width, tt.height, tt.rotation, gotX, gotY, tt.expectedX, tt.expectedY)
 			}
 		})

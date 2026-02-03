@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/building"
 	"github.com/siredmar/mdcii-engine/pkg/config"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
 )
@@ -30,10 +32,68 @@ func InputSystem(world donburi.World) {
 		// 🔁 ROTATION / GRID / ESC
 		if now.Sub(ctrl.LastKeyPressTime) >= debounce {
 			if ebiten.IsKeyPressed(ebiten.KeyQ) {
+				// Get world dimensions for camera rotation
+				var worldWidth, worldHeight int = 500, 500
+				worldQuery.Each(world, func(wEntry *donburi.Entry) {
+					wc := components.WorldType.Get(wEntry)
+					if wc != nil {
+						worldWidth = wc.Width
+						worldHeight = wc.Height
+					}
+				})
+				// Keep the same world point at screen center by preserving the current
+				// camera's world-space anchor across the rotation change.
+				oldRot := ctrl.Rotation
+				newRot := ctrl.Rotation.Add(rotation.DEG90)
+				cameraQuery.Each(world, func(camEntry *donburi.Entry) {
+					cam := components.CameraType.Get(camEntry)
+					oldX, oldY := cam.X, cam.Y
+					ax, ay := rotation.UnrotateWorldPosition(cam.X, cam.Y, worldWidth, worldHeight, oldRot)
+					cam.X, cam.Y = rotation.RotateWorldPosition(ax, ay, worldWidth, worldHeight, newRot)
+					fmt.Printf("Rotation Q: %s -> %s\n", oldRot.String(), newRot.String())
+					fmt.Printf("  Camera: (%.1f, %.1f) -> (%.1f, %.1f)\n", oldX, oldY, cam.X, cam.Y)
+					fmt.Printf("  Anchor (unrotated): (%.1f, %.1f)\n", ax, ay)
+				})
+				// Log island positions
+				fmt.Println("  Island positions (original -> rotated):")
+				islandQuery.Each(world, func(entry *donburi.Entry) {
+					island := components.IslandType.Get(entry)
+					rotX, rotY := rotation.RotateWorldPosition(island.X, island.Y, worldWidth, worldHeight, newRot)
+					fmt.Printf("    Island at (%.0f, %.0f) -> (%.1f, %.1f)\n", island.X, island.Y, rotX, rotY)
+				})
 				ctrl.Rotation.Increment()
 				ctrl.LastKeyPressTime = now
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyE) {
+				// Get world dimensions for camera rotation
+				var worldWidth, worldHeight int = 500, 500
+				worldQuery.Each(world, func(wEntry *donburi.Entry) {
+					wc := components.WorldType.Get(wEntry)
+					if wc != nil {
+						worldWidth = wc.Width
+						worldHeight = wc.Height
+					}
+				})
+				// Keep the same world point at screen center by preserving the current
+				// camera's world-space anchor across the rotation change.
+				oldRot := ctrl.Rotation
+				newRot := ctrl.Rotation.Subtract(rotation.DEG90)
+				cameraQuery.Each(world, func(camEntry *donburi.Entry) {
+					cam := components.CameraType.Get(camEntry)
+					oldX, oldY := cam.X, cam.Y
+					ax, ay := rotation.UnrotateWorldPosition(cam.X, cam.Y, worldWidth, worldHeight, oldRot)
+					cam.X, cam.Y = rotation.RotateWorldPosition(ax, ay, worldWidth, worldHeight, newRot)
+					fmt.Printf("Rotation E: %s -> %s\n", oldRot.String(), newRot.String())
+					fmt.Printf("  Camera: (%.1f, %.1f) -> (%.1f, %.1f)\n", oldX, oldY, cam.X, cam.Y)
+					fmt.Printf("  Anchor (unrotated): (%.1f, %.1f)\n", ax, ay)
+				})
+				// Log island positions
+				fmt.Println("  Island positions (original -> rotated):")
+				islandQuery.Each(world, func(entry *donburi.Entry) {
+					island := components.IslandType.Get(entry)
+					rotX, rotY := rotation.RotateWorldPosition(island.X, island.Y, worldWidth, worldHeight, newRot)
+					fmt.Printf("    Island at (%.0f, %.0f) -> (%.1f, %.1f)\n", island.X, island.Y, rotX, rotY)
+				})
 				ctrl.Rotation.Decrement()
 				ctrl.LastKeyPressTime = now
 			}
@@ -257,8 +317,21 @@ func clampCameraToWorld(world donburi.World) {
 		return
 	}
 
+	// Camera coordinates are in the *current rotated world-space*.
+	// For 90°/270° rotations the effective bounds are swapped.
+	rot := rotation.DEG0
+	inputQuery.Each(world, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		if ctrl != nil {
+			rot = ctrl.Rotation
+		}
+	})
+
 	w := float64(worldComp.Width)
 	h := float64(worldComp.Height)
+	if rot == rotation.DEG90 || rot == rotation.DEG270 {
+		w, h = h, w
+	}
 
 	cameraQuery.Each(world, func(entry *donburi.Entry) {
 		cam := components.CameraType.Get(entry)

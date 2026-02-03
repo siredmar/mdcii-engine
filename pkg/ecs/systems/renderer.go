@@ -56,6 +56,7 @@ var (
 var (
 	cameraQueryCached  = donburi.NewQuery(filter.Contains(components.CameraType))
 	controlQueryCached = donburi.NewQuery(filter.Contains(components.ControlType))
+	worldQueryCached   = donburi.NewQuery(filter.Contains(components.WorldType))
 )
 
 // Reusable DrawImageOptions to reduce allocations
@@ -214,11 +215,19 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 	var camera *components.Camera
 	var overlay bool
+	var worldWidth, worldHeight int = 500, 500 // Default world size
 	cameraQueryCached.Each(world, func(entry *donburi.Entry) {
 		camera = components.CameraType.Get(entry)
 	})
 	controlQueryCached.Each(world, func(entry *donburi.Entry) {
 		overlay = components.ControlType.Get(entry).OverlayVisible
+	})
+	worldQueryCached.Each(world, func(entry *donburi.Entry) {
+		worldComp := components.WorldType.Get(entry)
+		if worldComp != nil {
+			worldWidth = worldComp.Width
+			worldHeight = worldComp.Height
+		}
 	})
 	if camera == nil {
 		log.Println("No camera entity found")
@@ -288,11 +297,21 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
 
-		// Quick island-level frustum culling
-		islandIsoX := (island.X - island.Y) * (float64(tileWidth) / 2)
-		islandIsoY := (island.X + island.Y) * (float64(tileHeight) / 2)
-		islandMaxX := islandIsoX + float64(island.Width+island.Height)*(float64(tileWidth)/2)
-		islandMaxY := islandIsoY + float64(island.Width+island.Height)*(float64(tileHeight)/2)
+		// Rotate island position around world center for world rotation
+		rotatedIslandX, rotatedIslandY := rotation.RotateWorldPosition(
+			island.X, island.Y, worldWidth, worldHeight, currentRotation)
+
+		// Swap island dimensions for 90° and 270° rotations
+		islandW, islandH := island.Width, island.Height
+		if currentRotation == rotation.DEG90 || currentRotation == rotation.DEG270 {
+			islandW, islandH = island.Height, island.Width
+		}
+
+		// Quick island-level frustum culling (use rotated position)
+		islandIsoX := (rotatedIslandX - rotatedIslandY) * (float64(tileWidth) / 2)
+		islandIsoY := (rotatedIslandX + rotatedIslandY) * (float64(tileHeight) / 2)
+		islandMaxX := islandIsoX + float64(islandW+islandH)*(float64(tileWidth)/2)
+		islandMaxY := islandIsoY + float64(islandW+islandH)*(float64(tileHeight)/2)
 
 		// Skip entire island if completely outside view
 		if islandMaxX < visMinX || islandIsoX > visMaxX || islandMaxY < visMinY || islandIsoY > visMaxY {
@@ -390,18 +409,22 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 				}
 
 				// Rotate position (RotatePosition expects local island coords)
+				// Use original island dimensions for the rotation calculation
 				lx := int(pos.X - island.X)
 				ly := int(pos.Y - island.Y)
 				rxl, ryl := rotation.RotatePosition(lx, ly, island.Width, island.Height, currentRotation)
-				rotatedX, rotatedY := rxl+int(island.X), ryl+int(island.Y)
 
 				// Tile origin convention: (x,y) maps to the top point of the isometric diamond.
-				// Then compute local tile position in isometric and add to island offset
-				localX := float64(rotatedX) - island.X
-				localY := float64(rotatedY) - island.Y
+				// Then compute local tile position in isometric and add to rotated island offset
+				localX := float64(rxl)
+				localY := float64(ryl)
 				originX := (localX-localY)*(float64(tileWidth)/2) + islandIsoX
 				originY := (localX+localY)*(float64(tileHeight)/2) + islandIsoY
 				originY -= pos.Offset
+
+				// Calculate rotated world position for sorting
+				rotatedX := rxl + int(rotatedIslandX)
+				rotatedY := ryl + int(rotatedIslandY)
 
 				// Tile-level frustum culling - visible bounds already include margin
 				if originX < visMinX || originX > visMaxX || originY < visMinY || originY > visMaxY {
@@ -513,7 +536,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	}
 
 	// Draw HUD overlay with camera position and hovered island info
-	renderHUDOverlay(world, screen, camera)
+	renderHUDOverlay(world, screen, camera, currentRotation)
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
@@ -678,7 +701,7 @@ func drawSeaBackground(screen *ebiten.Image, cameraScreenX, cameraScreenY float6
 }
 
 // renderHUDOverlay draws the camera position and hovered island information in the upper left
-func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *components.Camera) {
+func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *components.Camera, currentRotation rotation.Rotation) {
 	if camera == nil {
 		return
 	}
@@ -716,6 +739,10 @@ func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *compone
 
 	// Zoom level
 	text.Draw(screen, fmt.Sprintf("Zoom: %.0f%%", camera.Zoom*100), face, 10, y, textColor)
+	y += lineHeight
+
+	// Current rotation
+	text.Draw(screen, fmt.Sprintf("Rotation: %s", currentRotation.String()), face, 10, y, textColor)
 	y += lineHeight
 
 	if ctrl != nil {
