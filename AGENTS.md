@@ -3,6 +3,18 @@
 > **Main documentation:** `.github/copilot-instructions.md`  
 > **Detailed docs:** `.github/docs/` (8 topic files, ~3000 lines total)
 
+Quick links:
+- `.github/copilot-instructions.md`
+- `.github/docs/ai-testing.md`
+- `.github/docs/bsh-format.md`
+- `.github/docs/chunk-format.md`
+- `.github/docs/cod-format.md`
+- `.github/docs/ecs-architecture.md`
+- `.github/docs/islands.md`
+- `.github/docs/rendering.md`
+- `.github/docs/rotation.md`
+- `.github/docs/texture-atlas.md`
+
 ---
 
 ## 30-Second Overview
