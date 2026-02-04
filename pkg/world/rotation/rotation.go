@@ -123,42 +123,23 @@ func IsoToCartesian(x, y float64, tileSize int) (float64, float64) {
 	return rx, ry
 }
 
-// RotateWorldPosition rotates a world position (x, y) around the world center.
+// RotateWorldPosition rotates a world position (x, y) around the world origin.
 // This is used to rotate island positions when the view rotates.
-// worldWidth and worldHeight define the world dimensions for finding the center.
+// worldWidth and worldHeight define the world dimensions for bounds.
 // The rotation is applied as if viewing the world from above and rotating clockwise.
 func RotateWorldPosition(x, y float64, worldWidth, worldHeight int, rot Rotation) (float64, float64) {
-	// World center
-	cx := float64(worldWidth) / 2
-	cy := float64(worldHeight) / 2
-
-	// Translate to origin (center)
-	dx := x - cx
-	dy := y - cy
-
-	var rx, ry float64
 	switch rot {
 	case DEG0:
 		return x, y
 	case DEG90:
-		// Clockwise 90° in tile space (y increases downward): (x,y) -> (-y, x)
-		// Then translate back. For 90° rotation, width and height swap,
-		// so the new center is at (height/2, width/2)
-		rx = -dy
-		ry = dx
-		return rx + float64(worldHeight)/2, ry + float64(worldWidth)/2
+		// Clockwise 90° in tile space: (x,y) -> (h - 1 - y, x)
+		return float64(worldHeight) - 1 - y, x
 	case DEG180:
-		// Clockwise 180°: (x,y) -> (-x, -y) relative to center
-		// Center stays the same
-		rx = -dx
-		ry = -dy
-		return rx + cx, ry + cy
+		// Clockwise 180°: (x,y) -> (w - 1 - x, h - 1 - y)
+		return float64(worldWidth) - 1 - x, float64(worldHeight) - 1 - y
 	case DEG270:
-		// Clockwise 270° in tile space (y increases downward): (x,y) -> (y, -x)
-		// Width and height swap, new center is at (height/2, width/2)
-		rx = dy
-		ry = -dx
-		return rx + float64(worldHeight)/2, ry + float64(worldWidth)/2
+		// Clockwise 270°: (x,y) -> (y, w - 1 - x)
+		return y, float64(worldWidth) - 1 - x
 	default:
 		return x, y
 	}

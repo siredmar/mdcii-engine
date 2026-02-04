@@ -297,9 +297,22 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	rendererQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
 
-		// Rotate island position around world center for world rotation
+		// Rotate island origin around world origin using the local origin corner
+		// that maps to (0,0) after RotatePosition.
+		cornerX, cornerY := 0, 0
+		switch currentRotation {
+		case rotation.DEG90:
+			cornerY = island.Height - 1
+		case rotation.DEG180:
+			cornerX = island.Width - 1
+			cornerY = island.Height - 1
+		case rotation.DEG270:
+			cornerX = island.Width - 1
+		}
+		cornerWorldX := island.X + float64(cornerX)
+		cornerWorldY := island.Y + float64(cornerY)
 		rotatedIslandX, rotatedIslandY := rotation.RotateWorldPosition(
-			island.X, island.Y, worldWidth, worldHeight, currentRotation)
+			cornerWorldX, cornerWorldY, worldWidth, worldHeight, currentRotation)
 
 		// Swap island dimensions for 90° and 270° rotations
 		islandW, islandH := island.Width, island.Height
