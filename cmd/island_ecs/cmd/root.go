@@ -37,6 +37,9 @@ import (
 	"github.com/siredmar/mdcii-engine/pkg/ecs/world"
 	"github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/gam"
+	"github.com/siredmar/mdcii-engine/pkg/renderer"
+	ebitenrenderer "github.com/siredmar/mdcii-engine/pkg/renderer/ebiten"
+	raylibrenderer "github.com/siredmar/mdcii-engine/pkg/renderer/raylib"
 	"github.com/siredmar/mdcii-engine/pkg/savegame"
 	animations "github.com/siredmar/mdcii-engine/pkg/texture/animations"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
@@ -261,9 +264,6 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
-		ebiten.SetWindowTitle("animations")
-
 		w := world.New()
 		// Create an entity and get its Entry
 		w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType, components.IslandType)
@@ -347,6 +347,7 @@ var rootCmd = &cobra.Command{
 			rotation:  rotation.Rotation(rotationArg),
 			// entry:     entry,
 			grid: true,
+			renderer: selectRenderer(config.Instance()),
 
 			screenshotPath:        screenshotPath,
 			screenshotAfterFrames: screenshotAfterFrames,
@@ -381,12 +382,20 @@ var rootCmd = &cobra.Command{
 		// 	fmt.Println("Error:", err)
 		// 	return
 		// }
-		// game.animation = game.animations.GetAnimation(buildingParam, rotation.DEG0)
-		if err := ebiten.RunGame(game); err != nil {
-			log.Fatal(err)
-		}
-	},
-}
+			// game.animation = game.animations.GetAnimation(buildingParam, rotation.DEG0)
+				if raylibRenderer, ok := game.renderer.(*raylibrenderer.Renderer); ok {
+					raylibRenderer.SetAtlasPath(atlasJsonPath)
+					// Run raylib's own game loop instead of ebiten's
+					game.runRaylibLoop()
+				} else {
+					ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
+					ebiten.SetWindowTitle("mdcii-engine")
+					if err := ebiten.RunGame(game); err != nil {
+						log.Fatal(err)
+					}
+				}
+		},
+	}
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
@@ -409,6 +418,7 @@ type Game struct {
 	// entry            *donburi.Entry
 	buildings *buildingsCod.Buildings
 	grid      bool
+	renderer  renderer.Renderer
 
 	screenshotPath        string
 	screenshotAfterFrames int
@@ -428,7 +438,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		rot = ctrl.Rotation
 		grid = ctrl.GridVisible
 	})
-	systems.RenderSystem(g.world.World, screen, grid, rot)
+	if g.renderer == nil {
+		g.renderer = renderer.NewNoop()
+	}
+	if _, ok := g.renderer.(*raylibrenderer.Renderer); ok {
+		g.renderer.Render(g.world, raylibrenderer.NewScreen(ScreenWidth, ScreenHeight), grid, rot)
+	} else {
+		g.renderer.Render(g.world, ebitenrenderer.NewScreen(screen), grid, rot)
+	}
+	g.renderer.SampleSelection(g.world)
 
 	if g.screenshotPending && !g.screenshotTaken {
 		if err := g.writeScreenshot(screen); err != nil {
@@ -438,6 +456,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 		g.screenshotTaken = true
 		g.screenshotPending = false
+		if g.exitAfterScreenshot {
+			if err := g.Close(); err != nil {
+				log.Println("renderer close error:", err)
+			}
+			os.Exit(0)
+		}
 	}
 	// systems.MouseSelectorSystem(g.world.World) // Add the mouse selector system
 	// systems.RenderSystemAscii(g.world.World)
@@ -473,7 +497,11 @@ func (g *Game) Update() error {
 	}
 
 	systems.AnimationSystem(g.world.World, g.animations, 1.0/60.0)
-	systems.InputSystem(g.world.World)
+	if _, ok := g.renderer.(*raylibrenderer.Renderer); ok {
+		systems.InputSystemRaylib(g.world.World)
+	} else {
+		systems.InputSystem(g.world.World)
+	}
 
 	if g.screenshotPath != "" && !g.screenshotTaken && !g.screenshotPending && g.frameCount >= g.screenshotAfterFrames {
 		g.screenshotPending = true
@@ -509,7 +537,28 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
 }
 
+func (g *Game) Close() error {
+	if g.renderer == nil {
+		return nil
+	}
+	return g.renderer.Close()
+}
+
+func selectRenderer(cfg *config.Config) renderer.Renderer {
+	if cfg == nil {
+		return ebitenrenderer.New()
+	}
+	if cfg.Renderer == "3d" {
+		return raylibrenderer.New()
+	}
+	return ebitenrenderer.New()
+}
+
 func (g *Game) writeScreenshot(screen *ebiten.Image) error {
+	if raylibRenderer, ok := g.renderer.(*raylibrenderer.Renderer); ok {
+		return raylibRenderer.TakeScreenshot(g.screenshotPath)
+	}
+
 	if err := os.MkdirAll(filepath.Dir(g.screenshotPath), 0o755); err != nil {
 		return err
 	}

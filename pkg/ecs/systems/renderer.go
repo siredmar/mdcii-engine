@@ -535,9 +535,6 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	// Render selection buffer for pixel-perfect building hover detection
 	renderSelectionBuffer(renderableTiles, screenW, screenH, cameraScreenX, cameraScreenY, zoomLevel, screenCenterX, screenCenterY, showSelectionBuffer)
 
-	// Sample selection buffer at mouse position to get hovered building ID
-	sampleSelectionBuffer(world)
-
 	// Optionally show rainbow-colored display buffer instead of normal rendering (toggle with 'B' key)
 	if showSelectionBuffer && displayBuffer != nil {
 		screen.Clear()
@@ -550,6 +547,10 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 	// Draw HUD overlay with camera position and hovered island info
 	renderHUDOverlay(world, screen, camera, currentRotation)
+}
+
+func SampleSelectionBuffer(world donburi.World) {
+	sampleSelectionBuffer(world)
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {

@@ -39,8 +39,9 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		// rotation := (building.Rotation + globalRotation) % 4
 		rotation := building.Rotation.Add(globalRotation)
 		// fmt.Println("AnimationSystem: building.BuildingID", building.BuildingID, "rotation", rotation, "globalRotation", globalRotation)
-		frames := ani.GetAnimation(building.BuildingID, rotation).Frames
-		metas := ani.GetAnimation(building.BuildingID, rotation).FrameMeta
+		animationDef := ani.GetAnimation(building.BuildingID, rotation)
+		frames := animationDef.Frames
+		metas := animationDef.FrameMeta
 		tile := components.TileType.Get(entry)
 		// if tile.Occupation {
 		// 	tile.Image = grid1
@@ -67,16 +68,28 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 				// Update the tile's current image
 				tile.Image = frames[frameIndex]
 				if frameIndex < len(metas) {
-					tile.PivotX = metas[frameIndex].PivotX
-					tile.PivotY = metas[frameIndex].PivotY
+					meta := metas[frameIndex]
+					tile.PivotX = meta.PivotX
+					tile.PivotY = meta.PivotY
+					tile.AtlasIndex = meta.PNGIndex
+					tile.SrcX = meta.X
+					tile.SrcY = meta.Y
+					tile.SrcW = meta.Width
+					tile.SrcH = meta.Height
 				}
 			}
 			return
 		}
 		tile.Image = frames[0]
 		if len(metas) > 0 {
-			tile.PivotX = metas[0].PivotX
-			tile.PivotY = metas[0].PivotY
+			meta := metas[0]
+			tile.PivotX = meta.PivotX
+			tile.PivotY = meta.PivotY
+			tile.AtlasIndex = meta.PNGIndex
+			tile.SrcX = meta.X
+			tile.SrcY = meta.Y
+			tile.SrcW = meta.Width
+			tile.SrcH = meta.Height
 		}
 	})
 }

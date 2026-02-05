@@ -23,6 +23,7 @@ import (
 
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
+	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	files "github.com/siredmar/mdcii-engine/pkg/files"
 	"github.com/siredmar/mdcii-engine/pkg/texture/atlas"
 	"github.com/spf13/viper"
@@ -46,12 +47,12 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		buildingsCod, err := cod.NewCod(haeuserCodPath, true)
+		haeuserCod, err := cod.NewCod(haeuserCodPath, true)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = buildingsCod.Parse()
+		err = haeuserCod.Parse()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -72,12 +73,18 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		buildings, err := buildingsCod.NewBuildings(haeuserCod)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		mgfxStadtfldBsh, err := bsh.NewPng(bsh.WithFile(mgfxStadtfldBshPath), bsh.WithConvertAll())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		mgfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh.Images))
+		mgfxAtlas, err := atlas.New(4096, 4096, buildings, atlas.WithOutputDir(outputDir), atlas.WithName("mgfx-stadtfld"), atlas.WithImages(mgfxStadtfldBsh))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -93,7 +100,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		sgfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh.Images))
+		sgfxAtlas, err := atlas.New(4096, 4096, buildings, atlas.WithOutputDir(outputDir), atlas.WithName("sgfx-stadtfld"), atlas.WithImages(sgfxStadtfldBsh))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -109,7 +116,7 @@ var rootCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		gfxAtlas, err := atlas.New(4096, 4096, atlas.WithOutputDir(outputDir), atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh.Images))
+		gfxAtlas, err := atlas.New(4096, 4096, buildings, atlas.WithOutputDir(outputDir), atlas.WithName("gfx-stadtfld"), atlas.WithImages(gfxStadtfldBsh))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

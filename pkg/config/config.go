@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	MousePanFactor float64 `yaml:"mouse_pan_factor"`
+	Renderer       string  `yaml:"renderer"`
 }
 
 var instance *Config
@@ -18,6 +19,7 @@ var configFilePath string
 func DefaultConfig() *Config {
 	return &Config{
 		MousePanFactor: 0.67,
+		Renderer:       "2d",
 	}
 }
 

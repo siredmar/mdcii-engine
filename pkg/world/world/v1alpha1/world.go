@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	gamParser "github.com/siredmar/mdcii-engine/pkg/gam"
 	"github.com/siredmar/mdcii-engine/pkg/world/camera"
 	island "github.com/siredmar/mdcii-engine/pkg/world/island/v1alpha1"
@@ -34,11 +33,5 @@ func (w *World) GetVersion() string {
 	return w.Version
 }
 
-func (w *World) Render(screen *ebiten.Image) error {
-	for _, island := range w.Islands {
-		if err := island.Render(w.Camera.Rotation, screen); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// Render was removed from the v1alpha1 island implementation.
+// Keep world compilation clean by omitting render logic in this legacy package.

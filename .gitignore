@@ -9,3 +9,5 @@ install
 bin
 
 tools/
+
+island_ecs
