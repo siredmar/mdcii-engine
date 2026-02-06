@@ -105,9 +105,14 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 	}
 
 	var camera *components.Camera
+	var ecsWorld *components.World
 	cameraQueryCached := donburi.NewQuery(filter.Contains(components.CameraType))
 	cameraQueryCached.Each(w.World, func(entry *donburi.Entry) {
 		camera = components.CameraType.Get(entry)
+	})
+	worldQueryCached := donburi.NewQuery(filter.Contains(components.WorldType))
+	worldQueryCached.Each(w.World, func(entry *donburi.Entry) {
+		ecsWorld = components.WorldType.Get(entry)
 	})
 	if camera == nil {
 		return
@@ -131,21 +136,39 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 		fbHeight = int32(raylibScreen.height)
 	}
 
-	rl.BeginDrawing()
-	// Reset viewport to full framebuffer to override raylib's letterboxing
-	rl.Viewport(0, 0, fbWidth, fbHeight)
-	rl.ClearBackground(rl.Black)
-
 	// Use actual framebuffer dimensions for rendering calculations
 	actualWidth := int(fbWidth)
 	actualHeight := int(fbHeight)
 
 	tileWidth := zoom.TileSize()
 	tileHeight := zoom.TileHeight()
+
+	// Handle deferred island centering (now that we know actual screen size)
+	if camera.CenterOnIsland > 0 && ecsWorld != nil {
+		islandIdx := camera.CenterOnIsland - 1
+		if islandIdx < len(ecsWorld.Islands) {
+			island := components.IslandType.Get(ecsWorld.Islands[islandIdx])
+			// Compute screen center offset in tile coordinates for actual screen size
+			screenCenterX := float64(actualWidth) / 2
+			screenCenterY := float64(actualHeight) / 2
+			screenCenterTileX, screenCenterTileY := ScreenToTile(screenCenterX, screenCenterY, tileWidth, tileHeight)
+			camera.X = island.X + float64(island.Width)/2 - screenCenterTileX
+			camera.Y = island.Y + float64(island.Height)/2 - screenCenterTileY
+			log.Printf("Debug: centered camera on island %d at (%.1f, %.1f) for screen %dx%d\n",
+				islandIdx, camera.X, camera.Y, actualWidth, actualHeight)
+		}
+		camera.CenterOnIsland = 0 // Only do this once
+	}
+
+	rl.BeginDrawing()
+	// Reset viewport to full framebuffer to override raylib's letterboxing
+	rl.Viewport(0, 0, fbWidth, fbHeight)
+	rl.ClearBackground(rl.Black)
+
 	camScreenX, camScreenY := TileToScreen(camera.X, camera.Y, tileWidth, tileHeight)
-	camScreenX += float64(tileWidth) / 2
 	r.drawSeaBackground(w.World, actualWidth, actualHeight, camera, zoomLevel, tileWidth, tileHeight, camScreenX, camScreenY)
 
+	renderedTilesRaylib := 0
 	forEachTile(w.World, currentRotation, func(tile renderTile) {
 		relX := tile.isoX - camScreenX
 		relY := tile.isoY - camScreenY
@@ -181,7 +204,10 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 			0,
 			rl.White,
 		)
+		renderedTilesRaylib++
 	})
+
+	r.renderHUDOverlay(w.World, camera, currentRotation, renderedTilesRaylib)
 
 	rl.EndDrawing()
 }
@@ -634,6 +660,63 @@ func (r *Renderer) ensureIsoCamera(_ Screen, zoomLevel float64, _ *components.Ca
 	r.ppu = ppu
 }
 
+func (r *Renderer) renderHUDOverlay(world donburi.World, camera *components.Camera, currentRotation rotation.Rotation, renderedTiles int) {
+	if camera == nil {
+		return
+	}
+
+	var ctrl *components.Control
+	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQuery.Each(world, func(entry *donburi.Entry) {
+		ctrl = components.ControlType.Get(entry)
+	})
+
+	fontSize := int32(13)
+	x := int32(10)
+	y := int32(10)
+	lineHeight := int32(16)
+
+	fps := rl.GetFPS()
+	fpsColor := rl.Green
+	if fps < 30 {
+		fpsColor = rl.Red
+	} else if fps < 55 {
+		fpsColor = rl.Yellow
+	}
+	rl.DrawText(fmt.Sprintf("FPS: %d", fps), x, y, fontSize, fpsColor)
+	y += lineHeight
+
+	rl.DrawText(fmt.Sprintf("Tiles: %d drawn", renderedTiles), x, y, fontSize, rl.White)
+	y += lineHeight
+
+	rl.DrawText(fmt.Sprintf("Camera: (%.1f, %.1f)", camera.X, camera.Y), x, y, fontSize, rl.White)
+	y += lineHeight
+
+	rl.DrawText(fmt.Sprintf("Zoom: %.0f%%", camera.Zoom*100), x, y, fontSize, rl.White)
+	y += lineHeight
+
+	rl.DrawText(fmt.Sprintf("Rotation: %s", currentRotation.String()), x, y, fontSize, rl.White)
+	y += lineHeight
+
+	if ctrl != nil {
+		rl.DrawText(fmt.Sprintf("Mouse Tile: (%.1f, %.1f)", ctrl.MouseTileX, ctrl.MouseTileY), x, y, fontSize, rl.White)
+		y += lineHeight
+
+		if ctrl.HoveredIsland >= 0 {
+			rl.DrawText(fmt.Sprintf("Island: %d", ctrl.HoveredIsland), x, y, fontSize, rl.Yellow)
+		} else {
+			rl.DrawText("Island: -", x, y, fontSize, rl.White)
+		}
+		y += lineHeight
+
+		if ctrl.HoveredBuildingID > 0 {
+			rl.DrawText(fmt.Sprintf("Building: %d", ctrl.HoveredBuildingID), x, y, fontSize, rl.Yellow)
+		} else {
+			rl.DrawText("Building: -", x, y, fontSize, rl.White)
+		}
+	}
+}
+
 func insetRect(src rl.Rectangle, px float32) rl.Rectangle {
 	return rl.NewRectangle(src.X+px, src.Y+px, src.Width-2*px, src.Height-2*px)
 }
@@ -641,5 +724,13 @@ func insetRect(src rl.Rectangle, px float32) rl.Rectangle {
 func TileToScreen(tileX, tileY float64, tileWidth, tileHeight int) (screenX, screenY float64) {
 	screenX = (tileX - tileY) * (float64(tileWidth) / 2)
 	screenY = (tileX + tileY) * (float64(tileHeight) / 2)
+	return
+}
+
+func ScreenToTile(screenX, screenY float64, tileWidth, tileHeight int) (tileX, tileY float64) {
+	tw := float64(tileWidth) / 2
+	th := float64(tileHeight) / 2
+	tileX = (screenX/tw + screenY/th) / 2
+	tileY = (screenY/th - screenX/tw) / 2
 	return
 }

@@ -64,9 +64,10 @@ var (
 	exitAfterScreenshot   bool
 
 	// Camera position overrides
-	cameraX float64
-	cameraY float64
-	zoomArg float64
+	cameraX      float64
+	cameraY      float64
+	zoomArg      float64
+	centerIsland bool // Debug flag to center camera on first island
 	// buildingParam int
 )
 
@@ -90,6 +91,7 @@ func init() {
 	rootCmd.Flags().Float64Var(&cameraX, "camX", 0, "Camera X position in tile coordinates")
 	rootCmd.Flags().Float64Var(&cameraY, "camY", 0, "Camera Y position in tile coordinates")
 	rootCmd.Flags().Float64Var(&zoomArg, "zoom", 0, "Zoom level (0.1 to 1.0, 0 means use default)")
+	rootCmd.Flags().BoolVar(&centerIsland, "centerIsland", false, "Debug: center camera on the first island")
 	// buildingParam int
 }
 
@@ -291,6 +293,12 @@ var rootCmd = &cobra.Command{
 		cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
 		cameraQuery.Each(w.World, func(entry *donburi.Entry) {
 			cam := components.CameraType.Get(entry)
+
+			// Debug: mark camera to center on first island (actual centering happens at render time when screen size is known)
+			if centerIsland && len(ecsWorld.Islands) > 0 {
+				cam.CenterOnIsland = 1 // Island index + 1 (1 = first island)
+				fmt.Println("Debug: will center camera on first island at render time")
+			}
 
 			// Override position if camX or camY were explicitly set
 			if cameraX != 0 || cameraY != 0 {

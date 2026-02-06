@@ -216,6 +216,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 	var camera *components.Camera
 	var overlay bool
 	var worldWidth, worldHeight int = 500, 500 // Default world size
+	var ecsWorld *components.World
 	cameraQueryCached.Each(world, func(entry *donburi.Entry) {
 		camera = components.CameraType.Get(entry)
 	})
@@ -227,6 +228,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		if worldComp != nil {
 			worldWidth = worldComp.Width
 			worldHeight = worldComp.Height
+			ecsWorld = worldComp
 		}
 	})
 	if camera == nil {
@@ -234,16 +236,31 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 		return
 	}
 
+	// Get screen dimensions for zoom centering
+	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
+	screenCenterX := float64(screenW) / 2
+	screenCenterY := float64(screenH) / 2
+
+	// Handle deferred island centering (now that we know screen size)
+	if camera.CenterOnIsland > 0 && ecsWorld != nil {
+		islandIdx := camera.CenterOnIsland - 1
+		if islandIdx < len(ecsWorld.Islands) {
+			island := components.IslandType.Get(ecsWorld.Islands[islandIdx])
+			// Compute screen center offset in tile coordinates for actual screen size
+			screenCenterTileX, screenCenterTileY := ScreenToTile(screenCenterX, screenCenterY, tileWidth, tileHeight)
+			camera.X = island.X + float64(island.Width)/2 - screenCenterTileX
+			camera.Y = island.Y + float64(island.Height)/2 - screenCenterTileY
+			fmt.Printf("Debug: centered camera on island %d at (%.1f, %.1f) for screen %dx%d\n",
+				islandIdx, camera.X, camera.Y, screenW, screenH)
+		}
+		camera.CenterOnIsland = 0 // Only do this once
+	}
+
 	// Get zoom level (default to 1.0 if not set)
 	zoomLevel := camera.Zoom
 	if zoomLevel <= 0 {
 		zoomLevel = 1.0
 	}
-
-	// Get screen dimensions for zoom centering
-	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
-	screenCenterX := float64(screenW) / 2
-	screenCenterY := float64(screenH) / 2
 
 	// Convert camera position from tile coordinates to screen coordinates
 	cameraScreenX, cameraScreenY := TileToScreen(camera.X, camera.Y, tileWidth, tileHeight)
