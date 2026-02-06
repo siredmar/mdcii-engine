@@ -300,9 +300,36 @@ func (r *Renderer) drawSeaBackground(world donburi.World, screenWidth, screenHei
 	size := rl.NewVector2(src.Width*zoomScale, src.Height*zoomScale)
 	camTileX := int(math.Floor(camera.X))
 	camTileY := int(math.Floor(camera.Y))
-	// Increase range to cover isometric corners (diagonal extent is larger)
-	rangeX := int(math.Ceil(float64(screenWidth)/float64(tileWidth/2)/zoomLevel)) + 12
-	rangeY := int(math.Ceil(float64(screenHeight)/float64(tileHeight/2)/zoomLevel)) + 12
+	// Isometric projection means screen corners map to tiles far from center.
+	// Compute the tile coordinates of all four screen corners and use the
+	// maximum extent to ensure full coverage.
+	screenCenterX := float64(screenWidth) / 2
+	screenCenterY := float64(screenHeight) / 2
+	corners := [4][2]float64{
+		{0, 0},
+		{float64(screenWidth), 0},
+		{0, float64(screenHeight)},
+		{float64(screenWidth), float64(screenHeight)},
+	}
+	maxRange := 0
+	for _, c := range corners {
+		relX := (c[0] - screenCenterX*(1-zoomLevel)) / zoomLevel
+		relY := (c[1] - screenCenterY*(1-zoomLevel)) / zoomLevel
+		worldX := relX + camScreenX
+		worldY := relY + camScreenY
+		tx, ty := ScreenToTile(worldX, worldY, tileWidth, tileHeight)
+		dx := int(math.Ceil(math.Abs(tx - camera.X)))
+		dy := int(math.Ceil(math.Abs(ty - camera.Y)))
+		if dx > maxRange {
+			maxRange = dx
+		}
+		if dy > maxRange {
+			maxRange = dy
+		}
+	}
+	maxRange += 4
+	rangeX := maxRange
+	rangeY := maxRange
 
 	for gx := camTileX - rangeX; gx <= camTileX+rangeX; gx++ {
 		for gy := camTileY - rangeY; gy <= camTileY+rangeY; gy++ {
