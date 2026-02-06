@@ -64,6 +64,12 @@ type Renderer struct {
 	selectionMode   bool
 	screenWidth     int
 	screenHeight    int
+
+	selectionRT     rl.RenderTexture2D
+	displayRT       rl.RenderTexture2D
+	selectionRTW    int
+	selectionRTH    int
+	silhouetteCache map[int]rl.Texture2D // atlasIndex -> white silhouette texture
 }
 
 func New() *Renderer {
@@ -72,6 +78,7 @@ func New() *Renderer {
 		imageCache:      make(map[*ebiten.Image]*image.RGBA),
 		failedImages:    make(map[*ebiten.Image]struct{}),
 		invisibleImages: make(map[*ebiten.Image]struct{}),
+		silhouetteCache: make(map[int]rl.Texture2D),
 	}
 }
 
@@ -168,6 +175,15 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 	camScreenX, camScreenY := TileToScreen(camera.X, camera.Y, tileWidth, tileHeight)
 	r.drawSeaBackground(w.World, actualWidth, actualHeight, camera, zoomLevel, tileWidth, tileHeight, camScreenX, camScreenY)
 
+	var ctrl *components.Control
+	controlQueryCached := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQueryCached.Each(w.World, func(entry *donburi.Entry) {
+		ctrl = components.ControlType.Get(entry)
+	})
+	showSelectionBuffer := ctrl != nil && ctrl.SelectionBufferView
+
+	r.ensureSelectionRT(int32(actualWidth), int32(actualHeight))
+
 	renderedTilesRaylib := 0
 	forEachTile(w.World, currentRotation, func(tile renderTile) {
 		relX := tile.isoX - camScreenX
@@ -207,9 +223,15 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 		renderedTilesRaylib++
 	})
 
+	if showSelectionBuffer {
+		r.renderDisplayBuffer(w.World, currentRotation, camScreenX, camScreenY, zoomLevel, actualWidth, actualHeight)
+	}
+
 	r.renderHUDOverlay(w.World, camera, currentRotation, renderedTilesRaylib)
 
 	rl.EndDrawing()
+
+	r.renderSelectionBufferOffscreen(w.World, currentRotation, camScreenX, camScreenY, zoomLevel, actualWidth, actualHeight)
 }
 
 type seaTileMeta struct {
@@ -304,6 +326,224 @@ func (r *Renderer) drawSeaBackground(world donburi.World, screenWidth, screenHei
 	}
 }
 
+func idToEncodedColor(id int) rl.Color {
+	return rl.NewColor(
+		uint8((id>>16)&0xFF),
+		uint8((id>>8)&0xFF),
+		uint8(id&0xFF),
+		255,
+	)
+}
+
+func colorToID(c color.RGBA) int {
+	if c.A == 0 {
+		return 0
+	}
+	return int(c.R)<<16 | int(c.G)<<8 | int(c.B)
+}
+
+func idToRainbowColor(id int) rl.Color {
+	golden := 0.618033988749895
+	hue := math.Mod(float64(id)*golden, 1.0)
+	r, g, b := hsvToRGBValues(hue, 0.9, 1.0)
+	return rl.NewColor(uint8(r*255), uint8(g*255), uint8(b*255), 255)
+}
+
+func hsvToRGBValues(h, s, v float64) (float64, float64, float64) {
+	i := int(h * 6)
+	f := h*6 - float64(i)
+	p := v * (1 - s)
+	q := v * (1 - f*s)
+	t := v * (1 - (1-f)*s)
+	switch i % 6 {
+	case 0:
+		return v, t, p
+	case 1:
+		return q, v, p
+	case 2:
+		return p, v, t
+	case 3:
+		return p, q, v
+	case 4:
+		return t, p, v
+	case 5:
+		return v, p, q
+	}
+	return 0, 0, 0
+}
+
+func (r *Renderer) ensureSelectionRT(w, h int32) {
+	if r.selectionRTW == int(w) && r.selectionRTH == int(h) && rl.IsRenderTextureValid(r.selectionRT) {
+		return
+	}
+	if rl.IsRenderTextureValid(r.selectionRT) {
+		rl.UnloadRenderTexture(r.selectionRT)
+	}
+	if rl.IsRenderTextureValid(r.displayRT) {
+		rl.UnloadRenderTexture(r.displayRT)
+	}
+	r.selectionRT = rl.LoadRenderTexture(w, h)
+	r.displayRT = rl.LoadRenderTexture(w, h)
+	r.selectionRTW = int(w)
+	r.selectionRTH = int(h)
+}
+
+func (r *Renderer) getSilhouetteTexture(atlasIndex int) rl.Texture2D {
+	if tex, ok := r.silhouetteCache[atlasIndex]; ok {
+		return tex
+	}
+	if atlasIndex < 0 || atlasIndex >= len(r.atlasTextures) {
+		return rl.Texture2D{}
+	}
+	srcTex := r.atlasTextures[atlasIndex]
+	if !rl.IsTextureValid(srcTex) {
+		return rl.Texture2D{}
+	}
+	srcImg := rl.LoadImageFromTexture(srcTex)
+	if srcImg == nil {
+		return rl.Texture2D{}
+	}
+	defer rl.UnloadImage(srcImg)
+
+	w := srcImg.Width
+	h := srcImg.Height
+	whiteImg := rl.GenImageColor(int(w), int(h), rl.Blank)
+	defer rl.UnloadImage(whiteImg)
+
+	for y := int32(0); y < h; y++ {
+		for x := int32(0); x < w; x++ {
+			c := rl.GetImageColor(*srcImg, x, y)
+			if c.A > 0 {
+				rl.ImageDrawPixel(whiteImg, x, y, rl.NewColor(255, 255, 255, c.A))
+			}
+		}
+	}
+
+	tex := rl.LoadTextureFromImage(whiteImg)
+	if rl.IsTextureValid(tex) {
+		rl.SetTextureFilter(tex, rl.FilterPoint)
+		r.silhouetteCache[atlasIndex] = tex
+	}
+	return tex
+}
+
+func (r *Renderer) renderSelectionBufferOffscreen(world donburi.World, currentRotation rotation.Rotation, camScreenX, camScreenY, zoomLevel float64, screenW, screenH int) {
+	if !rl.IsRenderTextureValid(r.selectionRT) {
+		return
+	}
+
+	rl.BeginTextureMode(r.selectionRT)
+	rl.ClearBackground(rl.Blank)
+
+	forEachTile(world, currentRotation, func(tile renderTile) {
+		isSelectable := tile.layer == buildings.KindBuildingsID || tile.layer == buildings.KindRoadsID
+		if !isSelectable || tile.buildingID == 0 {
+			return
+		}
+		if tile.srcW <= 0 || tile.srcH <= 0 {
+			return
+		}
+		silhouette := r.getSilhouetteTexture(tile.atlasIndex)
+		if !rl.IsTextureValid(silhouette) {
+			return
+		}
+
+		src := rl.NewRectangle(float32(tile.srcX), float32(tile.srcY), float32(tile.srcW), float32(tile.srcH))
+		src = insetRect(src, 0.5)
+		if src.Width <= 0 || src.Height <= 0 {
+			return
+		}
+
+		relX := tile.isoX - camScreenX
+		relY := tile.isoY - camScreenY
+		screenX := float32(relX*zoomLevel + float64(screenW)/2*(1-zoomLevel))
+		screenY := float32(relY*zoomLevel + float64(screenH)/2*(1-zoomLevel))
+		zoomScale := float32(zoomLevel)
+		size := rl.NewVector2(src.Width*zoomScale, src.Height*zoomScale)
+
+		tintColor := idToEncodedColor(tile.buildingID)
+		rl.DrawTexturePro(
+			silhouette,
+			src,
+			rl.NewRectangle(screenX, screenY, size.X, size.Y),
+			rl.Vector2Zero(),
+			0,
+			tintColor,
+		)
+	})
+
+	rl.EndTextureMode()
+}
+
+func (r *Renderer) renderDisplayBuffer(world donburi.World, currentRotation rotation.Rotation, camScreenX, camScreenY, zoomLevel float64, screenW, screenH int) {
+	forEachTile(world, currentRotation, func(tile renderTile) {
+		isSelectable := tile.layer == buildings.KindBuildingsID || tile.layer == buildings.KindRoadsID
+		if !isSelectable || tile.buildingID == 0 {
+			return
+		}
+		if tile.srcW <= 0 || tile.srcH <= 0 {
+			return
+		}
+		silhouette := r.getSilhouetteTexture(tile.atlasIndex)
+		if !rl.IsTextureValid(silhouette) {
+			return
+		}
+
+		src := rl.NewRectangle(float32(tile.srcX), float32(tile.srcY), float32(tile.srcW), float32(tile.srcH))
+		src = insetRect(src, 0.5)
+		if src.Width <= 0 || src.Height <= 0 {
+			return
+		}
+
+		relX := tile.isoX - camScreenX
+		relY := tile.isoY - camScreenY
+		screenX := float32(relX*zoomLevel + float64(screenW)/2*(1-zoomLevel))
+		screenY := float32(relY*zoomLevel + float64(screenH)/2*(1-zoomLevel))
+		zoomScale := float32(zoomLevel)
+		size := rl.NewVector2(src.Width*zoomScale, src.Height*zoomScale)
+
+		tintColor := idToRainbowColor(tile.buildingID)
+		rl.DrawTexturePro(
+			silhouette,
+			src,
+			rl.NewRectangle(screenX, screenY, size.X, size.Y),
+			rl.Vector2Zero(),
+			0,
+			tintColor,
+		)
+	})
+}
+
+func (r *Renderer) SampleSelectionBuffer(w *world.World) {
+	if !rl.IsRenderTextureValid(r.selectionRT) {
+		return
+	}
+
+	mouseX := int32(rl.GetMouseX())
+	mouseY := int32(rl.GetMouseY())
+
+	if mouseX < 0 || mouseY < 0 || mouseX >= int32(r.selectionRTW) || mouseY >= int32(r.selectionRTH) {
+		return
+	}
+
+	img := rl.LoadImageFromTexture(r.selectionRT.Texture)
+	if img == nil {
+		return
+	}
+	defer rl.UnloadImage(img)
+
+	// Render texture is vertically flipped
+	flippedY := int32(r.selectionRTH) - 1 - mouseY
+	pixelColor := rl.GetImageColor(*img, mouseX, flippedY)
+	buildingID := colorToID(pixelColor)
+
+	controlQuery := donburi.NewQuery(filter.Contains(components.ControlType))
+	controlQuery.Each(w.World, func(entry *donburi.Entry) {
+		ctrl := components.ControlType.Get(entry)
+		ctrl.HoveredBuildingID = buildingID
+	})
+}
+
 func (r *Renderer) Close() error {
 	if r.initialized {
 		for _, texture := range r.textures {
@@ -313,6 +553,17 @@ func (r *Renderer) Close() error {
 			if rl.IsTextureValid(texture) {
 				rl.UnloadTexture(texture)
 			}
+		}
+		for _, tex := range r.silhouetteCache {
+			if rl.IsTextureValid(tex) {
+				rl.UnloadTexture(tex)
+			}
+		}
+		if rl.IsRenderTextureValid(r.selectionRT) {
+			rl.UnloadRenderTexture(r.selectionRT)
+		}
+		if rl.IsRenderTextureValid(r.displayRT) {
+			rl.UnloadRenderTexture(r.displayRT)
 		}
 		rl.CloseWindow()
 		r.initialized = false
@@ -340,7 +591,9 @@ func (r *Renderer) TakeScreenshot(path string) error {
 	return nil
 }
 
-func (r *Renderer) SampleSelection(_ *world.World) {}
+func (r *Renderer) SampleSelection(w *world.World) {
+	r.SampleSelectionBuffer(w)
+}
 
 var errInvisibleImage = errors.New("invisible image")
 
