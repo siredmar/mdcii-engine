@@ -994,6 +994,13 @@ func (r *Renderer) renderHUDOverlay(world donburi.World, camera *components.Came
 		} else {
 			rl.DrawText("Building: -", x, y, fontSize, rl.White)
 		}
+		y += lineHeight
+
+		if ctrl.HoveredTileID >= 0 {
+			rl.DrawText(fmt.Sprintf("Tile ID: %d", ctrl.HoveredTileID), x, y, fontSize, rl.Yellow)
+		} else {
+			rl.DrawText("Tile ID: -", x, y, fontSize, rl.White)
+		}
 	}
 }
 

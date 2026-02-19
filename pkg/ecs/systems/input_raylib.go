@@ -255,6 +255,7 @@ func updateMouseTilePositionRaylib(world donburi.World, tileW, tileH float64) {
 	ctrl.MouseTileY = tileY
 
 	ctrl.HoveredIsland = -1
+	ctrl.HoveredTileID = -1
 	islandIndex := 0
 	islandQueryRaylib.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
@@ -263,6 +264,7 @@ func updateMouseTilePositionRaylib(world donburi.World, tileW, tileH float64) {
 		if localX >= 0 && localX < float64(island.Width) &&
 			localY >= 0 && localY < float64(island.Height) {
 			ctrl.HoveredIsland = islandIndex
+			ctrl.HoveredTileID = lookupTileID(island, tileX, tileY)
 		}
 		islandIndex++
 	})

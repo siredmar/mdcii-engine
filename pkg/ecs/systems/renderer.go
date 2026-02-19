@@ -795,6 +795,14 @@ func renderHUDOverlay(world donburi.World, screen *ebiten.Image, camera *compone
 		} else {
 			text.Draw(screen, "Building: -", face, 10, y, textColor)
 		}
+		y += lineHeight
+
+		// Tile ID at mouse grid position
+		if ctrl.HoveredTileID >= 0 {
+			text.Draw(screen, fmt.Sprintf("Tile ID: %d", ctrl.HoveredTileID), face, 10, y, highlightColor)
+		} else {
+			text.Draw(screen, "Tile ID: -", face, 10, y, textColor)
+		}
 	}
 }
 

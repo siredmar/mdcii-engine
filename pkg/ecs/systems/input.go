@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/siredmar/mdcii-engine/pkg/building"
+	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/config"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
@@ -411,8 +412,9 @@ func updateMouseTilePosition(world donburi.World, tileW, tileH float64) {
 	ctrl.MouseTileX = tileX
 	ctrl.MouseTileY = tileY
 
-	// Detect which island the mouse is over
+	// Detect which island the mouse is over and look up tile ID
 	ctrl.HoveredIsland = -1
+	ctrl.HoveredTileID = -1
 	islandIndex := 0
 	islandQuery.Each(world, func(entry *donburi.Entry) {
 		island := components.IslandType.Get(entry)
@@ -424,7 +426,40 @@ func updateMouseTilePosition(world donburi.World, tileW, tileH float64) {
 		if localX >= 0 && localX < float64(island.Width) &&
 			localY >= 0 && localY < float64(island.Height) {
 			ctrl.HoveredIsland = islandIndex
+			ctrl.HoveredTileID = lookupTileID(island, tileX, tileY)
 		}
 		islandIndex++
 	})
+}
+
+// lookupTileID finds the topmost tile/building ID at the given world tile position.
+// It checks layers in top-down order: Buildings > Forest > Roads > Ground > Sea.
+func lookupTileID(island *components.Island, worldX, worldY float64) int {
+	gridX := int(worldX)
+	gridY := int(worldY)
+
+	layerOrder := []string{
+		buildings.KindBuildingsID,
+		buildings.KindForrestID,
+		buildings.KindRoadsID,
+		buildings.KindGroundID,
+		buildings.KindSeaID,
+	}
+
+	for _, kind := range layerOrder {
+		entries := island.Tiles[kind]
+		for _, entry := range entries {
+			if !entry.Valid() {
+				continue
+			}
+			pos := components.PositionType.Get(entry)
+			if int(pos.X) == gridX && int(pos.Y) == gridY {
+				b := components.BuildingType.Get(entry)
+				if b.BuildingID >= 0 {
+					return b.BuildingID
+				}
+			}
+		}
+	}
+	return -1
 }
