@@ -257,9 +257,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	y += 15
 	text.Draw(screen, fmt.Sprintf("Rotation: %s", g.rotation.String()), face, 10, y, textColor)
 	y += 15
+	anim := components.AnimationType.Get(g.entry)
 	if b := g.buildings.Buildings[bld.BuildingID]; b != nil {
 		text.Draw(screen, fmt.Sprintf("Size: %dx%d  Gfx: %d  Anim: %d", b.Size.W, b.Size.H, b.Gfx, b.AnimationAmount), face, 10, y, textColor)
+		y += 15
 	}
+	status := "Playing"
+	if !anim.Running {
+		status = "Paused"
+	}
+	text.Draw(screen, fmt.Sprintf("Frame: %d/%d  [%s]", anim.CurrentFrame, anim.Count, status), face, 10, y, textColor)
 
 	g.DrawUsage(screen)
 }
@@ -283,7 +290,7 @@ func (g *Game) DrawUsage(screen *ebiten.Image) {
 	textColor := color.RGBA{255, 255, 255, 255}
 	face := basicfont.Face7x13
 
-	text.Draw(screen, "Up: Animation Step, Left/Right: Rotate, N: next, M: previous", face, 10, ScreenHeight-20, textColor)
+	text.Draw(screen, "Up/Down: Step Frame, Space: Play/Pause, Left/Right: Rotate, N/M: Next/Prev Building", face, 10, ScreenHeight-20, textColor)
 
 }
 
@@ -342,6 +349,24 @@ func (g *Game) Update() error {
 				BuildingID: g.buildingId,
 				Rotation:   g.rotation,
 			})
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
+			anim := components.AnimationType.Get(g.entry)
+			anim.Running = false
+			if anim.Count > 1 {
+				anim.CurrentFrame = (anim.CurrentFrame + 1) % anim.Count
+			}
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
+			anim := components.AnimationType.Get(g.entry)
+			anim.Running = false
+			if anim.Count > 1 {
+				anim.CurrentFrame = (anim.CurrentFrame - 1 + anim.Count) % anim.Count
+			}
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeySpace) {
+			anim := components.AnimationType.Get(g.entry)
+			anim.Running = !anim.Running
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 			os.Exit(0)

@@ -43,40 +43,42 @@ func AnimationSystem(world donburi.World, ani *animations.Animations, deltaTime 
 		frames := animationDef.Frames
 		metas := animationDef.FrameMeta
 		tile := components.TileType.Get(entry)
-		// if tile.Occupation {
-		// 	tile.Image = grid1
-		// }
+
+		// Sync count/duration from the animation definition so changes to
+		// BuildingID or rotation are picked up automatically.
+		animation.Count = animationDef.Steps
+		if animationDef.FrameDuration > 0 {
+			animation.Duration = float64(animationDef.FrameDuration) / 1000.0 * float64(animation.Count)
+		}
+
 		if animation.Count > 1 {
 			if animation.Running {
-				// Get animation frames from the atlas
 				// Update animation time
 				animation.CurrentTime += deltaTime
-				// fmt.Println("animation.CurrentTime", animation.CurrentTime)
-				// fmt.Println("len(frames)", len(frames))
-				// fmt.Println("animation.Duration", animation.Duration)
 				frameDuration := animation.Duration / float64(len(frames))
-				// fmt.Println("frameDuration", frameDuration)
 				frameIndex := int(animation.CurrentTime / frameDuration)
-				// fmt.Println("frameIndex", frameIndex)
 				if animation.Loop {
 					frameIndex %= len(frames)
 				} else if frameIndex >= len(frames) {
 					frameIndex = len(frames) - 1
 				}
-
 				animation.CurrentFrame = frameIndex
-				// Update the tile's current image
-				tile.Image = frames[frameIndex]
-				if frameIndex < len(metas) {
-					meta := metas[frameIndex]
-					tile.PivotX = meta.PivotX
-					tile.PivotY = meta.PivotY
-					tile.AtlasIndex = meta.PNGIndex
-					tile.SrcX = meta.X
-					tile.SrcY = meta.Y
-					tile.SrcW = meta.Width
-					tile.SrcH = meta.Height
-				}
+			}
+			// Apply current frame image (works for both auto-play and manual stepping)
+			frameIndex := animation.CurrentFrame
+			if frameIndex >= len(frames) {
+				frameIndex = len(frames) - 1
+			}
+			tile.Image = frames[frameIndex]
+			if frameIndex < len(metas) {
+				meta := metas[frameIndex]
+				tile.PivotX = meta.PivotX
+				tile.PivotY = meta.PivotY
+				tile.AtlasIndex = meta.PNGIndex
+				tile.SrcX = meta.X
+				tile.SrcY = meta.Y
+				tile.SrcW = meta.Width
+				tile.SrcH = meta.Height
 			}
 			return
 		}
