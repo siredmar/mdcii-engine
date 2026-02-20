@@ -227,6 +227,10 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 		r.renderDisplayBuffer(w.World, currentRotation, camScreenX, camScreenY, zoomLevel, actualWidth, actualHeight)
 	}
 
+	if grid {
+		renderDebugGridRaylib(w.World, camScreenX, camScreenY, zoomLevel, actualWidth, actualHeight)
+	}
+
 	r.renderHUDOverlay(w.World, camera, currentRotation, renderedTilesRaylib)
 
 	rl.EndDrawing()
@@ -938,6 +942,46 @@ func (r *Renderer) ensureIsoCamera(_ Screen, zoomLevel float64, _ *components.Ca
 		ppu = float32(zoom.TileSize())
 	}
 	r.ppu = ppu
+}
+
+func renderDebugGridRaylib(world donburi.World, camScreenX, camScreenY, zoomLevel float64, screenW, screenH int) {
+	screenCenterX := float64(screenW) / 2
+	screenCenterY := float64(screenH) / 2
+	tileWidth := float64(zoom.TileSize())
+	tileHeight := float64(zoom.TileHeight())
+	gridColor := rl.NewColor(255, 255, 255, 80)
+
+	toScreen := func(gridOriginX, gridOriginY float64, gx, gy int) (float32, float32) {
+		lx := float64(gx)
+		ly := float64(gy)
+		isoX := (lx-ly)*(tileWidth/2) + gridOriginX
+		isoY := (lx+ly)*(tileHeight/2) + gridOriginY
+		relX := isoX - camScreenX
+		relY := isoY - camScreenY
+		sx := relX*zoomLevel + screenCenterX*(1-zoomLevel)
+		sy := relY*zoomLevel + screenCenterY*(1-zoomLevel)
+		return float32(sx), float32(sy)
+	}
+
+	query := donburi.NewQuery(filter.Contains(components.IslandType))
+	query.Each(world, func(entry *donburi.Entry) {
+		island := components.IslandType.Get(entry)
+		gridOriginX := (island.X-island.Y)*(tileWidth/2) + tileWidth/2
+		gridOriginY := (island.X + island.Y) * (tileHeight / 2)
+
+		w, h := island.Width, island.Height
+
+		for gy := 0; gy <= h; gy++ {
+			sx1, sy1 := toScreen(gridOriginX, gridOriginY, 0, gy)
+			sx2, sy2 := toScreen(gridOriginX, gridOriginY, w, gy)
+			rl.DrawLineV(rl.NewVector2(sx1, sy1), rl.NewVector2(sx2, sy2), gridColor)
+		}
+		for gx := 0; gx <= w; gx++ {
+			sx1, sy1 := toScreen(gridOriginX, gridOriginY, gx, 0)
+			sx2, sy2 := toScreen(gridOriginX, gridOriginY, gx, h)
+			rl.DrawLineV(rl.NewVector2(sx1, sy1), rl.NewVector2(sx2, sy2), gridColor)
+		}
+	})
 }
 
 func (r *Renderer) renderHUDOverlay(world donburi.World, camera *components.Camera, currentRotation rotation.Rotation, renderedTiles int) {

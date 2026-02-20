@@ -26,6 +26,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/siredmar/mdcii-engine/pkg/bsh"
 	"github.com/siredmar/mdcii-engine/pkg/cod"
 	buildingsCod "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
@@ -236,20 +237,63 @@ type Game struct {
 	lastTime         time.Time
 	entry            *donburi.Entry
 	buildings        *buildingsCod.Buildings
+	gridVisible      bool
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	const tileW = 64.0
+	const tileH = 32.0
+
+	bld := components.BuildingType.Get(g.entry)
 	tile := components.TileType.Get(g.entry)
+
+	// Get building footprint size
+	sizeW, sizeH := 1, 1
+	if b := g.buildings.Buildings[bld.BuildingID]; b != nil {
+		sizeW, sizeH = b.Size.W, b.Size.H
+	}
+
+	// Anchor point: the BSH draw position for the building's (0,0) tile, centered on screen.
+	// The isometric diamond's top vertex is at anchorX + tileW/2.
+	anchorX := float64(ScreenWidth) / 2
+	anchorY := float64(ScreenHeight) / 2
+
+	// Draw isometric grid overlay (+2 tiles padding in each direction)
+	if g.gridVisible {
+		gridColor := color.RGBA{255, 255, 255, 80}
+		// Grid vertex origin: top of the (0,0) diamond = anchorX + tileW/2
+		gox := anchorX + tileW/2
+		goy := anchorY
+		// Extend grid by 1 tile in each direction (2 extra per axis)
+		g0 := -1
+		gw := sizeW + 1
+		gh := sizeH + 1
+		for gy := g0; gy <= gh; gy++ {
+			x1 := gox + float64(g0-gy)*(tileW/2)
+			y1 := goy + float64(g0+gy)*(tileH/2)
+			x2 := gox + float64(gw-gy)*(tileW/2)
+			y2 := goy + float64(gw+gy)*(tileH/2)
+			vector.StrokeLine(screen, float32(x1), float32(y1), float32(x2), float32(y2), 1, gridColor, false)
+		}
+		for gx := g0; gx <= gw; gx++ {
+			x1 := gox + float64(gx-g0)*(tileW/2)
+			y1 := goy + float64(gx+g0)*(tileH/2)
+			x2 := gox + float64(gx-gh)*(tileW/2)
+			y2 := goy + float64(gx+gh)*(tileH/2)
+			vector.StrokeLine(screen, float32(x1), float32(y1), float32(x2), float32(y2), 1, gridColor, false)
+		}
+	}
+
+	// Draw the sprite anchored by its pivot
 	if tile.Image != nil {
 		op := &ebiten.DrawImageOptions{}
-		// Center the sprite on screen
-		imgW := float64(tile.Image.Bounds().Dx())
-		imgH := float64(tile.Image.Bounds().Dy())
-		op.GeoM.Translate(float64(ScreenWidth)/2-imgW/2, float64(ScreenHeight)/2-imgH/2)
+		drawX := anchorX - float64(tile.PivotX)
+		drawY := anchorY - float64(tile.PivotY)
+		op.GeoM.Translate(drawX, drawY)
 		screen.DrawImage(tile.Image, op)
 	}
 
-	bld := components.BuildingType.Get(g.entry)
+	// HUD
 	face := basicfont.Face7x13
 	textColor := color.RGBA{255, 255, 255, 255}
 	y := 15
@@ -290,7 +334,7 @@ func (g *Game) DrawUsage(screen *ebiten.Image) {
 	textColor := color.RGBA{255, 255, 255, 255}
 	face := basicfont.Face7x13
 
-	text.Draw(screen, "Up/Down: Step Frame, Space: Play/Pause, Left/Right: Rotate, N/M: Next/Prev Building", face, 10, ScreenHeight-20, textColor)
+	text.Draw(screen, "Up/Down: Step Frame, Space: Play/Pause, Left/Right: Rotate, N/M: Next/Prev, G: Grid", face, 10, ScreenHeight-20, textColor)
 
 }
 
@@ -367,6 +411,9 @@ func (g *Game) Update() error {
 		} else if ebiten.IsKeyPressed(ebiten.KeySpace) {
 			anim := components.AnimationType.Get(g.entry)
 			anim.Running = !anim.Running
+			g.lastKeyPressTime = now
+		} else if ebiten.IsKeyPressed(ebiten.KeyG) {
+			g.gridVisible = !g.gridVisible
 			g.lastKeyPressTime = now
 		} else if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 			os.Exit(0)

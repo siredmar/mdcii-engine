@@ -12,6 +12,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/siredmar/mdcii-engine/pkg/cod/buildings"
 	"github.com/siredmar/mdcii-engine/pkg/ecs/components"
 	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
@@ -571,36 +572,61 @@ func SampleSelectionBuffer(world donburi.World) {
 }
 
 func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileHeight float64) {
-	// Disabled for now - uncomment to show coordinate labels on tiles
-	/*
-		var camera *components.Camera
-		cameraQuery := donburi.NewQuery(filter.Contains(components.CameraType))
-		cameraQuery.Each(world, func(entry *donburi.Entry) {
-			camera = components.CameraType.Get(entry)
-		})
-		if camera == nil {
-			return
-		}
+	var camera *components.Camera
+	cameraQueryCached.Each(world, func(entry *donburi.Entry) {
+		camera = components.CameraType.Get(entry)
+	})
+	if camera == nil {
+		return
+	}
 
-		rendererQuery.Each(world, func(entry *donburi.Entry) {
-			island := components.IslandType.Get(entry)
-			for ly := 0; ly < island.Height; ly++ {
-				for lx := 0; lx < island.Width; lx++ {
-				// Calculate screen position for this tile
-				// Convert island world position to isometric screen coordinates
-				islandIsoX := (island.X - island.Y) * (tileWidth / 2)
-				islandIsoY := (island.X + island.Y) * (tileHeight / 2)
-				originX := (float64(lx)-float64(ly))*(tileWidth/2) + islandIsoX
-				originY := (float64(lx)+float64(ly))*(tileHeight/2) + islandIsoY
-					sx := int(originX - camera.X)
-					sy := int(originY - camera.Y)
-					// Draw coordinate text
-					label := fmt.Sprintf("%d,%d", lx, ly)
-					text.Draw(screen, label, basicfont.Face7x13, sx-10, sy+5, color.RGBA{255, 255, 0, 200})
-				}
-			}
-		})
-	*/
+	zoomLevel := camera.Zoom
+	if zoomLevel <= 0 {
+		zoomLevel = 1.0
+	}
+	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
+	screenCenterX := float64(screenW) / 2
+	screenCenterY := float64(screenH) / 2
+	cameraScreenX, cameraScreenY := TileToScreen(camera.X, camera.Y, int(tileWidth), int(tileHeight))
+
+	gridColor := color.RGBA{255, 255, 255, 80}
+
+	// toScreen converts an island-local grid vertex to screen coordinates.
+	// The grid vertex origin is offset by tileWidth/2 from the BSH draw position
+	// because the isometric diamond's top vertex is at the center of the tile image.
+	toScreen := func(gridOriginX, gridOriginY float64, gx, gy int) (float32, float32) {
+		lx := float64(gx)
+		ly := float64(gy)
+		isoX := (lx-ly)*(tileWidth/2) + gridOriginX
+		isoY := (lx+ly)*(tileHeight/2) + gridOriginY
+		relX := isoX - cameraScreenX
+		relY := isoY - cameraScreenY
+		sx := relX*zoomLevel + screenCenterX*(1-zoomLevel)
+		sy := relY*zoomLevel + screenCenterY*(1-zoomLevel)
+		return float32(sx), float32(sy)
+	}
+
+	rendererQuery.Each(world, func(entry *donburi.Entry) {
+		island := components.IslandType.Get(entry)
+		// Grid vertex origin: island iso position + tileWidth/2 to align with diamond top vertices
+		gridOriginX := (island.X-island.Y)*(tileWidth/2) + tileWidth/2
+		gridOriginY := (island.X + island.Y) * (tileHeight / 2)
+
+		w, h := island.Width, island.Height
+
+		// Lines along the X axis direction
+		for gy := 0; gy <= h; gy++ {
+			sx1, sy1 := toScreen(gridOriginX, gridOriginY, 0, gy)
+			sx2, sy2 := toScreen(gridOriginX, gridOriginY, w, gy)
+			vector.StrokeLine(screen, sx1, sy1, sx2, sy2, 1, gridColor, false)
+		}
+		// Lines along the Y axis direction
+		for gx := 0; gx <= w; gx++ {
+			sx1, sy1 := toScreen(gridOriginX, gridOriginY, gx, 0)
+			sx2, sy2 := toScreen(gridOriginX, gridOriginY, gx, h)
+			vector.StrokeLine(screen, sx1, sy1, sx2, sy2, 1, gridColor, false)
+		}
+	})
 }
 
 // ensureSeaTextureCache creates or updates the cached sea texture if needed
