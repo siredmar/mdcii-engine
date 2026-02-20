@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"image/color"
 	"log"
@@ -108,13 +109,38 @@ var rootCmd = &cobra.Command{
 
 		atlasWidth := 4096
 		atlasHeight := 4096
+		atlasJsonPath := filepath.Join("/tmp/atlas", "texture-atlas.json")
+		var atlasObj *atlas.TextureAtlas
 
-		atlas, err := atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh))
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
+		if b, err := os.ReadFile(atlasJsonPath); err == nil {
+			// Cache invalidation: older atlases don't have pivot metadata or correct tile drawing.
+			if !bytes.Contains(b, []byte("\"pivotX\"")) || !bytes.Contains(b, []byte("\"version\": 3")) {
+				_ = os.RemoveAll(filepath.Dir(atlasJsonPath))
+			}
 		}
-		ani, err := animations.New(atlas)
+
+		if _, err := os.Stat(atlasJsonPath); os.IsNotExist(err) {
+			fmt.Println("Atlas does not exist, creating new atlas...")
+			atlasObj, err = atlas.New(atlasWidth, atlasHeight, buildings, atlas.WithName("texture-atlas"), atlas.WithImages(gfxStadtfldBsh), atlas.WithOutputDir("/tmp/atlas"))
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			if err := atlasObj.Export(); err != nil {
+				fmt.Println("Error exporting texture atlas:", err)
+				return
+			}
+			fmt.Println("Atlas created and exported.")
+		} else {
+			fmt.Println("Loading existing atlas...")
+			atlasObj, err = atlas.LoadAtlasFromJSON(atlasJsonPath)
+			if err != nil {
+				fmt.Println("Error loading atlas:", err)
+				return
+			}
+			fmt.Printf("Atlas loaded: %s (%dx%d)\n", atlasObj.AtlasMeta.Name, atlasObj.AtlasMeta.Width, atlasObj.AtlasMeta.Height)
+		}
+		ani, err := animations.New(atlasObj)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -124,6 +150,16 @@ var rootCmd = &cobra.Command{
 		ebiten.SetWindowTitle("animations")
 
 		w := world.New()
+
+		// Create camera and control entities required by RenderSystem
+		camEntity := w.World.Create(components.CameraType)
+		camEntry := w.World.Entry(camEntity)
+		components.CameraType.Set(camEntry, &components.Camera{Zoom: 1.0})
+
+		ctrlEntity := w.World.Create(components.ControlType)
+		ctrlEntry := w.World.Entry(ctrlEntity)
+		components.ControlType.Set(ctrlEntry, &components.Control{HoveredIsland: -1, HoveredTileID: -1})
+
 		// Create an entity and get its Entry
 		entity := w.World.Create(components.AnimationType, components.TileType, components.PositionType, components.BuildingType)
 		entry := w.World.Entry(entity)
@@ -203,7 +239,29 @@ type Game struct {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	systems.RenderSystem(g.world.World, screen, false, g.rotation)
+	tile := components.TileType.Get(g.entry)
+	if tile.Image != nil {
+		op := &ebiten.DrawImageOptions{}
+		// Center the sprite on screen
+		imgW := float64(tile.Image.Bounds().Dx())
+		imgH := float64(tile.Image.Bounds().Dy())
+		op.GeoM.Translate(float64(ScreenWidth)/2-imgW/2, float64(ScreenHeight)/2-imgH/2)
+		screen.DrawImage(tile.Image, op)
+	}
+
+	bld := components.BuildingType.Get(g.entry)
+	face := basicfont.Face7x13
+	textColor := color.RGBA{255, 255, 255, 255}
+	y := 15
+	text.Draw(screen, fmt.Sprintf("Building ID: %d  Index: %d", bld.BuildingID, g.buildingIndex), face, 10, y, textColor)
+	y += 15
+	text.Draw(screen, fmt.Sprintf("Rotation: %s", g.rotation.String()), face, 10, y, textColor)
+	y += 15
+	if b := g.buildings.Buildings[bld.BuildingID]; b != nil {
+		text.Draw(screen, fmt.Sprintf("Size: %dx%d  Gfx: %d  Anim: %d", b.Size.W, b.Size.H, b.Gfx, b.AnimationAmount), face, 10, y, textColor)
+	}
+
+	g.DrawUsage(screen)
 }
 
 // func (g *Game) DrawBuildingInfo(screen *ebiten.Image) {
