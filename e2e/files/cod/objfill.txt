@@ -1,0 +1,26 @@
+  Objekt: A
+    @Nummer:    0
+    a:         0
+    Objekt:     B
+			b1:	 50
+    EndObj;
+    ObjFill:    0,MAX
+
+    @Nummer:    0
+    a:         0
+
+    @Nummer:    +1
+    CONST_ID = Nummer
+    a:         0
+    Objekt:     B
+      b1: 100
+      b3:   300
+    EndObj;
+
+    @Nummer:    +1
+    @a:        +1
+    Objekt:     B
+      b3:   301
+    EndObj;
+
+  EndObj;

@@ -1,0 +1,19 @@
+  Objekt: ARRAY_TEST
+
+    @Nummer:    0
+    a:         0
+    b:        10, 20, 30, 40
+    ObjFill:    0,MAX
+
+    @Nummer:    0
+    a:         0
+
+    @Nummer:    +1
+    CONST_ID = Nummer
+    a:         0
+    b: 100, 200, 300, 400
+
+    @Nummer:    +1
+    @a:        +1
+
+  EndObj;

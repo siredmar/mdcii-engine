@@ -1,0 +1,636 @@
+package atlas
+
+import (
+	"encoding/json"
+	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/siredmar/mdcii-engine/pkg/bsh"
+	"github.com/siredmar/mdcii-engine/pkg/building"
+	"github.com/siredmar/mdcii-engine/pkg/world/rotation"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	buildingsCOD "github.com/siredmar/mdcii-engine/pkg/cod/buildings"
+)
+
+type Animation struct {
+	Images []Image
+	Steps  int
+	Time   time.Duration
+}
+
+type ImageSetRotation struct {
+	Animations map[rotation.Rotation]*Animation
+}
+
+// TextureAtlas represents a texture atlas containing multiple images
+type TextureAtlas struct {
+	Images    []*image.RGBA `json:"-"`
+	AtlasMeta AtlasMeta     `json:"atlasMeta"`
+	// map[buildingIndex]map[rotation][]Images - slice is for animations
+	ImagesMeta           map[int]*ImageSetRotation `json:"imageMeta"`
+	OptionSkipFileEnding bool                      `json:"-"`
+	OptionKeyToLower     bool                      `json:"-"`
+	OptionKeyToUpper     bool                      `json:"-"`
+	PNGs                 *bsh.BshPng               `json:"-"`
+	BuildingsCOD         buildingsCOD.Buildings    `json:"-"`
+	// filesToLoad          []string `json:"-"`
+	outputDir string      `json:"-"`
+	indexToId map[int]int `json:"-"`
+	idToIndex map[int]int `json:"-"`
+	// imagesToLoad         map[string]image.Image   `json:"-"`
+}
+
+type AtlasMeta struct {
+	Width   int    `json:"width"`
+	Height  int    `json:"height"`
+	Name    string `json:"name"`
+	Version int    `json:"version"`
+}
+
+// Metadata contains metadata for an image in the atlas
+type Metadata struct {
+	BuildingID     int `json:"buildingID"`
+	PNGIndex       int `json:"pngIndex"`
+	X              int `json:"x"`
+	Y              int `json:"y"`
+	Width          int `json:"width"`
+	Height         int `json:"height"`
+	PivotX         int `json:"pivotX"`
+	PivotY         int `json:"pivotY"`
+	Rotation       int `json:"rotation"`
+	AnimationIndex int `json:"animationIndex"`
+}
+
+// Image contains metadata for an image in the atlas
+type Image struct {
+	Sprite   image.Image `json:"-"`
+	Metadata Metadata    `json:"metadata"`
+}
+
+type TextureAtlasOption func(*TextureAtlas)
+
+// func WithSkipFileEnding() TextureAtlasOption {
+// 	return func(h *TextureAtlas) {
+// 		h.OptionSkipFileEnding = true
+// 	}
+// }
+
+func WithKeyToLower() TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.OptionKeyToLower = true
+	}
+}
+
+func WithKeyToUpper() TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.OptionKeyToUpper = true
+	}
+}
+
+func WithName(name string) TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.AtlasMeta.Name = name
+	}
+}
+
+func WithImages(pngs *bsh.BshPng) TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.PNGs = pngs
+	}
+}
+
+// func WithFiles(files []string) TextureAtlasOption {
+// 	return func(h *TextureAtlas) {
+// 		h.filesToLoad = files
+// 	}
+// }
+
+func WithOutputDir(outputDir string) TextureAtlasOption {
+	return func(h *TextureAtlas) {
+		h.outputDir = outputDir
+	}
+}
+
+type TileSize struct {
+	Width  int
+	Height int
+}
+
+// findContentBounds determines the bounding rectangle of non-transparent pixels in an Ebiten image.
+func (a *TextureAtlas) findContentBounds(eimg *ebiten.Image) image.Rectangle {
+	bounds := eimg.Bounds()
+	minX, minY := bounds.Max.X, bounds.Max.Y
+	maxX, maxY := bounds.Min.X, bounds.Min.Y
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			_, _, _, alpha := eimg.At(x, y).RGBA()
+			if alpha > 0 { // Non-transparent pixel
+				if x < minX {
+					minX = x
+				}
+				if y < minY {
+					minY = y
+				}
+				if x > maxX {
+					maxX = x
+				}
+				if y > maxY {
+					maxY = y
+				}
+			}
+		}
+	}
+
+	// Ensure valid bounds
+	if minX > maxX || minY > maxY {
+		return image.Rect(0, 0, 0, 0) // No content
+	}
+
+	return image.Rect(minX, minY, maxX+1, maxY+1) // Add 1 to include the last pixel
+}
+
+const (
+	tileWidth  = 64
+	tileHeight = 32
+)
+
+// drawBuildingToImage is preserved for any legacy callers, but should no longer be used.
+// It returns the union-cropped frame 0 image.
+func (a *TextureAtlas) drawBuildingToImage(b *building.Building, tileSize TileSize) image.Image {
+	frame := a.drawBuildingToFrame(b, tileSize)
+	return frame.Sprite
+}
+
+func (a *TextureAtlas) drawBuildingToFrame(b *building.Building, tileSize TileSize) Image {
+	canvas, anchor := a.renderBuildingCanvas(b, tileSize)
+	cropBounds := findNonAlphaBounds(canvas)
+	if cropBounds.Empty() {
+		return Image{Sprite: image.NewRGBA(image.Rect(0, 0, 0, 0))}
+	}
+
+	pivotX := anchor.X - cropBounds.Min.X
+	pivotY := anchor.Y - cropBounds.Min.Y
+	croppedImage := cropImage(canvas, cropBounds)
+
+	return Image{Sprite: croppedImage, Metadata: Metadata{PivotX: pivotX, PivotY: pivotY}}
+}
+
+type renderedFrame struct {
+	canvas        *image.RGBA
+	contentBounds image.Rectangle
+}
+
+func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileSize) (*image.RGBA, image.Point) {
+	// Create a blank RGBA image for drawing
+	outputImage := image.NewRGBA(image.Rect(0, 0, 1000, 1000))
+
+	offsets := building.RotationOffsets[b.Size][b.Rotation]
+
+	// Anchor at the origin tile (#1) position, which shifts with rotation.
+	// RotationOffsets[0] is always the origin tile; its grid position changes
+	// per rotation (see docs/grafikreihenfolge.md).
+	aox, aoy := offsets[0][0], offsets[0][1]
+	anchorX := b.X + (aox-aoy)*(tileSize.Width/2)
+	anchorY := b.Y + (aox+aoy)*(tileSize.Height/2)
+	anchor := image.Point{X: anchorX, Y: anchorY}
+	for i, offset := range offsets {
+		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
+		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
+
+		textureKey := func(baseIndex, rotation, tileIndex int, size building.BuildingSizeIdentifier) string {
+			rotateStride := 0
+			if codB := a.BuildingsCOD.Buildings[b.Id]; codB != nil {
+				rotateStride = codB.Rotate
+			}
+			return fmt.Sprintf("%d", baseIndex+(rotation*rotateStride)+tileIndex)
+		}(b.BaseIndex, b.Rotation, i, b.Size)
+
+		tileImg, ok := a.PNGs.Images[textureKey]
+		if !ok {
+			log.Printf("Texture key %s not found in texture atlas", textureKey)
+			continue
+		}
+
+		baseOffsetY := func(tileHeight, gridTileHeight int) int {
+			if tileHeight > gridTileHeight {
+				return tileHeight - gridTileHeight
+			}
+			return 0
+		}(tileImg.Bounds().Dy(), tileHeight)
+
+		draw.Draw(outputImage, image.Rect(screenX, screenY-baseOffsetY, screenX+tileImg.Bounds().Dx(), screenY-baseOffsetY+tileImg.Bounds().Dy()),
+			tileImg, image.Point{}, draw.Over)
+	}
+
+	return outputImage, anchor
+}
+
+// findNonAlphaBounds determines the bounds of the non-transparent content in an image.
+func findNonAlphaBounds(img *image.RGBA) image.Rectangle {
+	bounds := img.Bounds()
+	minX, minY := bounds.Max.X, bounds.Max.Y
+	maxX, maxY := bounds.Min.X, bounds.Min.Y
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			_, _, _, a := img.At(x, y).RGBA()
+			if a > 0 { // Check for non-transparent pixel
+				if x < minX {
+					minX = x
+				}
+				if x > maxX {
+					maxX = x
+				}
+				if y < minY {
+					minY = y
+				}
+				if y > maxY {
+					maxY = y
+				}
+			}
+		}
+	}
+
+	// Ensure valid bounds are returned
+	if minX > maxX || minY > maxY {
+		return image.Rect(0, 0, 0, 0) // No content found
+	}
+	return image.Rect(minX, minY, maxX+1, maxY+1)
+}
+
+// cropImage crops an image to the specified rectangle.
+func cropImage(img *image.RGBA, rect image.Rectangle) *image.RGBA {
+	cropped := image.NewRGBA(image.Rect(0, 0, rect.Dx(), rect.Dy()))
+	draw.Draw(cropped, cropped.Bounds(), img, rect.Min, draw.Src)
+	return cropped
+}
+
+// New creates a texture atlas from a list of image filenames
+func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ...TextureAtlasOption) (*TextureAtlas, error) {
+
+	atlas := &TextureAtlas{
+		Images:     []*image.RGBA{image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight))},
+		ImagesMeta: make(map[int]*ImageSetRotation),
+		AtlasMeta: AtlasMeta{
+			Width:   atlasWidth,
+			Height:  atlasHeight,
+			Name:    "atlas",
+			Version: 4,
+		},
+		BuildingsCOD: *buildings,
+		// imagesToLoad: make(map[string]image.Image),
+		// filesToLoad:  []string{},
+		outputDir: ".",
+		indexToId: make(map[int]int),
+		idToIndex: make(map[int]int),
+	}
+
+	// Loop through each option
+	for _, opt := range opts {
+		opt(atlas)
+	}
+
+	for _, buildingCOD := range buildings.BuildingsVector {
+		buildingID := buildingCOD.Id
+		// atlas.indexToId[i] = buildingID
+		// atlas.idToIndex[buildingID] = i
+		// rotationsCod := buildingCOD.Rotate
+		// rotations := 4
+		// if rotationsCod == 0 {
+		// 	rotations = 1
+		// }
+
+		b := &building.Building{
+			Id:                   buildingCOD.Id,
+			BaseIndexSaved:       buildingCOD.Gfx,
+			BaseIndex:            buildingCOD.Gfx,
+			Rotation:             0,
+			AnimationSteps:       buildingCOD.AnimationAmount,
+			CurrentAnimationStep: 0,
+			AnimationAdd:         buildingCOD.AnimationAdd,
+			X:                    100,
+			Y:                    100,
+			Size:                 building.BuildingSize(buildingCOD.Size.W, buildingCOD.Size.H),
+		}
+
+		for rot := range []rotation.Rotation{rotation.DEG0, rotation.DEG90, rotation.DEG180, rotation.DEG270} {
+			// Ensure each rotation starts at animation frame 0.
+			b.CurrentAnimationStep = 0
+			b.BaseIndex = b.BaseIndexSaved
+
+			animations := buildingCOD.AnimationAmount
+			if buildingCOD.AnimationAmount == 0 {
+				animations = 1
+			}
+			frames := make([]renderedFrame, 0, animations)
+			var unionBounds image.Rectangle
+			var anchor image.Point
+			for animationStep := 0; animationStep < animations; animationStep++ {
+				if b.AnimationSteps > 0 {
+					b.BaseIndex = b.BaseIndexSaved + ((animationStep % b.AnimationSteps) * b.AnimationAdd)
+				} else {
+					b.BaseIndex = b.BaseIndexSaved
+				}
+				canvas, canvasAnchor := atlas.renderBuildingCanvas(b, TileSize{Width: tileWidth, Height: tileHeight})
+				if animationStep == 0 {
+					anchor = canvasAnchor
+				}
+				bounds := findNonAlphaBounds(canvas)
+				frames = append(frames, renderedFrame{canvas: canvas, contentBounds: bounds})
+				if !bounds.Empty() {
+					if unionBounds.Empty() {
+						unionBounds = bounds
+					} else {
+						unionBounds = unionBounds.Union(bounds)
+					}
+				}
+				if atlas.ImagesMeta[buildingID] == nil {
+					atlas.ImagesMeta[buildingID] = &ImageSetRotation{
+						Animations: make(map[rotation.Rotation]*Animation),
+					}
+				}
+
+				if atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)] == nil {
+					atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)] = &Animation{
+						Images: []Image{},
+						Steps:  animations,
+					}
+				}
+
+				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Time = time.Duration((1000.0 / buildingCOD.AnimationTime) / 60.0)
+			}
+
+			// Stabilize crop across frames: crop every frame to the union bounds.
+			for animationStep := 0; animationStep < animations; animationStep++ {
+				frame := frames[animationStep]
+				if unionBounds.Empty() {
+					atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
+						Sprite: image.NewRGBA(image.Rect(0, 0, 0, 0)),
+						Metadata: Metadata{
+							BuildingID:     buildingID,
+							Width:          0,
+							Height:         0,
+							PivotX:         0,
+							PivotY:         0,
+							Rotation:       b.Rotation,
+							AnimationIndex: animationStep,
+						},
+					})
+					continue
+				}
+
+				pivotX := anchor.X - unionBounds.Min.X
+				pivotY := anchor.Y - unionBounds.Min.Y
+
+				cropped := cropImage(frame.canvas, unionBounds)
+				atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images = append(atlas.ImagesMeta[buildingID].Animations[rotation.Rotation(rot)].Images, Image{
+					Sprite: cropped,
+					Metadata: Metadata{
+						BuildingID:     buildingID,
+						Width:          cropped.Bounds().Dx(),
+						Height:         cropped.Bounds().Dy(),
+						PivotX:         pivotX,
+						PivotY:         pivotY,
+						Rotation:       b.Rotation,
+						AnimationIndex: animationStep,
+					},
+				})
+			}
+			b.Rotation = (b.Rotation + 1) % 4
+		}
+	}
+
+	// packer := NewMaxRectsPacker(atlasWidth, atlasHeight)
+	for range atlas.ImagesMeta {
+		// rewind:
+		// 	rect, err := packer.Pack(img.Bounds().Dx(), img.Bounds().Dy())
+		// 	if err != nil {
+		// 		currentAtlasIndex++
+		// 		atlas.Images = append(atlas.Images, image.NewRGBA(image.Rect(0, 0, atlasWidth, atlasHeight)))
+		// 		packer = NewMaxRectsPacker(atlasWidth, atlasHeight)
+		// 		goto rewind
+		// 	}
+	}
+	// 	dstRect := image.Rect(rect.X, rect.Y, rect.X+rect.Width, rect.Y+rect.Height)
+
+	// 	draw.Draw(atlas.Images[currentAtlasIndex], dstRect, img, img.Bounds().Min, draw.Over)
+	// 	if atlas.ImagesMeta[currentAtlasIndex] == nil {
+	// 		atlas.ImagesMeta[currentAtlasIndex] = map[string]Image{}
+	// 	}
+	// 	atlas.ImagesMeta[currentAtlasIndex][i] = Image{
+	// 		ImageIndex: currentAtlasIndex,
+	// 		X:          rect.X,
+	// 		Y:          rect.Y,
+	// 		Width:      rect.Width,
+	// 		Height:     rect.Height,
+	// 	}
+	// }
+	// fmt.Printf("%+v\n", atlas.ImagesMeta)
+	return atlas, nil
+}
+
+func (a *TextureAtlas) ExportPNG(filename string, img *image.RGBA) error {
+	exportPNGFile, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer exportPNGFile.Close()
+
+	if err := png.Encode(exportPNGFile, img); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Export saves the texture atlas and its metadata as a JSON file and a PNG file
+func (a *TextureAtlas) Export() error {
+	if _, err := os.Stat(a.outputDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(a.outputDir, os.ModePerm); err != nil {
+			return err
+		}
+	}
+
+	// Packing: pack all images into PNG sheets of fixed size
+	const sheetWidth, sheetHeight = 2048, 2048
+	var sheets []*image.RGBA
+	var sheetIndex int
+	var x, y, maxRowHeight int
+
+	sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, sheetWidth, sheetHeight)))
+
+	// Collect all images to pack
+	var allImages []struct {
+		img     image.Image
+		meta    *Metadata
+		rot     rotation.Rotation
+		buildID int
+		animIdx int
+	}
+	for buildID, set := range a.ImagesMeta {
+		for rot, anim := range set.Animations {
+			for animIdx, img := range anim.Images {
+				allImages = append(allImages, struct {
+					img     image.Image
+					meta    *Metadata
+					rot     rotation.Rotation
+					buildID int
+					animIdx int
+				}{img.Sprite, &anim.Images[animIdx].Metadata, rot, buildID, animIdx})
+			}
+		}
+	}
+
+	for _, entry := range allImages {
+		img := entry.img
+		w, h := img.Bounds().Dx(), img.Bounds().Dy()
+		if x+w > sheetWidth {
+			x = 0
+			y += maxRowHeight
+			maxRowHeight = 0
+		}
+		if y+h > sheetHeight {
+			sheetIndex++
+			y = 0
+			x = 0
+			maxRowHeight = 0
+			sheets = append(sheets, image.NewRGBA(image.Rect(0, 0, sheetWidth, sheetHeight)))
+		}
+		dst := sheets[sheetIndex].SubImage(image.Rect(x, y, x+w, y+h)).(*image.RGBA)
+		draw.Draw(dst, dst.Bounds(), img, img.Bounds().Min, draw.Src)
+		entry.meta.PNGIndex = sheetIndex
+		entry.meta.X = x
+		entry.meta.Y = y
+		entry.meta.Width = w
+		entry.meta.Height = h
+		x += w
+		if h > maxRowHeight {
+			maxRowHeight = h
+		}
+	}
+
+	// Export PNG sheets
+	for i, sheet := range sheets {
+		filename := fmt.Sprintf("%s/%s-%04d.png", a.outputDir, a.AtlasMeta.Name, i)
+		if err := a.ExportPNG(filename, sheet); err != nil {
+			return err
+		}
+	}
+
+	// Save metadata to JSON file (only metadata, not image data)
+	type ExportMeta struct {
+		AtlasMeta  AtlasMeta
+		ImagesMeta map[int]*ImageSetRotation
+	}
+	exportMeta := ExportMeta{
+		AtlasMeta:  a.AtlasMeta,
+		ImagesMeta: a.ImagesMeta,
+	}
+
+	exportJSONFile, err := os.Create(fmt.Sprintf("%s/%s.json", a.outputDir, a.AtlasMeta.Name))
+	if err != nil {
+		return err
+	}
+	defer exportJSONFile.Close()
+
+	j, err := json.MarshalIndent(exportMeta, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err = exportJSONFile.Write(j)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// LoadAtlasFromJSON loads the atlas metadata and PNG sheets
+func LoadAtlasFromJSON(jsonPath string) (*TextureAtlas, error) {
+	jsonFile, err := os.Open(jsonPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open JSON file: %v", err)
+	}
+	defer jsonFile.Close()
+
+	type ExportMeta struct {
+		AtlasMeta  AtlasMeta
+		ImagesMeta map[int]*ImageSetRotation
+	}
+	var exportMeta ExportMeta
+	if err := json.NewDecoder(jsonFile).Decode(&exportMeta); err != nil {
+		return nil, fmt.Errorf("failed to decode atlas JSON: %v", err)
+	}
+
+	atlas := &TextureAtlas{
+		AtlasMeta:  exportMeta.AtlasMeta,
+		ImagesMeta: exportMeta.ImagesMeta,
+	}
+
+	// Load all PNG sheets
+	atlas.Images = []*image.RGBA{}
+	for i := 0; ; i++ {
+		pngPath := fmt.Sprintf("%s-%04d.png", jsonPath[:len(jsonPath)-5], i)
+		if _, err := os.Stat(pngPath); os.IsNotExist(err) {
+			break
+		}
+		img, err := loadImage(pngPath)
+		if err != nil {
+			return nil, err
+		}
+		atlas.Images = append(atlas.Images, imageToRGBA(img))
+	}
+
+	// Reconstruct Sprite fields for all images using metadata
+	for _, set := range atlas.ImagesMeta {
+		for _, anim := range set.Animations {
+			for i := range anim.Images {
+				meta := &anim.Images[i].Metadata
+				if meta.PNGIndex < len(atlas.Images) {
+					sheet := atlas.Images[meta.PNGIndex]
+					rect := image.Rect(meta.X, meta.Y, meta.X+meta.Width, meta.Y+meta.Height)
+					anim.Images[i].Sprite = sheet.SubImage(rect).(*image.RGBA)
+				}
+			}
+		}
+	}
+	return atlas, nil
+}
+
+// loadImage loads an image from the specified file path
+func loadImage(filename string) (image.Image, error) {
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get absolute path: %v", err)
+	}
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open image file: %v", err)
+	}
+	defer file.Close()
+
+	img, err := png.Decode(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode image: %v", err)
+	}
+	// if converted, ok := img.(*image.RGBA); ok {
+	// 	return converted, nil
+	// }
+
+	// return nil, fmt.Errorf("failed to convert image to RGBA")
+	return img, nil
+}
+
+// Helper to convert to RGBA
+func imageToRGBA(img image.Image) *image.RGBA {
+	rgba := image.NewRGBA(img.Bounds())
+	draw.Draw(rgba, rgba.Bounds(), img, img.Bounds().Min, draw.Src)
+	return rgba
+}

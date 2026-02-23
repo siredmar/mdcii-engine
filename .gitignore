@@ -1,5 +1,13 @@
-
+*.png
+*.json
+out
+__debug_*
 \.vscode/
 build
 compile_commands.json
-.clangd/
+install
+bin
+
+tools/
+
+island_ecs

@@ -8,25 +8,24 @@ The main goal of this project is to provide an independent reimplementation of t
 
 Currently this project contains several helper tools:
 
--   [`bshdump`](docs/doc/bshdump.md)
--   [`bshpacker`](docs/doc/bshpacker.md)
--   `cod_parser`   
--   `codcat`
--   `gam_parser`
--   `paldump`
--   `zeidump`
--   `inselbmp`
--   `weltbmp`
--   `zeitext`
+- [`bshdump`](docs/doc/bshdump.md)
+- [`bshpacker`](docs/doc/bshpacker.md)
+- `cod_parser`   
+- `codcat`
+- `gam_parser`
+- `paldump`
+- `zeidump`
+- `inselbmp`
+- `weltbmp`
+- `zeitext`
 
 The most complex program is [`mdcii-sdltest`](docs/doc/mdcii-sdltest.md) that can load savegames and scenario files and animate the buildings.
 
 ## Requirements
 
--   g++-8 or greater
--   SDL2
--   boost
--   protobuf
+- golang > v1.21
+
+Dependencies for ebiten [see docs][https://ebitengine.org/en/documents/install.html]
 
 ## Media
 

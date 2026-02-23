@@ -1,0 +1,73 @@
+IDWEIDE=10
+GFXBODEN=100
+
+Objekt: HAUS
+    HIGHBODEN  = 20
+    HIGHMEER   = 0
+  ;---Default-Werte festlegen---;
+    @Nummer:    0
+    Id:         0
+    Gfx:        0
+    Blocknr:    0
+    Kind:       UNUSED
+    Posoffs:    HIGHBODEN
+    Wegspeed:   120, 120, 120, 100
+    Highflg:    1
+    Einhoffs:		2.0
+    Bausample:	WAV_STANDARD
+		Ruinenr:		RUINE_STEIN
+    Maxenergy:  20
+    Maxbrand:   4
+		Size:       1, 1
+    Rotate:     1
+    RandAnz:    1
+    RandAdd:    0
+    AnimTime:   TIMENEVER
+    AnimFrame:  0
+    AnimAdd:    0
+    Objekt:     HAUS_PRODTYP
+      Kind:        UNUSED
+      Ware:        NOWARE
+      Radius:      0
+      Rohmenge:    1
+      Prodmenge:   1
+      Randwachs:	 100
+			Maxlager:    4
+			Maxprodcnt:	 MAXPRODCNT
+			Maxnorohst:  5
+    EndObj;
+    ObjFill:    0,MAXHAUS
+;==============================================;
+;   AB HIER GEHTS MIT DEN HAEUSERN LOS !!      ;
+;==============================================;
+  ;---Leer-Zeichen---;
+    @Nummer:    0
+    Id:         0
+    Gfx:        GFXBODEN
+    Kind:       BODEN
+    Size:       1, 1
+    Highflg:    0
+    Rotate:     0
+;=============WEIDE- UND WUESTENFLAECHEN========;
+  ;---Rohstoffe-Weideland (1)---;
+    @Nummer:    +1
+    HAUSWACHS = Nummer
+    Id:         IDWEIDE+0
+    Gfx:        GFXBODEN+4     ; Boden_01
+    Baugfx:     BGFXFELDER
+    Kind:       BODEN
+    Highflg:    0
+    Wegspeed:   145, 120, 170, 100
+    Size:       1, 1
+    Rotate:     1
+    PlaceFlg:   1
+    AnimAnz:    1
+    AnimAdd:    1
+    AnimTime:   TIMENEVER
+    Objekt:     HAUS_PRODTYP
+      Kind:       ROHSTWACHS
+      Ware:       NOWARE
+      Interval:   300
+    EndObj;
+EndObj;
+

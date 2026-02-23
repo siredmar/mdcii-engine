@@ -1,0 +1,9 @@
+  Objekt: A
+
+    Nummer: 0
+    OBJ = Nummer
+    a: 1
+    b: 2
+    c: 1.0
+
+  EndObj;%  
