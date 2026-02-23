@@ -393,7 +393,7 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 		// Layer indices for sorting - forest and buildings share same priority
 		layerPriority := map[string]int{
-			buildings.KindSeaID:                 0,
+			// buildings.KindSeaID:                 0,
 			buildings.KindGroundID + "_OVERLAY": 1,
 			buildings.KindGroundID:              2,
 			buildings.KindRoadsID:               3,
@@ -469,9 +469,10 @@ func RenderSystem(world donburi.World, screen *ebiten.Image, grid bool, currentR
 
 				bottomY := drawY + float64(tile.Image.Bounds().Dy())
 				layer := layerPriority[layerID]
-				// Pre-compute sort key: layer in high bits, then topY, then topX
-				// This allows single integer comparison instead of multiple comparisons
-				sortKey := int64(layer)<<32 | int64(rotatedY+10000)<<16 | int64(rotatedX+10000)
+				// Isometric depth: tiles with larger (x + y) are closer to the camera
+				// and must be drawn later (on top). Use rotatedY as tiebreaker.
+				isoDepth := rotatedX + rotatedY
+				sortKey := int64(layer)<<32 | int64(isoDepth+20000)<<16 | int64(rotatedY+10000)
 
 				buildingID := 0
 				if isSelectable && bld != nil {
@@ -611,6 +612,18 @@ func renderDebugGrid(world donburi.World, screen *ebiten.Image, tileWidth, tileH
 		// Grid vertex origin: island iso position + tileWidth/2 to align with diamond top vertices
 		gridOriginX := (island.X-island.Y)*(tileWidth/2) + tileWidth/2
 		gridOriginY := (island.X + island.Y) * (tileHeight / 2)
+
+		// Align grid to island (ground) level by applying the ground tile offset.
+		// Ground tiles have a PositionOffset that raises them above sea level.
+		var groundOffset float64
+		for _, tileEntry := range island.Tiles[buildings.KindGroundID] {
+			pos := components.PositionType.Get(tileEntry)
+			if pos != nil && pos.Offset != 0 {
+				groundOffset = pos.Offset
+				break
+			}
+		}
+		gridOriginY -= groundOffset
 
 		w, h := island.Width, island.Height
 

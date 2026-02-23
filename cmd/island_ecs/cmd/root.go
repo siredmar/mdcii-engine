@@ -157,7 +157,7 @@ var rootCmd = &cobra.Command{
 
 		if b, err := os.ReadFile(atlasJsonPath); err == nil {
 			// Cache invalidation: older atlases don't have pivot metadata or correct tile drawing.
-			if !bytes.Contains(b, []byte("\"pivotX\"")) || !bytes.Contains(b, []byte("\"version\": 3")) {
+			if !bytes.Contains(b, []byte("\"pivotX\"")) || !bytes.Contains(b, []byte("\"version\": 4")) {
 				_ = os.RemoveAll(filepath.Dir(atlasJsonPath))
 			}
 		}

@@ -192,14 +192,15 @@ func (a *TextureAtlas) renderBuildingCanvas(b *building.Building, tileSize TileS
 	// Create a blank RGBA image for drawing
 	outputImage := image.NewRGBA(image.Rect(0, 0, 1000, 1000))
 
-	// Anchor at the back corner (0,0 in local building coords).
-	// This is where Anno 1602 stores the building position (upper-left in grid).
-	// The anchor is the top point of the isometric diamond for the (0,0) tile.
-	anchorX := b.X
-	anchorY := b.Y
-	anchor := image.Point{X: anchorX, Y: anchorY}
-
 	offsets := building.RotationOffsets[b.Size][b.Rotation]
+
+	// Anchor at the origin tile (#1) position, which shifts with rotation.
+	// RotationOffsets[0] is always the origin tile; its grid position changes
+	// per rotation (see docs/grafikreihenfolge.md).
+	aox, aoy := offsets[0][0], offsets[0][1]
+	anchorX := b.X + (aox-aoy)*(tileSize.Width/2)
+	anchorY := b.Y + (aox+aoy)*(tileSize.Height/2)
+	anchor := image.Point{X: anchorX, Y: anchorY}
 	for i, offset := range offsets {
 		screenX := b.X + (offset[0]-offset[1])*(tileSize.Width/2)
 		screenY := b.Y + (offset[0]+offset[1])*(tileSize.Height/2)
@@ -282,7 +283,7 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			Width:   atlasWidth,
 			Height:  atlasHeight,
 			Name:    "atlas",
-			Version: 3,
+			Version: 4,
 		},
 		BuildingsCOD: *buildings,
 		// imagesToLoad: make(map[string]image.Image),
@@ -331,15 +332,17 @@ func New(atlasWidth, atlasHeight int, buildings *buildingsCOD.Buildings, opts ..
 			}
 			frames := make([]renderedFrame, 0, animations)
 			var unionBounds image.Rectangle
-			// Anchor at the back corner (local grid 0,0) - matches where game stores building position
-			anchor := image.Point{X: b.X, Y: b.Y}
+			var anchor image.Point
 			for animationStep := 0; animationStep < animations; animationStep++ {
 				if b.AnimationSteps > 0 {
 					b.BaseIndex = b.BaseIndexSaved + ((animationStep % b.AnimationSteps) * b.AnimationAdd)
 				} else {
 					b.BaseIndex = b.BaseIndexSaved
 				}
-				canvas, _ := atlas.renderBuildingCanvas(b, TileSize{Width: tileWidth, Height: tileHeight})
+				canvas, canvasAnchor := atlas.renderBuildingCanvas(b, TileSize{Width: tileWidth, Height: tileHeight})
+				if animationStep == 0 {
+					anchor = canvasAnchor
+				}
 				bounds := findNonAlphaBounds(canvas)
 				frames = append(frames, renderedFrame{canvas: canvas, contentBounds: bounds})
 				if !bounds.Empty() {

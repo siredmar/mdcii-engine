@@ -3,6 +3,7 @@
 package raylibrenderer
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"image"
@@ -11,6 +12,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -184,26 +186,27 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 
 	r.ensureSelectionRT(int32(actualWidth), int32(actualHeight))
 
+	sortedTiles := collectSortedTiles(w.World, currentRotation)
 	renderedTilesRaylib := 0
-	forEachTile(w.World, currentRotation, func(tile renderTile) {
+	for _, tile := range sortedTiles {
 		relX := tile.isoX - camScreenX
 		relY := tile.isoY - camScreenY
 
 		if tile.srcW <= 0 || tile.srcH <= 0 {
-			return
+			continue
 		}
 		if tile.atlasIndex < 0 || tile.atlasIndex >= len(r.atlasTextures) {
-			return
+			continue
 		}
 		texture := r.atlasTextures[tile.atlasIndex]
 		if !rl.IsTextureValid(texture) {
-			return
+			continue
 		}
 
 		src := rl.NewRectangle(float32(tile.srcX), float32(tile.srcY), float32(tile.srcW), float32(tile.srcH))
 		src = insetRect(src, 0.5)
 		if src.Width <= 0 || src.Height <= 0 {
-			return
+			continue
 		}
 
 		screenX := float32(relX*zoomLevel + float64(actualWidth)/2*(1-zoomLevel))
@@ -221,7 +224,7 @@ func (r *Renderer) Render(w *world.World, screen renderer.Screen, grid bool, cur
 			rl.White,
 		)
 		renderedTilesRaylib++
-	})
+	}
 
 	if showSelectionBuffer {
 		r.renderDisplayBuffer(w.World, currentRotation, camScreenX, camScreenY, zoomLevel, actualWidth, actualHeight)
@@ -720,6 +723,28 @@ type renderTile struct {
 	rotY             float64
 	sizeW            int
 	sizeH            int
+	sortKey          int64
+}
+
+// raylibLayerPriority maps layer IDs to sort priorities (same as Ebiten renderer).
+var raylibLayerPriority = map[string]int{
+	buildings.KindSeaID:                 0,
+	buildings.KindGroundID + "_OVERLAY": 1,
+	buildings.KindGroundID:              2,
+	buildings.KindRoadsID:               3,
+	buildings.KindForrestID:             4,
+	buildings.KindBuildingsID:           4,
+}
+
+func collectSortedTiles(world donburi.World, currentRotation rotation.Rotation) []renderTile {
+	tiles := make([]renderTile, 0, 10000)
+	forEachTile(world, currentRotation, func(tile renderTile) {
+		tiles = append(tiles, tile)
+	})
+	slices.SortFunc(tiles, func(a, b renderTile) int {
+		return cmp.Compare(a.sortKey, b.sortKey)
+	})
+	return tiles
 }
 
 func forEachTile(world donburi.World, currentRotation rotation.Rotation, handle func(tile renderTile)) {
@@ -804,6 +829,13 @@ func forEachTile(world donburi.World, currentRotation rotation.Rotation, handle 
 				drawX := originX - float64(tile.PivotX)
 				drawY := originY - float64(tile.PivotY)
 
+				// Isometric depth: tiles with larger (x + y) are closer to the camera
+				rotatedX := rxl + int(rotatedIslandX)
+				rotatedY := ryl + int(rotatedIslandY)
+				isoDepth := rotatedX + rotatedY
+				layer := raylibLayerPriority[layerID]
+				sortKey := int64(layer)<<32 | int64(isoDepth+20000)<<16 | int64(rotatedY+10000)
+
 				handle(renderTile{
 					isoX:             drawX,
 					isoY:             drawY,
@@ -828,6 +860,7 @@ func forEachTile(world donburi.World, currentRotation rotation.Rotation, handle 
 					rotY:             worldRotY,
 					sizeW:            tile.Size.Width,
 					sizeH:            tile.Size.Height,
+					sortKey:          sortKey,
 				})
 			}
 		}
@@ -968,6 +1001,17 @@ func renderDebugGridRaylib(world donburi.World, camScreenX, camScreenY, zoomLeve
 		island := components.IslandType.Get(entry)
 		gridOriginX := (island.X-island.Y)*(tileWidth/2) + tileWidth/2
 		gridOriginY := (island.X + island.Y) * (tileHeight / 2)
+
+		// Align grid to island (ground) level using ground tile offset
+		var groundOffset float64
+		for _, tileEntry := range island.Tiles[buildings.KindGroundID] {
+			pos := components.PositionType.Get(tileEntry)
+			if pos != nil && pos.Offset != 0 {
+				groundOffset = pos.Offset
+				break
+			}
+		}
+		gridOriginY -= groundOffset
 
 		w, h := island.Width, island.Height
 
